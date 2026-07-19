@@ -3,6 +3,7 @@
   "rootNamespace": "TheFall.Presentation",
   "references": [
     "TheFall.Application",
+    "TheFall.Domain",
     "TheFall.Infrastructure",
     "Unity.InputSystem"
   ],

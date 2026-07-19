@@ -55,6 +55,8 @@ Unity infrastructure -> application ports
 domain -> no Unity dependency
 ```
 
+Presentation may also reference domain-owned immutable state and resolved event types for rendering. That is an inward read dependency only; presentation must submit intents through the application boundary and cannot invoke or reproduce rule decisions.
+
 ## Confirmed project organization
 
 ```text
@@ -113,10 +115,12 @@ Localization package installation and initial configuration belong to the dedica
 - make bots consume the same legal-action surface as human players
 - design networking later around validated intents and authoritative state, not scene transforms
 
+The initial immutable state, intent, rule-result, and resolved-event vocabulary is recorded in the [deterministic domain foundation](domain-foundation.md). It proves the boundary for a representative 1v1 play-card flow without selecting the eventual serialization or networking format.
+
 ## Open architecture decisions
 
-- state representation and serialization format
-- command/event vocabulary
+- long-term state representation and serialization format
+- command/event vocabulary beyond the initial 1v1 spike
 - async orchestration model for presentation sequences
 - save system boundaries
 - networking authority model

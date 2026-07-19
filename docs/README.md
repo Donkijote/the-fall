@@ -53,6 +53,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Architecture](technical/architecture.md): deterministic C# domain and Unity presentation boundaries.
 - [Animation](technical/animation.md): animation responsibilities, experiments, and orchestration.
 - [Testing](technical/testing.md): domain, Unity, integration, and platform validation.
+- [Deterministic domain foundation](technical/domain-foundation.md): implemented 1v1 state, intent, result, and event vocabulary.
 - [Platforms](technical/platforms.md): mobile and desktop targets, orientations, and input.
 
 ### Planning and development

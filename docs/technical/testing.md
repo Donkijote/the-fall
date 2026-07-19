@@ -48,6 +48,8 @@ Validate readability, touch targets, safe areas, thermal behavior, frame pacing,
 
 Use explicit seeds and compact game-state builders. A failing deterministic test should report the seed, intent, prior state, and resolved events.
 
+The implemented issue #4 coverage and replay vocabulary are described in the [deterministic domain foundation](domain-foundation.md). Its Edit Mode tests use an explicit seeded random source, recorded play-card intents, immutable input states, and ordered event logs.
+
 ## Open decisions
 
 - CI environment and Unity licensing
