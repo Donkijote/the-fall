@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title description">
+  <title id="title">The Fall V0 art-direction board</title>
+  <desc id="description">A stylized overhead card-table composition, project palette, visual hierarchy, and core shape language.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#17131A" flood-opacity="0.55"/>
+    </filter>
+    <linearGradient id="room" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3E7774" stop-opacity="0.35"/>
+      <stop offset="0.5" stop-color="#28232B" stop-opacity="0"/>
+      <stop offset="1" stop-color="#D95D45" stop-opacity="0.22"/>
+    </linearGradient>
+    <radialGradient id="table" cx="45%" cy="40%" r="70%">
+      <stop offset="0" stop-color="#745544"/>
+      <stop offset="0.72" stop-color="#574133"/>
+      <stop offset="1" stop-color="#3B2D28"/>
+    </radialGradient>
+    <style>
+      .title { font: 700 34px system-ui, sans-serif; letter-spacing: 1px; fill: #E7D6B0; }
+      .kicker { font: 700 13px system-ui, sans-serif; letter-spacing: 3px; fill: #D6A84F; }
+      .heading { font: 700 18px system-ui, sans-serif; fill: #E7D6B0; }
+      .label { font: 600 13px system-ui, sans-serif; fill: #E7D6B0; }
+      .small { font: 500 11px system-ui, sans-serif; fill: #BEB0A0; }
+      .rule { stroke: #E7D6B0; stroke-opacity: 0.16; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="760" rx="28" fill="#28232B"/>
+  <rect x="1" y="1" width="1198" height="758" rx="27" fill="none" stroke="#E7D6B0" stroke-opacity="0.16" stroke-width="2"/>
+  <text x="54" y="56" class="kicker">THE FALL · V0 VISUAL NORTH STAR</text>
+  <text x="54" y="96" class="title">Readable tabletop diorama</text>
+  <text x="54" y="122" class="small">Warm medieval cartoon · original fictional world · stationary overhead play</text>
+
+  <rect x="44" y="154" width="720" height="430" rx="22" fill="#201C23"/>
+  <rect x="44" y="154" width="720" height="430" rx="22" fill="url(#room)"/>
+  <text x="70" y="187" class="heading">Gameplay hierarchy</text>
+  <text x="70" y="208" class="small">1 · CARDS</text>
+  <text x="70" y="230" class="small">2 · ACTIVE CHARACTER</text>
+  <text x="70" y="252" class="small">3 · ROOM</text>
+
+  <g transform="translate(404 394) scale(0.9)">
+    <circle r="170" fill="url(#table)" stroke="#A8623C" stroke-width="20"/>
+    <circle r="130" fill="#47362F" stroke="#E7D6B0" stroke-opacity="0.08" stroke-width="2"/>
+    <path d="M-105,-15 C-45,-42 45,-42 105,-15" fill="none" stroke="#E7D6B0" stroke-opacity="0.08" stroke-width="3"/>
+    <path d="M-100,32 C-35,8 40,8 100,32" fill="none" stroke="#E7D6B0" stroke-opacity="0.06" stroke-width="3"/>
+
+    <g transform="translate(-51 -48) rotate(-8)">
+      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
+      <circle cx="0" cy="-10" r="12" fill="none" stroke="#D6A84F" stroke-width="6"/>
+      <text x="-20" y="-21" class="label" fill="#28232B">4</text>
+    </g>
+    <g transform="translate(18 -37) rotate(6)">
+      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
+      <path d="M0,-23 L11,-4 L0,15 L-11,-4 Z" fill="#D95D45"/>
+    </g>
+    <g transform="translate(72 40) rotate(14)">
+      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
+      <path d="M0,-22 C18,-8 18,10 0,23 C-18,10 -18,-8 0,-22 Z" fill="#3E7774"/>
+    </g>
+    <g transform="translate(-38 62) rotate(-2)">
+      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
+      <path d="M-12,12 L0,-23 L12,12 Z" fill="#28232B"/>
+    </g>
+
+    <g transform="translate(0 204)">
+      <path d="M-82,35 Q-72,-32 -38,-53 L0,-29 L38,-53 Q72,-32 82,35 Z" fill="#3E7774" stroke="#E7D6B0" stroke-opacity="0.28" stroke-width="3"/>
+      <circle cy="-72" r="39" fill="#A8623C"/>
+      <path d="M-36,-82 Q-12,-124 33,-92 L35,-68 Q10,-90 -34,-65 Z" fill="#28232B"/>
+      <path d="M-66,-6 Q-98,-1 -110,-27" fill="none" stroke="#A8623C" stroke-width="22" stroke-linecap="round"/>
+      <path d="M66,-6 Q98,-1 110,-27" fill="none" stroke="#A8623C" stroke-width="22" stroke-linecap="round"/>
+      <circle cx="-111" cy="-29" r="14" fill="#D6A84F"/>
+      <circle cx="111" cy="-29" r="14" fill="#D6A84F"/>
+    </g>
+
+    <g transform="translate(0 -204) rotate(180)">
+      <path d="M-62,25 Q-54,-22 -28,-39 L0,-20 L28,-39 Q54,-22 62,25 Z" fill="#A8623C"/>
+      <circle cy="-55" r="30" fill="#745544"/>
+      <path d="M-29,-61 Q0,-94 31,-63 L25,-43 Q0,-64 -28,-45 Z" fill="#28232B"/>
+    </g>
+    <g transform="translate(-204 0) rotate(90)">
+      <path d="M-62,25 Q-54,-22 -28,-39 L0,-20 L28,-39 Q54,-22 62,25 Z" fill="#574133"/>
+      <circle cy="-55" r="30" fill="#A8623C"/>
+      <path d="M-30,-66 Q-5,-97 30,-65 L28,-45 Q0,-67 -28,-48 Z" fill="#3E7774"/>
+    </g>
+    <g transform="translate(204 0) rotate(-90)">
+      <path d="M-62,25 Q-54,-22 -28,-39 L0,-20 L28,-39 Q54,-22 62,25 Z" fill="#3E7774"/>
+      <circle cy="-55" r="30" fill="#745544"/>
+      <path d="M-29,-64 Q0,-95 30,-62 L27,-43 Q0,-66 -27,-46 Z" fill="#28232B"/>
+    </g>
+  </g>
+
+  <g transform="translate(72 534)">
+    <rect width="222" height="32" rx="16" fill="#28232B" stroke="#D6A84F" stroke-width="2"/>
+    <text x="16" y="21" class="label">fixed camera · no shake</text>
+  </g>
+  <g transform="translate(522 534)">
+    <rect width="214" height="32" rx="16" fill="#28232B" stroke="#3E7774" stroke-width="2"/>
+    <text x="16" y="21" class="label">broad shapes · low noise</text>
+  </g>
+
+  <g transform="translate(804 154)">
+    <text y="33" class="heading">Working palette</text>
+    <line x1="0" y1="52" x2="340" y2="52" class="rule"/>
+    <g transform="translate(0 68)">
+      <rect width="96" height="56" rx="10" fill="#28232B" stroke="#E7D6B0" stroke-opacity="0.18"/>
+      <text x="110" y="22" class="label">Charcoal plum</text><text x="110" y="41" class="small">#28232B · depth</text>
+    </g>
+    <g transform="translate(0 132)">
+      <rect width="96" height="56" rx="10" fill="#574133"/>
+      <text x="110" y="22" class="label">Smoked oak</text><text x="110" y="41" class="small">#574133 · play field</text>
+    </g>
+    <g transform="translate(0 196)">
+      <rect width="96" height="56" rx="10" fill="#A8623C"/>
+      <text x="110" y="22" class="label">Toasted clay</text><text x="110" y="41" class="small">#A8623C · warm base</text>
+    </g>
+    <g transform="translate(0 260)">
+      <rect width="96" height="56" rx="10" fill="#E7D6B0"/>
+      <text x="110" y="22" class="label">Parchment</text><text x="110" y="41" class="small">#E7D6B0 · focus</text>
+    </g>
+    <g transform="translate(0 324)">
+      <rect width="96" height="56" rx="10" fill="#3E7774"/>
+      <text x="110" y="22" class="label">Muted teal</text><text x="110" y="41" class="small">#3E7774 · cool balance</text>
+    </g>
+    <circle cx="14" cy="416" r="14" fill="#D95D45"/><text x="36" y="420" class="small">#D95D45 · action</text>
+    <circle cx="194" cy="416" r="14" fill="#D6A84F"/><text x="216" y="420" class="small">#D6A84F · reward</text>
+  </g>
+
+  <line x1="44" y1="616" x2="1156" y2="616" class="rule"/>
+  <text x="54" y="652" class="heading">Core shapes</text>
+  <g transform="translate(204 638)">
+    <circle cx="34" cy="28" r="24" fill="#A8623C"/>
+    <path d="M0,90 Q7,40 34,51 Q61,40 68,90 Z" fill="#3E7774"/>
+    <text x="86" y="54" class="label">character</text><text x="86" y="73" class="small">arch + soft triangle</text>
+  </g>
+  <g transform="translate(438 646)">
+    <ellipse cx="50" cy="40" rx="50" ry="31" fill="#574133" stroke="#A8623C" stroke-width="9"/>
+    <text x="118" y="38" class="label">table</text><text x="118" y="57" class="small">broad circle</text>
+  </g>
+  <g transform="translate(678 638)">
+    <rect width="54" height="82" rx="6" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
+    <circle cx="27" cy="41" r="13" fill="none" stroke="#D6A84F" stroke-width="7"/>
+    <text x="76" y="44" class="label">card</text><text x="76" y="63" class="small">crisp rectangle</text>
+  </g>
+  <g transform="translate(908 652)">
+    <path d="M0,45 Q38,-5 76,45" fill="none" stroke="#D95D45" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="76" cy="45" r="9" fill="#D6A84F"/>
+    <text x="102" y="40" class="label">VFX</text><text x="102" y="59" class="small">trace cause → result</text>
+  </g>
+</svg>

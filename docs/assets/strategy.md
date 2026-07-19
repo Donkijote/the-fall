@@ -16,6 +16,8 @@ The planned concept-to-3D workflow is:
 6. Optimize and import approved prototypes into Unity.
 7. Record source, generation settings, license, version, and intended usage.
 
+The [V0 visual reference board](../design/visual-reference-board.md) defines what may be observed or reused, and the [prototype asset briefs](prototype-briefs.md) provide the generation-ready inputs for the representative character, table, and card. Issue #8 owns executing and measuring this pipeline; a brief alone is not an approved asset record.
+
 ## Working budget
 
 **Confirmed:** The current monthly tool budget is approximately EUR 40:
@@ -39,8 +41,11 @@ Avoid additional paid asset commitments until a need and budget are explicitly a
 ## Prototype versus production
 
 - Prototype assets prove composition, interaction, performance, and style.
+- Prototype approval requires the brief's silhouette/readability tests, provenance, cultural-neutrality review, and provisional technical envelope; it permits use in V0 experiments only.
 - Production approval requires visual consistency, technical quality, clear licensing, and target-device validation.
 - Generated does not mean automatically usable; every generated asset requires review.
+
+The provisional V0 geometry, material, texture, rig, and Unity import targets live in [art direction](../design/art-direction.md#v0-prototype-technical-envelope). They are conservative comparison budgets, not measured production limits. Replace them only with evidence from the intake and platform-validation issues.
 
 ## Asset record requirements
 
@@ -84,6 +89,6 @@ GitHub Free and Pro currently include 10 GiB of Git LFS storage and 10 GiB of mo
 ## Open decisions
 
 - whether Blender is part of the cleanup pipeline
-- polygon, texture, material, and bone budgets by platform
+- measured production polygon, texture, material, and bone budgets by device tier
 - preferred interchange formats
 - location and backup policy for the external working archive
