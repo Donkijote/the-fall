@@ -1,0 +1,16 @@
+{
+  "name": "TheFall.Infrastructure",
+  "rootNamespace": "TheFall.Infrastructure",
+  "references": [
+    "TheFall.Application"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

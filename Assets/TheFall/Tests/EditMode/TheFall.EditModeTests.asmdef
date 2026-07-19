@@ -1,0 +1,27 @@
+{
+  "name": "TheFall.EditModeTests",
+  "rootNamespace": "TheFall.Tests.EditMode",
+  "references": [
+    "TheFall.Domain",
+    "TheFall.Application",
+    "TheFall.Infrastructure",
+    "TheFall.Presentation",
+    "Unity.InputSystem"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

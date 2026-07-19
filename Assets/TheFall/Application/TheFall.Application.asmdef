@@ -1,0 +1,16 @@
+{
+  "name": "TheFall.Application",
+  "rootNamespace": "TheFall.Application",
+  "references": [
+    "TheFall.Domain"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

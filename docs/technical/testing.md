@@ -55,3 +55,5 @@ Use explicit seeds and compact game-state builders. A failing deterministic test
 - screenshot or visual-regression tooling
 - performance budgets and representative hardware
 - automated mobile build frequency
+
+The implemented local foundation commands and current platform checkpoint are recorded in [bootstrap and validation](../development/bootstrap-validation.md).

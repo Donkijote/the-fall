@@ -40,3 +40,5 @@ Controller support is not currently required.
 - animation and interaction behavior while an orientation transition is in progress
 - desktop window minimum size and aspect-ratio constraints
 - distribution stores and signing workflow
+
+The initial player settings and currently validated build target are recorded in [bootstrap and validation](../development/bootstrap-validation.md).
