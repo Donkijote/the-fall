@@ -1,0 +1,110 @@
+# V0 Foundation Plan
+
+Status: Confirmed
+
+## Objective
+
+Reduce the largest product and technical uncertainties before committing to a playable milestone.
+
+## Step 1: Establish documentation
+
+- confirm product direction and vocabulary
+- review the entire rules specification with Manuel
+- record open decisions and acceptance criteria
+- establish development and documentation workflows
+
+Exit signal: the documentation can guide issue creation without relying on the old project.
+
+## Step 2: Clean the Unity baseline
+
+- create a dedicated cleanup issue
+- remove tutorial-only scenes, scripts, packages, and assets
+- establish a project-owned folder structure and bootstrap scene
+- configure product identity and initial target settings
+- install and configure Unity Localization with English as the source language
+
+Exit signal: the editor opens into a minimal The Fall-owned project without tutorial dependencies.
+
+## Step 3: Prove deterministic rules architecture
+
+- define core value types and game state
+- model commands/intents and resolved domain events
+- implement a narrow rule slice in pure C#
+- prove it with EditMode tests
+- use 1v1 against one bot as the first technical prototype
+
+Exit signal: a recorded intent deterministically produces state and presentation events without a scene.
+
+## Step 4: Prove table composition
+
+- block out the table and upper-body seating
+- establish the fixed cinematic overhead camera
+- test 1v1, three-player, and 2v2 composition
+- test landscape, portrait, and desktop aspect ratios
+
+Exit signal: all seats, hands, table cards, names, and scores are legible with prototype geometry.
+
+## Step 5: Prove interaction
+
+- map touch and mouse/keyboard into shared game intents
+- test card inspection, selection, play, and automatic capture feedback
+- validate input feedback and invalid actions
+
+Exit signal: a user can express a representative turn on mobile and desktop without platform-specific rules.
+
+## Step 6: Prove the asset pipeline
+
+- create initial style briefs
+- generate concept images
+- convert selected concepts through Meshy AI
+- review, optimize, license-record, and import prototypes
+- establish asset naming and import presets
+
+Exit signal: at least one representative character, table/prop, and card asset completes the documented pipeline.
+
+## Step 7: Prove animation orchestration
+
+- build a focused animation experiment scene
+- implement play, capture, and representative Fall sequences
+- drive a sequence from recorded domain events
+- test seats, orientations, skip, and performance behavior
+
+Exit signal: presentation can consume rule outcomes without controlling them.
+
+## Step 8: Establish validation
+
+- configure EditMode and PlayMode test assemblies
+- define CI feasibility
+- define a representative device matrix
+- record initial performance targets
+
+Exit signal: core validation has repeatable commands and ownership.
+
+## Step 9: Select the first playable milestone
+
+Use evidence from the prior steps to decide:
+
+- mode
+- player and bot scope
+- required rules
+- required art fidelity
+- platform targets
+- milestone acceptance criteria
+
+## Confirmed follow-up issues
+
+The V0 foundation work has been refined into these GitHub issues:
+
+1. [#3 Clean the Unity baseline and create the project bootstrap](https://github.com/Donkijote/the-fall/issues/3)
+2. [#4 Establish the deterministic card-game domain foundation](https://github.com/Donkijote/the-fall/issues/4)
+3. [#5 Define the V0 art direction and prototype asset briefs](https://github.com/Donkijote/the-fall/issues/5)
+4. [#6 Prototype the fixed overhead table composition](https://github.com/Donkijote/the-fall/issues/6)
+5. [#7 Prototype cross-platform card interaction](https://github.com/Donkijote/the-fall/issues/7)
+6. [#8 Establish the generated 3D asset intake pipeline](https://github.com/Donkijote/the-fall/issues/8)
+7. [#9 Build the gameplay animation laboratory](https://github.com/Donkijote/the-fall/issues/9)
+8. [#10 Establish the testing and platform validation baseline](https://github.com/Donkijote/the-fall/issues/10)
+9. [#11 Define the first playable milestone](https://github.com/Donkijote/the-fall/issues/11)
+
+All nine issues are assigned, labeled, attached to the The Fall project, and placed in `Ready`. Their issue bodies record dependencies and allow independent work where the foundation permits it.
+
+**Confirmed ordering:** Issue #3 is the first implementation task after this documentation work. Issue #11 closes the V0 foundation by using evidence from the preceding prototypes to define the first playable milestone.
