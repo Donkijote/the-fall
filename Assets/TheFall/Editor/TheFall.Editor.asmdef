@@ -1,0 +1,25 @@
+{
+  "name": "TheFall.Editor",
+  "rootNamespace": "TheFall.Editor",
+  "references": [
+    "TheFall.Presentation",
+    "Unity.Addressables.Editor",
+    "Unity.InputSystem",
+    "Unity.Localization",
+    "Unity.Localization.Editor",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
