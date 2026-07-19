@@ -26,12 +26,14 @@ Assembly dependencies point inward:
 | --- | --- | --- |
 | `TheFall.Domain` | none | disabled |
 | `TheFall.Application` | `TheFall.Domain` | disabled |
-| `TheFall.Infrastructure` | `TheFall.Application` | enabled for adapters |
-| `TheFall.Presentation` | `TheFall.Application`, `TheFall.Infrastructure`, Input System | enabled |
+| `TheFall.Infrastructure` | `TheFall.Application`, `TheFall.Domain` | enabled for adapters |
+| `TheFall.Presentation` | `TheFall.Application`, `TheFall.Domain`, `TheFall.Infrastructure`, Input System | enabled |
 | `TheFall.EditModeTests` | foundation runtime assemblies | editor tests |
 | `TheFall.PlayModeTests` | presentation foundation | runtime tests |
 
 `Bootstrap` owns the manual composition root. It validates the project-wide input boundary and is the only place intended to assemble future application and infrastructure services. No dependency-injection framework is installed.
+
+Issue #4 adds the first infrastructure adapter, `SeededRandomSource`, which directly implements the domain-owned randomness boundary. This direct inward reference keeps the domain independent while allowing replayable seeded execution.
 
 ## Scenes
 

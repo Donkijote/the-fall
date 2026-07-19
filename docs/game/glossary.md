@@ -27,5 +27,8 @@ Documentation is written in English. Original names may be retained as canonical
 | Opening table pattern | Positional `1, 2, 3, 4` or `4, 3, 2, 1` pattern selected by the dealer for the first four table cards. Each matching position scores its expected rank value. |
 | Opening duplicate | A drawn opening card whose rank is already on the table; it cannot score or remain on the table and is reinserted randomly into the deck before drawing a replacement. |
 | Story Mode | Offline campaign with a predefined cast, progressively harder bot matches, tournament structure, custom objectives, and rule variations. |
+| Player intent | A platform-neutral requested action submitted by either a human or bot to the same legal rules surface. |
+| Rule result | The explicit accepted or rejected outcome of resolving an intent, containing the next state and ordered events or an error with unchanged state. |
+| Domain event | An immutable fact emitted after rule resolution for application and presentation consumers; it describes an outcome but does not ask presentation to decide it. |
 
 Future localization must map stable concept identifiers to translated display text rather than changing code identifiers per language.

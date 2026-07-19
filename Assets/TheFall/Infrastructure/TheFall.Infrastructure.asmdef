@@ -2,7 +2,8 @@
   "name": "TheFall.Infrastructure",
   "rootNamespace": "TheFall.Infrastructure",
   "references": [
-    "TheFall.Application"
+    "TheFall.Application",
+    "TheFall.Domain"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
