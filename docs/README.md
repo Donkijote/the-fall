@@ -60,6 +60,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [V0 foundation plan](planning/v0-foundation-plan.md): ordered discovery and implementation preparation.
 - [Development workflow](development/workflow.md): issues, branches, commits, pull requests, and project status.
 - [Project guidelines](development/guidelines.md): Unity, C#, asset, scene, prefab, and naming guidance.
+- [Bootstrap and validation](development/bootstrap-validation.md): implemented Unity foundation, scene roles, commands, and platform checkpoint.
 - [Decision log](decisions/README.md): durable record of important choices and their rationale.
 
 ## Maintenance rule
