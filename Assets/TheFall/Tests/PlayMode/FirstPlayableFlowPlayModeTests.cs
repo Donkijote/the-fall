@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using TheFall.Application;
 using TheFall.Domain;
+using TheFall.Presentation.Bootstrap;
 using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.Localization;
@@ -97,14 +98,20 @@ namespace TheFall.Tests.PlayMode
 
         private static IEnumerator LoadFlow()
         {
-            yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
-            yield return null;
-            if (SceneManager.GetActiveScene().name != "Home")
+            if (CompositionRoot.Instance != null)
             {
-                yield return SceneManager.LoadSceneAsync("Home", LoadSceneMode.Single);
+                Object.Destroy(CompositionRoot.Instance.gameObject);
+                yield return null;
             }
 
-            yield return null;
+            yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Home"));
             Assert.That(Object.FindAnyObjectByType<FirstPlayableFlowController>(), Is.Not.Null);
         }
 

@@ -19,6 +19,8 @@ namespace TheFall.Presentation.Bootstrap
         private static readonly PlayerId HumanId = new PlayerId("human");
         private static readonly PlayerId BotId = new PlayerId("baseline-bot");
 
+        private bool _loadHomeOnStart;
+
         public static CompositionRoot Instance { get; private set; }
 
         public bool IsComposed { get; private set; }
@@ -33,6 +35,7 @@ namespace TheFall.Presentation.Bootstrap
                 return;
             }
 
+            _loadHomeOnStart = gameObject.scene.name == "Bootstrap";
             Instance = this;
             Compose();
             DontDestroyOnLoad(gameObject);
@@ -40,9 +43,17 @@ namespace TheFall.Presentation.Bootstrap
 
         private void Start()
         {
-            if (gameObject.scene.name == "Bootstrap")
+            if (_loadHomeOnStart)
             {
                 SceneManager.LoadSceneAsync("Home", LoadSceneMode.Single);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
             }
         }
 
