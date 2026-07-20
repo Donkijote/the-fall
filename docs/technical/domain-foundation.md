@@ -11,7 +11,7 @@ Issue #4 proves that a representative 1v1 turn can resolve in pure C# without Un
 - `TheFall.Domain` owns cards, participants, match state, legal intents, rule results, and resolved events. Its assembly has `noEngineReferences` enabled.
 - `TheFall.Application.MatchSession` is the shared intent entry point. Human input and bots submit the same domain intents and receive the same result shape.
 - `TheFall.Infrastructure.SeededRandomSource` implements the domain-owned `IRandomSource` boundary with an explicit seed.
-- `TheFall.Presentation.ResolvedMatchBuffer` consumes `RuleResult.State` and `RuleResult.Events` in order without evaluating rules. Later rendering and animation code can consume that buffer; it must not repeat capture, cascade, Fall, clean-table, score, or turn decisions.
+- `TheFall.Presentation.ResolvedMatchBuffer` consumes `RuleResult.State` and `RuleResult.Events` in order without evaluating rules. Issue #9's `ResolvedAnimationSequence` now consumes that buffer for the representative animation laboratory; it does not repeat capture, cascade, Fall, clean-table, score, or turn decisions.
 - `TheFall.Application.Interaction.CardInteractionSession` owns reversible inspection, selection, confirmation, cancellation, rejection, and temporary-blocking state. It translates only a confirmed `Play` interaction into the existing `PlayCardIntent`; orientation and input-device concerns remain outside the domain.
 
 ## State vocabulary

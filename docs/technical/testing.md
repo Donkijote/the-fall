@@ -44,6 +44,8 @@ Cover bootstrap, scene transitions, input binding, UI state, card-anchor placeme
 
 The interaction prototype's focused Play Mode coverage completes one representative turn through touch and desktop adapters, exercises visible legal/selected/confirmed/rejected/blocked states, and verifies that portrait recomposition preserves selection without submitting or duplicating a play.
 
+The issue #9 animation laboratory replays a real resolved Fall/cascade/clean-table event list. Edit Mode verifies event-to-beat mapping, presentation-only timing, both acting seats, and authoritative final-state equality. Play Mode verifies normal completion, skip, interruption, cancellation, fast-forward, stationary-camera behavior, and equivalent portrait/landscape outcomes. Initial measurements and their limits are recorded in [gameplay animation laboratory](animation.md).
+
 ### Manual device validation
 
 Validate readability, touch targets, safe areas, thermal behavior, frame pacing, memory, loading, and visual quality on the agreed device matrix.
