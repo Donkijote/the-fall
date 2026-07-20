@@ -28,7 +28,7 @@ The HUD also maps the latest ordered domain event into localized semantic text. 
 - `RoundCardTable` is the table asset, widened uniformly across its surface to a `2.10 m` gameplay diameter while retaining its authored height
 - every visible face uses the forty-card `CardVisualCatalog` and shared atlas material
 - opponent hands and dealer-selection cards use the direction-neutral back
-- captured cards remain in separate owner piles
+- captured cards remain face down in separate owner piles
 - compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker
@@ -41,6 +41,9 @@ Every gameplay card uses one consistent footprint with the source art's exact `6
 Hands, table cards, deck cards, captured cards, and the dealer-selection spread distinguish their zones
 through position and overlap instead of changing card size or stretching the artwork. This keeps rank and
 suit scale predictable at the required desktop resolutions while preserving clear ownership zones.
+For perspective testing, face-up cards use a deliberately minimal atlas treatment with a dominant rank and
+one suit marker. Every face is oriented toward the local seat so the single rank reads upright; detailed
+pip and court art remains deferred to the dedicated card-design pass.
 
 ## Interaction
 

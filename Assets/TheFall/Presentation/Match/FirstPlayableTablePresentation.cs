@@ -468,9 +468,9 @@ namespace TheFall.Presentation.Match
         {
             for (var index = 0; index < cards.Count; index++)
             {
-                CreateCard(parent, $"{zone} {cards[index]}",
+                CreateCard(parent, $"{zone} Card {index + 1}",
                     origin + new Vector3((index % 4) * 0.012f, index * 0.002f, (index % 3) * 0.009f),
-                    zone, true, cards[index]);
+                    zone, false, null);
             }
         }
 
@@ -489,6 +489,9 @@ namespace TheFall.Presentation.Match
             cardObject.hideFlags = HideFlags.DontSave;
             cardObject.transform.SetParent(parent, false);
             cardObject.transform.localPosition = position;
+            cardObject.transform.localRotation = faceUp
+                ? Quaternion.Euler(0f, 180f, 0f)
+                : Quaternion.identity;
             cardObject.transform.localScale = new Vector3(GameplayCardWidth, 0.012f, GameplayCardLength);
 
             var collider = cardObject.GetComponent<Collider>();

@@ -6,6 +6,11 @@ Status: Implemented V0 prototype
 
 The complete forty-card Spanish deck is generated from reusable, project-owned visual components. Full card concept renders remain visual references; they are not copied into production textures. This preserves one typography system, one set of suit symbols, one border system, and one runtime material while allowing each court card to receive distinct artwork.
 
+For first-playable perspective testing, the generated face currently uses a deliberately simplified
+readability treatment: one dominant central rank and one clear suit marker. Pip layouts and distinct court
+slots remain retained in the source layout data for the later production card-design pass, but they are not
+composed into the current test atlas.
+
 This pipeline implements [ADR 0001](../decisions/0001-modular-card-visual-pipeline.md).
 
 ## Source components
@@ -26,12 +31,15 @@ The current source graphics are deterministic code-native prototype art. In part
 
 ## Layout and generated output
 
-`SpanishDeckVisualLayout` defines forty domain-card layouts:
+`SpanishDeckVisualLayout` retains forty production-oriented domain-card layouts:
 
 - ranks 1–7 reuse one pip-placement template per rank and substitute the selected suit symbol;
 - rank glyphs and corner symbols are shared components, so type size and spacing cannot drift per card;
 - ranks 10–12 select one unique court-art cell for each rank and suit;
-- upper and lower corner stacks are composed for two-way reading.
+- upper and lower corner stacks are available for two-way production reading.
+
+The current test-atlas composition substitutes the shared large rank and suit marker for those detailed
+layouts. This isolates camera and physical-card readability from unfinished illustration fidelity.
 
 `CardDeckAssetGenerator` produces:
 
@@ -74,7 +82,8 @@ This keeps one shared material and atlas across all ranks and suits. Do not clon
 1. Keep the existing source image dimensions and atlas cell order.
 2. Replace only the source component that requires art revision. The generation command will not overwrite it.
 3. Regenerate the complete deck.
-4. Inspect the full atlas for corner spacing, inversion, contrast, and pip count.
+4. Inspect the full atlas for rank scale, suit recognition, spacing, and contrast. When the detailed
+   production composition is restored, also inspect inversion, corner spacing, pip count, and court art.
 5. Run complete-deck validation and the EditMode suite.
 6. Commit both the reviewed source and regenerated output through Git LFS.
 
@@ -91,4 +100,4 @@ Prototype source and output SHA-256 values at implementation:
 | `CardSuitAtlas.png` | `590d738eba95ba01a714b6551773dfdaef10ba63c7b5a4fef56293c59cbaeca1` |
 | `CardRankAtlas.png` | `9a9552386e1b70c6e65345df1dcdcdacd77fca014272e02825c66eba52233e13` |
 | `CardCourtAtlas.png` | `39f78e664fe20a99b4371ca2df22e952349f99fd49d41524e3efb642d3420529` |
-| `CardFaceAtlas.png` | `a6b7006ea55faee5944a11838c38e7b4bb5572c03cf7b79c3e11a2a177b50855` |
+| `CardFaceAtlas.png` | `cfda4246abd089c2aa60aa4b9c73d83c8fa60990cb1804234f5ea524f1b420ae` |

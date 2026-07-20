@@ -114,6 +114,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(opponentCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(deckCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(expectedScale.x / expectedScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
+            Assert.That(localHandCard.transform.localEulerAngles.y, Is.EqualTo(180f).Within(0.001f));
+            Assert.That(publicTableCard.transform.localEulerAngles.y, Is.EqualTo(180f).Within(0.001f));
+            Assert.That(deckCard.transform.localEulerAngles.y, Is.EqualTo(0f).Within(0.001f));
 
             var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
             Assert.That(cantoIntents, Is.Not.Empty);
@@ -229,16 +232,17 @@ namespace TheFall.Tests.PlayMode
 
             var tableCards = table.RenderedCards.Where(card => card.Zone == FirstPlayableCardZone.Table).ToArray();
             Assert.That(tableCards.Select(card => card.Card.Value), Is.EqualTo(state.Table));
-            Assert.That(
-                table.RenderedCards
-                    .Where(card => card.Zone == FirstPlayableCardZone.LocalCaptured)
-                    .Select(card => card.Card.Value),
-                Is.EqualTo(state.GetPlayerAt(Seat.First).CapturedCards));
-            Assert.That(
-                table.RenderedCards
-                    .Where(card => card.Zone == FirstPlayableCardZone.OpponentCaptured)
-                    .Select(card => card.Card.Value),
-                Is.EqualTo(state.GetPlayerAt(Seat.Second).CapturedCards));
+            var localCaptured = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.LocalCaptured)
+                .ToArray();
+            Assert.That(localCaptured, Has.Length.EqualTo(state.GetPlayerAt(Seat.First).CapturedCards.Count));
+            Assert.That(localCaptured.All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
+
+            var opponentCaptured = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.OpponentCaptured)
+                .ToArray();
+            Assert.That(opponentCaptured, Has.Length.EqualTo(state.GetPlayerAt(Seat.Second).CapturedCards.Count));
+            Assert.That(opponentCaptured.All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.DealerSpread),
                 Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0));
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.Deck),
