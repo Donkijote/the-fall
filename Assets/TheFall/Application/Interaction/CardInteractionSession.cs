@@ -10,14 +10,35 @@ namespace TheFall.Application.Interaction
     /// </summary>
     public sealed class CardInteractionSession
     {
-        private readonly MatchSession _matchSession;
+        private readonly Func<MatchState> _getMatchState;
+        private readonly Func<PlayerId, IReadOnlyList<PlayerIntent>> _getLegalIntents;
+        private readonly Func<PlayCardIntent, RuleResult> _submitPlayIntent;
         private readonly List<CardInteractionIntent> _intentHistory = new List<CardInteractionIntent>();
         private readonly IReadOnlyList<CardInteractionIntent> _intentHistoryView;
         private bool _isTemporarilyBlocked;
 
         public CardInteractionSession(MatchSession matchSession, PlayerId localPlayerId)
+            : this(
+                localPlayerId,
+                () => matchSession?.State,
+                playerId => matchSession?.GetLegalIntents(playerId),
+                intent => matchSession?.Submit(intent))
         {
-            _matchSession = matchSession ?? throw new ArgumentNullException(nameof(matchSession));
+            if (matchSession == null)
+            {
+                throw new ArgumentNullException(nameof(matchSession));
+            }
+        }
+
+        public CardInteractionSession(
+            PlayerId localPlayerId,
+            Func<MatchState> getMatchState,
+            Func<PlayerId, IReadOnlyList<PlayerIntent>> getLegalIntents,
+            Func<PlayCardIntent, RuleResult> submitPlayIntent)
+        {
+            _getMatchState = getMatchState ?? throw new ArgumentNullException(nameof(getMatchState));
+            _getLegalIntents = getLegalIntents ?? throw new ArgumentNullException(nameof(getLegalIntents));
+            _submitPlayIntent = submitPlayIntent ?? throw new ArgumentNullException(nameof(submitPlayIntent));
             LocalPlayerId = localPlayerId;
             _intentHistoryView = _intentHistory.AsReadOnly();
             State = new CardInteractionState(
@@ -31,7 +52,7 @@ namespace TheFall.Application.Interaction
 
         public PlayerId LocalPlayerId { get; }
 
-        public MatchState MatchState => _matchSession.State;
+        public MatchState MatchState => _getMatchState();
 
         public CardInteractionState State { get; private set; }
 
@@ -41,7 +62,7 @@ namespace TheFall.Application.Interaction
 
         public bool IsCardLegal(Card card)
         {
-            foreach (var legalIntent in _matchSession.GetLegalIntents(LocalPlayerId))
+            foreach (var legalIntent in _getLegalIntents(LocalPlayerId))
             {
                 if (legalIntent is PlayCardIntent playCard && playCard.Card == card)
                 {
@@ -176,7 +197,7 @@ namespace TheFall.Application.Interaction
                 return Reject(intent.Card, CardInteractionFeedbackReason.CardUnavailable);
             }
 
-            var ruleResult = _matchSession.Submit(new PlayCardIntent(intent.PlayerId, intent.Card));
+            var ruleResult = _submitPlayIntent(new PlayCardIntent(intent.PlayerId, intent.Card));
             if (!ruleResult.IsAccepted)
             {
                 SetState(

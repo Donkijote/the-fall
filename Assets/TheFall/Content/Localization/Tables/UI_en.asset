@@ -284,6 +284,144 @@ MonoBehaviour:
     m_Localized: Replay starts a fresh session with the same two rule choices.
     m_Metadata:
       m_Items: []
+  - m_Id: 339898958602240
+    m_Localized: 'Cantos: none announced this deal'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185152
+    m_Localized: '{0}: {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 339898971185153
+    m_Localized: 'Cantos: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 339898971185154
+    m_Localized: "\u25C7 Choose a legal card to inspect or select."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185155
+    m_Localized: "\u25C6 Card selected. Confirm to play or cancel."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185156
+    m_Localized: "\u2713 Card play accepted by the match."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185157
+    m_Localized: "\u2161 Presentation is busy; selection retained."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185158
+    m_Localized: "\xD7 Select a card before confirming."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185159
+    m_Localized: "\xD7 That card belongs to a different player."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185160
+    m_Localized: "\xD7 The authoritative match rejected that play."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 339898971185161
+    m_Localized: "\xD7 That card is not currently available."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442235981824
+    m_Localized: The table is ready.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953344
+    m_Localized: Dealer selection began with {0} face-down cards.
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953345
+    m_Localized: '{0} is the dealer.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953346
+    m_Localized: Round {0}, deal {1} began.
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953347
+    m_Localized: '{0} played {1} of {2}.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953348
+    m_Localized: '{0} captured {1} cards.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953349
+    m_Localized: '{0} announced {1}.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953350
+    m_Localized: "{0}: {1:+#;-#;0} \xB7 total {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953351
+    m_Localized: Round {0} is complete.
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953352
+    m_Localized: Tie extension at {0} points.
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953353
+    m_Localized: 'Match complete. Winner: {0}.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 341442256953354
+    m_Localized: The authoritative table state was updated.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953355
+    m_Localized: Opening pattern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953356
+    m_Localized: Canto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953357
+    m_Localized: False canto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953358
+    m_Localized: Fall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953359
+    m_Localized: Clean table
+    m_Metadata:
+      m_Items: []
+  - m_Id: 341442256953360
+    m_Localized: Captured cards
+    m_Metadata:
+      m_Items: []
+  - m_Id: 342296649261056
+    m_Localized: Round {0} deck shuffled.
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 342296661843968
+    m_Localized: 'Turn: {0}.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
   references:
     version: 2
     RefIds:
@@ -300,3 +438,17 @@ MonoBehaviour:
         - id: 328036355399691
         - id: 328036355399692
         - id: 328036359593985
+        - id: 339898971185152
+        - id: 339898971185153
+        - id: 341442256953344
+        - id: 341442256953345
+        - id: 341442256953346
+        - id: 341442256953347
+        - id: 341442256953348
+        - id: 341442256953349
+        - id: 341442256953350
+        - id: 341442256953351
+        - id: 341442256953352
+        - id: 341442256953353
+        - id: 342296649261056
+        - id: 342296661843968

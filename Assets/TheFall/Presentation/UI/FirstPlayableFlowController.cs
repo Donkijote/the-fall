@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TheFall.Application;
@@ -72,6 +73,9 @@ namespace TheFall.Presentation.UI
         private Label _matchScore;
         private Label _matchProgress;
         private Label _matchTurn;
+        private Label _matchCanto;
+        private Label _matchEvent;
+        private Label _matchFeedback;
         private Label _resultOutcome;
         private Label _resultScore;
         private VisualElement _matchActions;
@@ -79,6 +83,8 @@ namespace TheFall.Presentation.UI
         private bool _isBound;
 
         public FirstPlayableFlow Flow { get; private set; }
+
+        public event Action PresentationChanged;
 
         private void OnEnable()
         {
@@ -137,7 +143,12 @@ namespace TheFall.Presentation.UI
 
         public bool SubmitHumanIntent(PlayerIntent intent)
         {
-            if (!Flow.TrySubmitHumanIntent(intent, out _))
+            return TrySubmitHumanIntent(intent, out _);
+        }
+
+        public bool TrySubmitHumanIntent(PlayerIntent intent, out MatchAdvanceResult result)
+        {
+            if (!Flow.TrySubmitHumanIntent(intent, out result))
             {
                 return false;
             }
@@ -174,6 +185,14 @@ namespace TheFall.Presentation.UI
             return true;
         }
 
+        public void RenderInteractionFeedback(string localizationKey)
+        {
+            if (_matchFeedback != null && !string.IsNullOrWhiteSpace(localizationKey))
+            {
+                _matchFeedback.text = Localize(localizationKey);
+            }
+        }
+
         public void Render()
         {
             if (_root == null || Flow == null)
@@ -201,6 +220,11 @@ namespace TheFall.Presentation.UI
                     Focus("result-replay-button");
                     break;
             }
+
+            _screen.EnableInClassList(
+                "show-table",
+                Flow.Match != null && (Flow.Stage == FirstPlayableFlowStage.Match || Flow.Stage == FirstPlayableFlowStage.Result));
+            PresentationChanged?.Invoke();
         }
 
         private void BindUi()
@@ -217,6 +241,9 @@ namespace TheFall.Presentation.UI
             _matchScore = Require<Label>("match-score");
             _matchProgress = Require<Label>("match-progress");
             _matchTurn = Require<Label>("match-turn");
+            _matchCanto = Require<Label>("match-canto");
+            _matchEvent = Require<Label>("match-event");
+            _matchFeedback = Require<Label>("match-feedback");
             _resultOutcome = Require<Label>("result-outcome");
             _resultScore = Require<Label>("result-score");
             _matchActions = Require<VisualElement>("match-actions");
@@ -262,6 +289,9 @@ namespace TheFall.Presentation.UI
                 "flow.match.turn",
                 Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
                 Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
+            _matchCanto.text = CantoSummary(state);
+            _matchEvent.text = EventSummary();
+            _matchFeedback.text = Localize("interaction.feedback.legal");
 
             _matchActions.Clear();
             var legalIntents = Flow.Match.GetHumanLegalIntents();
@@ -328,6 +358,122 @@ namespace TheFall.Presentation.UI
             }
 
             return Localize("flow.action.unavailable");
+        }
+
+        private string CantoSummary(MatchState state)
+        {
+            if (state.CantoAnnouncements.Count == 0)
+            {
+                return Localize("flow.match.canto.none");
+            }
+
+            var announcements = new string[state.CantoAnnouncements.Count];
+            for (var index = 0; index < state.CantoAnnouncements.Count; index++)
+            {
+                var announcement = state.CantoAnnouncements[index];
+                announcements[index] = Localize(
+                    "flow.match.canto.announcement",
+                    Localize(announcement.PlayerId == state.GetPlayerAt(Seat.First).Player.Id
+                        ? "flow.player.you"
+                        : "flow.player.bot"),
+                    Localize(CantoLocalizationKey(announcement.ClaimedKind)));
+            }
+
+            return Localize("flow.match.canto.summary", string.Join(" · ", announcements));
+        }
+
+        private string EventSummary()
+        {
+            var events = Flow.Match.Trace.Events;
+            if (events.Count == 0)
+            {
+                return Localize("flow.match.event.ready");
+            }
+
+            var resolvedEvent = events[events.Count - 1];
+            if (resolvedEvent is MatchStartedEvent started)
+            {
+                return Localize("flow.match.event.match-started", started.DealerSpreadCardCount);
+            }
+
+            if (resolvedEvent is DealerSelectedEvent dealer)
+            {
+                return Localize("flow.match.event.dealer-selected", PlayerDisplayName(dealer.PlayerId));
+            }
+
+            if (resolvedEvent is DeckShuffledEvent shuffled)
+            {
+                return Localize("flow.match.event.deck-shuffled", shuffled.RoundNumber);
+            }
+
+            if (resolvedEvent is DealStartedEvent deal)
+            {
+                return Localize("flow.match.event.deal-started", deal.RoundNumber, deal.DealNumber);
+            }
+
+            if (resolvedEvent is CardPlayedEvent played)
+            {
+                return Localize(
+                    "flow.match.event.card-played",
+                    PlayerDisplayName(played.PlayerId),
+                    (int)played.Card.Rank,
+                    Localize(SuitLocalizationKey(played.Card.Suit)));
+            }
+
+            if (resolvedEvent is CardsCapturedEvent captured)
+            {
+                return Localize("flow.match.event.cards-captured", PlayerDisplayName(captured.PlayerId), captured.Cards.Count);
+            }
+
+            if (resolvedEvent is CantoAnnouncedEvent canto)
+            {
+                return Localize(
+                    "flow.match.event.canto-announced",
+                    PlayerDisplayName(canto.PlayerId),
+                    Localize(CantoLocalizationKey(canto.ClaimedKind)));
+            }
+
+            if (resolvedEvent is ScoreChangedEvent score)
+            {
+                return Localize(
+                    "flow.match.event.score-changed",
+                    Localize(ScoreReasonLocalizationKey(score.Reason)),
+                    score.PointsAwarded,
+                    score.Total.Value);
+            }
+
+            if (resolvedEvent is RoundCompletedEvent round)
+            {
+                return Localize("flow.match.event.round-completed", round.RoundNumber);
+            }
+
+            if (resolvedEvent is TieExtensionStartedEvent tie)
+            {
+                return Localize("flow.match.event.tie-extension", tie.TiedScore.Value);
+            }
+
+            if (resolvedEvent is TurnChangedEvent turn)
+            {
+                return Localize(
+                    "flow.match.event.turn-changed",
+                    Localize(turn.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
+            }
+
+            if (resolvedEvent is MatchCompletedEvent completed)
+            {
+                return Localize(
+                    "flow.match.event.match-completed",
+                    Localize(completed.WinnerTeam == TeamId.One ? "flow.player.you" : "flow.player.bot"));
+            }
+
+            return Localize("flow.match.event.resolved");
+        }
+
+        private string PlayerDisplayName(PlayerId playerId)
+        {
+            return Localize(playerId == Flow.Match.State.GetPlayerAt(Seat.First).Player.Id
+                ? "flow.player.you"
+                : "flow.player.bot");
         }
 
         private void BeginLoadingTransition()
@@ -455,6 +601,11 @@ namespace TheFall.Presentation.UI
         private static string SuitLocalizationKey(CardSuit suit)
         {
             return "card.suit." + suit.ToString().ToLowerInvariant();
+        }
+
+        private static string ScoreReasonLocalizationKey(ScoreReason reason)
+        {
+            return "flow.match.score-reason." + reason.ToString().ToLowerInvariant();
         }
     }
 }

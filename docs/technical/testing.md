@@ -70,6 +70,8 @@ Issue #23 adds application-layer complete-match simulations. They drive the huma
 
 Issue #24 adds pure application-flow tests for defaults, guarded navigation, session replacement, stale-state cleanup, replay configuration, and complete match progression. Play Mode then launches through Bootstrap, observes the explicit loading stage, completes/replays/leaves through the UI adapter, and verifies pseudo-localized controls remain expanded, visible, and keyboard-focusable. See [first-playable application flow](first-playable-flow.md).
 
+Issue #25 adds privacy-safe table-snapshot tests plus complete-match Play Mode agreement between every rendered public card collection and authoritative state. Recomposition coverage preserves a selected card, interaction revision, intent history, match instance, trace, and fixed camera across all four required desktop resolutions; the integrated adapter also covers inspect, select, confirm, cancel, reject, temporary blocking, and exactly-once play submission. See [first-playable 1v1 table presentation](first-playable-table.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.

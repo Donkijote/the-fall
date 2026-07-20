@@ -63,6 +63,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Deterministic domain foundation](technical/domain-foundation.md): implemented 1v1 state, intent, result, and event vocabulary.
 - [First-playable match orchestration](technical/match-orchestration.md): human-facing session, deterministic baseline bot, information boundary, seeded replay, and failure diagnosis contract.
 - [First-playable application flow](technical/first-playable-flow.md): localized Home, setup, loading, match, result, replay, return, and session-reset contract.
+- [First-playable 1v1 table presentation](technical/first-playable-table.md): authoritative state/event projection, fixed-camera composition, private hands, integrated card intents, and resize-safe rendering.
 - [Platforms](technical/platforms.md): mobile and desktop targets, orientations, and input.
 
 ### Planning and development

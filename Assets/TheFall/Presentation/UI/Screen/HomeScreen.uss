@@ -7,6 +7,14 @@
     overflow: hidden;
 }
 
+.screen-root.show-table {
+    background-color: rgba(36, 26, 20, 0.12);
+}
+
+.screen-root.show-table .ambient {
+    display: none;
+}
+
 .ambient {
     position: absolute;
     width: 46%;
@@ -297,10 +305,15 @@ Button {
 }
 
 .match-status {
-    width: 34%;
-    min-width: 260px;
+    width: 23%;
+    min-width: 230px;
     padding: 24px;
     margin-right: 18px;
+}
+
+.match-table-space {
+    flex-grow: 1;
+    min-width: 360px;
 }
 
 .status-title {
@@ -332,9 +345,32 @@ Button {
 }
 
 .match-choices {
-    flex-grow: 1;
-    min-width: 0;
+    width: 29%;
+    min-width: 300px;
     padding: 24px;
+}
+
+.canto-line {
+    color: rgb(181, 139, 62);
+}
+
+.event-line {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.24);
+    color: rgb(216, 196, 147);
+    -unity-font-style: bold;
+}
+
+.interaction-feedback {
+    min-height: 24px;
+    margin-top: 8px;
+    color: rgb(216, 196, 147);
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
 }
 
 .actions-scroll {
@@ -419,11 +455,16 @@ Button {
 .screen-root.compact .hero-mark,
 .screen-root.compact .home-card,
 .screen-root.compact .match-status,
+.screen-root.compact .match-table-space,
 .screen-root.compact .match-choices {
     width: 100%;
     max-width: none;
     min-width: 0;
     margin-right: 0;
+}
+
+.screen-root.compact .match-table-space {
+    min-height: 260px;
 }
 
 .screen-root.compact .hero-mark {

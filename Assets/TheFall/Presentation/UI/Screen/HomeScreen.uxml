@@ -67,12 +67,16 @@
                         <ui:Label name="match-score" class="score-line" />
                         <ui:Label name="match-progress" class="status-line" />
                         <ui:Label name="match-turn" class="status-line" />
+                        <ui:Label name="match-canto" class="status-line canto-line" />
+                        <ui:Label name="match-event" class="status-line event-line" />
                     </ui:VisualElement>
+                    <ui:VisualElement name="match-table-space" class="match-table-space" picking-mode="Ignore" />
                     <ui:VisualElement class="match-choices panel">
                         <ui:Label name="match-actions-title" class="eyebrow" />
                         <ui:ScrollView name="match-actions-scroll" class="actions-scroll" mode="Vertical">
                             <ui:VisualElement name="match-actions" class="actions-list" />
                         </ui:ScrollView>
+                        <ui:Label name="match-feedback" class="interaction-feedback" />
                         <ui:Label name="match-prompt" class="input-prompt" />
                     </ui:VisualElement>
                 </ui:VisualElement>
