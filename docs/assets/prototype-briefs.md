@@ -148,6 +148,8 @@ No named game or artist style, no rectangular coffee table, no poker felt, casin
 
 An original **Four of Coins** card used to test Spanish-suit recognition, rank readability, card proportions, table contrast, border behavior, orientation independence, and a shared-material implementation. It is not approval of the full deck's final illustration system.
 
+**Implemented follow-through:** the approved visual family now informs reusable source components rather than forty independent card renders. Unity deterministically composes ranks 1–7 from pip layouts and reserves unique suit/rank illustration slots for ranks 10–12. The [modular card visual pipeline](card-visual-pipeline.md) is authoritative for deck implementation; this brief remains the art-direction intake record.
+
 ### Required visual result
 
 - physical dimensions 63 x 88 mm; prototype thickness 0.7 mm for visible 3D handling

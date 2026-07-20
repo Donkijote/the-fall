@@ -8,6 +8,8 @@ This package records the image-generation portion of issue #8 for the three repr
 
 These images are approved as **visual anchors for consistent follow-up generation**. They are not approved 3D prototype assets and do not satisfy issue #8's end-to-end Meshy, Unity import, or performance gates.
 
+The retained complete-card renders are also references rather than production face textures. The accepted [modular card visual pipeline](card-visual-pipeline.md) recreates the shared design language as replaceable rank, suit, base, back, and court components, then lets Unity generate the complete forty-card atlas. Card production does not require Meshy.
+
 ## Shared artistic lock
 
 Every follow-up image should preserve this family before introducing new creative choices:

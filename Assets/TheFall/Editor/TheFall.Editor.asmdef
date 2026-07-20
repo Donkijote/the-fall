@@ -2,6 +2,7 @@
   "name": "TheFall.Editor",
   "rootNamespace": "TheFall.Editor",
   "references": [
+    "TheFall.Domain",
     "TheFall.Presentation",
     "Unity.Addressables.Editor",
     "Unity.InputSystem",
