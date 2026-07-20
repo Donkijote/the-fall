@@ -44,7 +44,7 @@ namespace TheFall.Presentation.Match
             _tableCards = Copy(state.Table);
             _localCapturedCards = Copy(local.CapturedCards);
             _opponentCapturedCards = Copy(opponent.CapturedCards);
-            DealerSpreadCount = state.DealerSelectionCards.Count;
+            DealerSpreadCount = state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0;
             DeckCount = state.Deck.Count;
             DealerSeat = state.DealerSeat;
             ActiveSeat = state.CurrentSeat;

@@ -121,7 +121,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011094
-    m_Localized: Choose with the mouse, or use Tab and Enter/Space.
+    m_Localized: Click a card to select it; click it again or press Enter/Space to
+      play.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011095
@@ -299,11 +300,12 @@ MonoBehaviour:
       m_Items:
       - rid: 3143288710239354880
   - m_Id: 339898971185154
-    m_Localized: "\u25C7 Choose a legal card to inspect or select."
+    m_Localized: Choose a legal card to inspect or select.
     m_Metadata:
       m_Items: []
   - m_Id: 339898971185155
-    m_Localized: "\u25C6 Card selected. Confirm to play or cancel."
+    m_Localized: Card selected. Click it again or confirm to play; cancel to release
+      it.
     m_Metadata:
       m_Items: []
   - m_Id: 339898971185156
@@ -422,6 +424,43 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 3143288710239354880
+  - m_Id: 348830145961984
+    m_Localized: DEAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739200
+    m_Localized: Choose how to deal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739201
+    m_Localized: Required dealer setup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739202
+    m_Localized: Dealer choice required. Choose the deal order and opening pattern.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739203
+    m_Localized: Choose one of the face-down cards spread across the table.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739204
+    m_Localized: '!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739205
+    m_Localized: Announce a canto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 348830162739206
+    m_Localized: Optional canto announcement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 349973353848832
+    m_Localized: "Dealer: pending \xB7 Active: {0}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
   references:
     version: 2
     RefIds:
@@ -452,3 +491,4 @@ MonoBehaviour:
         - id: 341442256953353
         - id: 342296649261056
         - id: 342296661843968
+        - id: 349973353848832

@@ -46,8 +46,8 @@ namespace TheFall.Presentation.UI
                 { "loading-message", "flow.loading.message" },
                 { "match-eyebrow", "flow.match.eyebrow" },
                 { "match-title", "flow.match.title" },
-                { "match-actions-title", "flow.match.actions-title" },
-                { "match-prompt", "flow.match.prompt" },
+                { "dealer-options-title", "flow.context.dealer-title" },
+                { "canto-options-title", "flow.context.canto-title" },
                 { "result-eyebrow", "flow.result.eyebrow" },
                 { "result-title", "flow.result.title" },
                 { "result-prompt", "flow.result.prompt" },
@@ -60,6 +60,8 @@ namespace TheFall.Presentation.UI
                 { "setup-start-button", "flow.setup.start" },
                 { "setup-back-button", "flow.common.back" },
                 { "match-home-button", "flow.common.return-home" },
+                { "dealer-options-button", "flow.context.dealer-icon" },
+                { "canto-options-button", "flow.context.canto-icon" },
                 { "result-replay-button", "flow.result.replay" },
                 { "result-home-button", "flow.common.return-home" },
             };
@@ -76,11 +78,22 @@ namespace TheFall.Presentation.UI
         private Label _matchCanto;
         private Label _matchEvent;
         private Label _matchFeedback;
+        private Label _matchPrompt;
         private Label _resultOutcome;
         private Label _resultScore;
-        private VisualElement _matchActions;
+        private VisualElement _dealerContext;
+        private VisualElement _dealerOptionsMenu;
+        private VisualElement _dealerOptions;
+        private Button _dealerOptionsButton;
+        private VisualElement _cantoContext;
+        private VisualElement _cantoOptionsMenu;
+        private VisualElement _cantoOptions;
+        private Button _cantoOptionsButton;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
+        private bool _isDealerMenuOpen;
+        private bool _isCantoMenuOpen;
+        private MatchState _contextState;
 
         public FirstPlayableFlow Flow { get; private set; }
 
@@ -244,14 +257,24 @@ namespace TheFall.Presentation.UI
             _matchCanto = Require<Label>("match-canto");
             _matchEvent = Require<Label>("match-event");
             _matchFeedback = Require<Label>("match-feedback");
+            _matchPrompt = Require<Label>("match-prompt");
             _resultOutcome = Require<Label>("result-outcome");
             _resultScore = Require<Label>("result-score");
-            _matchActions = Require<VisualElement>("match-actions");
+            _dealerContext = Require<VisualElement>("dealer-context");
+            _dealerOptionsMenu = Require<VisualElement>("dealer-options-menu");
+            _dealerOptions = Require<VisualElement>("dealer-options");
+            _dealerOptionsButton = Require<Button>("dealer-options-button");
+            _cantoContext = Require<VisualElement>("canto-context");
+            _cantoOptionsMenu = Require<VisualElement>("canto-options-menu");
+            _cantoOptions = Require<VisualElement>("canto-options");
+            _cantoOptionsButton = Require<Button>("canto-options-button");
 
             Require<Button>("home-start-button").clicked += () => OpenSetup();
             Require<Button>("setup-start-button").clicked += () => StartMatch();
             Require<Button>("setup-back-button").clicked += () => ReturnHome();
             Require<Button>("match-home-button").clicked += () => ReturnHome();
+            _dealerOptionsButton.clicked += ToggleDealerOptions;
+            _cantoOptionsButton.clicked += ToggleCantoOptions;
             Require<Button>("result-replay-button").clicked += () => Replay();
             Require<Button>("result-home-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
@@ -285,32 +308,98 @@ namespace TheFall.Presentation.UI
                 state.RoundNumber,
                 state.DealNumber,
                 state.IsTieExtension ? Localize("flow.match.tie-extension") : Localize("flow.match.standard-round"));
-            _matchTurn.text = Localize(
-                "flow.match.turn",
-                Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
-                Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
+            _matchTurn.text = state.Phase == MatchPhase.DealerSelection
+                ? Localize(
+                    "flow.match.turn.dealer-pending",
+                    Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"))
+                : Localize(
+                    "flow.match.turn",
+                    Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
+                    Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
             _matchCanto.text = CantoSummary(state);
             _matchEvent.text = EventSummary();
-            _matchFeedback.text = Localize("interaction.feedback.legal");
-
-            _matchActions.Clear();
             var legalIntents = Flow.Match.GetHumanLegalIntents();
+            if (!ReferenceEquals(_contextState, state))
+            {
+                _contextState = state;
+                _isDealerMenuOpen = HasIntent<ChooseDealOptionsIntent>(legalIntents);
+                _isCantoMenuOpen = false;
+            }
+
+            RenderContextualActions(state, legalIntents);
+        }
+
+        private void RenderContextualActions(MatchState state, IReadOnlyList<PlayerIntent> legalIntents)
+        {
+            _dealerOptions.Clear();
+            _cantoOptions.Clear();
+
+            var dealerOptionCount = 0;
+            var cantoOptionCount = 0;
             for (var index = 0; index < legalIntents.Count; index++)
             {
                 var intent = legalIntents[index];
-                var actionIndex = index;
-                var button = new Button(() => SubmitHumanIntent(intent))
+                if (intent is ChooseDealOptionsIntent)
                 {
-                    name = $"match-action-{actionIndex}",
-                    text = IntentText(intent, actionIndex),
-                };
-                button.AddToClassList("action-button");
-                button.tooltip = button.text;
-                _matchActions.Add(button);
+                    _dealerOptions.Add(CreateContextButton(
+                        $"dealer-option-{dealerOptionCount}",
+                        IntentText(intent, dealerOptionCount),
+                        intent));
+                    dealerOptionCount++;
+                }
+                else if (intent is AnnounceCantoIntent)
+                {
+                    _cantoOptions.Add(CreateContextButton(
+                        $"canto-option-{cantoOptionCount}",
+                        IntentText(intent, cantoOptionCount),
+                        intent));
+                    cantoOptionCount++;
+                }
             }
 
-            var firstAction = _matchActions.Q<Button>();
-            firstAction?.schedule.Execute(firstAction.Focus);
+            SetVisible(_dealerContext, dealerOptionCount > 0);
+            SetVisible(_dealerOptionsMenu, dealerOptionCount > 0 && _isDealerMenuOpen);
+            SetVisible(_cantoContext, cantoOptionCount > 0);
+            SetVisible(_cantoOptionsMenu, cantoOptionCount > 0 && _isCantoMenuOpen);
+
+            _dealerOptionsButton.tooltip = Localize("flow.context.dealer-tooltip");
+            _cantoOptionsButton.tooltip = Localize("flow.context.canto-tooltip");
+            _matchPrompt.text = Localize("flow.match.prompt");
+            SetVisible(_matchPrompt, state.Phase == MatchPhase.Active);
+            _matchFeedback.text = state.Phase == MatchPhase.DealerSelection
+                ? Localize("flow.context.dealer-card-prompt")
+                : dealerOptionCount > 0
+                    ? Localize("flow.context.dealer-required")
+                    : Localize("interaction.feedback.legal");
+        }
+
+        private Button CreateContextButton(string name, string text, PlayerIntent intent)
+        {
+            var button = new Button(() =>
+            {
+                _isDealerMenuOpen = false;
+                _isCantoMenuOpen = false;
+                SubmitHumanIntent(intent);
+            })
+            {
+                name = name,
+                text = text,
+                tooltip = text,
+            };
+            button.AddToClassList("context-action-button");
+            return button;
+        }
+
+        public void ToggleDealerOptions()
+        {
+            _isDealerMenuOpen = !_isDealerMenuOpen;
+            RenderContextualActions(Flow.Match.State, Flow.Match.GetHumanLegalIntents());
+        }
+
+        public void ToggleCantoOptions()
+        {
+            _isCantoMenuOpen = !_isCantoMenuOpen;
+            RenderContextualActions(Flow.Match.State, Flow.Match.GetHumanLegalIntents());
         }
 
         private void RenderResult()
@@ -537,6 +626,25 @@ namespace TheFall.Presentation.UI
                     ? DisplayStyle.Flex
                     : DisplayStyle.None;
             }
+        }
+
+        private static bool HasIntent<TIntent>(IReadOnlyList<PlayerIntent> intents)
+            where TIntent : PlayerIntent
+        {
+            for (var index = 0; index < intents.Count; index++)
+            {
+                if (intents[index] is TIntent)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void SetVisible(VisualElement element, bool isVisible)
+        {
+            element.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void Focus(string elementName)

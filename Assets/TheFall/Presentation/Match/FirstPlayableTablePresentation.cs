@@ -149,6 +149,31 @@ namespace TheFall.Presentation.Match
             ApplyInteractionState();
         }
 
+        public bool ActivateDealerCard(int interactionIndex)
+        {
+            var legalIntents = _flowController?.Flow?.Match?.GetHumanLegalIntents();
+            if (legalIntents == null || interactionIndex < 0)
+            {
+                return false;
+            }
+
+            var dealerCardIndex = 0;
+            for (var index = 0; index < legalIntents.Count; index++)
+            {
+                if (!(legalIntents[index] is SelectDealerCardIntent dealerCard))
+                {
+                    continue;
+                }
+
+                if (dealerCardIndex++ == interactionIndex)
+                {
+                    return _flowController.SubmitHumanIntent(dealerCard);
+                }
+            }
+
+            return false;
+        }
+
 #if UNITY_EDITOR
         public void Configure(
             Camera gameplayCamera,
@@ -332,7 +357,7 @@ namespace TheFall.Presentation.Match
             seatObject.transform.localRotation = Quaternion.LookRotation(-position.normalized, Vector3.up);
 
             var isActive = Snapshot.ActiveSeat == seat && Snapshot.Phase != MatchPhase.Completed;
-            var isDealer = Snapshot.DealerSeat == seat;
+            var isDealer = Snapshot.Phase != MatchPhase.DealerSelection && Snapshot.DealerSeat == seat;
             if (isActive)
             {
                 CreatePrimitive("Active Turn Ring", PrimitiveType.Cylinder, seatObject.transform,
@@ -382,11 +407,11 @@ namespace TheFall.Presentation.Match
         {
             for (var index = 0; index < count; index++)
             {
-                var row = index / 10;
-                var column = index % 10;
+                var row = index / 8;
+                var column = index % 8;
                 CreateCard(parent, $"Face-down Dealer Card {index + 1}",
-                    new Vector3((column - 4.5f) * 0.095f, 0.80f + row * 0.002f, (row - 1.5f) * 0.13f),
-                    0.42f, FirstPlayableCardZone.DealerSpread, false, null);
+                    new Vector3((column - 3.5f) * 0.13f, 0.80f + row * 0.002f, (row - 2f) * 0.16f),
+                    0.58f, FirstPlayableCardZone.DealerSpread, false, null, index, true);
             }
         }
 
@@ -503,7 +528,15 @@ namespace TheFall.Presentation.Match
                 _localHandViews[index].Apply(ResolveVisualState(Snapshot.LocalHand[index]));
             }
 
-            _flowController.RenderInteractionFeedback(_interaction.State.FeedbackLocalizationKey);
+            var legalIntents = _flowController.Flow.Match.GetHumanLegalIntents();
+            for (var index = 0; index < legalIntents.Count; index++)
+            {
+                if (legalIntents[index] is PlayCardIntent)
+                {
+                    _flowController.RenderInteractionFeedback(_interaction.State.FeedbackLocalizationKey);
+                    break;
+                }
+            }
         }
 
         private PrototypeCardVisualState ResolveVisualState(Card card)
@@ -610,7 +643,7 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
-            if (TryGetPointedCard(out var card))
+            if (TryGetPointedLocalHandCard(out var card))
             {
                 if (context.control.device is Touchscreen)
                 {
@@ -634,15 +667,15 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
-            if (TryGetPointedCard(out var card))
+            if (TryGetPointedRenderedCard(out var rendered))
             {
-                if (context.control.device is Touchscreen)
+                if (rendered.Zone == FirstPlayableCardZone.DealerSpread)
                 {
-                    _inputAdapter.TouchTap(card);
+                    ActivateDealerCard(rendered.InteractionIndex);
                 }
-                else
+                else if (rendered.Zone == FirstPlayableCardZone.LocalHand && rendered.Card.HasValue)
                 {
-                    _inputAdapter.MouseSelect(card);
+                    _inputAdapter.TouchTap(rendered.Card.Value);
                 }
             }
             else
@@ -661,21 +694,30 @@ namespace TheFall.Presentation.Match
             _inputAdapter?.Cancel();
         }
 
-        private bool TryGetPointedCard(out Card card)
+        private bool TryGetPointedLocalHandCard(out Card card)
         {
-            if (_gameplayCamera != null && Physics.Raycast(_gameplayCamera.ScreenPointToRay(_pointerPosition), out var hit))
+            if (TryGetPointedRenderedCard(out var rendered)
+                && rendered.Zone == FirstPlayableCardZone.LocalHand
+                && rendered.Card.HasValue)
             {
-                var rendered = hit.collider.GetComponent<FirstPlayableRenderedCard>();
-                if (rendered != null
-                    && rendered.Zone == FirstPlayableCardZone.LocalHand
-                    && rendered.Card.HasValue)
-                {
-                    card = rendered.Card.Value;
-                    return true;
-                }
+                card = rendered.Card.Value;
+                return true;
             }
 
             card = default;
+            return false;
+        }
+
+        private bool TryGetPointedRenderedCard(out FirstPlayableRenderedCard rendered)
+        {
+            if (_gameplayCamera != null
+                && Physics.Raycast(_gameplayCamera.ScreenPointToRay(_pointerPosition), out var hit))
+            {
+                rendered = hit.collider.GetComponent<FirstPlayableRenderedCard>();
+                return rendered != null;
+            }
+
+            rendered = null;
             return false;
         }
 

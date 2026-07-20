@@ -70,14 +70,27 @@
                         <ui:Label name="match-canto" class="status-line canto-line" />
                         <ui:Label name="match-event" class="status-line event-line" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="match-table-space" class="match-table-space" picking-mode="Ignore" />
-                    <ui:VisualElement class="match-choices panel">
-                        <ui:Label name="match-actions-title" class="eyebrow" />
-                        <ui:ScrollView name="match-actions-scroll" class="actions-scroll" mode="Vertical">
-                            <ui:VisualElement name="match-actions" class="actions-list" />
-                        </ui:ScrollView>
-                        <ui:Label name="match-feedback" class="interaction-feedback" />
-                        <ui:Label name="match-prompt" class="input-prompt" />
+                    <ui:VisualElement name="match-table-space" class="match-table-space" picking-mode="Ignore">
+                        <ui:VisualElement name="match-context-controls" class="match-context-controls" picking-mode="Ignore">
+                            <ui:VisualElement name="dealer-context" class="player-context player-context-dealer">
+                                <ui:VisualElement name="dealer-options-menu" class="context-menu panel">
+                                    <ui:Label name="dealer-options-title" class="context-title" />
+                                    <ui:VisualElement name="dealer-options" class="context-options" />
+                                </ui:VisualElement>
+                                <ui:Button name="dealer-options-button" class="context-icon dealer-icon" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="canto-context" class="player-context player-context-canto">
+                                <ui:VisualElement name="canto-options-menu" class="context-menu panel">
+                                    <ui:Label name="canto-options-title" class="context-title" />
+                                    <ui:VisualElement name="canto-options" class="context-options" />
+                                </ui:VisualElement>
+                                <ui:Button name="canto-options-button" class="context-icon canto-icon" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="interaction-strip panel" picking-mode="Ignore">
+                            <ui:Label name="match-feedback" class="interaction-feedback" />
+                            <ui:Label name="match-prompt" class="input-prompt match-input-prompt" />
+                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>

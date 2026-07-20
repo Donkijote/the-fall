@@ -12,6 +12,7 @@ using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UIElements;
 
 namespace TheFall.Tests.PlayMode
 {
@@ -26,20 +27,91 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table, Is.Not.Null);
             Assert.That(table.TablePrototypePrefab, Is.Not.Null);
             Assert.That(table.CardCatalog.Entries.Count, Is.EqualTo(40));
+            var ui = controller.GetComponent<UIDocument>().rootVisualElement;
+            Assert.That(ui.Q("match-actions"), Is.Null);
+            Assert.That(ui.Q("match-choices"), Is.Null);
 
             var humanIntentCount = 0;
+            var sawDealerContext = false;
+            var sawCantoContext = false;
             while (controller.Flow.Stage == FirstPlayableFlowStage.Match && humanIntentCount < 5000)
             {
                 AssertPresentation(table, controller.Flow.Match.State);
                 var legal = controller.Flow.Match.GetHumanLegalIntents();
+                if (legal.OfType<ChooseDealOptionsIntent>().Any())
+                {
+                    sawDealerContext = true;
+                    Assert.That(ui.Q<VisualElement>("dealer-context").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+                    Assert.That(ui.Q<VisualElement>("dealer-options-menu").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+                    Assert.That(ui.Q<VisualElement>("dealer-options").childCount, Is.EqualTo(4));
+                }
+
+                if (legal.OfType<AnnounceCantoIntent>().Any())
+                {
+                    sawCantoContext = true;
+                    Assert.That(ui.Q<VisualElement>("canto-context").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+                }
+
                 Assert.That(controller.SubmitHumanIntent(ChooseHumanIntent(controller.Flow.Match.State, legal)), Is.True);
                 humanIntentCount++;
             }
 
             Assert.That(humanIntentCount, Is.LessThan(5000));
+            Assert.That(sawDealerContext, Is.True);
+            Assert.That(sawCantoContext, Is.True);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Result));
             AssertPresentation(table, controller.Flow.Match.State);
             Assert.That(table.Snapshot.WinnerTeam, Is.Not.Null);
+        }
+
+        [UnityTest]
+        public IEnumerator ContextualDealerCardsAndCantoReplaceThePersistentActionPanel()
+        {
+            yield return LoadMatch();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            var ui = controller.GetComponent<UIDocument>().rootVisualElement;
+
+            Assert.That(controller.Flow.Match.State.Phase, Is.EqualTo(MatchPhase.DealerSelection));
+            var dealerIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<SelectDealerCardIntent>().ToArray();
+            var dealerCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.DealerSpread)
+                .OrderBy(card => card.InteractionIndex)
+                .ToArray();
+            Assert.That(dealerCards, Has.Length.EqualTo(dealerIntents.Length));
+            Assert.That(dealerCards.All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
+            Assert.That(dealerCards.All(card => card.GetComponent<Collider>() != null), Is.True);
+
+            var expectedDealerCard = dealerIntents[3].Card;
+            Assert.That(table.ActivateDealerCard(3), Is.True);
+            Assert.That(controller.Flow.Match.Trace.IntentHistory
+                .Last(record => record.Actor == IntentActor.Human).Intent,
+                Is.TypeOf<SelectDealerCardIntent>());
+            Assert.That(((SelectDealerCardIntent)controller.Flow.Match.Trace.IntentHistory
+                .Last(record => record.Actor == IntentActor.Human).Intent).Card,
+                Is.EqualTo(expectedDealerCard));
+
+            AdvanceToHumanPlay(controller);
+            var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
+            Assert.That(cantoIntents, Is.Not.Empty);
+            Assert.That(ui.Q<VisualElement>("canto-context").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(ui.Q<VisualElement>("canto-options-menu").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
+
+            controller.ToggleCantoOptions();
+            Assert.That(ui.Q<VisualElement>("canto-options-menu").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(ui.Q<VisualElement>("canto-options").childCount, Is.EqualTo(cantoIntents.Length));
+
+            var intentCount = controller.Flow.Match.Trace.IntentHistory.Count;
+            var card = table.Snapshot.LocalHand[0];
+            Assert.That(table.InputAdapter.TouchTap(card).IsAccepted, Is.True);
+            Assert.That(table.Interaction.State.SelectedCard, Is.EqualTo(card));
+            Assert.That(table.InputAdapter.TouchTap(card).IsAccepted, Is.True);
+            Assert.That(controller.Flow.Match.Trace.IntentHistory
+                .Skip(intentCount)
+                .Where(record => record.Actor == IntentActor.Human)
+                .Select(record => record.Intent)
+                .OfType<AnnounceCantoIntent>(),
+                Is.Empty);
         }
 
         [UnityTest]
@@ -145,7 +217,7 @@ namespace TheFall.Tests.PlayMode
                     .Select(card => card.Card.Value),
                 Is.EqualTo(state.GetPlayerAt(Seat.Second).CapturedCards));
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.DealerSpread),
-                Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? state.DealerSelectionCards.Count : 0));
+                Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0));
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.Deck),
                 Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? 0 : state.Deck.Count));
             Assert.That(table.Snapshot.Cantos.Count, Is.EqualTo(state.CantoAnnouncements.Count));

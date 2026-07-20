@@ -23,18 +23,18 @@ namespace TheFall.Presentation.Match
 
         public bool IsFaceUp { get; private set; }
 
-        public int HandIndex { get; private set; } = -1;
+        public int InteractionIndex { get; private set; } = -1;
 
         public void Configure(
             FirstPlayableCardZone zone,
             bool isFaceUp,
             Card? card = null,
-            int handIndex = -1)
+            int interactionIndex = -1)
         {
             Zone = zone;
             IsFaceUp = isFaceUp;
             Card = isFaceUp ? card : null;
-            HandIndex = handIndex;
+            InteractionIndex = interactionIndex;
         }
     }
 }

@@ -45,6 +45,23 @@ The integrated local hand reuses `CardInteractionSession` and `CardInteractionIn
 4. play
 5. cancel
 
+Gameplay actions use the object or player context that owns the decision instead of a persistent
+available-actions panel:
+
+- dealer selection spreads every remaining face-down dealer card across the table; activating one
+  submits the corresponding authoritative `SelectDealerCardIntent` without exposing its identity
+- a local hand card is selected in place; activating the selected card again confirms and plays it,
+  while keyboard confirm and cancel retain the same semantics
+- an optional canto control appears beside the local player only while canto intents are legal; it
+  opens the authoritative list of available announcements, and playing a card without using it
+  declines the opportunity naturally
+- a mandatory dealer-options control appears beside the local player when the human is the dealer;
+  its menu opens immediately and offers the four authoritative hands/table ordering and opening-pattern
+  combinations
+
+The dealer-options and canto menus are transient contextual popovers. They do not reserve a permanent
+screen column, and they contain only intents supplied by the orchestrator.
+
 The interaction session now accepts application delegates as well as a direct `MatchSession`. The integrated delegate submits the confirmed `PlayCardIntent` through `FirstPlayableFlow.TrySubmitHumanIntent`, so automatic bot turns, trace recording, result transition, and authoritative rejection stay on the existing application path.
 
 Legal, selected, confirmed, rejected, and temporarily blocked states retain the documented shape/text symbols and localized feedback. Dealer selection, dealer setup, and canto announcements remain localized UI actions because they are not card-hand interactions.
@@ -70,8 +87,9 @@ Validated on 2026-07-20 with Unity `6000.5.4f1`:
 
 - first-playable table generation and structural validation: passed
 - complete Edit Mode suite: 63/63 passed
-- complete Play Mode suite: 15/15 passed
+- complete Play Mode suite: 16/16 passed
 - macOS universal development-player smoke build: passed
+- offscreen `1440 x 900` dealer-selection, dealer-options, and canto/selection captures: reviewed
 - built-player manual visual inspection: skipped because the desktop session was locked; issue #28 retains the full manual acceptance and performance matrix
 
 Production animation, VFX, timing, interruption sequencing, and audio remain owned by issues #26 and #27. This issue renders resolved state and semantic events immediately; it does not promote the AnimationLab sequencer into the complete match.
