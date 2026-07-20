@@ -26,9 +26,12 @@ For the table, use these Unity menu actions:
 - `The Fall > Prototype Assets > Table > Generate`
 - `The Fall > Prototype Assets > Table > Validate`
 - `The Fall > Prototype Assets > Table > Capture 1K-2K Comparison`
+- `The Fall > Prototype Assets > Open Asset Review Scene`
 - `The Fall > Table Composition > Capture Validation Set`
 
 The generator is idempotent: it configures importers, rebuilds the metallic/smoothness mask, updates the URP material and prefab, and leaves gameplay textures at 1024 pixels.
+
+`AssetReview.unity` presents the approved table alone on a neutral floor with warm key and cool fill lighting. In Play mode, drag the left mouse button or use the arrow keys to orbit, use the mouse wheel to zoom, and press `R` to reset. The scene stays separate from gameplay and is enabled in the build scene list for direct inspection.
 
 ## ENV-P-ROUND-TABLE intake record
 
@@ -94,8 +97,8 @@ The 12K exception is intentional and narrow. Meshy's 10K, 30K, fixed 100K, adapt
 Validation on Unity 6000.5.4f1 completed on 2026-07-20:
 
 - table generation and asset validation: passed twice with the same generated mask hash
-- complete EditMode suite: 29/29 passed
-- complete PlayMode suite: 6/6 passed, including MatchPrototype prefab presence and recomposition
+- complete EditMode suite: 30/30 passed
+- complete PlayMode suite: 7/7 passed, including MatchPrototype prefab presence, recomposition, and AssetReview framing
 - FoundationSetup validation: passed
 - representative 1K/2K and portrait/landscape captures: rendered successfully; temporary captures remain outside version control
 
@@ -113,6 +116,6 @@ The owner also visually rejected 10K, 30K, adaptive-high, and adaptive-ultra rem
 
 ## Remaining issue work
 
-- Run the owner-operated Meshy conversion for `CHR-P-WARM-CHALLENGER`, then append the same license, cost, topology, rig/readiness, Unity import, and representative-scene evidence.
+- Run the owner-operated Meshy conversion for `CHR-P-WARM-CHALLENGER` from the approved full-body concept. Inspect the untextured Smart Topology FBX before spending credits on texture or rigging, then append the same license, cost, topology, rig/readiness, Unity import, and representative-scene evidence.
 - Retain the modular card path as the representative card category; no embedded-symbol full-card 3D generation is required.
 - Perform representative-device profiling before any generated asset is called production-ready.

@@ -87,7 +87,7 @@ namespace TheFall.Editor
             Require(LocalizationEditorSettings.GetLocale("en") != null, "English source locale is missing.", errors);
             Require(LocalizationEditorSettings.GetPseudoLocales().Any(locale => locale.Identifier.Code == "qps-ploc"), "Pseudo locale is missing.", errors);
 
-            var expectedScenes = new[] { "Bootstrap", "Home", "MatchPrototype", "AnimationLab" };
+            var expectedScenes = new[] { "Bootstrap", "Home", "MatchPrototype", "AnimationLab", "AssetReview" };
             var buildScenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => Path.GetFileNameWithoutExtension(scene.path)).ToArray();
             Require(buildScenes.SequenceEqual(expectedScenes), "Build scenes are not configured in foundation order.", errors);
 
@@ -285,6 +285,7 @@ namespace TheFall.Editor
                 BuildScene("Home"),
                 BuildScene("MatchPrototype"),
                 BuildScene("AnimationLab"),
+                BuildScene("AssetReview"),
             };
         }
 
