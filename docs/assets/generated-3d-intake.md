@@ -1,6 +1,6 @@
 # Generated 3D Asset Intake
 
-Status: Representative table, character, and modular-card paths executed; Meshy license/cost confirmation pending for the newest downloads
+Status: Representative table, character, and modular-card paths executed and approved for V0 prototype use
 
 ## Purpose
 
@@ -140,8 +140,8 @@ The owner also visually rejected 10K, 30K, adaptive-high, and adaptive-ultra rem
 | original download | `Meshy_AI_Brass_Banded_Rustic_C_0720134610_texture_fbx.zip` |
 | archive SHA-256 | `ad30f41977c7d7377ef6e97423f9797b8940b2fdea019f9ac98a8581255515cc` |
 | generator/topology setting | Meshy AI; exact model/topology label not embedded in FBX |
-| account/license | pending owner confirmation; do not infer from FBX metadata |
-| credits | pending owner confirmation |
+| account/license | Pro account, Private License selected, owner confirmed on 2026-07-20 |
+| credits | exact generation/texture breakdown not retained by the operator; recorded as unknown rather than inferred |
 | approval | accepted as a static V0 supporting furniture prototype |
 
 The safe archive contained one FBX and five 2048² PBR maps. The archive itself remains outside the repository.
@@ -169,8 +169,8 @@ Unity inspection records one static mesh/renderer/material slot, 12,336 triangle
 | archive SHA-256 | `7e4679f3fdd75fcba3573518d27e9a168198d9330ad77f449039149b29a999de` |
 | project identity | `WarmChallenger`; the vendor-generated character name is not used in Unity |
 | generator/topology setting | Meshy AI; selected high-resolution result after the owner rejected a visually damaged 100K remesh |
-| account/license | pending owner confirmation; do not infer from FBX metadata |
-| credits | pending owner confirmation |
+| account/license | Pro account, Private License selected, owner confirmed on 2026-07-20 |
+| credits | exact generation/texture breakdown not retained by the operator; recorded as unknown rather than inferred |
 | approval | owner-selected high-resolution V0 visual reference; static review only, not gameplay- or production-approved |
 
 | Retained source | SHA-256 |
@@ -186,8 +186,8 @@ Unity inspection records one static mesh/renderer/material slot, 366,508 triangl
 
 The character is 341,508 triangles above, or 14.7 times, the provisional 25K LOD0 target. Mesh compression is disabled to avoid adding damage to the explicitly selected high-resolution source. This exception does not revise the target: the asset stays isolated in `AssetReview`, must not replace gameplay seat characters, and requires controlled retopology, LODs, rigging, deformation tests, and device profiling before gameplay use. The rejected 100K remesh remains outside the repository; no file/hash was supplied for it.
 
-## Remaining issue work
+## Follow-up production work
 
-- Confirm the selected Meshy license and credits for SimpleChair and WarmChallenger; retain external UI receipts when available.
+- Retain external Meshy UI receipts when available; the owner-confirmed Private License is not embedded in FBX metadata.
 - Retain the modular card path as the completed representative card category; no embedded-symbol full-card 3D generation is required.
 - Perform representative-device profiling before any generated asset is called production-ready.
