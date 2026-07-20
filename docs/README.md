@@ -69,6 +69,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Development workflow](development/workflow.md): issues, branches, commits, pull requests, and project status.
 - [Project guidelines](development/guidelines.md): Unity, C#, asset, scene, prefab, and naming guidance.
 - [Bootstrap and validation](development/bootstrap-validation.md): implemented Unity foundation, scene roles, commands, and platform checkpoint.
+- [Testing and platform validation baseline](development/validation.md): repeatable suites and smoke builds, manual matrix, initial V0 budgets, failure diagnosis, CI decision, and coverage ownership.
 - [Decision log](decisions/README.md): durable record of important choices and their rationale.
 
 ## Maintenance rule

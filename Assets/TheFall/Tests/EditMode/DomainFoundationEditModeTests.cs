@@ -39,11 +39,19 @@ namespace TheFall.Tests.EditMode
         [Test]
         public void RecordedIntents_WithTheSameSetupAndSeedProduceTheSameStateAndEvents()
         {
-            var first = ReplayRepresentativeTurnSequence(1977);
-            var second = ReplayRepresentativeTurnSequence(1977);
+            const int seed = 1977;
+            var first = ReplayRepresentativeTurnSequence(seed);
+            var second = ReplayRepresentativeTurnSequence(seed);
+            var failureContext = string.Join(
+                Environment.NewLine,
+                $"Seed: {seed}",
+                $"Initial state: {first.InitialState}",
+                $"Intents: {string.Join(" -> ", first.Intents)}",
+                $"First events: {string.Join(" | ", first.EventLog)}",
+                $"Second events: {string.Join(" | ", second.EventLog)}");
 
-            Assert.That(Snapshot(second.State), Is.EqualTo(Snapshot(first.State)));
-            Assert.That(second.EventLog, Is.EqualTo(first.EventLog));
+            Assert.That(Snapshot(second.State), Is.EqualTo(Snapshot(first.State)), failureContext);
+            Assert.That(second.EventLog, Is.EqualTo(first.EventLog), failureContext);
         }
 
         [Test]
@@ -139,7 +147,8 @@ namespace TheFall.Tests.EditMode
 
         private static ReplayResult ReplayRepresentativeTurnSequence(int seed)
         {
-            var session = new MatchSession(CreateRepresentativeState(seed));
+            var initialState = CreateRepresentativeState(seed);
+            var session = new MatchSession(initialState);
             var eventLog = new List<string>();
             var intents = new PlayerIntent[]
             {
@@ -155,7 +164,11 @@ namespace TheFall.Tests.EditMode
                 eventLog.AddRange(result.Events.Select(Describe));
             }
 
-            return new ReplayResult(session.State, eventLog);
+            return new ReplayResult(
+                Snapshot(initialState),
+                intents.Select(intent => intent.ToString()).ToArray(),
+                session.State,
+                eventLog);
         }
 
         private static MatchState CreateRepresentativeState(int seed)
@@ -270,11 +283,21 @@ namespace TheFall.Tests.EditMode
 
         private sealed class ReplayResult
         {
-            public ReplayResult(MatchState state, IReadOnlyList<string> eventLog)
+            public ReplayResult(
+                string initialState,
+                IReadOnlyList<string> intents,
+                MatchState state,
+                IReadOnlyList<string> eventLog)
             {
+                InitialState = initialState;
+                Intents = intents;
                 State = state;
                 EventLog = eventLog;
             }
+
+            public string InitialState { get; }
+
+            public IReadOnlyList<string> Intents { get; }
 
             public MatchState State { get; }
 

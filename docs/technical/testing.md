@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Status: Proposed
+Status: Confirmed V0 baseline
 
 ## Goals
 
@@ -50,18 +50,30 @@ The issue #9 animation laboratory replays a real resolved Fall/cascade/clean-tab
 
 Validate readability, touch targets, safe areas, thermal behavior, frame pacing, memory, loading, and visual quality on the agreed device matrix.
 
+The repeatable commands, platform matrix, initial measurement gates, exploratory procedure, and evidence ownership are defined in [testing and platform validation baseline](../development/validation.md). Editor viewport simulation is supporting coverage only; it is not physical-device validation.
+
 ## Test data
 
 Use explicit seeds and compact game-state builders. A failing deterministic test should report the seed, intent, prior state, and resolved events.
 
 The implemented issue #4 coverage and replay vocabulary are described in the [deterministic domain foundation](domain-foundation.md). Its Edit Mode tests use an explicit seeded random source, recorded play-card intents, immutable input states, and ordered event logs.
 
-## Open decisions
+## Failure diagnosis
 
-- CI environment and Unity licensing
-- minimum coverage expectations
+A deterministic rule failure is replayed with its explicit seed, initial state, ordered intents, rule result, events, and final snapshot. A presentation failure starts from the already-resolved events and final state, then records scene, seat, input path, viewport, safe area, completion reason, and visual evidence. This prevents a rendering defect from being misclassified as a rule defect, or animation code from becoming a second rule engine.
+
+The complete diagnosis contract and focused test commands are recorded in [testing and platform validation baseline](../development/validation.md).
+
+## CI and remaining decisions
+
+GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.
+
+Still open:
+
+- minimum supported OS versions and exact representative hardware
+- loading-time pass/fail budgets for the first playable
 - screenshot or visual-regression tooling
-- performance budgets and representative hardware
-- automated mobile build frequency
+- automated mobile build frequency if CI is later adopted
+- production coverage expectations
 
-The implemented local foundation commands and current platform checkpoint are recorded in [bootstrap and validation](../development/bootstrap-validation.md).
+The implemented foundation and current installed-module checkpoint remain recorded in [bootstrap and validation](../development/bootstrap-validation.md).
