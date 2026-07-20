@@ -18,6 +18,9 @@ All links and stated page licenses were checked on 2026-07-20. A later download 
 
 | Category | Target read | Reference IDs |
 | --- | --- | --- |
+| Story Mode world | oblique illustrated settlement, readable roads, landmark buildings, sparse progress markers | R12 |
+| Hub | parchment route map, destination vignettes, clear progression states | R13 |
+| Match composition | fixed overhead table, characters around the perimeter, protected central play field | R14 |
 | Character | planar stylization, clear head/hands, expressive upper-body silhouette | R01 |
 | Table | round, sturdy, quiet play surface with broad handmade forms | R02, R03 |
 | Room and lighting | warm social enclosure, cool separation, low-contrast background | R04 |
@@ -127,6 +130,37 @@ All links and stated page licenses were checked on 2026-07-20. A later download 
 - **Study:** effects communicate board state, persistent status, and celebratory peaks; effect families maintain a coherent identity.
 - **Do not copy:** effect shapes, timing, colors, particles, card art, or branded presentation.
 - **Apply to The Fall:** design capture trails that count cascade steps and reserve the strongest non-camera beat for Fall/clean-table results.
+
+## User-supplied perspective references
+
+The following screenshots were supplied by Manuel during issue #5 review on 2026-07-20. They are not committed to the repository. Search terms visible in the images and the official product pages identify the reference family as *Governor of Poker 2* and *Governor of Poker 3*; the exact build, platform, capture author, and original publication URL remain unconfirmed.
+
+### R12 — Story Mode settlement perspective
+
+- **Source:** user-supplied screenshot showing the Wichita Falls settlement; consistent with [Governor of Poker 2](https://www.governorofpoker.com/games/governor-of-poker-2/), Youda Games.
+- **Provenance:** supplied in issue #5 review; the official product page confirms the single-player city-progression game, but not this exact screenshot file.
+- **Rights/usage:** **Observation only.** Do not commit, trace, crop, redistribute, or use as a generation input.
+- **Study:** compact oblique town view, strong building silhouettes, dirt-road circulation, characters as scale cues, and sparse markers attached to destinations.
+- **Do not copy:** Texas/Western identity, frontier buildings, wagons, characters, icons, reputation bar, purple roofs, or exact camera/composition.
+- **Apply to The Fall:** build an original medieval-cartoon settlement with earthy shared materials and a few brighter objective landmarks; make routes readable even with markers hidden.
+
+### R13 — Hub route-map perspective
+
+- **Source:** user-supplied screenshot showing Beginners Lake, High Rollers Valley, and Pro Forest; identified as [Governor of Poker 3](https://www.governorofpoker.com/games/governor-of-poker-3/), Youda Games.
+- **Provenance:** supplied in issue #5 review; the official game and help pages confirm those named progression regions.
+- **Rights/usage:** **Observation only.** Do not commit, trace, crop, redistribute, or use as a generation input.
+- **Study:** illustrated regional map, authored route, landmark-based nodes, spatial progression, and a persistent outer navigation layer.
+- **Do not copy:** poker/casino economy, Western map, locations, characters, UI chrome, red/purple node language, menus, offers, or button styling.
+- **Apply to The Fall:** use a quieter vellum campaign map with fewer simultaneous actions, original medieval-fantasy landmarks, and combined state cues for progression.
+
+### R14 — Overhead match perspective
+
+- **Source:** user-supplied screenshot showing the Llana City Saloon table; consistent with [Governor of Poker 2](https://www.governorofpoker.com/games/governor-of-poker-2/), Youda Games.
+- **Provenance:** supplied in issue #5 review; the exact screenshot file is not present on the official product page.
+- **Rights/usage:** **Observation only.** Do not commit, trace, crop, redistribute, or use as a generation input.
+- **Study:** clear fixed overhead table boundary, upper bodies and hands arranged around the perimeter, distinct character silhouettes, and protected central card space.
+- **Do not copy:** poker layout/rules, betting tokens, Western hats, saloon branding, wood treatment, character arrangement, or exact camera angle.
+- **Apply to The Fall:** preserve the perimeter-versus-centre hierarchy while composing only the seats required by 1v1, three-player, or 2v2 and keeping the local player anchored at the bottom.
 
 ## Reference rules for generation prompts
 

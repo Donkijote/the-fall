@@ -36,7 +36,7 @@ A representative adult player, provisionally called **Warm Challenger**, used to
 - medium-broad, soft-triangular shoulder silhouette
 - slightly enlarged head and hands, natural rather than chibi proportions
 - asymmetrical short-to-medium wavy hair that leaves both eyes readable from above
-- simple layered clothing: muted teal tunic, toasted-clay sleeveless over-layer, parchment neck cloth, dark wrist wraps
+- simple layered clothing: moss-wool tunic, walnut sleeveless over-layer, aged-vellum neck cloth, woad-blue binding, dark wrist wraps
 - one signature shape only: a broad offset collar clasp with an invented plain oval form
 - no weapons, armor, cape, bag, long necklace, or tall hat
 - no letters, runes, heraldry, flags, religious marks, or culturally identifiable textile motifs
@@ -58,7 +58,7 @@ Keep the body inside a provisional seated envelope 0.75 m wide, 0.55 m deep from
 ### Positive prompt
 
 ```text
-Create an original stylized 3D character concept sheet for The Fall, a warm medieval-cartoon card game in a culturally neutral fictional world. Adult human card player, approachable and quietly competitive, medium-broad soft-triangular shoulders, slightly enlarged expressive head and hands but natural non-chibi proportions. Short-to-medium asymmetrical wavy dark hair with both eyes visible from an elevated camera. Simple layered clothing with broad clean shapes: muted teal tunic, toasted-clay sleeveless over-layer, parchment neck cloth, dark wrist wraps, one plain oval offset collar clasp. Handmade construction shown through thick hems and a few broad seams, no culture-specific ornament. Strong readable head, shoulder, and hand silhouette from a fixed overhead seated-table camera. Low-frequency details, planar forms, matte materials, warm key and restrained cool fill. Include neutral orthographic turnaround, elevated-camera clay view, five facial expressions, four seated gesture silhouettes, hand studies, and color swatches on a plain background. Original project-owned design, production-neutral concept presentation.
+Create an original stylized 3D character concept sheet for The Fall, a warm medieval-cartoon card game in a culturally neutral fictional world. Adult human card player, approachable and quietly competitive, medium-broad soft-triangular shoulders, slightly enlarged expressive head and hands but natural non-chibi proportions. Short-to-medium asymmetrical wavy dark hair with both eyes visible from an elevated camera. Simple layered clothing with broad clean shapes: moss-wool tunic, walnut sleeveless over-layer, aged-vellum neck cloth, restrained woad-blue binding, dark wrist wraps, one plain antique-brass oval offset collar clasp. Handmade construction shown through thick hems and a few broad seams, no culture-specific ornament. Strong readable head, shoulder, and hand silhouette from a fixed overhead seated-table camera. Low-frequency details, planar forms, matte materials, warm key and restrained cool fill. Include neutral orthographic turnaround, elevated-camera clay view, five facial expressions, four seated gesture silhouettes, hand studies, and color swatches on a plain background. Original project-owned design, production-neutral concept presentation.
 ```
 
 ### Negative prompt
@@ -97,7 +97,7 @@ A representative round gameplay table used to test fixed-camera composition for 
 - circular table, 1.45 m diameter and 0.76 m high
 - central uninterrupted play field approximately 0.95 m diameter
 - 0.18–0.22 m broad outer rim with softly faceted, hand-shaped profile
-- warm smoked-oak base with low-frequency grain; central field one value step darker and less detailed
+- warm walnut-brown base with low-frequency grain; central field one value step darker in charred walnut and less detailed
 - four chunky supports or one central pedestal arranged so no mode looks assigned to fixed seats
 - small matte aged-metal braces as secondary detail, no spikes or ornate iron scrollwork
 - rounded edge safe for forearm poses; no cup holders, drawers, gambling markings, words, suits, or scoring tracks
@@ -155,9 +155,9 @@ An original **Four of Coins** card used to test Spanish-suit recognition, rank r
 - numeral `4` and a project-owned Coins icon in every corner, readable from either end
 - four large original coin pips in a simple symmetric field arrangement
 - coin icon built from a bold outer circle, offset inner disk, and four broad notches; no face, currency, lettering, crest, or real coin design
-- charcoal linework, old-gold coins, and one muted teal micro-accent that does not carry suit identity by itself
+- lampblack-brown linework, antique-brass coins, and one restrained woad-blue micro-accent that does not carry suit identity by itself
 - lightly imperfect printed registration and paper grain visible only in close inspection
-- original geometric card back with rotational symmetry, using charcoal plum, muted teal, and parchment; no heraldry or hidden directional mark
+- original geometric card back with rotational symmetry, using lampblack brown, woad blue, and aged vellum; no heraldry or hidden directional mark
 
 The rules own the rank and suit identity; the art must not introduce an alternate value or a text label. The corners and central pips must agree.
 
@@ -165,7 +165,7 @@ The rules own the rank and suit identity; the art must not introduce an alternat
 
 1. flat front and back at exact aspect ratio
 2. grayscale and color-blind simulation contact sheet
-3. card shown at 48, 64, and 96 pixels wide on the smoked-oak table
+3. card shown at 48, 64, and 96 pixels wide on the walnut-brown table
 4. 3D neutral view showing edge, corner radius, thickness, and pivot
 5. fan/overlap test with only the upper-left and lower-right corners exposed
 6. neutral-light and warm-room-light comparison to detect color shift and glare
@@ -173,7 +173,7 @@ The rules own the rank and suit identity; the art must not introduce an alternat
 ### Positive prompt
 
 ```text
-Create an original vector-like card-face and card-back design for The Fall, a warm medieval-cartoon card game using a 40-card Spanish deck. Representative card: Four of Coins. Exact 63 by 88 millimetre proportion. Warm parchment face, generous clean border, dark charcoal keyline, number 4 plus a bold original Coins symbol in all four corners for two-way reading. Four large symmetric coin pips: simple old-gold outer circles, offset inner disks, four broad notches, no currency or portrait. Restrained hand-printed imperfection, broad crisp shapes, minimal low-frequency paper texture, excellent readability at 48 pixels wide. Card back is rotationally symmetric with original shallow arches and interlocking circles in charcoal plum, muted teal, and parchment; no culture-specific ornament. Provide flat front/back, grayscale, small-size table tests, overlap/fan test, and neutral-versus-warm lighting comparison on a plain presentation sheet. Original project-owned graphic design, not an imitation of a branded Spanish deck.
+Create an original vector-like card-face and card-back design for The Fall, a warm medieval-cartoon card game using a 40-card Spanish deck. Representative card: Four of Coins. Exact 63 by 88 millimetre proportion. Aged-vellum face, generous clean border, lampblack-brown keyline, number 4 plus a bold original Coins symbol in all four corners for two-way reading. Four large symmetric coin pips: simple antique-brass outer circles, offset inner disks, four broad notches, no currency or portrait. Restrained hand-printed imperfection, broad crisp shapes, minimal low-frequency paper texture, excellent readability at 48 pixels wide. Card back is rotationally symmetric with original shallow arches and interlocking circles in lampblack brown, woad blue, and aged vellum; no culture-specific ornament. Provide flat front/back, grayscale, small-size table tests, overlap/fan test, and neutral-versus-warm lighting comparison on a plain presentation sheet. Original project-owned graphic design, not an imitation of a branded Spanish deck.
 ```
 
 ### Negative prompt

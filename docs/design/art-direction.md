@@ -4,11 +4,11 @@ Status: V0 working brief
 
 ## Direction in one sentence
 
-**Confirmed:** The Fall is a warm, stylized medieval-cartoon card game staged like a readable tabletop diorama in an original, culturally neutral world.
+**Confirmed:** The Fall is a warm, stylized medieval-cartoon card game in an original, culturally neutral world.
 
-At gameplay distance, the player should read the cards first, the active character and action second, and the room last. Shape, value, and motion carry meaning before surface detail does.
+The broader presentation should feel like an illustrated medieval campaign made tangible: a small isometric Story world, a parchment-like route hub, and a readable overhead card-table diorama. At gameplay distance, the player should read the cards first, the active character and action second, and the room last. Shape, value, and motion carry meaning before surface detail does.
 
-![V0 art-direction board showing the overhead table hierarchy, working palette, and core shapes](art-direction-board.svg)
+![V0 art-direction board showing the isometric Story world, parchment hub, fixed overhead match, and grounded medieval palette](art-direction-board.svg)
 
 ## Decision boundary
 
@@ -22,6 +22,38 @@ The following directions are already confirmed and must not be reopened by a pro
 - inexpensive or generated assets until the direction is proven
 
 Everything labelled as a **V0 target** in this document is a working constraint for comparing prototypes. It may be revised from evidence gathered by the table-composition, asset-pipeline, animation, or platform-validation issues. It is not a production-content commitment.
+
+## Perspective families
+
+The screenshots supplied during issue #5 review establish three **proposed** presentation families. They clarify intent without yet deciding camera controls, navigation mechanics, or final layout.
+
+### Story Mode world — illustrated isometric settlement
+
+- Present towns, roads, landmarks, and characters as a compact oblique miniature world.
+- Favor clustered buildings with distinct roofs and silhouettes over a realistic large environment.
+- Make routes, interactable buildings, objectives, and progression readable from shape and placement before icons.
+- Use grounded earth and timber colors for the settlement; reserve brighter banners, roofs, windows, and markers for current goals or unlocked places.
+- Do not inherit the reference game's Western setting, frontier architecture, economy symbols, or purple highlight language.
+
+### Hub — parchment campaign map
+
+- Use a hand-illustrated regional map with authored paths connecting a small number of destination nodes.
+- Represent destinations with miniature landmark vignettes rather than uniform abstract buttons.
+- Keep persistent resources and navigation in a calm outer frame so the route map remains the dominant surface.
+- Show locked, available, current, and completed destinations through combined shape, value, icon, and text states.
+- Avoid advertisement-like panels, overlapping currencies, casino language, and dense simultaneous calls to action seen in the reference.
+
+### Match — fixed overhead table
+
+**Confirmed:** Gameplay retains the completely stationary elevated camera.
+
+- Arrange upper bodies, hands, names, hands of cards, and captured piles around a clearly bounded central play field.
+- Use the perimeter for character identity while protecting the centre for cards and resolved events.
+- Keep character silhouettes readable through headwear, hair, shoulders, and hands, but do not use oversized hats that hide faces or reproduce the reference game's cowboy identity.
+- Compose for the supported player count instead of filling every possible seat with decorative bodies.
+- Preserve the same gameplay hierarchy when portrait and landscape layouts recompose.
+
+The [visual reference board](visual-reference-board.md#user-supplied-perspective-references) records source and usage boundaries for these screenshots.
 
 ## Visual principles
 
@@ -66,21 +98,23 @@ Everything labelled as a **V0 target** in this document is a working constraint 
 | UI | shallow arches, clipped corners, layered parchment/wood planes | compact crafted frame | tiny filigree, fake heraldry, large opaque panels over play |
 | VFX | arcs, rings, short trails, expanding stamps | traceable cause and result | persistent fog, full-screen noise, camera shake, uncontrolled particles |
 
-## Working palette and value hierarchy
+## Working medieval palette and value hierarchy
 
-The palette is a starting relationship, not a final material library. Variants must retain luminance separation when viewed in grayscale.
+The palette is a starting relationship, not a final material library or a claim of historical reconstruction. It draws from aged parchment, earth pigments, timber, iron, dyed wool, and oxidized metal so the frame reads as medieval concept art rather than modern jewel-toned fantasy. Variants must retain luminance separation when viewed in grayscale.
 
 | Role | Color | Hex | Usage |
 | --- | --- | --- | --- |
-| Deep neutral | charcoal plum | `#28232B` | deepest room values, separation |
-| Play surface | smoked oak | `#574133` | table and large background masses |
-| Warm base | toasted clay | `#A8623C` | wood, leather, warm costume blocks |
-| Light base | parchment | `#E7D6B0` | cards, focused UI surfaces, readable labels |
-| Cool balance | muted teal | `#3E7774` | cloth, secondary costume families, cool fill |
-| Action accent | ember coral | `#D95D45` | urgent emphasis, not the sole invalid/error cue |
-| Reward accent | old gold | `#D6A84F` | score and celebration highlights used sparingly |
+| Deep neutral | lampblack brown | `#241A14` | deepest room values, ink, separation |
+| Structural dark | charred walnut | `#3B291F` | beams, table edge, dark leather |
+| Wood and leather | walnut brown | `#68452F` | furniture, architecture, grounded costume blocks |
+| Earth base | ochre clay | `#A06F3C` | paths, plaster, warm mid-values |
+| Light base | aged vellum | `#D8C493` | cards, maps, focused UI surfaces, readable labels |
+| Natural mid | moss wool | `#6B7046` | cloth, roofs, vegetation, environmental variation |
+| Cool accent | woad blue | `#465C73` | restrained cool cloth, selected-route contrast |
+| Warm accent | madder red | `#8D4238` | urgent emphasis, not the sole invalid/error cue |
+| Reward accent | antique brass | `#B58B3E` | score, progress, and celebration used sparingly |
 
-Keep most of the frame in the deep-neutral, oak, clay, and teal families. Parchment and gold are scarce enough to pull attention. Suit identities will require their own tested combination of icon shape, border treatment, and color; this brief does not assign color-only suit meanings.
+Keep most of the frame in lampblack, walnut, ochre, vellum, and moss families. Woad, madder, and brass are restrained accents, not neon navigation colors. Suit identities will require their own tested combination of icon shape, border treatment, and color; this brief does not assign color-only suit meanings.
 
 ## Character treatment from the gameplay camera
 
@@ -116,6 +150,8 @@ These are comparison tests, not launch accessibility thresholds.
 - The table is the stable compositional anchor and must support 1v1, three-player, and 2v2 without built-in seat markings.
 - The central play field uses low-frequency grain and restrained roughness so cards do not disappear into the material.
 - Room edges frame the table with large architectural masses; shelves, beams, vessels, and textiles stay below the gameplay contrast range.
+- Story-world settlements use a small kit of timber, plaster, stone, tile, thatch, cloth, and metal families with silhouette variation carried by roofline and massing rather than surface noise.
+- Hub maps use vellum, ink, wash, and restrained relief shading; they should feel authored and tactile without pretending to be an artifact from one real culture.
 - Props tell a fictional craft-and-hospitality story, not a specific national, religious, military, or dynastic history.
 - Surface wear clusters at plausible contact areas. Do not apply equal scratches, edge wear, or grunge everywhere.
 - Use a mostly opaque material stack. Transparency, layered clear coats, screen-space effects, and parallax are exceptions that require a measured benefit.

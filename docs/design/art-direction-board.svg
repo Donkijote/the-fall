@@ -1,149 +1,187 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title description">
-  <title id="title">The Fall V0 art-direction board</title>
-  <desc id="description">A stylized overhead card-table composition, project palette, visual hierarchy, and core shape language.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">The Fall V0 medieval art-direction board</title>
+  <desc id="description">An original vector board showing an isometric Story settlement, a parchment campaign hub, a fixed overhead match, and a grounded medieval palette.</desc>
   <defs>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#17131A" flood-opacity="0.55"/>
-    </filter>
-    <linearGradient id="room" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3E7774" stop-opacity="0.35"/>
-      <stop offset="0.5" stop-color="#28232B" stop-opacity="0"/>
-      <stop offset="1" stop-color="#D95D45" stop-opacity="0.22"/>
+    <linearGradient id="story-ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B4834C"/>
+      <stop offset="1" stop-color="#7E5935"/>
     </linearGradient>
-    <radialGradient id="table" cx="45%" cy="40%" r="70%">
-      <stop offset="0" stop-color="#745544"/>
-      <stop offset="0.72" stop-color="#574133"/>
-      <stop offset="1" stop-color="#3B2D28"/>
+    <radialGradient id="match-table" cx="42%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#76503A"/>
+      <stop offset="1" stop-color="#3B291F"/>
     </radialGradient>
+    <pattern id="vellum-speckle" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="7" r="1" fill="#68452F" opacity="0.12"/>
+      <circle cx="17" cy="15" r="1.2" fill="#241A14" opacity="0.08"/>
+    </pattern>
     <style>
-      .title { font: 700 34px system-ui, sans-serif; letter-spacing: 1px; fill: #E7D6B0; }
-      .kicker { font: 700 13px system-ui, sans-serif; letter-spacing: 3px; fill: #D6A84F; }
-      .heading { font: 700 18px system-ui, sans-serif; fill: #E7D6B0; }
-      .label { font: 600 13px system-ui, sans-serif; fill: #E7D6B0; }
-      .small { font: 500 11px system-ui, sans-serif; fill: #BEB0A0; }
-      .rule { stroke: #E7D6B0; stroke-opacity: 0.16; }
+      .title { font: 700 34px Georgia, serif; letter-spacing: 0.6px; fill: #D8C493; }
+      .kicker { font: 700 12px system-ui, sans-serif; letter-spacing: 3px; fill: #B58B3E; }
+      .panel-title { font: 700 15px system-ui, sans-serif; letter-spacing: 1.8px; fill: #D8C493; }
+      .panel-title-dark { font: 700 15px system-ui, sans-serif; letter-spacing: 1.8px; fill: #3B291F; }
+      .label { font: 650 12px system-ui, sans-serif; fill: #D8C493; }
+      .label-dark { font: 650 12px system-ui, sans-serif; fill: #3B291F; }
+      .small { font: 500 10px system-ui, sans-serif; fill: #BDAA82; }
+      .small-dark { font: 500 10px system-ui, sans-serif; fill: #68452F; }
+      .rule { stroke: #D8C493; stroke-opacity: 0.18; }
     </style>
   </defs>
 
-  <rect width="1200" height="760" rx="28" fill="#28232B"/>
-  <rect x="1" y="1" width="1198" height="758" rx="27" fill="none" stroke="#E7D6B0" stroke-opacity="0.16" stroke-width="2"/>
-  <text x="54" y="56" class="kicker">THE FALL · V0 VISUAL NORTH STAR</text>
-  <text x="54" y="96" class="title">Readable tabletop diorama</text>
-  <text x="54" y="122" class="small">Warm medieval cartoon · original fictional world · stationary overhead play</text>
+  <rect width="1200" height="800" rx="28" fill="#241A14"/>
+  <rect x="1" y="1" width="1198" height="798" rx="27" fill="none" stroke="#D8C493" stroke-opacity="0.24" stroke-width="2"/>
 
-  <rect x="44" y="154" width="720" height="430" rx="22" fill="#201C23"/>
-  <rect x="44" y="154" width="720" height="430" rx="22" fill="url(#room)"/>
-  <text x="70" y="187" class="heading">Gameplay hierarchy</text>
-  <text x="70" y="208" class="small">1 · CARDS</text>
-  <text x="70" y="230" class="small">2 · ACTIVE CHARACTER</text>
-  <text x="70" y="252" class="small">3 · ROOM</text>
+  <text x="44" y="46" class="kicker">THE FALL · V0 VISUAL NORTH STAR</text>
+  <text x="44" y="84" class="title">An illustrated medieval campaign, made tangible</text>
+  <text x="44" y="108" class="small">EARTHED MATERIALS · AUTHORED LANDMARKS · READABLE TABLETOP PLAY</text>
 
-  <g transform="translate(404 394) scale(0.9)">
-    <circle r="170" fill="url(#table)" stroke="#A8623C" stroke-width="20"/>
-    <circle r="130" fill="#47362F" stroke="#E7D6B0" stroke-opacity="0.08" stroke-width="2"/>
-    <path d="M-105,-15 C-45,-42 45,-42 105,-15" fill="none" stroke="#E7D6B0" stroke-opacity="0.08" stroke-width="3"/>
-    <path d="M-100,32 C-35,8 40,8 100,32" fill="none" stroke="#E7D6B0" stroke-opacity="0.06" stroke-width="3"/>
+  <!-- Story world -->
+  <g transform="translate(40 134)">
+    <rect width="500" height="408" rx="18" fill="#30241B" stroke="#D8C493" stroke-opacity="0.18"/>
+    <text x="24" y="32" class="panel-title">01 · STORY WORLD</text>
+    <text x="24" y="51" class="small">OBLIQUE MINIATURE SETTLEMENT</text>
+    <path d="M24,98 L280,63 L476,151 L224,350 L28,260 Z" fill="url(#story-ground)" stroke="#D8C493" stroke-opacity="0.15" stroke-width="2"/>
+    <path d="M35,224 C126,182 174,236 255,184 S382,126 467,168" fill="none" stroke="#D8C493" stroke-opacity="0.58" stroke-width="20" stroke-linecap="round"/>
+    <path d="M185,328 C217,280 252,238 302,201" fill="none" stroke="#D8C493" stroke-opacity="0.42" stroke-width="12" stroke-linecap="round"/>
 
-    <g transform="translate(-51 -48) rotate(-8)">
-      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
-      <circle cx="0" cy="-10" r="12" fill="none" stroke="#D6A84F" stroke-width="6"/>
-      <text x="-20" y="-21" class="label" fill="#28232B">4</text>
+    <g transform="translate(82 136)">
+      <path d="M0,26 L34,8 L70,26 L36,45 Z" fill="#8D4238"/>
+      <path d="M8,28 L36,44 L36,86 L8,70 Z" fill="#68452F"/>
+      <path d="M36,44 L63,30 L63,72 L36,86 Z" fill="#3B291F"/>
+      <rect x="17" y="49" width="10" height="22" fill="#241A14"/>
     </g>
-    <g transform="translate(18 -37) rotate(6)">
-      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
-      <path d="M0,-23 L11,-4 L0,15 L-11,-4 Z" fill="#D95D45"/>
+    <g transform="translate(182 104)">
+      <path d="M0,32 L46,6 L91,31 L46,57 Z" fill="#465C73"/>
+      <path d="M9,35 L46,56 L46,110 L9,88 Z" fill="#D8C493"/>
+      <path d="M46,56 L83,35 L83,88 L46,110 Z" fill="#68452F"/>
+      <rect x="57" y="59" width="13" height="21" fill="#B58B3E"/>
+      <path d="M30,6 L46,-25 L61,6 Z" fill="#3B291F"/>
     </g>
-    <g transform="translate(72 40) rotate(14)">
-      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
-      <path d="M0,-22 C18,-8 18,10 0,23 C-18,10 -18,-8 0,-22 Z" fill="#3E7774"/>
+    <g transform="translate(337 125)">
+      <path d="M0,23 L32,6 L64,23 L32,41 Z" fill="#6B7046"/>
+      <path d="M7,25 L32,40 L32,78 L7,64 Z" fill="#A06F3C"/>
+      <path d="M32,40 L58,25 L58,64 L32,78 Z" fill="#68452F"/>
     </g>
-    <g transform="translate(-38 62) rotate(-2)">
-      <rect x="-28" y="-40" width="56" height="80" rx="5" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
-      <path d="M-12,12 L0,-23 L12,12 Z" fill="#28232B"/>
+    <g transform="translate(276 236)">
+      <path d="M0,24 L34,5 L70,25 L34,44 Z" fill="#8D4238"/>
+      <path d="M7,27 L34,43 L34,86 L7,70 Z" fill="#68452F"/>
+      <path d="M34,43 L63,27 L63,70 L34,86 Z" fill="#3B291F"/>
     </g>
-
-    <g transform="translate(0 204)">
-      <path d="M-82,35 Q-72,-32 -38,-53 L0,-29 L38,-53 Q72,-32 82,35 Z" fill="#3E7774" stroke="#E7D6B0" stroke-opacity="0.28" stroke-width="3"/>
-      <circle cy="-72" r="39" fill="#A8623C"/>
-      <path d="M-36,-82 Q-12,-124 33,-92 L35,-68 Q10,-90 -34,-65 Z" fill="#28232B"/>
-      <path d="M-66,-6 Q-98,-1 -110,-27" fill="none" stroke="#A8623C" stroke-width="22" stroke-linecap="round"/>
-      <path d="M66,-6 Q98,-1 110,-27" fill="none" stroke="#A8623C" stroke-width="22" stroke-linecap="round"/>
-      <circle cx="-111" cy="-29" r="14" fill="#D6A84F"/>
-      <circle cx="111" cy="-29" r="14" fill="#D6A84F"/>
+    <g transform="translate(104 253)">
+      <path d="M0,21 L29,5 L58,21 L29,37 Z" fill="#6B7046"/>
+      <path d="M6,24 L29,36 L29,70 L6,58 Z" fill="#D8C493"/>
+      <path d="M29,36 L53,24 L53,58 L29,70 Z" fill="#68452F"/>
     </g>
 
-    <g transform="translate(0 -204) rotate(180)">
-      <path d="M-62,25 Q-54,-22 -28,-39 L0,-20 L28,-39 Q54,-22 62,25 Z" fill="#A8623C"/>
-      <circle cy="-55" r="30" fill="#745544"/>
-      <path d="M-29,-61 Q0,-94 31,-63 L25,-43 Q0,-64 -28,-45 Z" fill="#28232B"/>
-    </g>
-    <g transform="translate(-204 0) rotate(90)">
-      <path d="M-62,25 Q-54,-22 -28,-39 L0,-20 L28,-39 Q54,-22 62,25 Z" fill="#574133"/>
-      <circle cy="-55" r="30" fill="#A8623C"/>
-      <path d="M-30,-66 Q-5,-97 30,-65 L28,-45 Q0,-67 -28,-48 Z" fill="#3E7774"/>
-    </g>
-    <g transform="translate(204 0) rotate(-90)">
-      <path d="M-62,25 Q-54,-22 -28,-39 L0,-20 L28,-39 Q54,-22 62,25 Z" fill="#3E7774"/>
-      <circle cy="-55" r="30" fill="#745544"/>
-      <path d="M-29,-64 Q0,-95 30,-62 L27,-43 Q0,-66 -27,-46 Z" fill="#28232B"/>
-    </g>
+    <circle cx="228" cy="172" r="13" fill="#B58B3E" stroke="#D8C493" stroke-width="4"/>
+    <path d="M228,151 L228,126" stroke="#B58B3E" stroke-width="4" stroke-linecap="round"/>
+    <path d="M228,126 L245,133 L228,141 Z" fill="#8D4238"/>
+    <circle cx="362" cy="223" r="9" fill="#D8C493" stroke="#6B7046" stroke-width="4"/>
+    <circle cx="157" cy="222" r="8" fill="#D8C493" stroke="#465C73" stroke-width="4"/>
+
+    <rect x="24" y="365" width="452" height="25" rx="12" fill="#241A14" fill-opacity="0.68"/>
+    <text x="38" y="382" class="small">ROADS + LANDMARKS FIRST · ACCENTS MARK GOALS</text>
   </g>
 
-  <g transform="translate(72 534)">
-    <rect width="222" height="32" rx="16" fill="#28232B" stroke="#D6A84F" stroke-width="2"/>
-    <text x="16" y="21" class="label">fixed camera · no shake</text>
-  </g>
-  <g transform="translate(522 534)">
-    <rect width="214" height="32" rx="16" fill="#28232B" stroke="#3E7774" stroke-width="2"/>
-    <text x="16" y="21" class="label">broad shapes · low noise</text>
+  <!-- Hub map -->
+  <g transform="translate(560 134)">
+    <rect width="280" height="408" rx="18" fill="#D8C493" stroke="#D8C493" stroke-opacity="0.3"/>
+    <rect width="280" height="408" rx="18" fill="url(#vellum-speckle)"/>
+    <text x="20" y="32" class="panel-title-dark">02 · HUB</text>
+    <text x="20" y="51" class="small-dark">PARCHMENT CAMPAIGN MAP</text>
+    <path d="M18,93 C62,69 91,88 120,79 C160,65 190,86 260,68 L262,160 C228,177 214,198 181,187 C137,172 106,186 66,163 C40,148 27,128 18,93 Z" fill="#6B7046" opacity="0.65"/>
+    <path d="M18,198 C58,178 84,191 114,218 C145,245 176,252 208,236 C231,224 247,239 263,256 L263,363 L18,363 Z" fill="#A06F3C" opacity="0.4"/>
+    <path d="M18,288 C58,274 96,299 125,322 C151,343 181,347 213,324 C237,306 250,310 263,317" fill="none" stroke="#465C73" stroke-width="18" stroke-opacity="0.64"/>
+    <path d="M51,301 C78,254 91,228 125,201 S173,139 210,112" fill="none" stroke="#68452F" stroke-width="7" stroke-dasharray="3 8" stroke-linecap="round"/>
+
+    <g transform="translate(51 301)">
+      <circle r="17" fill="#3B291F" stroke="#D8C493" stroke-width="4"/>
+      <path d="M-8,3 L0,-8 L8,3 L8,10 L-8,10 Z" fill="#B58B3E"/>
+    </g>
+    <g transform="translate(126 201)">
+      <circle r="20" fill="#8D4238" stroke="#D8C493" stroke-width="5"/>
+      <path d="M-10,7 L0,-10 L10,7 Z" fill="#D8C493"/>
+    </g>
+    <g transform="translate(210 112)">
+      <circle r="18" fill="#465C73" stroke="#D8C493" stroke-width="4"/>
+      <path d="M-9,9 L-9,-3 L0,-11 L9,-3 L9,9 Z" fill="#D8C493"/>
+    </g>
+    <g transform="translate(187 270)">
+      <circle r="13" fill="#6B7046" stroke="#D8C493" stroke-width="4"/>
+      <path d="M0,-7 L7,7 L-7,7 Z" fill="#D8C493"/>
+    </g>
+
+    <rect x="20" y="366" width="240" height="24" rx="12" fill="#3B291F"/>
+    <text x="34" y="382" class="small">FEW NODES · UNIQUE PLACES</text>
   </g>
 
-  <g transform="translate(804 154)">
-    <text y="33" class="heading">Working palette</text>
-    <line x1="0" y1="52" x2="340" y2="52" class="rule"/>
-    <g transform="translate(0 68)">
-      <rect width="96" height="56" rx="10" fill="#28232B" stroke="#E7D6B0" stroke-opacity="0.18"/>
-      <text x="110" y="22" class="label">Charcoal plum</text><text x="110" y="41" class="small">#28232B · depth</text>
+  <!-- Match -->
+  <g transform="translate(860 134)">
+    <rect width="300" height="408" rx="18" fill="#30241B" stroke="#D8C493" stroke-opacity="0.18"/>
+    <text x="20" y="32" class="panel-title">03 · MATCH</text>
+    <text x="20" y="51" class="small">FIXED OVERHEAD TABLE</text>
+    <rect x="18" y="67" width="264" height="300" rx="16" fill="#3B291F"/>
+    <circle cx="150" cy="213" r="103" fill="url(#match-table)" stroke="#68452F" stroke-width="17"/>
+    <circle cx="150" cy="213" r="73" fill="#3B291F" stroke="#D8C493" stroke-opacity="0.12"/>
+
+    <g transform="translate(150 106)">
+      <path d="M-37,6 Q-30,-28 0,-35 Q30,-28 37,6 Z" fill="#465C73"/>
+      <circle cy="-35" r="20" fill="#A06F3C"/>
+      <path d="M-19,-41 Q0,-61 20,-39 L15,-27 Q0,-44 -17,-29 Z" fill="#241A14"/>
     </g>
-    <g transform="translate(0 132)">
-      <rect width="96" height="56" rx="10" fill="#574133"/>
-      <text x="110" y="22" class="label">Smoked oak</text><text x="110" y="41" class="small">#574133 · play field</text>
+    <g transform="translate(65 245) rotate(72)">
+      <path d="M-34,7 Q-28,-25 0,-31 Q28,-25 34,7 Z" fill="#6B7046"/>
+      <circle cy="-31" r="18" fill="#A06F3C"/>
+      <path d="M-17,-36 Q0,-54 18,-35 L14,-23 Q0,-39 -15,-25 Z" fill="#3B291F"/>
     </g>
-    <g transform="translate(0 196)">
-      <rect width="96" height="56" rx="10" fill="#A8623C"/>
-      <text x="110" y="22" class="label">Toasted clay</text><text x="110" y="41" class="small">#A8623C · warm base</text>
+    <g transform="translate(235 245) rotate(-72)">
+      <path d="M-34,7 Q-28,-25 0,-31 Q28,-25 34,7 Z" fill="#8D4238"/>
+      <circle cy="-31" r="18" fill="#A06F3C"/>
+      <path d="M-17,-37 Q0,-55 18,-34 L14,-22 Q0,-40 -15,-25 Z" fill="#241A14"/>
     </g>
-    <g transform="translate(0 260)">
-      <rect width="96" height="56" rx="10" fill="#E7D6B0"/>
-      <text x="110" y="22" class="label">Parchment</text><text x="110" y="41" class="small">#E7D6B0 · focus</text>
+    <g transform="translate(150 330) rotate(180)">
+      <path d="M-41,9 Q-33,-30 0,-38 Q33,-30 41,9 Z" fill="#68452F"/>
+      <circle cy="-38" r="22" fill="#A06F3C"/>
+      <path d="M-21,-44 Q0,-67 23,-42 L17,-28 Q0,-47 -19,-30 Z" fill="#465C73"/>
     </g>
-    <g transform="translate(0 324)">
-      <rect width="96" height="56" rx="10" fill="#3E7774"/>
-      <text x="110" y="22" class="label">Muted teal</text><text x="110" y="41" class="small">#3E7774 · cool balance</text>
+
+    <g transform="translate(121 185) rotate(-8)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <circle cy="0" r="6" fill="none" stroke="#B58B3E" stroke-width="4"/>
     </g>
-    <circle cx="14" cy="416" r="14" fill="#D95D45"/><text x="36" y="420" class="small">#D95D45 · action</text>
-    <circle cx="194" cy="416" r="14" fill="#D6A84F"/><text x="216" y="420" class="small">#D6A84F · reward</text>
+    <g transform="translate(158 185) rotate(6)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <path d="M0,-8 L6,8 L-6,8 Z" fill="#8D4238"/>
+    </g>
+    <g transform="translate(142 235) rotate(-3)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <path d="M0,-9 C9,-3 9,6 0,11 C-9,6 -9,-3 0,-9 Z" fill="#465C73"/>
+    </g>
+    <g transform="translate(178 236) rotate(10)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <path d="M-6,7 L0,-10 L6,7 Z" fill="#241A14"/>
+    </g>
+
+    <rect x="20" y="374" width="260" height="20" rx="10" fill="#241A14"/>
+    <text x="34" y="388" class="small">EDGE CHARACTERS · CLEAR CENTRE</text>
   </g>
 
-  <line x1="44" y1="616" x2="1156" y2="616" class="rule"/>
-  <text x="54" y="652" class="heading">Core shapes</text>
-  <g transform="translate(204 638)">
-    <circle cx="34" cy="28" r="24" fill="#A8623C"/>
-    <path d="M0,90 Q7,40 34,51 Q61,40 68,90 Z" fill="#3E7774"/>
-    <text x="86" y="54" class="label">character</text><text x="86" y="73" class="small">arch + soft triangle</text>
+  <!-- Palette -->
+  <line x1="40" y1="576" x2="1160" y2="576" class="rule"/>
+  <text x="44" y="610" class="panel-title">GROUNDED MEDIEVAL PALETTE</text>
+  <text x="44" y="629" class="small">PARCHMENT · EARTH PIGMENTS · TIMBER · IRON · DYED WOOL · AGED METAL</text>
+
+  <g transform="translate(44 650)">
+    <g><rect width="108" height="58" rx="9" fill="#241A14" stroke="#D8C493" stroke-opacity="0.28"/><text x="8" y="75" class="small">LAMPBLACK</text></g>
+    <g transform="translate(124)"><rect width="108" height="58" rx="9" fill="#3B291F"/><text x="8" y="75" class="small">CHARRED</text></g>
+    <g transform="translate(248)"><rect width="108" height="58" rx="9" fill="#68452F"/><text x="8" y="75" class="small">WALNUT</text></g>
+    <g transform="translate(372)"><rect width="108" height="58" rx="9" fill="#A06F3C"/><text x="8" y="75" class="small">OCHRE</text></g>
+    <g transform="translate(496)"><rect width="108" height="58" rx="9" fill="#D8C493"/><text x="8" y="75" class="small">VELLUM</text></g>
+    <g transform="translate(620)"><rect width="108" height="58" rx="9" fill="#6B7046"/><text x="8" y="75" class="small">MOSS</text></g>
+    <g transform="translate(744)"><rect width="108" height="58" rx="9" fill="#465C73"/><text x="8" y="75" class="small">WOAD</text></g>
+    <g transform="translate(868)"><rect width="108" height="58" rx="9" fill="#8D4238"/><text x="8" y="75" class="small">MADDER</text></g>
+    <g transform="translate(992)"><rect width="108" height="58" rx="9" fill="#B58B3E"/><text x="8" y="75" class="small">BRASS</text></g>
   </g>
-  <g transform="translate(438 646)">
-    <ellipse cx="50" cy="40" rx="50" ry="31" fill="#574133" stroke="#A8623C" stroke-width="9"/>
-    <text x="118" y="38" class="label">table</text><text x="118" y="57" class="small">broad circle</text>
-  </g>
-  <g transform="translate(678 638)">
-    <rect width="54" height="82" rx="6" fill="#E7D6B0" stroke="#28232B" stroke-width="3"/>
-    <circle cx="27" cy="41" r="13" fill="none" stroke="#D6A84F" stroke-width="7"/>
-    <text x="76" y="44" class="label">card</text><text x="76" y="63" class="small">crisp rectangle</text>
-  </g>
-  <g transform="translate(908 652)">
-    <path d="M0,45 Q38,-5 76,45" fill="none" stroke="#D95D45" stroke-width="10" stroke-linecap="round"/>
-    <circle cx="76" cy="45" r="9" fill="#D6A84F"/>
-    <text x="102" y="40" class="label">VFX</text><text x="102" y="59" class="small">trace cause → result</text>
-  </g>
+
+  <text x="44" y="775" class="small">DOMINANT: LAMPBLACK · WALNUT · OCHRE · VELLUM · MOSS</text>
+  <text x="780" y="775" class="small">ACCENTS: WOAD · MADDER · BRASS</text>
 </svg>
