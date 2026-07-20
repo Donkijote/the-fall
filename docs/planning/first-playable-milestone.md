@@ -146,7 +146,7 @@ The first playable is accepted only when all of the following are true:
 | Prototype systems live in separate experiment scenes | integrate through authoritative state and event contracts rather than copying rule logic into a scene |
 | `WarmChallenger` is unrigged and 14.7 times the provisional triangle target | keep it out of gameplay and use placeholders; production character work follows measured need |
 | Full-match VFX, audio, repeated rounds, and allocations are unmeasured | profile the integrated candidate before accepting the milestone or promoting pooling/frameworks |
-| Mobile and Windows paths are unvalidated | retain automated regressions, make no device claim, and create platform work only after exact hardware/support choices |
+| Mobile and Windows paths are unvalidated | retain automated regressions and keep macOS as the milestone gate; use #30 and #31 to establish one physical-iPhone lane without claiming broad iOS support |
 | Accessibility and localized readability remain prototype evidence | preserve semantic, non-color-only cues and localization keys; schedule dedicated certification before release |
 
 ## Ordered implementation plan
@@ -157,9 +157,17 @@ Every implementation issue is assigned to `Donkijote`, has exactly one normal-wo
 2. [#23 Build first-playable match orchestration and the baseline bot](https://github.com/Donkijote/the-fall/issues/23), after #22
 3. [#24 Create the first-playable Home, setup, and result flow](https://github.com/Donkijote/the-fall/issues/24), after #23 exposes the application contract
 4. [#25 Integrate the complete 1v1 table presentation](https://github.com/Donkijote/the-fall/issues/25), after #23 and #24
-5. [#26 Complete first-playable event-driven animation](https://github.com/Donkijote/the-fall/issues/26), after #25
-6. [#27 Add functional prototype audio for the first playable](https://github.com/Donkijote/the-fall/issues/27), after #25 and parallel with #26 where practical
-7. [#28 Validate and accept the macOS first playable](https://github.com/Donkijote/the-fall/issues/28), after #22–#27
+5. [#29 Turn AnimationLab into a real-time sequence workbench](https://github.com/Donkijote/the-fall/issues/29), after #9 and before full-match animation promotion
+6. [#26 Complete first-playable event-driven animation](https://github.com/Donkijote/the-fall/issues/26), after #25 and #29
+7. [#27 Add functional prototype audio for the first playable](https://github.com/Donkijote/the-fall/issues/27), after #25 and parallel with #26 where practical
+8. [#28 Validate and accept the macOS first playable](https://github.com/Donkijote/the-fall/issues/28), after the core issues above
+
+### Parallel iOS enablement and follow-up
+
+- [#30 Configure iOS development builds for a physical iPhone](https://github.com/Donkijote/the-fall/issues/30) can proceed from #10 independently of the core implementation. It establishes local Unity export, Xcode development signing, deployment, and basic prototype checks without committing account secrets.
+- [#31 Validate the first playable on a physical iPhone](https://github.com/Donkijote/the-fall/issues/31) follows #28 and #30. It exercises the accepted match with touch, safe areas, rotation, loading, frame pacing, memory, and thermal evidence on Manuel's recorded phone.
+
+These iOS issues add early physical-device evidence. They do not replace #28, change the macOS milestone gate, select a production iOS support floor, or claim App Store readiness.
 
 ## V0 foundation exit decision
 

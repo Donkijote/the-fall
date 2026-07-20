@@ -98,6 +98,7 @@ The batch test runner issued 12,879 scheduling updates during that fast-forward 
 
 ## Remaining risks and deferred decisions
 
+- Issue #29 owns the real-time sequence workbench for composing, tuning, transporting, and saving reusable presentation beats. Issue #26 then promotes those lab-tested beats into the complete first playable.
 - Physical Android and iOS profiling, safe areas, thermal behavior, and device frame pacing remain unvalidated.
 - Desktop player GPU profiling and repeated-sequence allocation sampling should be added with issue #10's platform baseline.
 - The V0 view animates six representative cards; full deals, larger table populations, VFX, audio, characters, cantos, round transitions, and match victory can change cost and interruption pressure.

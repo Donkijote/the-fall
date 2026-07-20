@@ -57,7 +57,7 @@ V0 is complete when:
 
 **Confirmed:** V0 exits with issue #11. Every foundation exit criterion has sufficient evidence, and the remaining work is bounded first-playable implementation rather than missing discovery.
 
-The [first playable milestone](../planning/first-playable-milestone.md) is one complete offline 1v1 match against a deterministic baseline bot, accepted first as a macOS development build with prototype fidelity. Its ordered implementation is tracked by issues #22–#28.
+The [first playable milestone](../planning/first-playable-milestone.md) is one complete offline 1v1 match against a deterministic baseline bot, accepted first as a macOS development build with prototype fidelity. Its core implementation and physical-iPhone follow-up are tracked by issues #22–#31.
 
 Android, iOS, Windows, minimum supported OS versions, production performance tiers, Story Mode content, additional game modes, and online play remain later product or platform decisions. They do not block the bounded macOS first playable.
 

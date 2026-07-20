@@ -169,9 +169,9 @@ No workflow, Unity activation secret, third-party CI action, or self-hosted runn
 | Gap | Current disposition | Owner or recommended follow-up |
 | --- | --- | --- |
 | Unity suites and player builds in CI | deliberately deferred for V0 | project owner decides when project seriousness justifies a CI issue |
-| physical Android and iOS input, safe area, thermal, memory, and frame pacing | unvalidated | create a mobile device-validation issue after exact devices and minimum OS candidates are selected |
+| physical Android and iOS input, safe area, thermal, memory, and frame pacing | unvalidated | #30 establishes Manuel's iPhone deployment path and #31 records first-playable iPhone evidence; Android remains a later device issue |
 | Windows build and launch | unvalidated | create a Windows smoke issue when a Windows host or runner is available |
-| signed iOS launch and store toolchain | out of V0 build smoke | future distribution/signing issue after store direction is selected |
+| signed iOS launch and store toolchain | local development signing belongs to #30; distribution remains out of scope | future App Store Connect, TestFlight, and release-signing issue after store direction is selected |
 | minimum OS versions, desktop fullscreen, and minimum window size | first playable accepts the current project-owned macOS environment and four resizable layouts without setting production minimums or fullscreen behavior | revisit before a release or wider desktop-support milestone |
 | first-playable loading budgets | `10 s` cold launch and `5 s` Home-to-match for every one of three macOS samples | verify and record in acceptance issue #28 |
 | full-match allocation, GPU, VFX, audio, character, and repeated-round cost | prototype scenes are not representative | profile the first playable slice before production asset approval |

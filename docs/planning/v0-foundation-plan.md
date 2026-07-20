@@ -90,7 +90,7 @@ Issue #11 used evidence from the prior steps to decide:
 - a macOS universal development-player acceptance target
 - objective rule, interaction, state-synchronization, resolution, loading, frame-pacing, memory, and endurance gates
 
-Exit signal: the [first playable milestone](first-playable-milestone.md) and its issues #22–#28 define the next implementation phase.
+Exit signal: the [first playable milestone](first-playable-milestone.md) and its issues #22–#31 define the next implementation phase and parallel physical-iPhone evidence lane.
 
 ## V0 issue history
 
@@ -108,4 +108,4 @@ The V0 foundation work has been refined into these GitHub issues:
 
 All nine V0 issues were assigned, labeled, and attached to the The Fall project. Issues #3–#10 supplied the evidence consumed by #11.
 
-**Confirmed:** Issue #11 closes the V0 foundation. The next phase is the ordered first-playable plan in issues #22–#28.
+**Confirmed:** Issue #11 closes the V0 foundation. The next phase is the ordered first-playable plan and physical-iPhone follow-up in issues #22–#31.
