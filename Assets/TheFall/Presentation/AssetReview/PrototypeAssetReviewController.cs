@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,7 +18,10 @@ namespace TheFall.Presentation.AssetReview
         private Camera _reviewCamera;
 
         [SerializeField]
-        private Transform _focusTarget;
+        private Transform[] _focusTargets = Array.Empty<Transform>();
+
+        [SerializeField]
+        private string[] _focusLabels = Array.Empty<string>();
 
         [SerializeField]
         [Min(0.01f)]
@@ -37,10 +41,21 @@ namespace TheFall.Presentation.AssetReview
         private float _yawDegrees = DefaultYawDegrees;
         private float _pitchDegrees = DefaultPitchDegrees;
         private float _distanceMetres = DefaultDistanceMetres;
+        private int _selectedTargetIndex;
 
         public Camera ReviewCamera => _reviewCamera;
 
-        public Transform FocusTarget => _focusTarget;
+        public Transform FocusTarget =>
+            _focusTargets.Length == 0
+                ? null
+                : _focusTargets[Mathf.Clamp(_selectedTargetIndex, 0, _focusTargets.Length - 1)];
+
+        public int ReviewTargetCount => _focusTargets.Length;
+
+        public string SelectedTargetLabel =>
+            _selectedTargetIndex >= 0 && _selectedTargetIndex < _focusLabels.Length
+                ? _focusLabels[_selectedTargetIndex]
+                : "Generated Asset";
 
         public float DistanceMetres => _distanceMetres;
 
@@ -65,6 +80,7 @@ namespace TheFall.Presentation.AssetReview
             _distanceRangeMetres.x = Mathf.Max(0.1f, _distanceRangeMetres.x);
             _distanceRangeMetres.y = Mathf.Max(_distanceRangeMetres.x, _distanceRangeMetres.y);
             _distanceMetres = Mathf.Clamp(_distanceMetres, _distanceRangeMetres.x, _distanceRangeMetres.y);
+            _selectedTargetIndex = Mathf.Clamp(_selectedTargetIndex, 0, Mathf.Max(0, _focusTargets.Length - 1));
         }
 
         public void ResetView()
@@ -75,11 +91,29 @@ namespace TheFall.Presentation.AssetReview
             ApplyCameraPose();
         }
 
-#if UNITY_EDITOR
-        public void Configure(Camera reviewCamera, Transform focusTarget)
+        public void SelectTarget(int targetIndex)
         {
+            if (targetIndex < 0 || targetIndex >= _focusTargets.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(targetIndex));
+            }
+
+            _selectedTargetIndex = targetIndex;
+            ResetView();
+        }
+
+#if UNITY_EDITOR
+        public void Configure(Camera reviewCamera, Transform[] focusTargets, string[] focusLabels)
+        {
+            if (focusTargets == null || focusLabels == null || focusTargets.Length != focusLabels.Length)
+            {
+                throw new ArgumentException("Review targets and labels must have matching lengths.");
+            }
+
             _reviewCamera = reviewCamera;
-            _focusTarget = focusTarget;
+            _focusTargets = focusTargets;
+            _focusLabels = focusLabels;
+            _selectedTargetIndex = 0;
             ResetView();
         }
 #endif
@@ -131,6 +165,24 @@ namespace TheFall.Presentation.AssetReview
                 return false;
             }
 
+            if (keyboard.digit1Key.wasPressedThisFrame && _focusTargets.Length > 0)
+            {
+                SelectTarget(0);
+                return false;
+            }
+
+            if (keyboard.digit2Key.wasPressedThisFrame && _focusTargets.Length > 1)
+            {
+                SelectTarget(1);
+                return false;
+            }
+
+            if (keyboard.digit3Key.wasPressedThisFrame && _focusTargets.Length > 2)
+            {
+                SelectTarget(2);
+                return false;
+            }
+
             var horizontal = (keyboard.rightArrowKey.isPressed ? 1f : 0f) -
                 (keyboard.leftArrowKey.isPressed ? 1f : 0f);
             var vertical = (keyboard.upArrowKey.isPressed ? 1f : 0f) -
@@ -150,14 +202,15 @@ namespace TheFall.Presentation.AssetReview
 
         private void ApplyCameraPose()
         {
-            if (_reviewCamera == null || _focusTarget == null)
+            var focusTarget = FocusTarget;
+            if (_reviewCamera == null || focusTarget == null)
             {
                 return;
             }
 
             var orbitRotation = Quaternion.Euler(_pitchDegrees, _yawDegrees, 0f);
             _reviewCamera.transform.position =
-                _focusTarget.position - orbitRotation * Vector3.forward * _distanceMetres;
+                focusTarget.position - orbitRotation * Vector3.forward * _distanceMetres;
             _reviewCamera.transform.rotation = orbitRotation;
         }
 
@@ -170,7 +223,7 @@ namespace TheFall.Presentation.AssetReview
 
             GUI.Box(
                 new Rect(18f, 18f, 390f, 72f),
-                "TABLE ASSET REVIEW\nDrag left mouse or use arrow keys to orbit  •  Scroll to zoom  •  R to reset");
+                $"ASSET REVIEW — {SelectedTargetLabel}\n1 Table  •  2 Chair  •  3 Character  •  Drag/Arrows Orbit  •  Scroll Zoom  •  R Reset");
         }
     }
 }

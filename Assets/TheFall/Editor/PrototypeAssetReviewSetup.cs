@@ -17,7 +17,11 @@ namespace TheFall.Editor
         public const string ScenePath = "Assets/TheFall/Presentation/Scenes/AssetReview.unity";
 
         private const string TablePrefabPath =
-            "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/ENV-P-ROUND-TABLE/Generated/ENV-P-ROUND-TABLE_V0.prefab";
+            "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable/Generated/RoundCardTable.prefab";
+        private const string ChairPrefabPath =
+            "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/SimpleChair/Generated/SimpleChair.prefab";
+        private const string CharacterPrefabPath =
+            "Assets/TheFall/Content/PrototypeAssets/Models/Characters/WarmChallenger/Generated/WarmChallenger.prefab";
         private const string FloorMaterialPath =
             "Assets/TheFall/Presentation/AssetReview/AssetReviewFloor.mat";
 
@@ -42,9 +46,11 @@ namespace TheFall.Editor
         public static void Generate()
         {
             var tablePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(TablePrefabPath);
-            if (tablePrefab == null)
+            var chairPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ChairPrefabPath);
+            var characterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(CharacterPrefabPath);
+            if (tablePrefab == null || chairPrefab == null || characterPrefab == null)
             {
-                throw new BuildFailedException("Generate the approved V0 table prefab before the asset review scene.");
+                throw new BuildFailedException("Generate the table, chair, and character prefabs before the asset review scene.");
             }
 
             if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -66,16 +72,11 @@ namespace TheFall.Editor
             var root = new GameObject("AssetReview");
             var purpose = root.AddComponent<ScenePurpose>();
             purpose.SetDescription(
-                "Isolated Play-mode inspection scene for approved generated prototype assets; currently presents ENV-P-ROUND-TABLE with neutral orbit controls and review lighting.");
+                "Isolated Play-mode inspection scene for the Round Card Table, Simple Chair, and Warm Challenger generated prototypes with selectable orbit controls and neutral review lighting.");
 
-            var table = PrefabUtility.InstantiatePrefab(tablePrefab, scene) as GameObject;
-            if (table == null)
-            {
-                throw new BuildFailedException("The approved V0 table prefab could not be instantiated.");
-            }
-
-            table.name = "Table Under Review";
-            table.transform.SetParent(root.transform, false);
+            InstantiateReviewAsset(tablePrefab, "Round Card Table", new Vector3(-6f, 0f, 0f), Quaternion.identity, root.transform, scene);
+            InstantiateReviewAsset(chairPrefab, "Simple Chair", Vector3.zero, Quaternion.Euler(0f, 180f, 0f), root.transform, scene);
+            InstantiateReviewAsset(characterPrefab, "Warm Challenger", new Vector3(6f, 0f, 0f), Quaternion.Euler(0f, 180f, 0f), root.transform, scene);
 
             var floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
             floor.name = "Neutral Review Floor";
@@ -84,9 +85,12 @@ namespace TheFall.Editor
             floor.transform.localScale = new Vector3(2f, 1f, 2f);
             floor.GetComponent<Renderer>().sharedMaterial = floorMaterial;
 
-            var focusTarget = new GameObject("Camera Focus - Table Centre");
-            focusTarget.transform.SetParent(root.transform, false);
-            focusTarget.transform.localPosition = new Vector3(0f, 0.38f, 0f);
+            var focusTargets = new[]
+            {
+                CreateFocusTarget("Focus - Round Card Table", new Vector3(-6f, 0.38f, 0f), root.transform),
+                CreateFocusTarget("Focus - Simple Chair", new Vector3(0f, 0.5f, 0f), root.transform),
+                CreateFocusTarget("Focus - Warm Challenger", new Vector3(6f, 0.89f, 0f), root.transform),
+            };
 
             var cameraObject = new GameObject(
                 "Review Camera",
@@ -101,7 +105,10 @@ namespace TheFall.Editor
             camera.farClipPlane = 40f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.038f, 0.031f, 0.028f);
-            cameraObject.GetComponent<PrototypeAssetReviewController>().Configure(camera, focusTarget.transform);
+            cameraObject.GetComponent<PrototypeAssetReviewController>().Configure(
+                camera,
+                focusTargets,
+                new[] { "Round Card Table", "Simple Chair", "Warm Challenger" });
 
             CreateDirectionalLight(
                 "Warm Key Light",
@@ -140,23 +147,26 @@ namespace TheFall.Editor
             var controller = root == null
                 ? null
                 : root.GetComponentInChildren<PrototypeAssetReviewController>(true);
-            var table = root == null
-                ? null
-                : root.transform.Find("Table Under Review");
+            var table = root == null ? null : root.transform.Find("Round Card Table");
+            var chair = root == null ? null : root.transform.Find("Simple Chair");
+            var character = root == null ? null : root.transform.Find("Warm Challenger");
             var floor = root == null
                 ? null
                 : root.transform.Find("Neutral Review Floor");
 
             if (root == null || controller == null || controller.ReviewCamera == null ||
-                controller.FocusTarget == null || table == null || floor == null)
+                controller.FocusTarget == null || controller.ReviewTargetCount != 3 ||
+                table == null || chair == null || character == null || floor == null)
             {
                 throw new BuildFailedException("AssetReview is missing its table, floor, camera, or orbit controller.");
             }
 
             if (table.GetComponentsInChildren<Renderer>(true).Length != 1 ||
+                chair.GetComponentsInChildren<Renderer>(true).Length != 1 ||
+                character.GetComponentsInChildren<Renderer>(true).Length != 1 ||
                 root.GetComponentsInChildren<Light>(true).Length != 2)
             {
-                throw new BuildFailedException("AssetReview must contain one table renderer and two review lights.");
+                throw new BuildFailedException("AssetReview must contain one renderer per asset and two review lights.");
             }
 
             var buildScene = EditorBuildSettings.scenes.SingleOrDefault(candidate => candidate.path == ScenePath);
@@ -179,19 +189,30 @@ namespace TheFall.Editor
             var previousActive = RenderTexture.active;
             Directory.CreateDirectory("Logs");
 
+            var outputNames = new[]
+            {
+                "Logs/AssetReview-RoundCardTable.png",
+                "Logs/AssetReview-SimpleChair.png",
+                "Logs/AssetReview-WarmChallenger.png",
+            };
+
             try
             {
-                controller.ResetView();
                 camera.targetTexture = renderTexture;
                 camera.aspect = 1440f / 900f;
                 camera.ResetProjectionMatrix();
-                camera.Render();
-                camera.Render();
-                RenderTexture.active = renderTexture;
-                texture.ReadPixels(new Rect(0f, 0f, 1440f, 900f), 0, 0);
-                texture.Apply();
-                File.WriteAllBytes("Logs/AssetReview-Table.png", texture.EncodeToPNG());
-                Debug.Log("The Fall AssetReview capture written to Logs/AssetReview-Table.png.");
+                for (var targetIndex = 0; targetIndex < outputNames.Length; targetIndex++)
+                {
+                    controller.SelectTarget(targetIndex);
+                    camera.Render();
+                    camera.Render();
+                    RenderTexture.active = renderTexture;
+                    texture.ReadPixels(new Rect(0f, 0f, 1440f, 900f), 0, 0);
+                    texture.Apply();
+                    File.WriteAllBytes(outputNames[targetIndex], texture.EncodeToPNG());
+                }
+
+                Debug.Log("The Fall AssetReview captures written to Logs for all three generated prototypes.");
             }
             finally
             {
@@ -202,6 +223,34 @@ namespace TheFall.Editor
                 UnityEngine.Object.DestroyImmediate(renderTexture);
                 UnityEngine.Object.DestroyImmediate(texture);
             }
+        }
+
+        private static void InstantiateReviewAsset(
+            GameObject prefab,
+            string name,
+            Vector3 localPosition,
+            Quaternion localRotation,
+            Transform parent,
+            Scene scene)
+        {
+            var instance = PrefabUtility.InstantiatePrefab(prefab, scene) as GameObject;
+            if (instance == null)
+            {
+                throw new BuildFailedException($"{name} prefab could not be instantiated.");
+            }
+
+            instance.name = name;
+            instance.transform.SetParent(parent, false);
+            instance.transform.localPosition = localPosition;
+            instance.transform.localRotation = localRotation;
+        }
+
+        private static Transform CreateFocusTarget(string name, Vector3 localPosition, Transform parent)
+        {
+            var target = new GameObject(name).transform;
+            target.SetParent(parent, false);
+            target.localPosition = localPosition;
+            return target;
         }
 
         private static Material CreateFloorMaterial()

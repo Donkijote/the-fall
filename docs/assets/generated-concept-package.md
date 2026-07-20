@@ -1,6 +1,6 @@
 # V0 Generated Concept Package
 
-Status: Concept-generation checkpoint; table conversion completed in the generated 3D intake
+Status: Concept-generation checkpoint; representative table and character conversions completed in the generated 3D intake
 
 ## Scope boundary
 
@@ -75,9 +75,9 @@ No Meshy output is stored in the concept folders, so this concept package claims
 | Shared art direction | Pass | Pass | Pass |
 | Cultural-neutrality screen | Pass; no identifying motif | Pass; functional construction only | Pass; original geometric suit language |
 | Small-format/readability evidence | silhouette and elevated views retained | thumbnail and overhead card test retained | Coins grayscale and 48/64/96-size comparisons retained; four-suit differentiation visually reviewed |
-| Meshy conversion | Deferred for owner work | Pass for selected Smart Topology table | N/A; modular 2D path accepted |
-| Geometry/material/rig budget | Pending 3D output | V0 exception: 13,253 triangles versus provisional 12K; one material; static/no rig | Pass through modular card pipeline |
-| Unity import and scene performance | Pending 3D output | Prototype pass; details in generated 3D intake | Pass through modular card pipeline |
+| Meshy conversion | Pass for owner-selected high-resolution character | Pass for selected table; supporting chair also imported | N/A; modular 2D path accepted |
+| Geometry/material/rig budget | Review-only exception: 366,508 triangles, static/unrigged | Table V0 exception: 13,253 triangles; chair 12,336; one material each | Pass through modular card pipeline |
+| Unity import and scene performance | Static AssetReview pass; gameplay/rig/device approval rejected pending retopology | Prototype pass; details in generated 3D intake | Pass through modular card pipeline |
 
 The cohesion render and extensions confirm a stable family: the full-body character preserves the upper-body identity while adding simple trousers, wraps, and rounded boots; the chair reuses the table's walnut, charred-walnut, brass, faceting, and joinery language; all Four cards preserve the same vellum face, border, corner-rank system, proportions, and two-way four-pip layout while remaining distinct by silhouette.
 
@@ -189,9 +189,9 @@ Four of Cups: preserve the retained Four of Coins card's exact 63:88 proportions
 Combine the three retained project-owned fictional designs into one clean elevated-camera gameplay concept render. The friendly character sits behind the round wooden table; the Four of Coins and a few matching cards rest on the dark central play field. Keep the character readable around the perimeter and cards unobstructed in the center. Use consistent warm medieval-cartoon stylized 3D art, broad handcrafted forms, matte materials, low-frequency detail, warm overhead key, subtle cool fill, and a walnut/charred-walnut/moss/vellum/woad/lampblack/brass palette. Retain the recognizable visual language, colors, materials, and key design features of all three anchors, including exactly four central pips on the visible Four of Coins. No extra characters, logos, watermark, poker/casino language, glossy surfaces, dense ornament, cultural symbols, or cinematic background.
 ```
 
-## Manual Meshy handoff for remaining assets
+## Manual Meshy handoff record
 
-When Manuel resumes the remaining external conversion, process one asset at a time and append actual evidence to the generated 3D intake rather than replacing the concept record. The table has completed these steps; the character remains pending:
+The table, supporting chair, and character have completed the owner-operated download handoff. Use these same steps for future assets and append evidence to the generated 3D intake rather than replacing the concept record:
 
 1. Confirm the Meshy account tier, selected license, current model name/version, and credit balance before generation.
 2. Upload only the clean anchor image for the matching ID; do not upload observation-only references or review sheets as hidden style inputs.

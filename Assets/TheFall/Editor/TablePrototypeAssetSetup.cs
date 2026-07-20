@@ -9,18 +9,20 @@ namespace TheFall.Editor
 {
     public static class TablePrototypeAssetSetup
     {
-        public const string AssetRoot = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/ENV-P-ROUND-TABLE";
+        private const string LegacyAssetRoot = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/ENV-P-ROUND-TABLE";
+
+        public const string AssetRoot = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable";
         public const string SourceRoot = AssetRoot + "/Source";
         public const string GeneratedRoot = AssetRoot + "/Generated";
-        public const string ModelPath = SourceRoot + "/ENV-P-ROUND-TABLE_SmartTopology.fbx";
-        public const string AlbedoPath = SourceRoot + "/ENV-P-ROUND-TABLE_Albedo_2K.png";
-        public const string NormalPath = SourceRoot + "/ENV-P-ROUND-TABLE_Normal_2K.png";
-        public const string MetallicPath = SourceRoot + "/ENV-P-ROUND-TABLE_Metallic_2K.png";
-        public const string RoughnessPath = SourceRoot + "/ENV-P-ROUND-TABLE_Roughness_2K.png";
-        public const string EmissionPath = SourceRoot + "/ENV-P-ROUND-TABLE_Emission_2K.png";
-        public const string MaskPath = GeneratedRoot + "/ENV-P-ROUND-TABLE_MetallicSmoothness_1K.png";
-        public const string MaterialPath = GeneratedRoot + "/ENV-P-ROUND-TABLE_V0.mat";
-        public const string PrefabPath = GeneratedRoot + "/ENV-P-ROUND-TABLE_V0.prefab";
+        public const string ModelPath = SourceRoot + "/RoundCardTable.fbx";
+        public const string AlbedoPath = SourceRoot + "/RoundCardTable_Albedo_2K.png";
+        public const string NormalPath = SourceRoot + "/RoundCardTable_Normal_2K.png";
+        public const string MetallicPath = SourceRoot + "/RoundCardTable_Metallic_2K.png";
+        public const string RoughnessPath = SourceRoot + "/RoundCardTable_Roughness_2K.png";
+        public const string EmissionPath = SourceRoot + "/RoundCardTable_Emission_2K.png";
+        public const string MaskPath = GeneratedRoot + "/RoundCardTable_MetallicSmoothness_1K.png";
+        public const string MaterialPath = GeneratedRoot + "/RoundCardTable.mat";
+        public const string PrefabPath = GeneratedRoot + "/RoundCardTable.prefab";
 
         private const float TargetDiameterMetres = 1.45f;
         private const float TargetHeightMetres = 0.76f;
@@ -30,6 +32,7 @@ namespace TheFall.Editor
         [MenuItem("The Fall/Prototype Assets/Table/Generate")]
         public static void Generate()
         {
+            MigrateReadableNames();
             RequireSourceFiles();
             Directory.CreateDirectory(GeneratedRoot);
             AssetDatabase.Refresh();
@@ -51,6 +54,27 @@ namespace TheFall.Editor
             AssetDatabase.Refresh();
             Validate();
             Debug.Log("The Fall V0 table asset generated and validated.");
+        }
+
+        [MenuItem("The Fall/Prototype Assets/Table/Migrate Readable Names")]
+        public static void MigrateReadableNames()
+        {
+            if (AssetDatabase.IsValidFolder(LegacyAssetRoot) && !AssetDatabase.IsValidFolder(AssetRoot))
+            {
+                MoveAsset(LegacyAssetRoot, AssetRoot);
+            }
+
+            MoveAssetIfPresent(SourceRoot + "/ENV-P-ROUND-TABLE_SmartTopology.fbx", ModelPath);
+            MoveAssetIfPresent(SourceRoot + "/ENV-P-ROUND-TABLE_Albedo_2K.png", AlbedoPath);
+            MoveAssetIfPresent(SourceRoot + "/ENV-P-ROUND-TABLE_Normal_2K.png", NormalPath);
+            MoveAssetIfPresent(SourceRoot + "/ENV-P-ROUND-TABLE_Metallic_2K.png", MetallicPath);
+            MoveAssetIfPresent(SourceRoot + "/ENV-P-ROUND-TABLE_Roughness_2K.png", RoughnessPath);
+            MoveAssetIfPresent(SourceRoot + "/ENV-P-ROUND-TABLE_Emission_2K.png", EmissionPath);
+            MoveAssetIfPresent(GeneratedRoot + "/ENV-P-ROUND-TABLE_MetallicSmoothness_1K.png", MaskPath);
+            MoveAssetIfPresent(GeneratedRoot + "/ENV-P-ROUND-TABLE_V0.mat", MaterialPath);
+            MoveAssetIfPresent(GeneratedRoot + "/ENV-P-ROUND-TABLE_V0.prefab", PrefabPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("The Fall/Prototype Assets/Table/Validate")]
@@ -309,7 +333,7 @@ namespace TheFall.Editor
             var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);
             if (material == null)
             {
-                material = new Material(shader) { name = "ENV-P-ROUND-TABLE V0" };
+                material = new Material(shader) { name = "Round Card Table" };
                 AssetDatabase.CreateAsset(material, MaterialPath);
             }
             else
@@ -342,7 +366,7 @@ namespace TheFall.Editor
                 throw new BuildFailedException("The table model and material must exist before prefab generation.");
             }
 
-            var root = new GameObject("ENV-P-ROUND-TABLE V0");
+            var root = new GameObject("Round Card Table");
             try
             {
                 var visualContainer = new GameObject("Visual");
@@ -412,6 +436,25 @@ namespace TheFall.Editor
         private static bool Approximately(float value, float expected, float tolerance)
         {
             return Mathf.Abs(value - expected) <= tolerance;
+        }
+
+        private static void MoveAssetIfPresent(string sourcePath, string destinationPath)
+        {
+            if (AssetDatabase.LoadMainAssetAtPath(sourcePath) != null &&
+                AssetDatabase.LoadMainAssetAtPath(destinationPath) == null)
+            {
+                MoveAsset(sourcePath, destinationPath);
+            }
+        }
+
+        private static void MoveAsset(string sourcePath, string destinationPath)
+        {
+            var error = AssetDatabase.MoveAsset(sourcePath, destinationPath);
+            if (!string.IsNullOrEmpty(error))
+            {
+                throw new BuildFailedException(
+                    $"Could not rename generated asset '{sourcePath}' to '{destinationPath}': {error}");
+            }
         }
     }
 }

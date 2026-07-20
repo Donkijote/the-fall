@@ -13,7 +13,7 @@ namespace TheFall.Editor
     public static class TableCompositionSetup
     {
         private const string ScenePath = "Assets/TheFall/Presentation/Scenes/MatchPrototype.unity";
-        private const string TablePrefabPath = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/ENV-P-ROUND-TABLE/Generated/ENV-P-ROUND-TABLE_V0.prefab";
+        private const string TablePrefabPath = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable/Generated/RoundCardTable.prefab";
 
         [MenuItem("The Fall/Table Composition/Generate")]
         public static void Run()

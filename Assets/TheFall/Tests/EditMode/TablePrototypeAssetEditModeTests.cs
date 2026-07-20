@@ -7,9 +7,9 @@ namespace TheFall.Tests.EditMode
 {
     public sealed class TablePrototypeAssetEditModeTests
     {
-        private const string AssetRoot = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/ENV-P-ROUND-TABLE";
-        private const string PrefabPath = AssetRoot + "/Generated/ENV-P-ROUND-TABLE_V0.prefab";
-        private const string MaterialPath = AssetRoot + "/Generated/ENV-P-ROUND-TABLE_V0.mat";
+        private const string AssetRoot = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable";
+        private const string PrefabPath = AssetRoot + "/Generated/RoundCardTable.prefab";
+        private const string MaterialPath = AssetRoot + "/Generated/RoundCardTable.mat";
 
         [Test]
         public void V0TablePrefab_HasApprovedDimensionsPivotMaterialAndColliders()
@@ -49,7 +49,7 @@ namespace TheFall.Tests.EditMode
         [Test]
         public void V0TableSource_StaysInsideDocumentedExceptionCeiling()
         {
-            var source = AssetDatabase.LoadAssetAtPath<GameObject>(AssetRoot + "/Source/ENV-P-ROUND-TABLE_SmartTopology.fbx");
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(AssetRoot + "/Source/RoundCardTable.fbx");
             var meshFilters = source.GetComponentsInChildren<MeshFilter>(true);
             var triangleCount = meshFilters.Sum(filter => filter.sharedMesh.triangles.Length / 3);
 
