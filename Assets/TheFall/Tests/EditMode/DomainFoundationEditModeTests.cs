@@ -123,8 +123,10 @@ namespace TheFall.Tests.EditMode
             var humanIntents = botTurn.GetLegalIntents(HumanId);
             var humanResult = botTurn.Submit(humanIntents.OfType<PlayCardIntent>().First());
 
-            Assert.That(botIntents, Has.All.TypeOf<PlayCardIntent>());
-            Assert.That(humanIntents, Has.All.TypeOf<PlayCardIntent>());
+            Assert.That(botIntents.OfType<PlayCardIntent>().Count(), Is.EqualTo(3));
+            Assert.That(humanIntents.OfType<PlayCardIntent>().Count(), Is.EqualTo(3));
+            Assert.That(botIntents.OfType<AnnounceCantoIntent>().Count(), Is.EqualTo(7));
+            Assert.That(humanIntents.OfType<AnnounceCantoIntent>().Count(), Is.EqualTo(7));
             Assert.That(botResult.IsAccepted, Is.True);
             Assert.That(humanResult.IsAccepted, Is.True);
         }

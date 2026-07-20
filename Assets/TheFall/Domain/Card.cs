@@ -110,6 +110,19 @@ namespace TheFall.Domain
             return false;
         }
 
+        public static int GetIndex(CardRank rank)
+        {
+            for (var index = 0; index < OrderedRanks.Length; index++)
+            {
+                if (OrderedRanks[index] == rank)
+                {
+                    return index;
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(rank));
+        }
+
         public static int GetFallPoints(CardRank rank)
         {
             switch (rank)

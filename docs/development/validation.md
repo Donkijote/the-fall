@@ -189,4 +189,15 @@ Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
 - Android, iOS, and Windows build modules/toolchains: unavailable and not claimed
 - physical mobile and Windows exploratory rows: not run
 
+## Issue #22 validation checkpoint
+
+Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
+
+- foundation structural validation: passed
+- complete Edit Mode suite: 52/52 passed, including 12 complete-1v1 rule tests
+- complete Play Mode suite: 11/11 passed
+- macOS universal development-player smoke build: succeeded
+- deterministic complete-match replay: reached one winner from dealer selection with identical final state and ordered events across identical seeded runs
+- Android, iOS, Windows, physical-device, and performance rows: not run and not claimed by this pure-domain issue
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

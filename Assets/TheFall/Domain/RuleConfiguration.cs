@@ -1,20 +1,14 @@
-using System;
-
 namespace TheFall.Domain
 {
     public sealed class RuleConfiguration
     {
+        public const int StandardVictoryTarget = 24;
+
         public RuleConfiguration(
-            int victoryTarget = 24,
             bool casaCantosEnabled = true,
             bool trivilinWinsImmediately = false)
         {
-            if (victoryTarget <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(victoryTarget));
-            }
-
-            VictoryTarget = victoryTarget;
+            VictoryTarget = StandardVictoryTarget;
             CasaCantosEnabled = casaCantosEnabled;
             TrivilinWinsImmediately = trivilinWinsImmediately;
         }

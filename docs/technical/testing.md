@@ -64,6 +64,8 @@ A deterministic rule failure is replayed with its explicit seed, initial state, 
 
 The complete diagnosis contract and focused test commands are recorded in [testing and platform validation baseline](../development/validation.md).
 
+Issue #22 extends the pure-domain layer through a complete seeded 1v1 match. Its Edit Mode coverage starts at dealer selection, exercises deals, opening duplicates and scoring, cantos, captures, round counting, victory, and tie extension, then compares the final state and ordered event log across identical replays. Focused boundary tests retain the input state instance and return explicit errors for rejected intents. See [deterministic 1v1 domain](domain-foundation.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.

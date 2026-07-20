@@ -1,84 +1,106 @@
-# Deterministic Domain Foundation
+# Deterministic 1v1 Domain
 
-Status: Confirmed implementation spike
+Status: Confirmed complete first-playable rules implementation
 
 ## Purpose
 
-Issue #4 proves that a representative 1v1 turn can resolve in pure C# without Unity presentation, scene state, frame time, or `UnityEngine.Random`. This is a deliberately narrow foundation rather than the complete rules implementation.
+Issue #22 expands the issue #4 representative-turn spike into the complete pure-C# 1v1 match required by the first playable. A match now advances deterministically from the face-down dealer spread through a unique winner without a Unity scene, frame time, `UnityEngine.Random`, presentation policy, or bot policy.
+
+The authoritative rule behavior remains defined by [game rules](../game/rules.md). This document records the implemented state, intent, result, event, and validation contract.
 
 ## Boundary
 
-- `TheFall.Domain` owns cards, participants, match state, legal intents, rule results, and resolved events. Its assembly has `noEngineReferences` enabled.
-- `TheFall.Application.MatchSession` is the shared intent entry point. Human input and bots submit the same domain intents and receive the same result shape.
-- `TheFall.Infrastructure.SeededRandomSource` implements the domain-owned `IRandomSource` boundary with an explicit seed.
-- `TheFall.Presentation.ResolvedMatchBuffer` consumes `RuleResult.State` and `RuleResult.Events` in order without evaluating rules. Issue #9's `ResolvedAnimationSequence` now consumes that buffer for the representative animation laboratory; it does not repeat capture, cascade, Fall, clean-table, score, or turn decisions.
-- `TheFall.Application.Interaction.CardInteractionSession` owns reversible inspection, selection, confirmation, cancellation, rejection, and temporary-blocking state. It translates only a confirmed `Play` interaction into the existing `PlayCardIntent`; orientation and input-device concerns remain outside the domain.
+- `TheFall.Domain` owns cards, players, immutable match state, legal intents, rule resolution, scoring, round progression, canto classification, and ordered outcome events. Its assembly retains `noEngineReferences` and has no `UnityEngine` dependency.
+- `TheFall.Application.MatchSession` is the shared intent entry point for human and bot callers. It can start a full match from two players and an injected `IRandomSource`, or continue from an explicit state used by focused tests and presentation experiments.
+- `TheFall.Infrastructure.SeededRandomSource` supplies replayable shuffle and reinsertion choices through the domain-owned random boundary.
+- Presentation consumers continue to receive the accepted `RuleResult.State` and `RuleResult.Events`; they do not recalculate captures, scores, dealer flow, cantos, or victory.
 
-## State vocabulary
+## Match lifecycle and state
 
-| Type | Meaning in the spike |
+`MatchState` is an immutable snapshot. Every accepted intent returns a new state; every rejected intent returns the exact input state instance and no events.
+
+The implemented phases are:
+
+| Phase | Meaning |
 | --- | --- |
-| `Card`, `CardRank`, `CardSuit` | Immutable Spanish-deck card values using ranks 1–7 and 10–12 and the canonical English suit names. |
-| `Deck` | Immutable ordered card collection with deterministic injected shuffling. |
-| `Seat` | Logical counter-clockwise position. The representative 1v1 flow uses `First` and `Second`. |
-| `Player`, `PlayerId`, `PlayerControl` | Stable player identity and metadata. `PlayerControl` distinguishes human and bot origins without changing their intent surface. |
-| `Team`, `TeamId` | Scoring ownership. Each player owns a separate team in 1v1; the type leaves room for shared teams later. |
-| `Score` | Non-negative immutable point total with explicit add and clamped-subtract operations. |
-| `RuleConfiguration` | Immutable pre-match values. The foundation records the 24-point target plus confirmed Casa and Trivilín options even though canto resolution is deferred. |
-| `PlayerState` | One player's hand and captured-card pile. |
-| `PreviousPlay` | The immediately preceding played card and whether it captured, sufficient to recognize a Fall. |
-| `MatchState` | Immutable 1v1 snapshot containing players, table, remaining deck, scores, turn, dealer, final-deal flag, rules, and completion state. |
+| `DealerSelection` | Players select from the remaining face-down spread. Rank-only ties continue from that spread. |
+| `AwaitingDealerChoice` | The selected or rotated dealer chooses hand/table order and the opening pattern. |
+| `Active` | Players announce cantos when eligible and play the current three-card deal. |
+| `Completed` | A unique winner has been resolved and no further intent is legal. |
 
-`MatchState` enforces the confirmed table invariant that at most one card of each rank may be present.
+The state records players, private hands, captured piles, table, remaining deck, dealer, active seat, scores, previous play, last capturer, round and deal numbers, final-deal status, dealer selections, preserved canto announcements, dealer choices, tie-extension status, and winner. Collections are copied and exposed read-only. The table constructor and resolver enforce at most one card per rank.
 
-## Intent and result vocabulary
+Scores persist between rounds. Hands, table, captures, previous play, and other round-scoped values reset when the dealer rotates. Tie-extension rounds retain the tied scores, continue dealer rotation without another dealer-selection phase, and use the complete opening setup.
 
-`PlayerIntent` is the common base for recorded decisions. The spike implements `PlayCardIntent(playerId, card)` only.
+## Intents and explicit rejection
 
-Issue #7 deliberately does not expand the domain intent vocabulary. Its application interaction history can record `Inspect -> Select -> Confirm -> Play`, while only `Play` enters the deterministic resolver. See [cross-platform card interaction prototype](../design/card-interaction-prototype.md).
+The common `PlayerIntent` surface now includes:
 
-`OneVersusOneRules.Resolve` always returns a `RuleResult`:
+- `SelectDealerCardIntent`
+- `ChooseDealOptionsIntent`
+- `AnnounceCantoIntent`
+- `PlayCardIntent`
 
-- accepted results contain a new immutable `MatchState` and ordered domain events
-- rejected results contain an explicit `RuleError`, the unchanged state instance, and no events
-- resolving never mutates the input state
+`OneVersusOneRules.GetLegalIntents` exposes only phase-, turn-, and ownership-appropriate intents. Every eligible canto opportunity includes all seven canto claims so false announcements remain playable.
 
-`OneVersusOneRules.GetLegalIntents` exposes the same legal play-card intents for the current player whether `PlayerControl` is `Human` or `Bot`.
+`OneVersusOneRules.Resolve` returns an explicit `RuleError` for unsupported intents, completed matches, wrong phases, unknown players, wrong turns, cards outside the hand or dealer spread, non-dealer choices, closed or repeated canto opportunities, and missing randomness for transitions that require it. Rejection does not consume state or emit presentation facts.
 
-## Event vocabulary
+## Implemented rules
 
-Events describe facts already decided by the domain. Their list order is the presentation sequence order.
+The complete 1v1 flow implements:
 
-| Event | Meaning |
-| --- | --- |
-| `CardPlayedEvent` | A legal card left the acting player's hand. |
-| `CardPlacedOnTableEvent` | No same-rank card existed, so the played card remained on the table. |
-| `CardsCapturedEvent` | The played card, same-rank table card, and ordered cascade cards moved to the player's captured pile. |
-| `ScoreChangedEvent` | Fall or clean-table points changed a team's score, including reason and resulting total. |
-| `TurnChangedEvent` | Resolution completed and the next logical seat became active. |
-| `MatchCompletedEvent` | An uncontested score at or above the configured target ended the representative match. |
+- full-deck dealer selection, rank-only tie rounds, selection-card return, and complete reshuffle
+- dealer-selected hands-first or table-first ordering and ascending or descending opening patterns
+- one-card-at-a-time dealing from the dealer's right
+- unique opening ranks, deterministic random duplicate reinsertion, replacement at the rejected position, and positional opening scoring
+- repeated three-card deals until the forty-card deck is exhausted
+- mandatory equal-rank capture and ordered cascades through `1-2-3-4-5-6-7-10-11-12`
+- immediate Falls, rank-based Fall points, and four-point clean tables outside the final deal
+- end-of-round leftovers, the 20-card quota, excess-card scoring, dealer rotation, and score persistence
+- immediate and round-completion victory timing at the fixed standard target of 24
+- complete equal-leader tie-extension rounds until the next scoring outcome creates a unique leader
 
-## Implemented rule slice
+The original representative state factory remains available for focused domain and animation tests. It uses the same capture, score, result, and event implementation as a full match.
 
-The representative resolver validates turn ownership and card ownership, then:
+## Cantos
 
-1. removes the played card from the hand
-2. places it when no equal rank exists, or performs the mandatory equal-rank capture
-3. captures the ordered cascade through `1-2-3-4-5-6-7-10-11-12`, stopping at the first gap
-4. awards rank-based Fall points for an immediate capture of the previous non-capturing play
-5. awards four clean-table points outside the final deal
-6. completes the match on an uncontested score at or above the configured target, or advances the turn
+`CantoRules.Classify` classifies a three-card hand as at most one of Casa Grande, Casa Chica, Registro, Vigía, Patrulla, Trivilín, or Ronda under the immutable match configuration.
 
-Seeded Edit Mode tests replay recorded intents and compare the resulting state and ordered events. They also cover the 40-card deck, deterministic shuffle, cascade stopping, stacked Fall and clean-table scoring, invalid-intent immutability, and the shared human/bot intent surface.
+The implementation preserves the announced three-card hand privately, allows false claims, applies cumulative clamped penalties before valid canto scoring, compares value or effect, then underlying rank strength, then dealer-right order. The shared Casas option falls Casa hands back to Ronda when disabled. The Trivilín option selects five points or immediate victory.
 
-## Intentionally deferred
+A valid sole canto that reaches 24 resolves at announcement. Other non-winning single cantos and multi-player comparisons resolve at deal completion. Immediate Fall or clean-table victory pre-empts unresolved announcements.
 
-- dealer selection and tied selections
-- initial table dealing, duplicate reinsertion, and opening-pattern scoring
-- deal and round orchestration
-- canto classification, announcement, comparison, and penalties
-- captured-card quotas and leftover assignment
-- three-player, 2v2, and tie-extension behavior
-- serialization format, networking authority, and save/load boundaries
+## Ordered events
 
-These remain governed by the authoritative [game rules](../game/rules.md) and should be added as independently tested slices rather than inferred from this prototype.
+Accepted results emit immutable events in presentation order for:
+
+- match start, dealer selections, ties, selected dealer, and shuffles
+- dealer choice, deal start, each dealt card, rejected opening duplicates, and accepted opening cards
+- canto announcement, validation, comparison result, and score effect
+- card play, table placement, ordered capture and cascade cards, score changes, and turn changes
+- deal completion, leftovers, captured-card scoring, round completion, dealer rotation, and tie extension
+- terminal match completion
+
+`CardsCapturedEvent` keeps the played card, matching table card, and every cascade card in capture order. `ScoreChangedEvent` records the scoring reason, signed adjustment, and resulting total.
+
+## Determinism and validation
+
+The full-flow Edit Mode fixture uses explicit seeds and covers dealer ties, both deal orders, opening duplicate reinsertion, positional scoring, canto classification and options, false penalties, canto comparison, captured-card boundaries, tie extension, invalid intents, and complete-match replay.
+
+The complete replay test starts at dealer selection, submits only legal deterministic intents, reaches one winner under the 24-point standard rules, and compares the final snapshot and ordered event log across identical runs. The original issue #4 seeded capture and presentation-buffer tests remain in place as regression coverage.
+
+Use the repository validation command:
+
+```sh
+bash scripts/validate-unity.sh tests
+```
+
+## Deferred
+
+- three-player and 2v2 rules
+- bot choice policy and first-playable application orchestration
+- save or online serialization formats
+- networking authority
+- Unity presentation, animation, audio, and UI for the expanded event vocabulary
+
+These belong to later first-playable issues and must consume this authoritative state, intent, result, and event boundary rather than reproduce its decisions.
