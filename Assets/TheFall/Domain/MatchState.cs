@@ -5,6 +5,8 @@ namespace TheFall.Domain
 {
     public enum MatchPhase
     {
+        DealerSelection,
+        AwaitingDealerChoice,
         Active,
         Completed,
     }
@@ -46,6 +48,23 @@ namespace TheFall.Domain
             return new PlayerState(Player, hand, captured);
         }
 
+        internal PlayerState Deal(IEnumerable<Card> cards)
+        {
+            return new PlayerState(Player, cards, _capturedCards);
+        }
+
+        internal PlayerState Collect(IEnumerable<Card> cards)
+        {
+            var captured = new List<Card>(_capturedCards);
+            captured.AddRange(cards);
+            return new PlayerState(Player, _hand, captured);
+        }
+
+        internal PlayerState ResetRound()
+        {
+            return new PlayerState(Player, Array.Empty<Card>(), Array.Empty<Card>());
+        }
+
         private static Card[] CopyCards(IEnumerable<Card> cards, string parameterName)
         {
             if (cards == null)
@@ -73,12 +92,28 @@ namespace TheFall.Domain
         public bool WasCapture { get; }
     }
 
+    public sealed class DealerCardSelection
+    {
+        public DealerCardSelection(PlayerId playerId, Card card)
+        {
+            PlayerId = playerId;
+            Card = card;
+        }
+
+        public PlayerId PlayerId { get; }
+
+        public Card Card { get; }
+    }
+
     public sealed class MatchState
     {
         private readonly PlayerState[] _players;
         private readonly Card[] _table;
+        private readonly Card[] _dealerSelectionCards;
+        private readonly DealerCardSelection[] _currentDealerSelections;
+        private readonly CantoAnnouncement[] _cantoAnnouncements;
 
-        private MatchState(
+        internal MatchState(
             PlayerState[] players,
             Seat dealerSeat,
             Seat currentSeat,
@@ -90,15 +125,40 @@ namespace TheFall.Domain
             bool isFinalDeal,
             PreviousPlay previousPlay,
             MatchPhase phase,
-            TeamId? winnerTeam)
+            TeamId? winnerTeam,
+            int roundNumber,
+            int dealNumber,
+            bool isTieExtension,
+            PlayerId? lastCapturer,
+            Card[] dealerSelectionCards,
+            DealerCardSelection[] currentDealerSelections,
+            CantoAnnouncement[] cantoAnnouncements,
+            bool? dealHandsBeforeTable,
+            OpeningPattern? openingPattern)
         {
             ValidatePlayers(players);
             ValidateTable(table);
 
+            if (roundNumber < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(roundNumber));
+            }
+
+            if (dealNumber < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(dealNumber));
+            }
+
             _players = (PlayerState[])players.Clone();
             _table = (Card[])table.Clone();
+            _dealerSelectionCards = (Card[])dealerSelectionCards.Clone();
+            _currentDealerSelections = (DealerCardSelection[])currentDealerSelections.Clone();
+            _cantoAnnouncements = (CantoAnnouncement[])cantoAnnouncements.Clone();
             Players = Array.AsReadOnly(_players);
             Table = Array.AsReadOnly(_table);
+            DealerSelectionCards = Array.AsReadOnly(_dealerSelectionCards);
+            CurrentDealerSelections = Array.AsReadOnly(_currentDealerSelections);
+            CantoAnnouncements = Array.AsReadOnly(_cantoAnnouncements);
             DealerSeat = dealerSeat;
             CurrentSeat = currentSeat;
             Deck = deck ?? throw new ArgumentNullException(nameof(deck));
@@ -109,6 +169,12 @@ namespace TheFall.Domain
             PreviousPlay = previousPlay;
             Phase = phase;
             WinnerTeam = winnerTeam;
+            RoundNumber = roundNumber;
+            DealNumber = dealNumber;
+            IsTieExtension = isTieExtension;
+            LastCapturer = lastCapturer;
+            DealHandsBeforeTable = dealHandsBeforeTable;
+            OpeningPattern = openingPattern;
         }
 
         public IReadOnlyList<PlayerState> Players { get; }
@@ -134,6 +200,24 @@ namespace TheFall.Domain
         public MatchPhase Phase { get; }
 
         public TeamId? WinnerTeam { get; }
+
+        public int RoundNumber { get; }
+
+        public int DealNumber { get; }
+
+        public bool IsTieExtension { get; }
+
+        public PlayerId? LastCapturer { get; }
+
+        public IReadOnlyList<Card> DealerSelectionCards { get; }
+
+        public IReadOnlyList<DealerCardSelection> CurrentDealerSelections { get; }
+
+        public IReadOnlyList<CantoAnnouncement> CantoAnnouncements { get; }
+
+        public bool? DealHandsBeforeTable { get; }
+
+        public OpeningPattern? OpeningPattern { get; }
 
         public static MatchState CreateOneVersusOne(
             PlayerState first,
@@ -165,6 +249,15 @@ namespace TheFall.Domain
                 isFinalDeal,
                 previousPlay,
                 MatchPhase.Active,
+                null,
+                1,
+                1,
+                false,
+                null,
+                Array.Empty<Card>(),
+                Array.Empty<DealerCardSelection>(),
+                Array.Empty<CantoAnnouncement>(),
+                null,
                 null);
         }
 
@@ -206,32 +299,7 @@ namespace TheFall.Domain
                 return TeamTwoScore;
             }
 
-            throw new ArgumentOutOfRangeException(nameof(teamId), "The 1v1 spike only scores teams one and two.");
-        }
-
-        internal MatchState With(
-            PlayerState[] players,
-            Seat currentSeat,
-            Card[] table,
-            Score teamOneScore,
-            Score teamTwoScore,
-            PreviousPlay previousPlay,
-            MatchPhase phase,
-            TeamId? winnerTeam)
-        {
-            return new MatchState(
-                players,
-                DealerSeat,
-                currentSeat,
-                table,
-                Deck,
-                teamOneScore,
-                teamTwoScore,
-                Rules,
-                IsFinalDeal,
-                previousPlay,
-                phase,
-                winnerTeam);
+            throw new ArgumentOutOfRangeException(nameof(teamId), "1v1 only scores teams one and two.");
         }
 
         internal PlayerState[] CopyPlayers()
@@ -239,11 +307,26 @@ namespace TheFall.Domain
             return (PlayerState[])_players.Clone();
         }
 
+        internal Card[] CopyDealerSelectionCards()
+        {
+            return (Card[])_dealerSelectionCards.Clone();
+        }
+
+        internal DealerCardSelection[] CopyCurrentDealerSelections()
+        {
+            return (DealerCardSelection[])_currentDealerSelections.Clone();
+        }
+
+        internal CantoAnnouncement[] CopyCantoAnnouncements()
+        {
+            return (CantoAnnouncement[])_cantoAnnouncements.Clone();
+        }
+
         private static void ValidatePlayers(PlayerState[] players)
         {
             if (players == null || players.Length != 2 || players[0] == null || players[1] == null)
             {
-                throw new ArgumentException("The 1v1 spike requires exactly two players.", nameof(players));
+                throw new ArgumentException("A 1v1 match requires exactly two players.", nameof(players));
             }
 
             if (players[0].Player.Seat == players[1].Player.Seat)
@@ -255,14 +338,14 @@ namespace TheFall.Domain
             var hasSecondSeat = players[0].Player.Seat == Seat.Second || players[1].Player.Seat == Seat.Second;
             if (!hasFirstSeat || !hasSecondSeat)
             {
-                throw new ArgumentException("The 1v1 spike requires the first and second seats.", nameof(players));
+                throw new ArgumentException("A 1v1 match requires the first and second seats.", nameof(players));
             }
 
             var hasTeamOne = players[0].Player.TeamId == TeamId.One || players[1].Player.TeamId == TeamId.One;
             var hasTeamTwo = players[0].Player.TeamId == TeamId.Two || players[1].Player.TeamId == TeamId.Two;
             if (!hasTeamOne || !hasTeamTwo)
             {
-                throw new ArgumentException("The 1v1 spike requires teams one and two.", nameof(players));
+                throw new ArgumentException("A 1v1 match requires teams one and two.", nameof(players));
             }
         }
 
