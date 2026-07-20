@@ -37,7 +37,7 @@ All retained PNG files are covered by the repository's Git LFS rules.
 | [`ENV-P-SIMPLE-CHAIR_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Furniture/ENV-P-SIMPLE-CHAIR_Concept.png) | matching armless chair design reference | `c0b29345c537777a04d99883429903624948f0d71fb62b0b5696453a4ebc2359` |
 | [`CRD-P-FOUR-COINS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-COINS_Concept.png) | clean Coins card conversion anchor | `222ba7304ff81ba983a54211a28a06ead9715a28cc51061c829112ed43909c86` |
 | [`CRD-P-FOUR-COINS_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-COINS_ReviewSheet.png) | face, back, scale, overlap, edge, and lighting review | `df3fb7867eb18cf4a87b7043a4128164ba2d82d31d15308d059e87880ee630da` |
-| [`CRD-P-FOUR-CLUBS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CLUBS_Concept.png) | matching Clubs suit reference | `3f9745c8d7b1cb737fc8d1fa9f1dcb5210f69ffad3d044144db40ba93fec00b9` |
+| [`CRD-P-FOUR-CLUBS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CLUBS_Concept.png) | matching Clubs suit reference using wooden bastones | `9da6d8c9df0745de996e9a2f6e9dbed5e94610182b71aec2ae66c2de35f690a4` |
 | [`CRD-P-FOUR-SWORDS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-SWORDS_Concept.png) | matching Swords suit reference | `fdf6fc969d31fb19306e356dfc69247674f3a8bf7fc2e1cf9b2e1acad7495126` |
 | [`CRD-P-FOUR-CUPS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CUPS_Concept.png) | matching Cups suit reference | `0ca351d1dd2489944fac73b231e1b5c7093c7a69d6df76b4f7c885968aaa15f6` |
 | [`V0-PrototypeAssets_Cohesion.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cohesion/V0-PrototypeAssets_Cohesion.png) | cross-asset artistic-cohesion check | `cc14f7558fc747b16380b577526a4a1e1226496598a102f549d604634a9496a9` |
@@ -54,7 +54,8 @@ All retained PNG files are covered by the repository's Git LFS rules.
 - input references for the cohesion image: only the three retained project-owned anchors
 - input reference for the full-body character: only the retained project-owned character anchor
 - input reference for the chair: only the retained project-owned table anchor
-- input reference for Clubs, Swords, and Cups: only the retained project-owned Four of Coins anchor; the accepted Clubs revision additionally used its first generated project-owned Clubs result
+- input reference for Swords and Cups: only the retained project-owned Four of Coins anchor
+- input references for the retained Clubs rebuild: only the approved project-owned Swords and Cups sibling cards as locked layout, material, camera, rendering, typography, and border references; no Coins image or rejected Clubs image was supplied
 - observation-only images from the reference board: not supplied to the generator
 - direct per-image cost: not exposed; no separate purchase was made
 
@@ -83,7 +84,7 @@ The first character anchor placed cards between both hands. It was rejected beca
 
 Two attempted combined-character layouts were rejected by the image service before producing output. They created no file and incurred no retained repository artifact. The successful simpler cohesion prompt preserved the three anchors without the rejected request structure.
 
-The first Clubs extension resembled the Coins family too closely. It was rejected and retained only in the external working archive at `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-CLUBS_v1-rejected.png`, SHA-256 `07ab5417792e86f90631b35fa62e525bb24c873c3911b7d13f333321ebba7d2c`. A targeted revision changed the suit mark into an asymmetric, top-heavy blunt club with a visible handle while preserving the successful card template. One initial full-body request was rejected by the image service before producing output; the simplified project-owned character-extension request succeeded without changing the character identity.
+Two Clubs extensions resembled the Coins family too closely and were rejected. They remain only in the external working archive as `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-CLUBS_v1-rejected.png`, SHA-256 `07ab5417792e86f90631b35fa62e525bb24c873c3911b7d13f333321ebba7d2c`, and `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-CLUBS_v2-rejected.png`, SHA-256 `3f9745c8d7b1cb737fc8d1fa9f1dcb5210f69ffad3d044144db40ba93fec00b9`. The retained design was rebuilt from scratch around elongated wooden Spanish-suit bastones, using only the approved Swords and Cups cards as presentation references and explicitly excluding lobes, disks, medallions, and other coin-derived construction. One initial full-body request was rejected by the image service before producing output; the simplified project-owned character-extension request succeeded without changing the character identity.
 
 ## Recorded execution prompts
 
@@ -145,10 +146,10 @@ Produce a professional review sheet for the retained Four of Coins anchor. Show 
 
 ### Four-suit card extensions
 
-All three retained suit extensions use the Four of Coins as the locked card-template reference and change only suit-specific iconography and restrained accent colors.
+Swords and Cups use the Four of Coins as the locked card-template reference. After two coin-derived Clubs iterations were rejected, Clubs was rebuilt from scratch with approved Swords and Cups serving only as presentation references.
 
 ```text
-Four of Clubs: preserve the retained Four of Coins card's exact 63:88 proportions, vellum face, lampblack keyline, generous border, corner-number placement, two-way reading, matte vector-like 3D presentation, and exactly four central pips arranged two upright and two inverted. Replace every Coins symbol with one original culturally neutral Clubs symbol: an asymmetric three-lobed blunt weighted head attached to a clearly visible short tapered handle, rendered in warm walnut with a restrained moss inset. Keep four matching corner suit icons and exactly four large central club pips. No coin circles, cups, swords, French playing-card club silhouette, weapon realism, heraldry, cultural carving, extra pips, mismatched rank, text beyond numeral 4, logo, or watermark.
+Create a brand-new Four of Clubs card using unmistakable wooden clubs or cudgels in the Spanish bastos tradition, not a modification of the Coins icon. Use the approved project-owned Swords and Cups cards only as locked card-template, material, camera, rendering, typography, border, and layout references. Show exactly four large elongated wooden cudgels in the central field, arranged symmetrically with two upright in the upper half and two inverted in the lower half. Each club is one solid irregular length of hand-carved dark walnut with a narrow wrapped grip, thick tapered shaft, and heavier blunt knotted striking end; use restrained moss-green grip wraps and one simple antique-brass collar as accents. Add a matching small wooden-club icon beside each numeral 4 for two-way reading. Preserve the exact 63:88 proportions, rounded corners, visible thickness, generous vellum field, lampblack-brown keylines, matte vector-like graphics, low-frequency handmade texture, neutral studio light, and near-front three-quarter presentation of the approved sibling cards. Exactly four central pips, all complete and separated. No coin-derived design, French trefoil, clover, flower, three-lobed or circular head, disk, ring, medallion, inner coin inset, mace, axe, sword, cup, heraldry, religious or national motif, dense carving, glossy wood, realistic violence, extra pips, mismatched rank, text beyond numeral 4, logo, or watermark.
 ```
 
 ```text
