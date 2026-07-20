@@ -32,6 +32,8 @@ Cover:
 
 Cover use-case orchestration, bot/human intent equivalence, event ordering, serialization boundaries, and invalid-intent handling.
 
+The issue #7 interaction slice additionally compares touch and desktop mappings at the application-intent boundary, verifies immediate semantic rejection and temporary-blocking feedback, and proves that non-play interactions leave domain state unchanged.
+
 ### Unity EditMode tests
 
 Cover configuration translation, asset metadata validation, and adapter behavior that does not require a running scene.
@@ -39,6 +41,8 @@ Cover configuration translation, asset metadata validation, and adapter behavior
 ### Unity PlayMode tests
 
 Cover bootstrap, scene transitions, input binding, UI state, card-anchor placement, orientation changes, and representative event-to-animation flows.
+
+The interaction prototype's focused Play Mode coverage completes one representative turn through touch and desktop adapters, exercises visible legal/selected/confirmed/rejected/blocked states, and verifies that portrait recomposition preserves selection without submitting or duplicating a play.
 
 ### Manual device validation
 

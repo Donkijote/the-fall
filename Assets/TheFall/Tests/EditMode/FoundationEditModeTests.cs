@@ -26,5 +26,31 @@ namespace TheFall.Tests.EditMode
                 Assert.That(InputSystem.actions.FindAction($"Gameplay/{intent}"), Is.Not.Null);
             }
         }
+
+        [Test]
+        public void ProjectInput_MapsTouchMouseAndKeyboardWithoutConflictingConfirmOrCancelBindings()
+        {
+            var inspect = InputSystem.actions.FindAction("Gameplay/Inspect");
+            var select = InputSystem.actions.FindAction("Gameplay/Select");
+            var confirm = InputSystem.actions.FindAction("Gameplay/Confirm");
+            var cancel = InputSystem.actions.FindAction("Gameplay/Cancel");
+
+            Assert.That(inspect.bindings.Any(binding =>
+                binding.path == "<Touchscreen>/primaryTouch/press" &&
+                binding.interactions.Contains("Hold")), Is.True);
+            Assert.That(select.bindings.Any(binding =>
+                binding.path == "<Touchscreen>/primaryTouch/press" &&
+                binding.interactions.Contains("Tap")), Is.True);
+            Assert.That(confirm.bindings.Any(binding => binding.path.Contains("Touchscreen")), Is.False);
+
+            Assert.That(inspect.bindings.Any(binding => binding.path == "<Mouse>/rightButton"), Is.True);
+            Assert.That(select.bindings.Any(binding => binding.path == "<Mouse>/leftButton"), Is.True);
+            Assert.That(cancel.bindings.Any(binding => binding.path == "<Mouse>/rightButton"), Is.False);
+
+            Assert.That(inspect.bindings.Any(binding => binding.path == "<Keyboard>/i"), Is.True);
+            Assert.That(select.bindings.Any(binding => binding.path == "<Keyboard>/e"), Is.True);
+            Assert.That(confirm.bindings.Any(binding => binding.path == "<Keyboard>/enter"), Is.True);
+            Assert.That(cancel.bindings.Any(binding => binding.path == "<Keyboard>/escape"), Is.True);
+        }
     }
 }

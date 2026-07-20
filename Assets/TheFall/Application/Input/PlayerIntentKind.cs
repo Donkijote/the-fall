@@ -1,8 +1,8 @@
 namespace TheFall.Application.Input
 {
     /// <summary>
-    /// Platform-neutral input vocabulary established by the bootstrap.
-    /// Gameplay behavior and intent payloads are intentionally deferred.
+    /// Project-wide Input System action names. Presentation adapters translate these controls
+    /// into the platform-neutral card interaction intents owned by the application layer.
     /// </summary>
     public enum PlayerIntentKind
     {
