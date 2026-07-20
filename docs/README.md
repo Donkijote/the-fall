@@ -51,6 +51,9 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 
 - [Asset strategy](assets/strategy.md): prototype sourcing, generation workflow, licensing, and budgets.
 - [Prototype asset briefs](assets/prototype-briefs.md): generation-ready character, table, and card briefs with review gates.
+- [Generated concept package](assets/generated-concept-package.md): retained character, table, and card visual anchors, review sheets, prompt provenance, artistic-cohesion evidence, and the deferred manual Meshy handoff.
+- [Generated 3D asset intake](assets/generated-3d-intake.md): repeatable Meshy-to-Unity procedure, retained table provenance, import settings, exceptions, and validation results.
+- [Modular card visual pipeline](assets/card-visual-pipeline.md): reusable card components, deterministic forty-card atlas generation, runtime binding, and replacement workflow.
 
 ### Technical
 

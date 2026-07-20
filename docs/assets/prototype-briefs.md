@@ -4,7 +4,7 @@ Status: Generation-ready V0 briefs
 
 ## Purpose
 
-These briefs define three inexpensive comparison assets: one representative upper-body character, one gameplay table, and one card. They are not final cast, environment, or deck approvals. Issue #8 owns generation, conversion, optimization, import, provenance records, and measured results.
+These briefs define three inexpensive comparison assets: one representative upper-body character, one gameplay table, and one card. They are not final cast, environment, or deck approvals. Issue #8 owns generation, conversion, optimization, import, provenance records, and measured results. Supporting full-body, chair, and additional-suit concept images may extend the shared visual language, but they do not expand the required V0 conversion or acceptance scope unless a later decision explicitly promotes them.
 
 All outputs must follow the [art direction](../design/art-direction.md), [reference board](../design/visual-reference-board.md), and [asset strategy](strategy.md). If a generator cannot reliably follow a requirement, record the miss rather than hiding it during cleanup.
 
@@ -147,6 +147,8 @@ No named game or artist style, no rectangular coffee table, no poker felt, casin
 ### Role and test purpose
 
 An original **Four of Coins** card used to test Spanish-suit recognition, rank readability, card proportions, table contrast, border behavior, orientation independence, and a shared-material implementation. It is not approval of the full deck's final illustration system.
+
+**Implemented follow-through:** the approved visual family now informs reusable source components rather than forty independent card renders. Unity deterministically composes ranks 1–7 from pip layouts and reserves unique suit/rank illustration slots for ranks 10–12. The [modular card visual pipeline](card-visual-pipeline.md) is authoritative for deck implementation; this brief remains the art-direction intake record.
 
 ### Required visual result
 

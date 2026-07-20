@@ -33,6 +33,9 @@ namespace TheFall.Presentation.Table
         private Camera _gameplayCamera;
 
         [SerializeField]
+        private GameObject _tablePrototypePrefab;
+
+        [SerializeField]
         [Min(0)]
         private int _activeLogicalSeat;
 
@@ -62,6 +65,8 @@ namespace TheFall.Presentation.Table
         public IReadOnlyList<PrototypeCardView> LocalHandCardViews => _localHandCardViews;
 
         public Camera GameplayCamera => _gameplayCamera;
+
+        public GameObject TablePrototypePrefab => _tablePrototypePrefab;
 
         public event Action CompositionRebuilt;
 
@@ -147,6 +152,11 @@ namespace TheFall.Presentation.Table
         public void ConfigureCamera(Camera gameplayCamera)
         {
             _gameplayCamera = gameplayCamera;
+        }
+
+        public void ConfigureTablePrototype(GameObject tablePrototypePrefab)
+        {
+            _tablePrototypePrefab = tablePrototypePrefab;
         }
 
         public void BuildEditorPreview(
@@ -246,6 +256,14 @@ namespace TheFall.Presentation.Table
 
         private void CreateTable(Transform parent)
         {
+            if (_tablePrototypePrefab != null)
+            {
+                var table = Instantiate(_tablePrototypePrefab, parent, false);
+                table.name = "Table Prototype";
+                table.hideFlags = HideFlags.DontSave;
+                return;
+            }
+
             CreatePrimitive(
                 "Table Rim",
                 PrimitiveType.Cylinder,

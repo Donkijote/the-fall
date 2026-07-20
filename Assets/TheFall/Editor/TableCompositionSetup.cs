@@ -13,6 +13,7 @@ namespace TheFall.Editor
     public static class TableCompositionSetup
     {
         private const string ScenePath = "Assets/TheFall/Presentation/Scenes/MatchPrototype.unity";
+        private const string TablePrefabPath = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable/Generated/RoundCardTable.prefab";
 
         [MenuItem("The Fall/Table Composition/Generate")]
         public static void Run()
@@ -49,11 +50,12 @@ namespace TheFall.Editor
             }
 
             prototype.ConfigureCamera(camera);
+            prototype.ConfigureTablePrototype(AssetDatabase.LoadAssetAtPath<GameObject>(TablePrefabPath));
 
             var purpose = sceneRoot.GetComponent<ScenePurpose>();
             if (purpose != null)
             {
-                purpose.SetDescription("Stationary-camera table composition prototype for 1v1, three-player, and opposite-teammate 2v2 layouts across safe-area-aware portrait, landscape, and desktop profiles.");
+                purpose.SetDescription("Stationary-camera table and cross-platform card-interaction prototype for shared touch, mouse, and keyboard application intents across 1v1, three-player, and opposite-teammate 2v2 safe-area-aware layouts.");
             }
 
             EditorSceneManager.MarkSceneDirty(scene);
@@ -84,6 +86,11 @@ namespace TheFall.Editor
                 !Mathf.Approximately(camera.fieldOfView, 44f))
             {
                 throw new BuildFailedException("The MatchPrototype gameplay camera does not match the stationary prototype parameters.");
+            }
+
+            if (prototype.TablePrototypePrefab == null)
+            {
+                throw new BuildFailedException("MatchPrototype does not reference the approved V0 table prefab.");
             }
         }
 
@@ -120,7 +127,35 @@ namespace TheFall.Editor
             Debug.Log("The Fall table composition validation captures written to Logs.");
         }
 
-        private static void Capture(
+        [MenuItem("The Fall/Table Composition/Capture Representative View")]
+        public static void CaptureRepresentativeView()
+        {
+            var statistics = CaptureRepresentativeView("Logs/TableComposition-Representative.png");
+            Debug.Log($"Representative table capture: {statistics.Triangles:N0} triangles, {statistics.Vertices:N0} vertices, {statistics.RendererSubmissions:N0} renderer/material submissions.");
+        }
+
+        internal static CaptureStatistics CaptureRepresentativeView(string outputPath)
+        {
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var prototype = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<TableCompositionPrototype>(true))
+                .Single();
+            var camera = prototype.GameplayCamera;
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath) ?? "Logs");
+
+            var statistics = Capture(
+                prototype,
+                camera,
+                TableSeatingMode.TwoVersusTwo,
+                new Vector2Int(1920, 1080),
+                new Rect(0f, 0f, 1920f, 1080f),
+                outputPath);
+            prototype.ClearEditorPreview();
+            camera.targetTexture = null;
+            return statistics;
+        }
+
+        private static CaptureStatistics Capture(
             TableCompositionPrototype prototype,
             Camera camera,
             TableSeatingMode mode,
@@ -140,10 +175,12 @@ namespace TheFall.Editor
                 prototype.BuildEditorPreview(mode, viewport, safeArea);
                 camera.Render();
                 camera.Render();
+                var statistics = CalculateCaptureStatistics(prototype);
                 RenderTexture.active = renderTexture;
                 texture.ReadPixels(new Rect(0f, 0f, viewport.x, viewport.y), 0, 0);
                 texture.Apply();
                 File.WriteAllBytes(outputPath, texture.EncodeToPNG());
+                return statistics;
             }
             finally
             {
@@ -154,6 +191,41 @@ namespace TheFall.Editor
                 UnityEngine.Object.DestroyImmediate(renderTexture);
                 UnityEngine.Object.DestroyImmediate(texture);
             }
+        }
+
+        private static CaptureStatistics CalculateCaptureStatistics(TableCompositionPrototype prototype)
+        {
+            var meshFilters = prototype.GetComponentsInChildren<MeshFilter>(false)
+                .Where(filter =>
+                {
+                    var renderer = filter.GetComponent<Renderer>();
+                    return renderer != null && renderer.enabled && filter.sharedMesh != null;
+                })
+                .ToArray();
+            var renderers = prototype.GetComponentsInChildren<Renderer>(false)
+                .Where(renderer => renderer.enabled)
+                .ToArray();
+
+            return new CaptureStatistics(
+                meshFilters.Sum(filter => filter.sharedMesh.triangles.Length / 3),
+                meshFilters.Sum(filter => filter.sharedMesh.vertexCount),
+                renderers.Sum(renderer => renderer.sharedMaterials.Length));
+        }
+
+        internal readonly struct CaptureStatistics
+        {
+            public CaptureStatistics(int triangles, int vertices, int rendererSubmissions)
+            {
+                Triangles = triangles;
+                Vertices = vertices;
+                RendererSubmissions = rendererSubmissions;
+            }
+
+            public int Triangles { get; }
+
+            public int Vertices { get; }
+
+            public int RendererSubmissions { get; }
         }
     }
 }

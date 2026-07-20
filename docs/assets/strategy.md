@@ -18,6 +18,10 @@ The planned concept-to-3D workflow is:
 
 The [V0 visual reference board](../design/visual-reference-board.md) defines what may be observed or reused, and the [prototype asset briefs](prototype-briefs.md) provide the generation-ready inputs for the representative character, table, and card. Issue #8 owns executing and measuring this pipeline; a brief alone is not an approved asset record.
 
+The [generated concept package](generated-concept-package.md) records the retained visual anchors and consistency sheets created on 2026-07-20. The [generated 3D intake](generated-3d-intake.md) executes and measures the Meshy-to-Unity path for the representative table and character plus the supporting chair. The table has a narrow 12K-target exception; the high-resolution static character is review-only and requires retopology/rigging before gameplay. None is production art.
+
+Cards follow a separate confirmed 2D production path. Unity composes project-owned rank, suit, base, back, and court-art components into the complete forty-card face atlas at editor time. The full concept-card renders remain art-direction references rather than per-card production textures. See the [modular card visual pipeline](card-visual-pipeline.md) and [ADR 0001](../decisions/0001-modular-card-visual-pipeline.md).
+
 ## Working budget
 
 **Confirmed:** The current monthly tool budget is approximately EUR 40:
