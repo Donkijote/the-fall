@@ -4,7 +4,7 @@ Status: Concept-generation checkpoint; Meshy conversion deferred for manual owne
 
 ## Scope boundary
 
-This package records the image-generation portion of issue #8 for the three representative V0 assets. It deliberately stops before upload, conversion, credit use, download, optimization, or Unity model import in Meshy AI. Manuel chose on 2026-07-20 to perform that external step manually later.
+This package records the image-generation portion of issue #8 for the three representative V0 assets and their supporting visual family: an optional full-body character reference, a matching chair, and Four cards for all four Spanish suits. It deliberately stops before upload, conversion, credit use, download, optimization, or Unity model import in Meshy AI. Manuel chose on 2026-07-20 to perform that external step manually later.
 
 These images are approved as **visual anchors for consistent follow-up generation**. They are not approved 3D prototype assets and do not satisfy issue #8's end-to-end Meshy, Unity import, or performance gates.
 
@@ -28,14 +28,19 @@ All retained PNG files are covered by the repository's Git LFS rules.
 
 | Asset | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`CHR-P-WARM-CHALLENGER_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/CHR-P-WARM-CHALLENGER_Concept.png) | clean character conversion anchor | `e0e309edbefd5625726e8f2b42a844d03646b2ac073ad415a98a00e879c43a47` |
-| [`CHR-P-WARM-CHALLENGER_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Review/CHR-P-WARM-CHALLENGER_ReviewSheet.png) | turnaround, expressions, and elevated clay review | `ade41c3bb96e559b1f198c00858f5424c9c1dc106cd9eb58ecd646dfc1543e19` |
-| [`CHR-P-WARM-CHALLENGER_GestureSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Review/CHR-P-WARM-CHALLENGER_GestureSheet.png) | silhouettes, hand studies, and material swatches | `12e14148cd0610f38ff3c018f956d121c5231eda57d77017519c67dc236a24e8` |
-| [`ENV-P-ROUND-TABLE_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/ENV-P-ROUND-TABLE_Concept.png) | clean table conversion anchor | `fa960584c2d104d0b9c1873a9c2dba8b33b768461a59e033455a9e55cbcac5dd` |
-| [`ENV-P-ROUND-TABLE_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Review/ENV-P-ROUND-TABLE_ReviewSheet.png) | orthographic, underside, card-readability, and exploded review | `30c92767624ca2c3154c4e9ed8364b02d430f8a1a212ab2f84f1fa90d954995a` |
-| [`CRD-P-FOUR-COINS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/CRD-P-FOUR-COINS_Concept.png) | clean card conversion anchor | `222ba7304ff81ba983a54211a28a06ead9715a28cc51061c829112ed43909c86` |
-| [`CRD-P-FOUR-COINS_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Review/CRD-P-FOUR-COINS_ReviewSheet.png) | face, back, scale, overlap, edge, and lighting review | `df3fb7867eb18cf4a87b7043a4128164ba2d82d31d15308d059e87880ee630da` |
-| [`V0-PrototypeAssets_Cohesion.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Review/V0-PrototypeAssets_Cohesion.png) | cross-asset artistic-cohesion check | `cc14f7558fc747b16380b577526a4a1e1226496598a102f549d604634a9496a9` |
+| [`CHR-P-WARM-CHALLENGER_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Characters/CHR-P-WARM-CHALLENGER_Concept.png) | clean upper-body character conversion anchor | `e0e309edbefd5625726e8f2b42a844d03646b2ac073ad415a98a00e879c43a47` |
+| [`CHR-P-WARM-CHALLENGER_FullBody.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Characters/CHR-P-WARM-CHALLENGER_FullBody.png) | optional head-to-toe character design reference | `35f25b052bae47704470831579cc07fc56f233019a4cf2950529576fc57cd307` |
+| [`CHR-P-WARM-CHALLENGER_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Characters/CHR-P-WARM-CHALLENGER_ReviewSheet.png) | turnaround, expressions, and elevated clay review | `ade41c3bb96e559b1f198c00858f5424c9c1dc106cd9eb58ecd646dfc1543e19` |
+| [`CHR-P-WARM-CHALLENGER_GestureSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Characters/CHR-P-WARM-CHALLENGER_GestureSheet.png) | silhouettes, hand studies, and material swatches | `12e14148cd0610f38ff3c018f956d121c5231eda57d77017519c67dc236a24e8` |
+| [`ENV-P-ROUND-TABLE_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Furniture/ENV-P-ROUND-TABLE_Concept.png) | clean table conversion anchor | `fa960584c2d104d0b9c1873a9c2dba8b33b768461a59e033455a9e55cbcac5dd` |
+| [`ENV-P-ROUND-TABLE_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Furniture/ENV-P-ROUND-TABLE_ReviewSheet.png) | orthographic, underside, card-readability, and exploded review | `30c92767624ca2c3154c4e9ed8364b02d430f8a1a212ab2f84f1fa90d954995a` |
+| [`ENV-P-SIMPLE-CHAIR_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Furniture/ENV-P-SIMPLE-CHAIR_Concept.png) | matching armless chair design reference | `c0b29345c537777a04d99883429903624948f0d71fb62b0b5696453a4ebc2359` |
+| [`CRD-P-FOUR-COINS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-COINS_Concept.png) | clean Coins card conversion anchor | `222ba7304ff81ba983a54211a28a06ead9715a28cc51061c829112ed43909c86` |
+| [`CRD-P-FOUR-COINS_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-COINS_ReviewSheet.png) | face, back, scale, overlap, edge, and lighting review | `df3fb7867eb18cf4a87b7043a4128164ba2d82d31d15308d059e87880ee630da` |
+| [`CRD-P-FOUR-CLUBS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CLUBS_Concept.png) | matching Clubs suit reference | `3f9745c8d7b1cb737fc8d1fa9f1dcb5210f69ffad3d044144db40ba93fec00b9` |
+| [`CRD-P-FOUR-SWORDS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-SWORDS_Concept.png) | matching Swords suit reference | `fdf6fc969d31fb19306e356dfc69247674f3a8bf7fc2e1cf9b2e1acad7495126` |
+| [`CRD-P-FOUR-CUPS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CUPS_Concept.png) | matching Cups suit reference | `0ca351d1dd2489944fac73b231e1b5c7093c7a69d6df76b4f7c885968aaa15f6` |
+| [`V0-PrototypeAssets_Cohesion.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cohesion/V0-PrototypeAssets_Cohesion.png) | cross-asset artistic-cohesion check | `cc14f7558fc747b16380b577526a4a1e1226496598a102f549d604634a9496a9` |
 
 ## Generation provenance
 
@@ -44,9 +49,12 @@ All retained PNG files are covered by the repository's Git LFS rules.
 - tool: OpenAI built-in image-generation tool
 - exposed model/version: not exposed by the built-in tool
 - seeds and sampler settings: not exposed by the built-in tool
-- input references for the three anchor images: none
+- input references for the three original anchor images: none
 - input references for review sheets: only the matching retained project-owned anchor
 - input references for the cohesion image: only the three retained project-owned anchors
+- input reference for the full-body character: only the retained project-owned character anchor
+- input reference for the chair: only the retained project-owned table anchor
+- input reference for Clubs, Swords, and Cups: only the retained project-owned Four of Coins anchor; the accepted Clubs revision additionally used its first generated project-owned Clubs result
 - observation-only images from the reference board: not supplied to the generator
 - direct per-image cost: not exposed; no separate purchase was made
 
@@ -56,24 +64,26 @@ No Meshy output exists in this package, so no Meshy license is claimed. For the 
 
 ## Review results
 
-| Gate | Character | Table | Card |
+| Gate | Character family | Furniture family | Card family |
 | --- | --- | --- | --- |
 | Project-owned prompt and provenance | Pass | Pass | Pass |
-| Brief-required review coverage | Pass for concept stage | Pass for concept stage | Pass for concept stage |
+| Brief-required review coverage | Pass for required upper-body concept stage; full body is supporting reference | Pass for required table concept stage; chair is supporting reference | Pass for required Coins concept stage; other suits are supporting references |
 | Shared art direction | Pass | Pass | Pass |
-| Cultural-neutrality screen | Pass; no identifying motif | Pass; functional construction only | Pass; original geometric coin language |
-| Small-format/readability evidence | silhouette and elevated views retained | thumbnail and overhead card test retained | grayscale and 48/64/96-size comparisons retained |
+| Cultural-neutrality screen | Pass; no identifying motif | Pass; functional construction only | Pass; original geometric suit language |
+| Small-format/readability evidence | silhouette and elevated views retained | thumbnail and overhead card test retained | Coins grayscale and 48/64/96-size comparisons retained; four-suit differentiation visually reviewed |
 | Meshy conversion | Deferred | Deferred | Deferred |
 | Geometry/material/rig budget | Pending 3D output | Pending 3D output | Pending 3D output |
 | Unity import and scene performance | Pending 3D output | Pending 3D output | Pending 3D output |
 
-The cohesion render confirms a stable family: the character keeps the same hair, clothing, clasp, proportions, and palette; the table keeps the segmented rim, quiet center, pedestal, and braces; the visible card keeps four pips, the notched Coins icon, vellum face, and two-way corners.
+The cohesion render and extensions confirm a stable family: the full-body character preserves the upper-body identity while adding simple trousers, wraps, and rounded boots; the chair reuses the table's walnut, charred-walnut, brass, faceting, and joinery language; all Four cards preserve the same vellum face, border, corner-rank system, proportions, and two-way four-pip layout while remaining distinct by silhouette.
 
 ## Iteration record
 
 The first character anchor placed cards between both hands. It was rejected because the occlusion would confuse future image-to-3D reconstruction. That file remains outside the repository at `<external-working-archive>/issue-8/rejected/CHR-P-WARM-CHALLENGER_v1-rejected.png`, SHA-256 `6405c7c893fca9402b537ff04a9b2f68cab55521f27ff295c1a22361f68d24a9`. A targeted edit removed the cards, opened the pose, and preserved the successful identity and clothing design.
 
 Two attempted combined-character layouts were rejected by the image service before producing output. They created no file and incurred no retained repository artifact. The successful simpler cohesion prompt preserved the three anchors without the rejected request structure.
+
+The first Clubs extension resembled the Coins family too closely. It was rejected and retained only in the external working archive at `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-CLUBS_v1-rejected.png`, SHA-256 `07ab5417792e86f90631b35fa62e525bb24c873c3911b7d13f333321ebba7d2c`. A targeted revision changed the suit mark into an asymmetric, top-heavy blunt club with a visible handle while preserving the successful card template. One initial full-body request was rejected by the image service before producing output; the simplified project-owned character-extension request succeeded without changing the character identity.
 
 ## Recorded execution prompts
 
@@ -89,6 +99,12 @@ Targeted correction applied to the rejected first result:
 
 ```text
 Remove the playing cards completely and change only the arm and hand pose into a neutral A-pose suitable for image-to-3D character reconstruction. Preserve the exact same fictional character design, face, hair, expression, clothing, clasp, colors, proportions, matte stylized 3D finish, neutral background, lighting, and framing. Show the complete upper body below the ribs. Both arms angle slightly away from the torso and both empty relaxed hands remain fully visible and separated. No tabletop, props, text, or watermark.
+```
+
+### Full-body character extension
+
+```text
+Using only the retained project-owned Warm Challenger anchor as the identity and style reference, create one complete head-to-toe version of the same fictional character. Preserve the exact wavy dark hair, approachable face, broad shoulders, moss tunic, walnut sleeveless layer, aged-vellum neck cloth, woad-blue binding and sash, dark wrist wraps, broad seams, thick hems, and plain oval antique-brass clasp. Extend the design with simple dark-walnut trousers, readable knee articulation, restrained ankle wraps, and low rounded handmade boots. Show one centered three-quarter neutral A-pose with both empty hands, both legs, and both feet separated and fully visible on a plain light-gray studio background. Match the original broad planar forms, matte stylized 3D finish, low-frequency detail, warm medieval-cartoon proportions, and culturally neutral fictional design. No costume redesign, armor, weapons, cape, skirt, dangling accessories, cultural or religious motifs, text, watermark, cropped feet, extreme pose, or extra props.
 ```
 
 ### Character review sheets
@@ -111,6 +127,12 @@ Create one original stylized 3D gameplay table concept for The Fall: a round woo
 Produce a professional model sheet for the retained round table anchor. On a light-gray studio sheet show top orthographic, side orthographic, underside construction, three-quarter neutral-light, elevated fixed-camera clay with plain white cards, an exploded material-ID view, and a small grayscale/mobile-thumbnail check. Keep the same circular silhouette, segmented rim, dark uninterrupted play field, compact central pedestal, four chunky feet, aged-metal braces, broad handmade construction, matte stylized rendering, and low-frequency grain in every panel. No redesign, labels, dimensions, room, characters, chairs, logos, or watermark.
 ```
 
+### Matching chair extension
+
+```text
+Using only the retained project-owned round table as the material, construction, and rendering reference, create one original simple armless chair for the same fictional card-game room. Seat height approximately 0.46 metres for the 0.76-metre table; low-to-medium shallow-arched back below the seated character's shoulders; broad seat; chunky tapered legs and simple stretchers. Reuse warm walnut, quieter charred-walnut seat and back panels, restrained matte antique-brass braces, softly faceted edges, sturdy handmade joinery, broad planar forms, low-frequency grain, and subtle asymmetry. Present one centered three-quarter view with the entire chair visible on a plain light-gray studio background in the same matte stylized 3D medieval-cartoon finish. No throne silhouette, arms, upholstery, carving, heraldry, cultural or religious motif, spikes, fragile legs, glossy varnish, room, character, text, logo, or watermark.
+```
+
 ### Card anchor and review
 
 ```text
@@ -119,6 +141,22 @@ Create one original physical Four of Coins card for The Fall at exact 63 by 88 m
 
 ```text
 Produce a professional review sheet for the retained Four of Coins anchor. Show a large exact flat front; a large rotationally symmetric back using shallow arches and interlocking circles in lampblack, woad, and vellum; a grayscale front; table-readability views at 48, 64, and 96 pixel-equivalent widths; one three-quarter edge view showing rounded corners and 0.7 mm thickness; one corner-overlap/fan test; and neutral-light versus warm-room-light views. Preserve exactly four central pips, the notched Coins icon, lampblack keyline, vellum face, woad accents, 63:88 proportion, and four two-way corner ranks. Keep one card design across panels. No branded-deck elements, extra rank or suit, directional back, glare, logo, or watermark.
+```
+
+### Four-suit card extensions
+
+All three retained suit extensions use the Four of Coins as the locked card-template reference and change only suit-specific iconography and restrained accent colors.
+
+```text
+Four of Clubs: preserve the retained Four of Coins card's exact 63:88 proportions, vellum face, lampblack keyline, generous border, corner-number placement, two-way reading, matte vector-like 3D presentation, and exactly four central pips arranged two upright and two inverted. Replace every Coins symbol with one original culturally neutral Clubs symbol: an asymmetric three-lobed blunt weighted head attached to a clearly visible short tapered handle, rendered in warm walnut with a restrained moss inset. Keep four matching corner suit icons and exactly four large central club pips. No coin circles, cups, swords, French playing-card club silhouette, weapon realism, heraldry, cultural carving, extra pips, mismatched rank, text beyond numeral 4, logo, or watermark.
+```
+
+```text
+Four of Swords: preserve the retained Four of Coins card's exact 63:88 proportions, vellum face, lampblack keyline, generous border, corner-number placement, two-way reading, matte vector-like 3D presentation, and exactly four central pips arranged two upright and two inverted. Replace every Coins symbol with one original culturally neutral Sword symbol: a straight broad blade with softly rounded tip, compact plain guard, restrained woad-blue grip, and antique-brass pommel, using muted iron and lampblack outlines. Keep four matching corner suit icons and exactly four large central sword pips. No cross or religious reading, historical insignia, heraldry, named weapon design, extra pips, mismatched rank, text beyond numeral 4, logo, or watermark.
+```
+
+```text
+Four of Cups: preserve the retained Four of Coins card's exact 63:88 proportions, vellum face, lampblack keyline, generous border, corner-number placement, two-way reading, matte vector-like 3D presentation, and exactly four central pips arranged two upright and two inverted. Replace every Coins symbol with one original culturally neutral Cup symbol: a wide shallow bowl, narrow stem, broad stable foot, and tiny functional side grips, using antique brass, restrained madder accents, and lampblack outlines. Keep four matching corner suit icons and exactly four large central cup pips. No religious chalice, ceremonial vessel, trophy, heraldry, cultural ornament, extra pips, mismatched rank, text beyond numeral 4, logo, or watermark.
 ```
 
 ### Cross-asset cohesion
