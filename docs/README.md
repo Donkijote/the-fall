@@ -61,6 +61,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Animation](technical/animation.md): animation responsibilities, experiments, and orchestration.
 - [Testing](technical/testing.md): domain, Unity, integration, and platform validation.
 - [Deterministic domain foundation](technical/domain-foundation.md): implemented 1v1 state, intent, result, and event vocabulary.
+- [First-playable match orchestration](technical/match-orchestration.md): human-facing session, deterministic baseline bot, information boundary, seeded replay, and failure diagnosis contract.
 - [Platforms](technical/platforms.md): mobile and desktop targets, orientations, and input.
 
 ### Planning and development
