@@ -44,10 +44,10 @@ The enabled build scenes are ordered as follows:
 | 0 | `Bootstrap` | application startup and persistent manual dependency composition |
 | 1 | `Home` | minimal navigation shell and screen-space UI Toolkit foundation |
 | 2 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
-| 3 | `AnimationLab` | isolated presentation experiments driven by resolved events |
+| 3 | `AnimationLab` | resolved-event card play, capture, cascade, Fall, clean-table, interruption, and synchronization experiments |
 | 4 | `AssetReview` | isolated generated-asset inspection with Play-mode orbit and zoom controls |
 
-The bootstrap, home, and animation-lab scenes remain deliberately minimal. `MatchPrototype` owns the presentation-only table composition documented in the [fixed table composition prototype](../design/table-composition-prototype.md); it adds no gameplay rules or final art. `AssetReview` is an isolated inspection scene for approved generated prototypes and does not participate in match flow.
+The bootstrap and home scenes remain deliberately minimal. `AnimationLab` now owns the isolated event-driven orchestration experiment documented in the [gameplay animation laboratory](../technical/animation.md). `MatchPrototype` owns the presentation-only table composition documented in the [fixed table composition prototype](../design/table-composition-prototype.md); it adds no gameplay rules or final art. `AssetReview` is an isolated inspection scene for approved generated prototypes and does not participate in match flow.
 
 ## Input, localization, and UI
 
