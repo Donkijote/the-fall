@@ -200,4 +200,16 @@ Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
 - deterministic complete-match replay: reached one winner from dealer selection with identical final state and ordered events across identical seeded runs
 - Android, iOS, Windows, physical-device, and performance rows: not run and not claimed by this pure-domain issue
 
+## Issue #23 validation checkpoint
+
+Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
+
+- foundation structural validation: passed
+- complete Edit Mode suite: 58/58 passed, including six application-orchestration tests and 24 seeded complete-match simulations
+- complete Play Mode suite: 11/11 passed
+- macOS universal development-player smoke build: succeeded
+- deterministic orchestration replay: identical bot intents, ordered events, and final state for the same seed and human intent sequence
+- bot information boundary: the public bot view exposes public match context plus its own hand, without opponent hands or hidden deck state
+- Android, iOS, Windows, physical-device, and performance rows: not run and not claimed by this application-layer issue
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

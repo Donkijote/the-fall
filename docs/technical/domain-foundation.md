@@ -98,7 +98,7 @@ bash scripts/validate-unity.sh tests
 ## Deferred
 
 - three-player and 2v2 rules
-- bot choice policy and first-playable application orchestration
+- additional bot policies, difficulty levels, and opponent personalities beyond the implemented first-playable baseline
 - save or online serialization formats
 - networking authority
 - Unity presentation, animation, audio, and UI for the expanded event vocabulary

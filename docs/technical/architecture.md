@@ -33,7 +33,11 @@ Responsibilities:
 - announce canto
 - play card and receive its automatic capture resolution
 - advance resolved game flow
+- automatically supply baseline-bot choices until control returns to the human
+- retain seeded intent, state, result, and event traces for replay and failure diagnosis
 - save/load orchestration through interfaces
+
+The implemented first-playable contract is recorded in [first-playable match orchestration](match-orchestration.md). Its bot receives a sanitized public turn view plus its own private hand; it does not receive the opponent hand, hidden deck order, or complete authoritative state.
 
 ### Unity adapters and presentation
 
@@ -116,6 +120,8 @@ Localization package installation and initial configuration belong to the dedica
 - design networking later around validated intents and authoritative state, not scene transforms
 
 The initial immutable state, intent, rule-result, and resolved-event vocabulary is recorded in the [deterministic domain foundation](domain-foundation.md). It proves the boundary for a representative 1v1 play-card flow without selecting the eventual serialization or networking format.
+
+The first-playable orchestrator now composes that vocabulary through a complete seeded human-versus-bot match while keeping bot policy and replay diagnostics outside the domain.
 
 ## Open architecture decisions
 
