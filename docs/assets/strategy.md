@@ -18,6 +18,8 @@ The planned concept-to-3D workflow is:
 
 The [V0 visual reference board](../design/visual-reference-board.md) defines what may be observed or reused, and the [prototype asset briefs](prototype-briefs.md) provide the generation-ready inputs for the representative character, table, and card. Issue #8 owns executing and measuring this pipeline; a brief alone is not an approved asset record.
 
+The [generated concept package](generated-concept-package.md) records the retained visual anchors and consistency sheets created on 2026-07-20. It is a concept-generation checkpoint only: Meshy conversion, optimized 3D approval, Unity import, and performance evidence remain pending manual owner work.
+
 ## Working budget
 
 **Confirmed:** The current monthly tool budget is approximately EUR 40:
