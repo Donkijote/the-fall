@@ -71,9 +71,8 @@ GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. 
 Still open:
 
 - minimum supported OS versions and exact representative hardware
-- loading-time pass/fail budgets for the first playable
 - screenshot or visual-regression tooling
 - automated mobile build frequency if CI is later adopted
 - production coverage expectations
 
-The implemented foundation and current installed-module checkpoint remain recorded in [bootstrap and validation](../development/bootstrap-validation.md).
+The first playable sets macOS loading, frame-pacing, memory, resolution, and endurance gates in the [first playable milestone](../planning/first-playable-milestone.md). The implemented foundation and current installed-module checkpoint remain recorded in [bootstrap and validation](../development/bootstrap-validation.md).

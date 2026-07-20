@@ -11,7 +11,7 @@ Read documents in this order before planning or implementing project work:
 3. [Game rules](game/rules.md) and [game modes](game/modes.md)
 4. [Experience design](design/experience.md), [art direction](design/art-direction.md), and the [visual reference board](design/visual-reference-board.md)
 5. [Technical architecture](technical/architecture.md)
-6. [V0 foundation plan](planning/v0-foundation-plan.md)
+6. [V0 foundation plan](planning/v0-foundation-plan.md) and [first playable milestone](planning/first-playable-milestone.md)
 7. [Development workflow](development/workflow.md) and [project guidelines](development/guidelines.md)
 8. [Decision log](decisions/README.md)
 
@@ -66,6 +66,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 ### Planning and development
 
 - [V0 foundation plan](planning/v0-foundation-plan.md): ordered discovery and implementation preparation.
+- [First playable milestone](planning/first-playable-milestone.md): bounded 1v1 player outcome, rules, bot, fidelity, macOS acceptance gates, risks, and ordered implementation issues.
 - [Development workflow](development/workflow.md): issues, branches, commits, pull requests, and project status.
 - [Project guidelines](development/guidelines.md): Unity, C#, asset, scene, prefab, and naming guidance.
 - [Bootstrap and validation](development/bootstrap-validation.md): implemented Unity foundation, scene roles, commands, and platform checkpoint.

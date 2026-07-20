@@ -1,6 +1,6 @@
 # V0 Foundation Plan
 
-Status: Confirmed
+Status: Completed
 
 ## Objective
 
@@ -82,16 +82,17 @@ Exit signal: core validation has repeatable commands and ownership.
 
 ## Step 9: Select the first playable milestone
 
-Use evidence from the prior steps to decide:
+Issue #11 used evidence from the prior steps to decide:
 
-- mode
-- player and bot scope
-- required rules
-- required art fidelity
-- platform targets
-- milestone acceptance criteria
+- one complete offline 1v1 match against one deterministic baseline bot
+- the complete confirmed 1v1 rules, with only the shared Casas and Trivilín-effect options exposed
+- prototype art, UI, animation, VFX, and audio fidelity
+- a macOS universal development-player acceptance target
+- objective rule, interaction, state-synchronization, resolution, loading, frame-pacing, memory, and endurance gates
 
-## Confirmed follow-up issues
+Exit signal: the [first playable milestone](first-playable-milestone.md) and its issues #22–#31 define the next implementation phase and parallel physical-iPhone evidence lane.
+
+## V0 issue history
 
 The V0 foundation work has been refined into these GitHub issues:
 
@@ -105,6 +106,6 @@ The V0 foundation work has been refined into these GitHub issues:
 8. [#10 Establish the testing and platform validation baseline](https://github.com/Donkijote/the-fall/issues/10)
 9. [#11 Define the first playable milestone](https://github.com/Donkijote/the-fall/issues/11)
 
-All nine issues are assigned, labeled, attached to the The Fall project, and placed in `Ready`. Their issue bodies record dependencies and allow independent work where the foundation permits it.
+All nine V0 issues were assigned, labeled, and attached to the The Fall project. Issues #3–#10 supplied the evidence consumed by #11.
 
-**Confirmed ordering:** Issue #3 is the first implementation task after this documentation work. Issue #11 closes the V0 foundation by using evidence from the preceding prototypes to define the first playable milestone.
+**Confirmed:** Issue #11 closes the V0 foundation. The next phase is the ordered first-playable plan and physical-iPhone follow-up in issues #22–#31.
