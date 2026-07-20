@@ -112,7 +112,7 @@ namespace TheFall.Presentation.Interaction
 
         private void BindInputActions()
         {
-            _inputIntentSource = FindFirstObjectByType<InputIntentSource>();
+            _inputIntentSource = FindAnyObjectByType<InputIntentSource>();
             _pointAction = ResolveInputAction(PlayerIntentKind.Point);
             _navigateAction = ResolveInputAction(PlayerIntentKind.Navigate);
             _inspectAction = ResolveInputAction(PlayerIntentKind.Inspect);
