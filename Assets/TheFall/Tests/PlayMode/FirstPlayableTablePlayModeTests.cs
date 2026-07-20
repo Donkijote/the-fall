@@ -108,8 +108,12 @@ namespace TheFall.Tests.PlayMode
             var localHandCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.LocalHand);
             var publicTableCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Table);
             var opponentCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.OpponentHand);
-            Assert.That(localHandCard.transform.localScale.x, Is.GreaterThan(publicTableCard.transform.localScale.x));
-            Assert.That(publicTableCard.transform.localScale.x, Is.GreaterThan(opponentCard.transform.localScale.x));
+            var deckCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Deck);
+            var expectedScale = localHandCard.transform.localScale;
+            Assert.That(publicTableCard.transform.localScale, Is.EqualTo(expectedScale));
+            Assert.That(opponentCard.transform.localScale, Is.EqualTo(expectedScale));
+            Assert.That(deckCard.transform.localScale, Is.EqualTo(expectedScale));
+            Assert.That(expectedScale.x / expectedScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
 
             var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
             Assert.That(cantoIntents, Is.Not.Empty);

@@ -24,6 +24,8 @@ namespace TheFall.Presentation.Match
         private static readonly Vector3 FixedCameraPosition = new Vector3(0f, 8.6f, -2.35f);
         private static readonly Quaternion FixedCameraRotation = Quaternion.Euler(74f, 0f, 0f);
         private const float FixedCameraFieldOfView = 36f;
+        private const float GameplayCardWidth = 0.19f;
+        private const float GameplayCardLength = GameplayCardWidth * 88f / 63f;
 
         private static readonly Color Lampblack = FromHex(0x241A14);
         private static readonly Color CharredWalnut = FromHex(0x3B291F);
@@ -407,7 +409,7 @@ namespace TheFall.Presentation.Match
                 var column = index % 8;
                 CreateCard(parent, $"Face-down Dealer Card {index + 1}",
                     new Vector3((column - 3.5f) * 0.17f, 0.80f + row * 0.002f, (row - 2f) * 0.21f),
-                    0.75f, FirstPlayableCardZone.DealerSpread, false, null, index, true);
+                    FirstPlayableCardZone.DealerSpread, false, null, index, true);
             }
         }
 
@@ -417,7 +419,7 @@ namespace TheFall.Presentation.Match
             {
                 CreateCard(parent, $"Deck Card {index + 1}",
                     new Vector3(0.72f, 0.80f + index * 0.0015f, 0f),
-                    0.86f, FirstPlayableCardZone.Deck, false, null);
+                    FirstPlayableCardZone.Deck, false, null);
             }
         }
 
@@ -429,7 +431,7 @@ namespace TheFall.Presentation.Match
                 var column = index % 5;
                 CreateCard(parent, $"Table {cards[index]}",
                     new Vector3((column - 2f) * 0.23f, 0.805f + row * 0.002f, (row - 0.5f) * 0.31f),
-                    0.96f, FirstPlayableCardZone.Table, true, cards[index]);
+                    FirstPlayableCardZone.Table, true, cards[index]);
             }
         }
 
@@ -440,7 +442,7 @@ namespace TheFall.Presentation.Match
                 var x = (index - (cards.Count - 1) * 0.5f) * 0.29f;
                 var rendered = CreateCard(parent, $"Local Hand {cards[index]}",
                     new Vector3(x, 0.82f, -0.88f + Mathf.Abs(index - 1) * 0.025f),
-                    1.18f, FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
+                    FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
                 _localHandViews.Add(view);
@@ -454,7 +456,7 @@ namespace TheFall.Presentation.Match
                 var x = (index - (count - 1) * 0.5f) * 0.25f;
                 CreateCard(parent, $"Private Opponent Hand Card {index + 1}",
                     new Vector3(-x, 0.82f, 0.88f),
-                    0.9f, FirstPlayableCardZone.OpponentHand, false, null);
+                    FirstPlayableCardZone.OpponentHand, false, null);
             }
         }
 
@@ -468,7 +470,7 @@ namespace TheFall.Presentation.Match
             {
                 CreateCard(parent, $"{zone} {cards[index]}",
                     origin + new Vector3((index % 4) * 0.012f, index * 0.002f, (index % 3) * 0.009f),
-                    0.62f, zone, true, cards[index]);
+                    zone, true, cards[index]);
             }
         }
 
@@ -476,7 +478,6 @@ namespace TheFall.Presentation.Match
             Transform parent,
             string name,
             Vector3 position,
-            float scale,
             FirstPlayableCardZone zone,
             bool faceUp,
             Card? card,
@@ -488,7 +489,7 @@ namespace TheFall.Presentation.Match
             cardObject.hideFlags = HideFlags.DontSave;
             cardObject.transform.SetParent(parent, false);
             cardObject.transform.localPosition = position;
-            cardObject.transform.localScale = new Vector3(0.18f * scale, 0.012f, 0.26f * scale);
+            cardObject.transform.localScale = new Vector3(GameplayCardWidth, 0.012f, GameplayCardLength);
 
             var collider = cardObject.GetComponent<Collider>();
             if (!interactive)

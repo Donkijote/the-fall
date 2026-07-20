@@ -37,10 +37,10 @@ The UI leaves a transparent central table area and keeps scores, dealer, active 
 state, latest resolved event, contextual non-card decisions, and interaction feedback in screen-space
 elements.
 
-Card sizes follow gameplay importance: the open local hand is largest, public table cards are next,
-opponent cards and the deck remain readable as closed cards, and capture piles remain compact. Dealer
-selection uses larger face-down targets in an eight-by-five spread. This hierarchy keeps ranks and suits
-readable from the required desktop resolutions while leaving ownership zones distinct.
+Every gameplay card uses one consistent footprint with the source art's exact `63:88` aspect ratio.
+Hands, table cards, deck cards, captured cards, and the dealer-selection spread distinguish their zones
+through position and overlap instead of changing card size or stretching the artwork. This keeps rank and
+suit scale predictable at the required desktop resolutions while preserving clear ownership zones.
 
 ## Interaction
 
