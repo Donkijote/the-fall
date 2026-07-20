@@ -38,7 +38,7 @@ All retained PNG files are covered by the repository's Git LFS rules.
 | [`CRD-P-FOUR-COINS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-COINS_Concept.png) | clean Coins card conversion anchor | `222ba7304ff81ba983a54211a28a06ead9715a28cc51061c829112ed43909c86` |
 | [`CRD-P-FOUR-COINS_ReviewSheet.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-COINS_ReviewSheet.png) | face, back, scale, overlap, edge, and lighting review | `df3fb7867eb18cf4a87b7043a4128164ba2d82d31d15308d059e87880ee630da` |
 | [`CRD-P-FOUR-CLUBS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CLUBS_Concept.png) | matching Clubs suit reference using wooden bastones | `9da6d8c9df0745de996e9a2f6e9dbed5e94610182b71aec2ae66c2de35f690a4` |
-| [`CRD-P-FOUR-SWORDS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-SWORDS_Concept.png) | matching Swords suit reference | `fdf6fc969d31fb19306e356dfc69247674f3a8bf7fc2e1cf9b2e1acad7495126` |
+| [`CRD-P-FOUR-SWORDS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-SWORDS_Concept.png) | matching Swords suit reference with complete corner icons | `62febe494cb53bd12e0268f0ba0a2a42325f0c57939ae94ce9b97a74bf1f92bf` |
 | [`CRD-P-FOUR-CUPS_Concept.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cards/CRD-P-FOUR-CUPS_Concept.png) | matching Cups suit reference | `0ca351d1dd2489944fac73b231e1b5c7093c7a69d6df76b4f7c885968aaa15f6` |
 | [`V0-PrototypeAssets_Cohesion.png`](../../Assets/TheFall/Content/PrototypeAssets/Concepts/Cohesion/V0-PrototypeAssets_Cohesion.png) | cross-asset artistic-cohesion check | `cc14f7558fc747b16380b577526a4a1e1226496598a102f549d604634a9496a9` |
 
@@ -54,7 +54,8 @@ All retained PNG files are covered by the repository's Git LFS rules.
 - input references for the cohesion image: only the three retained project-owned anchors
 - input reference for the full-body character: only the retained project-owned character anchor
 - input reference for the chair: only the retained project-owned table anchor
-- input reference for Swords and Cups: only the retained project-owned Four of Coins anchor
+- input reference for the original Swords and Cups extensions: only the retained project-owned Four of Coins anchor
+- input reference for the retained Swords corner correction: only the previous project-owned Swords card as the precise edit target
 - input references for the retained Clubs rebuild: only the approved project-owned Swords and Cups sibling cards as locked layout, material, camera, rendering, typography, and border references; no Coins image or rejected Clubs image was supplied
 - observation-only images from the reference board: not supplied to the generator
 - direct per-image cost: not exposed; no separate purchase was made
@@ -85,6 +86,8 @@ The first character anchor placed cards between both hands. It was rejected beca
 Two attempted combined-character layouts were rejected by the image service before producing output. They created no file and incurred no retained repository artifact. The successful simpler cohesion prompt preserved the three anchors without the rejected request structure.
 
 Two Clubs extensions resembled the Coins family too closely and were rejected. They remain only in the external working archive as `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-CLUBS_v1-rejected.png`, SHA-256 `07ab5417792e86f90631b35fa62e525bb24c873c3911b7d13f333321ebba7d2c`, and `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-CLUBS_v2-rejected.png`, SHA-256 `3f9745c8d7b1cb737fc8d1fa9f1dcb5210f69ffad3d044144db40ba93fec00b9`. The retained design was rebuilt from scratch around elongated wooden Spanish-suit bastones, using only the approved Swords and Cups cards as presentation references and explicitly excluding lobes, disks, medallions, and other coin-derived construction. One initial full-body request was rejected by the image service before producing output; the simplified project-owned character-extension request succeeded without changing the character identity.
+
+The first Swords card clipped each small corner sword against the curved inner border. Although the central design was approved, the clipped icons were inconsistent with Coins, Cups, and the rebuilt Clubs card and weakened overlap readability. It remains only in the external working archive as `<external-working-archive>/issue-8/rejected/CRD-P-FOUR-SWORDS_v1-corner-clipped.png`, SHA-256 `fdf6fc969d31fb19306e356dfc69247674f3a8bf7fc2e1cf9b2e1acad7495126`. A precise edit scaled and repositioned only the four corner swords so every blade, guard, grip, and pommel is visible with clear padding.
 
 ## Recorded execution prompts
 
@@ -154,6 +157,12 @@ Create a brand-new Four of Clubs card using unmistakable wooden clubs or cudgels
 
 ```text
 Four of Swords: preserve the retained Four of Coins card's exact 63:88 proportions, vellum face, lampblack keyline, generous border, corner-number placement, two-way reading, matte vector-like 3D presentation, and exactly four central pips arranged two upright and two inverted. Replace every Coins symbol with one original culturally neutral Sword symbol: a straight broad blade with softly rounded tip, compact plain guard, restrained woad-blue grip, and antique-brass pommel, using muted iron and lampblack outlines. Keep four matching corner suit icons and exactly four large central sword pips. No cross or religious reading, historical insignia, heraldry, named weapon design, extra pips, mismatched rank, text beyond numeral 4, logo, or watermark.
+```
+
+Targeted corner-symbol correction applied to the approved central Swords design:
+
+```text
+Change only the four small sword suit icons beneath or beside the corner numeral 4s. Scale and reposition each small corner sword so the complete blade tip, blade, guard, woad-blue wrapped grip, and round antique-brass pommel are visible inside its corner compartment with clear vellum padding on every side. Keep the two upper swords upright beneath their 4s and the two lower swords inverted above their rotated 4s. Do not let any part touch, cross, hide behind, or clip against the curved inner border. Preserve the four large central swords, their positions and sizes, all four numeral 4s, every border line and corner-compartment shape, aged-vellum texture, card proportions and thickness, perspective, crop, studio background, colors, lighting, shadows, and matte stylized 3D finish. Exactly four central swords and four complete corner sword icons; no redesign, extra symbol, text, logo, or watermark.
 ```
 
 ```text
