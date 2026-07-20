@@ -1,6 +1,6 @@
 # Platform Requirements
 
-Status: Draft
+Status: Confirmed targets with open support commitments
 
 ## Confirmed targets
 
@@ -46,3 +46,5 @@ Issue #7 keeps selection and inspection in application-owned interaction state w
 - distribution stores and signing workflow
 
 The initial player settings and currently validated build target are recorded in [bootstrap and validation](../development/bootstrap-validation.md).
+
+The initial device/OS lanes, mobile tiers, desktop resolutions, manual procedure, build-smoke paths, and V0 performance gates are recorded in [testing and platform validation baseline](../development/validation.md). Those lanes intentionally use relative current/oldest-candidate OS coverage and do not settle the minimum-version decisions above.

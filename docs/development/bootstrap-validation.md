@@ -71,34 +71,17 @@ Minimum OS/API versions, desktop fullscreen behavior, signing, and stores remain
 
 ## Local validation
 
-Use the matching Unity editor executable for `ProjectSettings/ProjectVersion.txt`:
+Use the matching Unity editor executable for `ProjectSettings/ProjectVersion.txt`. The repository runner owns the repeatable foundation, suite, and build-smoke sequence:
 
 ```sh
-UNITY_THE_FALL="/Applications/Unity/Hub/Editor/6000.5.4f1/Unity.app/Contents/MacOS/Unity"
+export UNITY_THE_FALL="/Applications/Unity/Hub/Editor/6000.5.4f1/Unity.app/Contents/MacOS/Unity"
 
-"$UNITY_THE_FALL" -batchmode -nographics -quit \
-  -projectPath "$(pwd)" \
-  -executeMethod TheFall.Editor.FoundationSetup.Validate \
-  -logFile Logs/FoundationValidation.log
-
-"$UNITY_THE_FALL" -batchmode -nographics \
-  -projectPath "$(pwd)" \
-  -runTests -testPlatform EditMode \
-  -testResults Logs/EditModeResults.xml \
-  -logFile Logs/EditModeTests.log
-
-"$UNITY_THE_FALL" -batchmode -nographics \
-  -projectPath "$(pwd)" \
-  -runTests -testPlatform PlayMode \
-  -testResults Logs/PlayModeResults.xml \
-  -logFile Logs/PlayModeTests.log
-
-foundation_build_dir="$(mktemp -d)"
-"$UNITY_THE_FALL" -batchmode -nographics -quit \
-  -projectPath "$(pwd)" \
-  -buildOSXUniversalPlayer "$foundation_build_dir/TheFall.app" \
-  -logFile Logs/MacBuild.log
+scripts/validate-unity.sh tests
+scripts/validate-unity.sh smoke macos
+scripts/validate-unity.sh all macos
 ```
+
+See [testing and platform validation baseline](validation.md) for focused failure replay, all platform smoke arguments, result locations, the manual matrix, and evidence requirements.
 
 The editor menu `The Fall > Foundation > Generate` creates missing foundation assets and applies project settings without replacing scenes or UI prefabs that already exist. `The Fall > Foundation > Validate` performs the non-test structural checks.
 
