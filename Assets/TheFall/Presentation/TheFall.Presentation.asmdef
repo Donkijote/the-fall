@@ -5,7 +5,8 @@
     "TheFall.Application",
     "TheFall.Domain",
     "TheFall.Infrastructure",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

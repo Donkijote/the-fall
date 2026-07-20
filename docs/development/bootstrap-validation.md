@@ -43,10 +43,10 @@ The enabled build scenes are ordered as follows:
 | ---: | --- | --- |
 | 0 | `Bootstrap` | application startup and persistent manual dependency composition |
 | 1 | `Home` | minimal navigation shell and screen-space UI Toolkit foundation |
-| 2 | `MatchPrototype` | first deterministic 1v1 and table-composition prototype |
+| 2 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
 | 3 | `AnimationLab` | isolated presentation experiments driven by resolved events |
 
-The committed scene files are deliberately minimal. They define ownership and integration boundaries without adding final gameplay, layout, or art.
+The bootstrap, home, and animation-lab scenes remain deliberately minimal. `MatchPrototype` now owns the presentation-only table blockout documented in the [fixed table composition prototype](../design/table-composition-prototype.md); it adds no gameplay rules or final art.
 
 ## Input, localization, and UI
 

@@ -30,6 +30,8 @@ Controller support is not currently required.
 
 **Proposed:** Treat each orientation as an authored composition sharing the same game state, rather than scaling one layout mechanically.
 
+Issue #6 implements and tests that proposal with three authored layout profiles and normalized safe-area recomposition. See [fixed table composition prototype](../design/table-composition-prototype.md) for its working parameters and remaining device-validation gaps.
+
 ## Open platform decisions
 
 - minimum Android API and device tier
