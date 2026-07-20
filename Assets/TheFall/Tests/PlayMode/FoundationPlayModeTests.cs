@@ -12,11 +12,24 @@ namespace TheFall.Tests.PlayMode
         [UnityTest]
         public IEnumerator BootstrapScene_ComposesTheFoundation()
         {
+            if (CompositionRoot.Instance != null)
+            {
+                Object.Destroy(CompositionRoot.Instance.gameObject);
+                yield return null;
+            }
+
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
 
-            var compositionRoot = Object.FindAnyObjectByType<CompositionRoot>();
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            var compositionRoot = CompositionRoot.Instance;
             Assert.That(compositionRoot, Is.Not.Null);
             Assert.That(compositionRoot.IsComposed, Is.True);
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Home"));
         }
     }
 }

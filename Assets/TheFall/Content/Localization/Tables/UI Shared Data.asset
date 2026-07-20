@@ -19,6 +19,254 @@ MonoBehaviour:
     m_Key: app.title
     m_Metadata:
       m_Items: []
+  - m_Id: 328036300873728
+    m_Key: flow.home.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011072
+    m_Key: flow.home.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011073
+    m_Key: flow.home.mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011074
+    m_Key: flow.home.start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011075
+    m_Key: flow.home.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011076
+    m_Key: flow.setup.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011077
+    m_Key: flow.setup.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011078
+    m_Key: flow.setup.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011079
+    m_Key: flow.setup.casas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011080
+    m_Key: flow.setup.casas-description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011081
+    m_Key: flow.setup.trivilin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011082
+    m_Key: flow.setup.trivilin-description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011083
+    m_Key: flow.setup.fixed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011084
+    m_Key: flow.setup.start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011085
+    m_Key: flow.setup.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011086
+    m_Key: flow.common.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011087
+    m_Key: flow.common.return-home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011088
+    m_Key: flow.loading.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011089
+    m_Key: flow.loading.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011090
+    m_Key: flow.loading.message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011091
+    m_Key: flow.match.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011092
+    m_Key: flow.match.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011093
+    m_Key: flow.match.actions-title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011094
+    m_Key: flow.match.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011095
+    m_Key: flow.match.phase.dealer-selection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011096
+    m_Key: flow.match.phase.dealer-choice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011097
+    m_Key: flow.match.phase.active
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011098
+    m_Key: flow.match.phase.completed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011099
+    m_Key: flow.match.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036351205376
+    m_Key: flow.match.progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399680
+    m_Key: flow.match.turn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399681
+    m_Key: flow.match.tie-extension
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399682
+    m_Key: flow.match.standard-round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399683
+    m_Key: flow.player.you
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399684
+    m_Key: flow.player.bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399685
+    m_Key: flow.action.dealer-card
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399686
+    m_Key: flow.action.deal-options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399687
+    m_Key: flow.action.hands-first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399688
+    m_Key: flow.action.table-first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399689
+    m_Key: flow.action.ascending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399690
+    m_Key: flow.action.descending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399691
+    m_Key: flow.action.announce-canto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399692
+    m_Key: flow.action.play-card
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399693
+    m_Key: flow.action.unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399694
+    m_Key: canto.casagrande
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399695
+    m_Key: canto.casachica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399696
+    m_Key: canto.registro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399697
+    m_Key: canto.vigia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399698
+    m_Key: canto.patrulla
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399699
+    m_Key: canto.trivilin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399700
+    m_Key: canto.ronda
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399701
+    m_Key: card.suit.coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399702
+    m_Key: card.suit.cups
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399703
+    m_Key: card.suit.swords
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399704
+    m_Key: card.suit.clubs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399705
+    m_Key: flow.result.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399706
+    m_Key: flow.result.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399707
+    m_Key: flow.result.victory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593984
+    m_Key: flow.result.defeat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593985
+    m_Key: flow.result.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593986
+    m_Key: flow.result.replay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593987
+    m_Key: flow.result.prompt
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

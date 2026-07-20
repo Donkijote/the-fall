@@ -68,6 +68,8 @@ Issue #22 extends the pure-domain layer through a complete seeded 1v1 match. Its
 
 Issue #23 adds application-layer complete-match simulations. They drive the human through the public legal-intent surface while the baseline bot supplies every opponent choice, verify every bot intent was legal and accepted, compare complete seeded replays, assert the bot-view information boundary, and retain rejected intent context. See [first-playable match orchestration](match-orchestration.md).
 
+Issue #24 adds pure application-flow tests for defaults, guarded navigation, session replacement, stale-state cleanup, replay configuration, and complete match progression. Play Mode then launches through Bootstrap, observes the explicit loading stage, completes/replays/leaves through the UI adapter, and verifies pseudo-localized controls remain expanded, visible, and keyboard-focusable. See [first-playable application flow](first-playable-flow.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.

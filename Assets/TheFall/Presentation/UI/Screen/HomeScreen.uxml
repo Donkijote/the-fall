@@ -1,4 +1,98 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <Style src="HomeScreen.uss" />
-    <ui:VisualElement name="home-screen" class="screen-root" />
+    <ui:VisualElement name="home-screen" class="screen-root">
+        <ui:VisualElement class="ambient ambient-left" />
+        <ui:VisualElement class="ambient ambient-right" />
+
+        <ui:VisualElement name="home-stage" class="stage stage-home">
+            <ui:VisualElement class="hero-mark">
+                <ui:Label name="home-eyebrow" class="eyebrow" />
+                <ui:Label name="home-title" class="display-title" />
+                <ui:VisualElement class="title-rule" />
+                <ui:Label name="home-subtitle" class="subtitle" />
+            </ui:VisualElement>
+            <ui:VisualElement class="home-card panel">
+                <ui:Label name="home-mode" class="mode-summary" />
+                <ui:Button name="home-start-button" class="primary-button" />
+                <ui:Label name="home-prompt" class="input-prompt" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="setup-stage" class="stage stage-setup">
+            <ui:VisualElement class="panel setup-panel">
+                <ui:Label name="setup-eyebrow" class="eyebrow" />
+                <ui:Label name="setup-title" class="section-title" />
+                <ui:Label name="setup-subtitle" class="body-copy" />
+
+                <ui:VisualElement class="option-card">
+                    <ui:Toggle name="casas-toggle" class="rule-toggle" />
+                    <ui:Label name="casas-description" class="option-description" />
+                </ui:VisualElement>
+                <ui:VisualElement class="option-card">
+                    <ui:Toggle name="trivilin-toggle" class="rule-toggle" />
+                    <ui:Label name="trivilin-description" class="option-description" />
+                </ui:VisualElement>
+
+                <ui:Label name="setup-fixed" class="fixed-summary" />
+                <ui:VisualElement class="button-row">
+                    <ui:Button name="setup-back-button" class="secondary-button" />
+                    <ui:Button name="setup-start-button" class="primary-button" />
+                </ui:VisualElement>
+                <ui:Label name="setup-prompt" class="input-prompt" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="loading-stage" class="stage stage-loading">
+            <ui:VisualElement class="panel loading-panel">
+                <ui:Label name="loading-eyebrow" class="eyebrow" />
+                <ui:VisualElement class="loading-glyph" />
+                <ui:Label name="loading-title" class="section-title centered" />
+                <ui:Label name="loading-message" class="body-copy centered" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="match-stage" class="stage stage-match">
+            <ui:VisualElement class="match-shell">
+                <ui:VisualElement class="match-header panel">
+                    <ui:VisualElement class="match-heading">
+                        <ui:Label name="match-eyebrow" class="eyebrow" />
+                        <ui:Label name="match-title" class="section-title compact-title" />
+                    </ui:VisualElement>
+                    <ui:Button name="match-home-button" class="quiet-button" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="match-grid">
+                    <ui:VisualElement class="match-status panel">
+                        <ui:Label name="match-phase" class="status-title" />
+                        <ui:Label name="match-score" class="score-line" />
+                        <ui:Label name="match-progress" class="status-line" />
+                        <ui:Label name="match-turn" class="status-line" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="match-choices panel">
+                        <ui:Label name="match-actions-title" class="eyebrow" />
+                        <ui:ScrollView name="match-actions-scroll" class="actions-scroll" mode="Vertical">
+                            <ui:VisualElement name="match-actions" class="actions-list" />
+                        </ui:ScrollView>
+                        <ui:Label name="match-prompt" class="input-prompt" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="result-stage" class="stage stage-result">
+            <ui:VisualElement class="panel result-panel">
+                <ui:Label name="result-eyebrow" class="eyebrow" />
+                <ui:Label name="result-title" class="section-title centered" />
+                <ui:VisualElement class="result-seal">
+                    <ui:Label name="result-outcome" class="result-outcome" />
+                </ui:VisualElement>
+                <ui:Label name="result-score" class="result-score" />
+                <ui:VisualElement class="button-row">
+                    <ui:Button name="result-home-button" class="secondary-button" />
+                    <ui:Button name="result-replay-button" class="primary-button" />
+                </ui:VisualElement>
+                <ui:Label name="result-prompt" class="input-prompt" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>
