@@ -116,7 +116,7 @@ Focused Edit Mode coverage verifies privacy-safe state projection and complete-m
 Validated on 2026-07-20 with Unity `6000.5.4f1`:
 
 - first-playable table generation and structural validation: passed
-- complete Edit Mode suite: 63/63 passed
+- complete Edit Mode suite: 64/64 passed
 - complete Play Mode suite: 16/16 passed
 - macOS universal development-player smoke build: passed
 - offscreen `1440 x 900` dealer-selection, dealer-options, canto/selection, and overhead-composition captures: reviewed
