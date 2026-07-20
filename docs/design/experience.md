@@ -6,6 +6,8 @@ Status: Draft
 
 **Confirmed:** Use a completely stationary fixed cinematic camera during gameplay, looking down toward the table. It provides an elevated, readable view and does not zoom, pan, orbit, or move for deals, captures, cantos, scoring, or victory.
 
+Issue #6's working camera, seat-anchor, orientation, safe-area, and readability values are recorded in the [fixed table composition prototype](table-composition-prototype.md). Those numeric values are V0 evidence rather than final production approval.
+
 Lobby and home-screen camera behavior will be designed separately and may use a different presentation model.
 
 ## Player representation
@@ -40,7 +42,7 @@ Captured piles remain visually owned by the character who earned them even when 
 
 ## Open experience decisions
 
-- exact camera angle, field of view, and safe framing by orientation
+- production camera angle, field of view, and safe framing thresholds beyond the V0 prototype
 - whether cards are played by tap, drag, or a configurable combination
 - card inspection and zoom behavior
 - portrait-mode seating and UI composition
