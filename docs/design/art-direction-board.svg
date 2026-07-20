@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">The Fall V0 medieval art-direction board</title>
+  <desc id="description">An original vector board showing an isometric Story settlement, a parchment campaign hub, a fixed overhead match, and a grounded medieval palette.</desc>
+  <defs>
+    <linearGradient id="story-ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B4834C"/>
+      <stop offset="1" stop-color="#7E5935"/>
+    </linearGradient>
+    <radialGradient id="match-table" cx="42%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#76503A"/>
+      <stop offset="1" stop-color="#3B291F"/>
+    </radialGradient>
+    <pattern id="vellum-speckle" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="7" r="1" fill="#68452F" opacity="0.12"/>
+      <circle cx="17" cy="15" r="1.2" fill="#241A14" opacity="0.08"/>
+    </pattern>
+    <style>
+      .title { font: 700 34px Georgia, serif; letter-spacing: 0.6px; fill: #D8C493; }
+      .kicker { font: 700 12px system-ui, sans-serif; letter-spacing: 3px; fill: #B58B3E; }
+      .panel-title { font: 700 15px system-ui, sans-serif; letter-spacing: 1.8px; fill: #D8C493; }
+      .panel-title-dark { font: 700 15px system-ui, sans-serif; letter-spacing: 1.8px; fill: #3B291F; }
+      .label { font: 650 12px system-ui, sans-serif; fill: #D8C493; }
+      .label-dark { font: 650 12px system-ui, sans-serif; fill: #3B291F; }
+      .small { font: 500 10px system-ui, sans-serif; fill: #BDAA82; }
+      .small-dark { font: 500 10px system-ui, sans-serif; fill: #68452F; }
+      .rule { stroke: #D8C493; stroke-opacity: 0.18; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="800" rx="28" fill="#241A14"/>
+  <rect x="1" y="1" width="1198" height="798" rx="27" fill="none" stroke="#D8C493" stroke-opacity="0.24" stroke-width="2"/>
+
+  <text x="44" y="46" class="kicker">THE FALL · V0 VISUAL NORTH STAR</text>
+  <text x="44" y="84" class="title">An illustrated medieval campaign, made tangible</text>
+  <text x="44" y="108" class="small">EARTHED MATERIALS · AUTHORED LANDMARKS · READABLE TABLETOP PLAY</text>
+
+  <!-- Story world -->
+  <g transform="translate(40 134)">
+    <rect width="500" height="408" rx="18" fill="#30241B" stroke="#D8C493" stroke-opacity="0.18"/>
+    <text x="24" y="32" class="panel-title">01 · STORY WORLD</text>
+    <text x="24" y="51" class="small">OBLIQUE MINIATURE SETTLEMENT</text>
+    <path d="M24,98 L280,63 L476,151 L224,350 L28,260 Z" fill="url(#story-ground)" stroke="#D8C493" stroke-opacity="0.15" stroke-width="2"/>
+    <path d="M35,224 C126,182 174,236 255,184 S382,126 467,168" fill="none" stroke="#D8C493" stroke-opacity="0.58" stroke-width="20" stroke-linecap="round"/>
+    <path d="M185,328 C217,280 252,238 302,201" fill="none" stroke="#D8C493" stroke-opacity="0.42" stroke-width="12" stroke-linecap="round"/>
+
+    <g transform="translate(82 136)">
+      <path d="M0,26 L34,8 L70,26 L36,45 Z" fill="#8D4238"/>
+      <path d="M8,28 L36,44 L36,86 L8,70 Z" fill="#68452F"/>
+      <path d="M36,44 L63,30 L63,72 L36,86 Z" fill="#3B291F"/>
+      <rect x="17" y="49" width="10" height="22" fill="#241A14"/>
+    </g>
+    <g transform="translate(182 104)">
+      <path d="M0,32 L46,6 L91,31 L46,57 Z" fill="#465C73"/>
+      <path d="M9,35 L46,56 L46,110 L9,88 Z" fill="#D8C493"/>
+      <path d="M46,56 L83,35 L83,88 L46,110 Z" fill="#68452F"/>
+      <rect x="57" y="59" width="13" height="21" fill="#B58B3E"/>
+      <path d="M30,6 L46,-25 L61,6 Z" fill="#3B291F"/>
+    </g>
+    <g transform="translate(337 125)">
+      <path d="M0,23 L32,6 L64,23 L32,41 Z" fill="#6B7046"/>
+      <path d="M7,25 L32,40 L32,78 L7,64 Z" fill="#A06F3C"/>
+      <path d="M32,40 L58,25 L58,64 L32,78 Z" fill="#68452F"/>
+    </g>
+    <g transform="translate(276 236)">
+      <path d="M0,24 L34,5 L70,25 L34,44 Z" fill="#8D4238"/>
+      <path d="M7,27 L34,43 L34,86 L7,70 Z" fill="#68452F"/>
+      <path d="M34,43 L63,27 L63,70 L34,86 Z" fill="#3B291F"/>
+    </g>
+    <g transform="translate(104 253)">
+      <path d="M0,21 L29,5 L58,21 L29,37 Z" fill="#6B7046"/>
+      <path d="M6,24 L29,36 L29,70 L6,58 Z" fill="#D8C493"/>
+      <path d="M29,36 L53,24 L53,58 L29,70 Z" fill="#68452F"/>
+    </g>
+
+    <circle cx="228" cy="172" r="13" fill="#B58B3E" stroke="#D8C493" stroke-width="4"/>
+    <path d="M228,151 L228,126" stroke="#B58B3E" stroke-width="4" stroke-linecap="round"/>
+    <path d="M228,126 L245,133 L228,141 Z" fill="#8D4238"/>
+    <circle cx="362" cy="223" r="9" fill="#D8C493" stroke="#6B7046" stroke-width="4"/>
+    <circle cx="157" cy="222" r="8" fill="#D8C493" stroke="#465C73" stroke-width="4"/>
+
+    <rect x="24" y="365" width="452" height="25" rx="12" fill="#241A14" fill-opacity="0.68"/>
+    <text x="38" y="382" class="small">ROADS + LANDMARKS FIRST · ACCENTS MARK GOALS</text>
+  </g>
+
+  <!-- Hub map -->
+  <g transform="translate(560 134)">
+    <rect width="280" height="408" rx="18" fill="#D8C493" stroke="#D8C493" stroke-opacity="0.3"/>
+    <rect width="280" height="408" rx="18" fill="url(#vellum-speckle)"/>
+    <text x="20" y="32" class="panel-title-dark">02 · HUB</text>
+    <text x="20" y="51" class="small-dark">PARCHMENT CAMPAIGN MAP</text>
+    <path d="M18,93 C62,69 91,88 120,79 C160,65 190,86 260,68 L262,160 C228,177 214,198 181,187 C137,172 106,186 66,163 C40,148 27,128 18,93 Z" fill="#6B7046" opacity="0.65"/>
+    <path d="M18,198 C58,178 84,191 114,218 C145,245 176,252 208,236 C231,224 247,239 263,256 L263,363 L18,363 Z" fill="#A06F3C" opacity="0.4"/>
+    <path d="M18,288 C58,274 96,299 125,322 C151,343 181,347 213,324 C237,306 250,310 263,317" fill="none" stroke="#465C73" stroke-width="18" stroke-opacity="0.64"/>
+    <path d="M51,301 C78,254 91,228 125,201 S173,139 210,112" fill="none" stroke="#68452F" stroke-width="7" stroke-dasharray="3 8" stroke-linecap="round"/>
+
+    <g transform="translate(51 301)">
+      <circle r="17" fill="#3B291F" stroke="#D8C493" stroke-width="4"/>
+      <path d="M-8,3 L0,-8 L8,3 L8,10 L-8,10 Z" fill="#B58B3E"/>
+    </g>
+    <g transform="translate(126 201)">
+      <circle r="20" fill="#8D4238" stroke="#D8C493" stroke-width="5"/>
+      <path d="M-10,7 L0,-10 L10,7 Z" fill="#D8C493"/>
+    </g>
+    <g transform="translate(210 112)">
+      <circle r="18" fill="#465C73" stroke="#D8C493" stroke-width="4"/>
+      <path d="M-9,9 L-9,-3 L0,-11 L9,-3 L9,9 Z" fill="#D8C493"/>
+    </g>
+    <g transform="translate(187 270)">
+      <circle r="13" fill="#6B7046" stroke="#D8C493" stroke-width="4"/>
+      <path d="M0,-7 L7,7 L-7,7 Z" fill="#D8C493"/>
+    </g>
+
+    <rect x="20" y="366" width="240" height="24" rx="12" fill="#3B291F"/>
+    <text x="34" y="382" class="small">FEW NODES · UNIQUE PLACES</text>
+  </g>
+
+  <!-- Match -->
+  <g transform="translate(860 134)">
+    <rect width="300" height="408" rx="18" fill="#30241B" stroke="#D8C493" stroke-opacity="0.18"/>
+    <text x="20" y="32" class="panel-title">03 · MATCH</text>
+    <text x="20" y="51" class="small">FIXED OVERHEAD TABLE</text>
+    <rect x="18" y="67" width="264" height="300" rx="16" fill="#3B291F"/>
+    <circle cx="150" cy="213" r="103" fill="url(#match-table)" stroke="#68452F" stroke-width="17"/>
+    <circle cx="150" cy="213" r="73" fill="#3B291F" stroke="#D8C493" stroke-opacity="0.12"/>
+
+    <g transform="translate(150 106)">
+      <path d="M-37,6 Q-30,-28 0,-35 Q30,-28 37,6 Z" fill="#465C73"/>
+      <circle cy="-35" r="20" fill="#A06F3C"/>
+      <path d="M-19,-41 Q0,-61 20,-39 L15,-27 Q0,-44 -17,-29 Z" fill="#241A14"/>
+    </g>
+    <g transform="translate(65 245) rotate(72)">
+      <path d="M-34,7 Q-28,-25 0,-31 Q28,-25 34,7 Z" fill="#6B7046"/>
+      <circle cy="-31" r="18" fill="#A06F3C"/>
+      <path d="M-17,-36 Q0,-54 18,-35 L14,-23 Q0,-39 -15,-25 Z" fill="#3B291F"/>
+    </g>
+    <g transform="translate(235 245) rotate(-72)">
+      <path d="M-34,7 Q-28,-25 0,-31 Q28,-25 34,7 Z" fill="#8D4238"/>
+      <circle cy="-31" r="18" fill="#A06F3C"/>
+      <path d="M-17,-37 Q0,-55 18,-34 L14,-22 Q0,-40 -15,-25 Z" fill="#241A14"/>
+    </g>
+    <g transform="translate(150 330) rotate(180)">
+      <path d="M-41,9 Q-33,-30 0,-38 Q33,-30 41,9 Z" fill="#68452F"/>
+      <circle cy="-38" r="22" fill="#A06F3C"/>
+      <path d="M-21,-44 Q0,-67 23,-42 L17,-28 Q0,-47 -19,-30 Z" fill="#465C73"/>
+    </g>
+
+    <g transform="translate(121 185) rotate(-8)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <circle cy="0" r="6" fill="none" stroke="#B58B3E" stroke-width="4"/>
+    </g>
+    <g transform="translate(158 185) rotate(6)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <path d="M0,-8 L6,8 L-6,8 Z" fill="#8D4238"/>
+    </g>
+    <g transform="translate(142 235) rotate(-3)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <path d="M0,-9 C9,-3 9,6 0,11 C-9,6 -9,-3 0,-9 Z" fill="#465C73"/>
+    </g>
+    <g transform="translate(178 236) rotate(10)">
+      <rect x="-13" y="-21" width="26" height="42" rx="3" fill="#D8C493" stroke="#241A14" stroke-width="2"/>
+      <path d="M-6,7 L0,-10 L6,7 Z" fill="#241A14"/>
+    </g>
+
+    <rect x="20" y="374" width="260" height="20" rx="10" fill="#241A14"/>
+    <text x="34" y="388" class="small">EDGE CHARACTERS · CLEAR CENTRE</text>
+  </g>
+
+  <!-- Palette -->
+  <line x1="40" y1="576" x2="1160" y2="576" class="rule"/>
+  <text x="44" y="610" class="panel-title">GROUNDED MEDIEVAL PALETTE</text>
+  <text x="44" y="629" class="small">PARCHMENT · EARTH PIGMENTS · TIMBER · IRON · DYED WOOL · AGED METAL</text>
+
+  <g transform="translate(44 650)">
+    <g><rect width="108" height="58" rx="9" fill="#241A14" stroke="#D8C493" stroke-opacity="0.28"/><text x="8" y="75" class="small">LAMPBLACK</text></g>
+    <g transform="translate(124)"><rect width="108" height="58" rx="9" fill="#3B291F"/><text x="8" y="75" class="small">CHARRED</text></g>
+    <g transform="translate(248)"><rect width="108" height="58" rx="9" fill="#68452F"/><text x="8" y="75" class="small">WALNUT</text></g>
+    <g transform="translate(372)"><rect width="108" height="58" rx="9" fill="#A06F3C"/><text x="8" y="75" class="small">OCHRE</text></g>
+    <g transform="translate(496)"><rect width="108" height="58" rx="9" fill="#D8C493"/><text x="8" y="75" class="small">VELLUM</text></g>
+    <g transform="translate(620)"><rect width="108" height="58" rx="9" fill="#6B7046"/><text x="8" y="75" class="small">MOSS</text></g>
+    <g transform="translate(744)"><rect width="108" height="58" rx="9" fill="#465C73"/><text x="8" y="75" class="small">WOAD</text></g>
+    <g transform="translate(868)"><rect width="108" height="58" rx="9" fill="#8D4238"/><text x="8" y="75" class="small">MADDER</text></g>
+    <g transform="translate(992)"><rect width="108" height="58" rx="9" fill="#B58B3E"/><text x="8" y="75" class="small">BRASS</text></g>
+  </g>
+
+  <text x="44" y="775" class="small">DOMINANT: LAMPBLACK · WALNUT · OCHRE · VELLUM · MOSS</text>
+  <text x="780" y="775" class="small">ACCENTS: WOAD · MADDER · BRASS</text>
+</svg>

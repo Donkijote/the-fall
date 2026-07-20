@@ -9,7 +9,7 @@ Read documents in this order before planning or implementing project work:
 1. [Product vision](product/vision.md)
 2. [V0 scope](product/v0-scope.md)
 3. [Game rules](game/rules.md) and [game modes](game/modes.md)
-4. [Experience design](design/experience.md) and [art direction](design/art-direction.md)
+4. [Experience design](design/experience.md), [art direction](design/art-direction.md), and the [visual reference board](design/visual-reference-board.md)
 5. [Technical architecture](technical/architecture.md)
 6. [V0 foundation plan](planning/v0-foundation-plan.md)
 7. [Development workflow](development/workflow.md) and [project guidelines](development/guidelines.md)
@@ -42,11 +42,13 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 ### Design
 
 - [Experience](design/experience.md): camera, player representation, interaction, and UI principles.
-- [Art direction](design/art-direction.md): medieval-cartoon visual direction and cultural neutrality.
+- [Art direction](design/art-direction.md): visual principles, palette, cultural neutrality, readability, anti-goals, and V0 technical envelope.
+- [Visual reference board](design/visual-reference-board.md): annotated references, provenance, usage boundaries, and category-specific study notes.
 
 ### Assets
 
 - [Asset strategy](assets/strategy.md): prototype sourcing, generation workflow, licensing, and budgets.
+- [Prototype asset briefs](assets/prototype-briefs.md): generation-ready character, table, and card briefs with review gates.
 
 ### Technical
 
