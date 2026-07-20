@@ -6,6 +6,8 @@
     "TheFall.Domain",
     "TheFall.Infrastructure",
     "Unity.InputSystem",
+    "Unity.Localization",
+    "Unity.ResourceManager",
     "Unity.TextMeshPro"
   ],
   "includePlatforms": [],

@@ -5,7 +5,9 @@
     "TheFall.Application",
     "TheFall.Domain",
     "TheFall.Presentation",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.Localization",
+    "Unity.ResourceManager"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

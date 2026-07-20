@@ -212,4 +212,15 @@ Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
 - bot information boundary: the public bot view exposes public match context plus its own hand, without opponent hands or hidden deck state
 - Android, iOS, Windows, physical-device, and performance rows: not run and not claimed by this application-layer issue
 
+## Issue #24 validation checkpoint
+
+Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
+
+- first-playable flow generation and structural validation: passed
+- complete Edit Mode suite: 61/61 passed, including guarded navigation, documented defaults, fresh replay sessions, and stale-state cleanup
+- complete Play Mode suite: 13/13 passed, including full UI-adapter completion/replay/return and pseudo-localized keyboard-focusable layout
+- macOS universal development-player smoke build: succeeded
+- complete table presentation, animation, audio, manual resolution review, and acceptance performance measurements remain owned by issues #25–#28
+- Android, iOS, Windows, physical-device, and production-localization rows were not run and are not claimed by this UI-flow issue
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

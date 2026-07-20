@@ -103,6 +103,8 @@ namespace TheFall.Editor
             {
                 throw new InvalidOperationException("The Fall foundation validation failed:\n- " + string.Join("\n- ", errors));
             }
+
+            FirstPlayableFlowSetup.Validate();
         }
 
         private static void ConfigurePlayerSettings()

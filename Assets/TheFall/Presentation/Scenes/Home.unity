@@ -238,9 +238,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9a22223c08b5427bb92037720106fb7, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
-  _description: Minimal navigation shell using adaptive screen-space UI Toolkit UI.
+  _description: Localized first-playable Home, setup, loading, match, result, replay,
+    and return flow.
 --- !u!4 &474010534
 Transform:
   m_ObjectHideFlags: 0
@@ -268,6 +269,7 @@ GameObject:
   m_Component:
   - component: {fileID: 802810339}
   - component: {fileID: 802810340}
+  - component: {fileID: 802810341}
   m_Layer: 0
   m_Name: Screen UI
   m_TagString: Untagged
@@ -300,7 +302,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 3be92b173997648af9f6859d160ee9cc, type: 2}
   m_ParentUI: {fileID: 0}
@@ -313,6 +315,18 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &802810341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802810338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50182221897504bd3929d821be048bef, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.UI.FirstPlayableFlowController
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

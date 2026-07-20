@@ -42,20 +42,20 @@ The enabled build scenes are ordered as follows:
 | Order | Scene | Purpose |
 | ---: | --- | --- |
 | 0 | `Bootstrap` | application startup and persistent manual dependency composition |
-| 1 | `Home` | minimal navigation shell and screen-space UI Toolkit foundation |
+| 1 | `Home` | localized first-playable Home, setup, loading, match, result, replay, and return flow |
 | 2 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
 | 3 | `AnimationLab` | resolved-event card play, capture, cascade, Fall, clean-table, interruption, and synchronization experiments |
 | 4 | `AssetReview` | isolated generated-asset inspection with Play-mode orbit and zoom controls |
 
-The bootstrap and home scenes remain deliberately minimal. `AnimationLab` now owns the isolated event-driven orchestration experiment documented in the [gameplay animation laboratory](../technical/animation.md). `MatchPrototype` owns the presentation-only table composition documented in the [fixed table composition prototype](../design/table-composition-prototype.md); it adds no gameplay rules or final art. `AssetReview` is an isolated inspection scene for approved generated prototypes and does not participate in match flow.
+Bootstrap remains deliberately minimal and now composes the first-playable flow before loading `Home`. The Home scene owns the functional prototype application flow documented in [first-playable application flow](../technical/first-playable-flow.md). `AnimationLab` owns the isolated event-driven orchestration experiment documented in the [gameplay animation laboratory](../technical/animation.md). `MatchPrototype` owns the presentation-only table composition documented in the [fixed table composition prototype](../design/table-composition-prototype.md); issue #25 will integrate that evidence with the application flow. `AssetReview` is an isolated inspection scene for approved generated prototypes and does not participate in match flow.
 
 ## Input, localization, and UI
 
 `TheFallInput.inputactions` is the project-wide Input System asset. Its `Gameplay` map names shared `Point`, `Navigate`, `Inspect`, `Select`, `Confirm`, and `Cancel` intents and provides touch, mouse, and keyboard bindings. The presentation adapter resolves these action names but does not validate or execute game rules.
 
-English (`en`) is the project source locale. Pseudo-localization (`qps-ploc`) is enabled with the package's expansion, accenting, and encapsulation transforms. The initial `UI` string table contains the stable `app.title` key.
+English (`en`) is the project source locale. Pseudo-localization (`qps-ploc`) is enabled with the package's expansion, accenting, and encapsulation transforms. The `UI` string table contains `app.title` plus the stable Home, setup, loading, match-action, result, canto, suit, score, and navigation keys required by the first playable. Dynamic entries use Smart Strings, and pseudo-localization transforms the same source entries.
 
-UI Toolkit owns the empty adaptive screen-space shell in `Home`. A reusable world-space Canvas/TextMeshPro prefab establishes the uGUI path without hard-coded player-facing text.
+UI Toolkit owns the adaptive screen-space first-playable flow in `Home`. A reusable world-space Canvas/TextMeshPro prefab establishes the uGUI path without hard-coded player-facing text.
 
 ## Player settings
 

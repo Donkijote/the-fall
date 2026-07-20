@@ -16,12 +16,287 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 5366e2894cb2a41e782277c1311dfc07, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 3143288710239354880
   m_TableData:
   - m_Id: 519036928
     m_Localized: The Fall
     m_Metadata:
       m_Items: []
+  - m_Id: 328036300873728
+    m_Localized: FIRST PLAYABLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011072
+    m_Localized: A complete, deterministic table match. Configure two traditional
+      rules, face one baseline bot, and race to 24.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011073
+    m_Localized: "Offline \xB7 1 player vs 1 baseline bot \xB7 First to 24"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011074
+    m_Localized: Start first playable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011075
+    m_Localized: "Mouse: click \xB7 Keyboard: Tab, Enter, or Space"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011076
+    m_Localized: MATCH SETUP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011077
+    m_Localized: Choose the table rules
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011078
+    m_Localized: Only the two documented first-playable options can be changed. Everything
+      else remains fixed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011079
+    m_Localized: Enable Casa Grande and Casa Chica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011080
+    m_Localized: On by default. When off, those hands score as their corresponding
+      Ronda.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011081
+    m_Localized: "Trivil\xEDn wins immediately"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011082
+    m_Localized: "Off by default, so Trivil\xEDn awards five points. Turn this on
+      for immediate victory."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011083
+    m_Localized: "Fixed match: human vs baseline bot \xB7 24-point target \xB7 complete
+      1v1 rules"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011084
+    m_Localized: Start match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011085
+    m_Localized: Use Tab to move, Space to toggle, and Enter to activate.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011086
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011087
+    m_Localized: Return Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011088
+    m_Localized: LOADING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011089
+    m_Localized: Preparing the table
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011090
+    m_Localized: "Creating a fresh deterministic match session\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011091
+    m_Localized: "OFFLINE \xB7 1V1"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011092
+    m_Localized: First playable match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011093
+    m_Localized: AVAILABLE ACTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011094
+    m_Localized: Choose with the mouse, or use Tab and Enter/Space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011095
+    m_Localized: Choose a face-down dealer card
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011096
+    m_Localized: Choose the dealer setup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011097
+    m_Localized: Play your turn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011098
+    m_Localized: Match complete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036347011099
+    m_Localized: "You {0} \xB7 Bot {1} \xB7 Target {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036351205376
+    m_Localized: "Round {0} \xB7 Deal {1} \xB7 {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036355399680
+    m_Localized: "Dealer: {0} \xB7 Active: {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036355399681
+    m_Localized: Tie extension
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399682
+    m_Localized: Standard round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399683
+    m_Localized: You
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399684
+    m_Localized: Baseline Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399685
+    m_Localized: Choose face-down card {0}
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036355399686
+    m_Localized: "{0} \xB7 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036355399687
+    m_Localized: Hands first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399688
+    m_Localized: Table first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399689
+    m_Localized: "Ascending 1\u20132\u20133\u20134"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399690
+    m_Localized: "Descending 4\u20133\u20132\u20131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399691
+    m_Localized: Announce {0}
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036355399692
+    m_Localized: Play {0} of {1}
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036355399693
+    m_Localized: Unavailable action
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399694
+    m_Localized: Casa Grande
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399695
+    m_Localized: Casa Chica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399696
+    m_Localized: Registro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399697
+    m_Localized: "Vig\xEDa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399698
+    m_Localized: Patrulla
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399699
+    m_Localized: "Trivil\xEDn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399700
+    m_Localized: Ronda
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399701
+    m_Localized: Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399702
+    m_Localized: Cups
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399703
+    m_Localized: Swords
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399704
+    m_Localized: Clubs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399705
+    m_Localized: RESULT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399706
+    m_Localized: The table is settled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036355399707
+    m_Localized: You won
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593984
+    m_Localized: Baseline Bot won
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593985
+    m_Localized: "Final score {0}\u2013{1} \xB7 Completed in round {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 328036359593986
+    m_Localized: Replay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 328036359593987
+    m_Localized: Replay starts a fresh session with the same two rule choices.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3143288710239354880
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries:
+        m_SharedEntries:
+        - id: 328036347011099
+        - id: 328036351205376
+        - id: 328036355399680
+        - id: 328036355399685
+        - id: 328036355399686
+        - id: 328036355399691
+        - id: 328036355399692
+        - id: 328036359593985

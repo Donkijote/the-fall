@@ -1,7 +1,6 @@
 using System.Collections;
 using NUnit.Framework;
 using TheFall.Presentation.Bootstrap;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
@@ -14,7 +13,7 @@ namespace TheFall.Tests.PlayMode
         {
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
 
-            var compositionRoot = Object.FindAnyObjectByType<CompositionRoot>();
+            var compositionRoot = CompositionRoot.Instance;
             Assert.That(compositionRoot, Is.Not.Null);
             Assert.That(compositionRoot.IsComposed, Is.True);
         }
