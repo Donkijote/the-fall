@@ -123,6 +123,8 @@ The initial immutable state, intent, rule-result, and resolved-event vocabulary 
 
 The first-playable orchestrator now composes that vocabulary through a complete seeded human-versus-bot match while keeping bot policy and replay diagnostics outside the domain.
 
+Issue #25 binds that same orchestrator to `FirstPlayableTablePresentation` in Home. A privacy-safe snapshot reduces hidden opponent and dealer-spread cards to counts before rendering, while public state and the latest ordered event drive the table and HUD. Confirmed card plays return through `FirstPlayableFlow`; resizing rebuilds view objects without replacing the application session or interaction state. See [first-playable 1v1 table presentation](first-playable-table.md).
+
 ## Open architecture decisions
 
 - long-term state representation and serialization format

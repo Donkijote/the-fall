@@ -223,4 +223,16 @@ Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
 - complete table presentation, animation, audio, manual resolution review, and acceptance performance measurements remain owned by issues #25–#28
 - Android, iOS, Windows, physical-device, and production-localization rows were not run and are not claimed by this UI-flow issue
 
+## Issue #25 validation checkpoint
+
+Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
+
+- first-playable table generation and structural validation: passed
+- complete Edit Mode suite: 63/63 passed, including privacy-safe projection and complete-match snapshot agreement
+- complete Play Mode suite: 15/15 passed, including full-match rendered-state agreement, private opponent hands, exact public card collections, all five semantic interaction states, and exactly-once confirmed play
+- `1280 x 720`, `1440 x 900`, `1920 x 1080`, and `2560 x 1440` recomposition preserved the selected card, interaction revision/history, authoritative state, match trace, and fixed camera
+- macOS universal development-player smoke build: succeeded
+- built-player manual visual inspection was skipped because the desktop session was locked; the complete manual resolution, loading, performance, and endurance matrix remains owned by issue #28
+- Android, iOS, Windows, physical-device, production animation, and audio rows were not run or claimed by this presentation-integration issue
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

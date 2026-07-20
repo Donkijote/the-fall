@@ -218,15 +218,7 @@ namespace TheFall.Editor
                 {
                     var layout = layouts[index];
                     var face = new PixelCanvas(components.BaseFace);
-                    ComposeCorners(face, components, layout.Card);
-                    if (layout.ArtworkKind == CardFaceArtworkKind.CourtIllustration)
-                    {
-                        ComposeCourt(face, components, layout.Card);
-                    }
-                    else
-                    {
-                        ComposePips(face, components, layout);
-                    }
+                    ComposeReadablePrototypeFace(face, components, layout.Card);
 
                     var column = index % AtlasColumns;
                     var row = index / AtlasColumns;
@@ -243,6 +235,29 @@ namespace TheFall.Editor
                 AssetDatabase.ImportAsset(FaceAtlasPath, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
                 return entries;
             }
+        }
+
+        private static void ComposeReadablePrototypeFace(
+            PixelCanvas face,
+            ComponentTextures components,
+            Card card)
+        {
+            var rankRect = RankSourceRect(card.Rank);
+            var suitRect = SuitSourceRect(card.Suit);
+            var isDoubleDigit = (int)card.Rank >= 10;
+
+            // The rank is intentionally the dominant test marker. Double-digit source cells need
+            // extra vertical scaling so their visible glyph height matches the single-digit ranks.
+            BlitCentered(
+                face,
+                components.RankAtlas,
+                rankRect,
+                FaceWidth / 2,
+                203,
+                isDoubleDigit ? 190 : 145,
+                isDoubleDigit ? 250 : 190,
+                false);
+            BlitCentered(face, components.SuitAtlas, suitRect, FaceWidth / 2, 79, 62, 62, false);
         }
 
         private static void ComposeCorners(PixelCanvas face, ComponentTextures components, Card card)

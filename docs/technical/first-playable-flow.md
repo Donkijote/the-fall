@@ -6,7 +6,7 @@ Status: Confirmed first-playable UI contract
 
 Issue #24 adds the minimal localized application flow around the complete deterministic match orchestrator from issue #23. A player can launch into Home, configure the bounded rules, progress through an explicit loading state, complete a match, see its authoritative result, replay with the same configuration, or return Home without editor intervention.
 
-This is functional prototype UI. Complete table rendering, integrated card interaction, animation, and audio remain owned by issues #25–#27.
+This is functional prototype UI. Issue #25 now supplies complete table rendering and integrated card interaction within the same Home scene and application session. Production animation and audio remain owned by issues #26 and #27.
 
 ## Application boundary
 
@@ -61,3 +61,5 @@ Leaving while loading cancels the presentation coroutine and clears the applicat
 - `The Fall > First Playable Flow > Validate` checks the scene binding, UI asset, entries, and Smart String flags.
 
 Related: [first-playable match orchestration](match-orchestration.md), [technical architecture](architecture.md), [first playable milestone](../planning/first-playable-milestone.md), and [testing baseline](../development/validation.md).
+
+The integrated table contract is documented in [first-playable 1v1 table presentation](first-playable-table.md).
