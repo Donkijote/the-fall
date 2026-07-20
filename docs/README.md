@@ -43,6 +43,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 
 - [Experience](design/experience.md): camera, player representation, interaction, and UI principles.
 - [Fixed table composition prototype](design/table-composition-prototype.md): V0 camera, seat-anchor, orientation, safe-area, readability, validation, and unresolved-constraint evidence.
+- [Cross-platform card interaction prototype](design/card-interaction-prototype.md): shared card intents, touch/mouse/keyboard mappings, feedback states, orientation preservation, and validation evidence.
 - [Art direction](design/art-direction.md): visual principles, palette, cultural neutrality, readability, anti-goals, and V0 technical envelope.
 - [Visual reference board](design/visual-reference-board.md): annotated references, provenance, usage boundaries, and category-specific study notes.
 

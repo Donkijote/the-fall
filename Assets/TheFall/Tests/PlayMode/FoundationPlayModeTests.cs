@@ -14,7 +14,7 @@ namespace TheFall.Tests.PlayMode
         {
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
 
-            var compositionRoot = Object.FindFirstObjectByType<CompositionRoot>();
+            var compositionRoot = Object.FindAnyObjectByType<CompositionRoot>();
             Assert.That(compositionRoot, Is.Not.Null);
             Assert.That(compositionRoot.IsComposed, Is.True);
         }

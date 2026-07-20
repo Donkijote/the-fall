@@ -12,6 +12,7 @@ Issue #4 proves that a representative 1v1 turn can resolve in pure C# without Un
 - `TheFall.Application.MatchSession` is the shared intent entry point. Human input and bots submit the same domain intents and receive the same result shape.
 - `TheFall.Infrastructure.SeededRandomSource` implements the domain-owned `IRandomSource` boundary with an explicit seed.
 - `TheFall.Presentation.ResolvedMatchBuffer` consumes `RuleResult.State` and `RuleResult.Events` in order without evaluating rules. Later rendering and animation code can consume that buffer; it must not repeat capture, cascade, Fall, clean-table, score, or turn decisions.
+- `TheFall.Application.Interaction.CardInteractionSession` owns reversible inspection, selection, confirmation, cancellation, rejection, and temporary-blocking state. It translates only a confirmed `Play` interaction into the existing `PlayCardIntent`; orientation and input-device concerns remain outside the domain.
 
 ## State vocabulary
 
@@ -33,6 +34,8 @@ Issue #4 proves that a representative 1v1 turn can resolve in pure C# without Un
 ## Intent and result vocabulary
 
 `PlayerIntent` is the common base for recorded decisions. The spike implements `PlayCardIntent(playerId, card)` only.
+
+Issue #7 deliberately does not expand the domain intent vocabulary. Its application interaction history can record `Inspect -> Select -> Confirm -> Play`, while only `Play` enters the deterministic resolver. See [cross-platform card interaction prototype](../design/card-interaction-prototype.md).
 
 `OneVersusOneRules.Resolve` always returns a `RuleResult`:
 

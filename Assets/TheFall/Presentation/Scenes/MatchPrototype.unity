@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 202943769}
   - component: {fileID: 202943770}
+  - component: {fileID: 202943771}
   m_Layer: 0
   m_Name: Experiment Root
   m_TagString: Untagged
@@ -166,6 +167,19 @@ MonoBehaviour:
   _seatingMode: 2
   _gameplayCamera: {fileID: 1355229646}
   _activeLogicalSeat: 0
+--- !u!114 &202943771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202943768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed955d52ea15549208cc421ad13544e1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Interaction.CardInteractionPrototype
+  _tableComposition: {fileID: 202943770}
 --- !u!1001 &474010532
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -297,9 +311,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9a22223c08b5427bb92037720106fb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
-  _description: Stationary-camera table composition prototype for 1v1, three-player,
-    and opposite-teammate 2v2 layouts across safe-area-aware portrait, landscape,
-    and desktop profiles.
+  _description: Stationary-camera table and cross-platform card-interaction prototype
+    for shared touch, mouse, and keyboard application intents across safe-area-aware
+    portrait, landscape, and desktop profiles.
 --- !u!4 &802810340
 Transform:
   m_ObjectHideFlags: 0

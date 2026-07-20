@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using TheFall.Presentation.Interaction;
 using UnityEngine;
 
 namespace TheFall.Presentation.Table
@@ -37,6 +38,7 @@ namespace TheFall.Presentation.Table
 
         private readonly Dictionary<Color32, Material> _generatedMaterials = new Dictionary<Color32, Material>();
         private readonly List<PrototypeSeatView> _seatViews = new List<PrototypeSeatView>();
+        private readonly List<PrototypeCardView> _localHandCardViews = new List<PrototypeCardView>();
         private Transform _generatedRoot;
         private Vector2Int _viewportSize;
         private Rect _safeAreaPixels;
@@ -57,7 +59,11 @@ namespace TheFall.Presentation.Table
 
         public IReadOnlyList<PrototypeSeatView> SeatViews => _seatViews;
 
+        public IReadOnlyList<PrototypeCardView> LocalHandCardViews => _localHandCardViews;
+
         public Camera GameplayCamera => _gameplayCamera;
+
+        public event Action CompositionRebuilt;
 
         public static Vector3 CameraPosition => FixedCameraPosition;
 
@@ -213,6 +219,8 @@ namespace TheFall.Presentation.Table
             {
                 _seatViews.Add(CreateSeat(layout));
             }
+
+            CompositionRebuilt?.Invoke();
         }
 
         private void CreateRoomStage(Transform parent)
@@ -371,13 +379,21 @@ namespace TheFall.Presentation.Table
             for (var index = 0; index < 3; index++)
             {
                 var x = (index - 1) * 0.13f;
-                CreateCard(
+                var card = CreateCard(
                     faceUp ? $"Visible Hand Card {index + 1}" : $"Hidden Hand Card {index + 1}",
                     parent,
                     new Vector3(x, 0.83f, Mathf.Abs(index - 1) * 0.02f),
                     (index - 1) * 9f,
                     faceUp,
-                    index + 5);
+                    index + 5,
+                    isInteractive: faceUp);
+
+                if (faceUp)
+                {
+                    var view = card.AddComponent<PrototypeCardView>();
+                    view.Configure(index);
+                    _localHandCardViews.Add(view);
+                }
             }
         }
 
@@ -396,14 +412,15 @@ namespace TheFall.Presentation.Table
             }
         }
 
-        private void CreateCard(
+        private GameObject CreateCard(
             string name,
             Transform parent,
             Vector3 position,
             float yawDegrees,
             bool faceUp,
             int pipCount,
-            float scale = 1f)
+            float scale = 1f,
+            bool isInteractive = false)
         {
             var card = CreatePrimitive(
                 name,
@@ -412,7 +429,8 @@ namespace TheFall.Presentation.Table
                 position,
                 new Vector3(0.18f * scale, 0.012f, 0.26f * scale),
                 Quaternion.Euler(0f, yawDegrees, 0f),
-                faceUp ? Vellum : Woad);
+                faceUp ? Vellum : Woad,
+                isInteractive);
 
             if (!faceUp)
             {
@@ -424,7 +442,7 @@ namespace TheFall.Presentation.Table
                     new Vector3(0.45f, 0.08f, 0.45f),
                     Quaternion.identity,
                     Lampblack);
-                return;
+                return card;
             }
 
             var visiblePips = Mathf.Clamp(pipCount, 1, 4);
@@ -441,6 +459,8 @@ namespace TheFall.Presentation.Table
                     Quaternion.identity,
                     Madder);
             }
+
+            return card;
         }
 
         private void CreateNameAndScore(PrototypeSeatLayout layout, bool isActive, Transform seat)
@@ -475,7 +495,8 @@ namespace TheFall.Presentation.Table
             Vector3 localPosition,
             Vector3 localScale,
             Quaternion localRotation,
-            Color color)
+            Color color,
+            bool keepCollider = false)
         {
             var primitive = GameObject.CreatePrimitive(primitiveType);
             primitive.name = name;
@@ -486,7 +507,10 @@ namespace TheFall.Presentation.Table
             primitive.transform.localScale = localScale;
 
             var collider = primitive.GetComponent<Collider>();
-            DestroyGeneratedObject(collider);
+            if (!keepCollider)
+            {
+                DestroyGeneratedObject(collider);
+            }
 
             var renderer = primitive.GetComponent<Renderer>();
             renderer.sharedMaterial = CreateMaterial(name, color);
@@ -535,6 +559,7 @@ namespace TheFall.Presentation.Table
         private void DestroyGeneratedContent()
         {
             _seatViews.Clear();
+            _localHandCardViews.Clear();
 
             if (_generatedRoot != null)
             {

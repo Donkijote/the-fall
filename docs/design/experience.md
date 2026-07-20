@@ -32,6 +32,8 @@ Captured piles remain visually owned by the character who earned them even when 
 
 **Confirmed interaction principle:** Inputs express game intent—select card, inspect card, play card, confirm choice, or cancel—while deterministic rules decide whether and how the intent resolves. Captures are mandatory and automatic when a played rank is already on the table; the player does not choose whether or what to capture.
 
+Issue #7's working shared-intent sequence, touch/mouse/keyboard mappings, semantic feedback states, and orientation-preservation behavior are recorded in the [cross-platform card interaction prototype](card-interaction-prototype.md). Those controls and visual treatments are V0 evidence rather than final production approval.
+
 ## Readability
 
 - the active player must be unmistakable
@@ -43,7 +45,7 @@ Captured piles remain visually owned by the character who earned them even when 
 ## Open experience decisions
 
 - production camera angle, field of view, and safe framing thresholds beyond the V0 prototype
-- whether cards are played by tap, drag, or a configurable combination
+- production tap-versus-drag behavior and input customization beyond the V0 tap/select/confirm prototype
 - card inspection and zoom behavior
 - portrait-mode seating and UI composition
 - how remote player hands are represented

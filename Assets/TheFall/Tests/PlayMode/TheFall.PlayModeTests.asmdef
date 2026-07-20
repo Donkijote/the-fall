@@ -2,6 +2,8 @@
   "name": "TheFall.PlayModeTests",
   "rootNamespace": "TheFall.Tests.PlayMode",
   "references": [
+    "TheFall.Application",
+    "TheFall.Domain",
     "TheFall.Presentation",
     "Unity.InputSystem"
   ],
