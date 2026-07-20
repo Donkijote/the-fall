@@ -21,9 +21,27 @@ The integration promotes the fixed-table, card-interaction, generated-table, and
 
 The HUD also maps the latest ordered domain event into localized semantic text. This communicates the resolved outcome while leaving all calculations in the domain.
 
+## Edit Mode authoring
+
+`Home.unity` contains an active `First Playable Table Authoring` hierarchy that is visible without
+entering Play Mode. Open it with `The Fall > First Playable Table > Open Authoring Layout`, or select it
+directly in the Home hierarchy. The saved scene is the runtime composition source of truth:
+
+- edit the Main Camera transform and field of view directly;
+- move, rotate, or scale `RoundCardTable — Edit And Save`;
+- edit the environment and either player object directly;
+- move or rotate the named card-zone anchors to relocate hands, table cards, deck, captures, or dealer spread;
+- scale the X axis of `Card Size Reference — Scale X Only` to resize every card while the layout component
+  preserves the `63:88` ratio and synchronizes the other representative cards.
+
+Save `Home.unity` normally after editing. On entering Play Mode, the authoring hierarchy is hidden and the
+presentation clones its saved environment, table, and player objects, then creates authoritative match cards
+under the saved anchors. Rerunning the generator preserves an existing authored layout and camera instead of
+resetting manual changes.
+
 ## Composition
 
-- the gameplay camera remains fixed at `(0, 8.6, -2.35)`, rotation `(74, 0, 0)`, and `36°` vertical field of view; this steep perspective emphasizes the play surface rather than the characters
+- the authored gameplay camera initially uses `(0, 8.6, -2.35)`, rotation `(74, 0, 0)`, and `36°` vertical field of view; runtime never overwrites the saved camera pose or field of view
 - the local player remains at the bottom and the bot remains at the top
 - `RoundCardTable` is the table asset, widened uniformly across its surface to a `2.10 m` gameplay diameter while retaining its authored height
 - every visible face uses the forty-card `CardVisualCatalog` and shared atlas material
@@ -89,7 +107,9 @@ Use:
 - `The Fall > First Playable Table > Generate`
 - `The Fall > First Playable Table > Validate`
 
-The generator updates the existing Home flow assets, binds the fixed camera, `RoundCardTable`, and `CardVisualCatalog`, then saves the scene through Unity serialization.
+The generator updates the existing Home flow assets, creates the persistent authoring hierarchy when it is
+missing, binds the authored camera, `RoundCardTable`, layout, and `CardVisualCatalog`, then saves the scene
+through Unity serialization. Existing layout transforms and camera framing are preserved on subsequent runs.
 
 Focused Edit Mode coverage verifies privacy-safe state projection and complete-match snapshot agreement. Focused Play Mode coverage verifies full-match visual/state agreement, private hands, exact public card collections, interaction semantics, fixed camera, and resizing safety.
 

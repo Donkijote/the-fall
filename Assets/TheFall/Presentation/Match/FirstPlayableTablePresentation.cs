@@ -24,19 +24,14 @@ namespace TheFall.Presentation.Match
         private static readonly Vector3 FixedCameraPosition = new Vector3(0f, 8.6f, -2.35f);
         private static readonly Quaternion FixedCameraRotation = Quaternion.Euler(74f, 0f, 0f);
         private const float FixedCameraFieldOfView = 36f;
-        private const float GameplayCardWidth = 0.19f;
-        private const float GameplayCardLength = GameplayCardWidth * 88f / 63f;
 
         private static readonly Color Lampblack = FromHex(0x241A14);
-        private static readonly Color CharredWalnut = FromHex(0x3B291F);
-        private static readonly Color Ochre = FromHex(0xA06F3C);
-        private static readonly Color Moss = FromHex(0x6B7046);
-        private static readonly Color Woad = FromHex(0x465C73);
         private static readonly Color Brass = FromHex(0xB58B3E);
 
         [SerializeField] private Camera _gameplayCamera;
         [SerializeField] private GameObject _tablePrototypePrefab;
         [SerializeField] private CardVisualCatalog _cardCatalog;
+        [SerializeField] private FirstPlayableTableLayout _authoredLayout;
 
         private readonly Dictionary<Color32, Material> _generatedMaterials = new Dictionary<Color32, Material>();
         private readonly List<FirstPlayableRenderedCard> _renderedCards = new List<FirstPlayableRenderedCard>();
@@ -62,6 +57,8 @@ namespace TheFall.Presentation.Match
         public GameObject TablePrototypePrefab => _tablePrototypePrefab;
 
         public CardVisualCatalog CardCatalog => _cardCatalog;
+
+        public FirstPlayableTableLayout AuthoredLayout => _authoredLayout;
 
         public FirstPlayableTableSnapshot Snapshot { get; private set; }
 
@@ -101,6 +98,14 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            if (_authoredLayout == null || !_authoredLayout.IsConfigured)
+            {
+                Debug.LogError("The integrated table requires a configured scene-authored layout.", this);
+                enabled = false;
+                return;
+            }
+
+            _authoredLayout.gameObject.SetActive(false);
             ConfigureFixedCamera();
             BindInputActions();
             _flowController.PresentationChanged += RefreshFromFlow;
@@ -133,6 +138,10 @@ namespace TheFall.Presentation.Match
             ClearInteraction();
             DestroyGeneratedContent();
             DestroyGeneratedMaterials();
+            if (_authoredLayout != null)
+            {
+                _authoredLayout.gameObject.SetActive(true);
+            }
         }
 
         public void ApplyViewportForTests(Vector2Int viewportSize, Rect safeAreaPixels)
@@ -181,11 +190,13 @@ namespace TheFall.Presentation.Match
         public void Configure(
             Camera gameplayCamera,
             GameObject tablePrototypePrefab,
-            CardVisualCatalog cardCatalog)
+            CardVisualCatalog cardCatalog,
+            FirstPlayableTableLayout authoredLayout)
         {
             _gameplayCamera = gameplayCamera;
             _tablePrototypePrefab = tablePrototypePrefab;
             _cardCatalog = cardCatalog;
+            _authoredLayout = authoredLayout;
         }
 #endif
 
@@ -299,64 +310,51 @@ namespace TheFall.Presentation.Match
             var safeCenter = safeArea.center - new Vector2(0.5f, 0.5f);
             _generatedRoot.localPosition = new Vector3(safeCenter.x * 2.2f, 0f, safeCenter.y * 1.4f);
 
-            CreateLighting(_generatedRoot);
-            CreateStage(_generatedRoot);
-            CreateTable(_generatedRoot);
-            CreateSeats(_generatedRoot);
-            CreateStateCards(_generatedRoot);
-        }
+            var authoredRoot = new GameObject("Authored Table Layout");
+            authoredRoot.hideFlags = HideFlags.DontSave;
+            authoredRoot.transform.SetParent(_generatedRoot, false);
+            CopyLocalTransform(_authoredLayout.transform, authoredRoot.transform);
 
-        private void CreateLighting(Transform parent)
-        {
-            var key = new GameObject("Warm Table Key", typeof(Light));
-            key.hideFlags = HideFlags.DontSave;
-            key.transform.SetParent(parent, false);
-            key.transform.localRotation = Quaternion.Euler(55f, -28f, 0f);
-            var light = key.GetComponent<Light>();
-            light.type = LightType.Directional;
-            light.color = new Color(1f, 0.78f, 0.55f);
-            light.intensity = 1.1f;
-            light.shadows = LightShadows.None;
-        }
-
-        private void CreateStage(Transform parent)
-        {
-            CreatePrimitive("Quiet Room Ground", PrimitiveType.Cube, parent,
-                new Vector3(0f, -0.08f, 0.2f), new Vector3(5.6f, 0.12f, 5.4f), Quaternion.identity, Lampblack);
-            CreatePrimitive("Warm Stage Pool", PrimitiveType.Cylinder, parent,
-                Vector3.zero, new Vector3(2.25f, 0.04f, 2.25f), Quaternion.identity, CharredWalnut);
+            CloneAuthoredObject(_authoredLayout.Environment, authoredRoot.transform, "Table Environment");
+            CreateTable(authoredRoot.transform);
+            CreateSeats(authoredRoot.transform);
+            var cardZones = CreateRuntimeAnchor(
+                authoredRoot.transform,
+                _authoredLayout.CardZonesRoot,
+                "Card Zone Anchors");
+            CreateStateCards(cardZones);
         }
 
         private void CreateTable(Transform parent)
         {
-            if (_tablePrototypePrefab == null)
+            if (_authoredLayout?.Table == null)
             {
-                throw new MissingReferenceException("The integrated table is missing RoundCardTable.");
+                throw new MissingReferenceException("The integrated table is missing its authored table object.");
             }
 
-            var table = Instantiate(_tablePrototypePrefab, parent, false);
-            table.name = "RoundCardTable";
-            table.hideFlags = HideFlags.DontSave;
-            table.transform.localScale = new Vector3(1.45f, 1f, 1.45f);
+            CloneAuthoredObject(_authoredLayout.Table, parent, "RoundCardTable");
         }
 
         private void CreateSeats(Transform parent)
         {
-            CreateSeat(parent, Seat.First, Moss, new Vector3(0f, 0f, -1.38f));
-            CreateSeat(parent, Seat.Second, Woad, new Vector3(0f, 0f, 1.38f));
+            CreateSeat(parent, Seat.First, _authoredLayout.LocalSeat);
+            CreateSeat(parent, Seat.Second, _authoredLayout.OpponentSeat);
         }
 
         private void CreateSeat(
             Transform parent,
             Seat seat,
-            Color bodyColor,
-            Vector3 position)
+            GameObject authoredSeat)
         {
-            var seatObject = new GameObject(seat == Seat.First ? "Local Bottom Seat" : "Opponent Top Seat");
-            seatObject.hideFlags = HideFlags.DontSave;
-            seatObject.transform.SetParent(parent, false);
-            seatObject.transform.localPosition = position;
-            seatObject.transform.localRotation = Quaternion.LookRotation(-position.normalized, Vector3.up);
+            if (authoredSeat == null)
+            {
+                throw new MissingReferenceException($"The integrated table is missing the authored {seat} seat.");
+            }
+
+            var seatObject = CloneAuthoredObject(
+                authoredSeat,
+                parent,
+                seat == Seat.First ? "Local Bottom Seat" : "Opponent Top Seat");
 
             var isActive = Snapshot.ActiveSeat == seat && Snapshot.Phase != MatchPhase.Completed;
             var isDealer = Snapshot.Phase != MatchPhase.DealerSelection && Snapshot.DealerSeat == seat;
@@ -373,14 +371,6 @@ namespace TheFall.Presentation.Match
                     Quaternion.Euler(0f, 45f, 0f), Brass);
             }
 
-            CreatePrimitive("Upper Body Placeholder", PrimitiveType.Capsule, seatObject.transform,
-                new Vector3(0f, 0.48f, -0.08f), new Vector3(0.28f, 0.29f, 0.20f), Quaternion.identity, bodyColor);
-            CreatePrimitive("Placeholder Head", PrimitiveType.Sphere, seatObject.transform,
-                new Vector3(0f, 0.82f, -0.05f), new Vector3(0.24f, 0.26f, 0.24f), Quaternion.identity, Ochre);
-            CreatePrimitive("Left Placeholder Hand", PrimitiveType.Sphere, seatObject.transform,
-                new Vector3(-0.23f, 0.52f, 0.18f), new Vector3(0.09f, 0.06f, 0.12f), Quaternion.identity, Ochre);
-            CreatePrimitive("Right Placeholder Hand", PrimitiveType.Sphere, seatObject.transform,
-                new Vector3(0.23f, 0.52f, 0.18f), new Vector3(0.09f, 0.06f, 0.12f), Quaternion.identity, Ochre);
         }
 
         private void CreateStateCards(Transform parent)
@@ -397,51 +387,55 @@ namespace TheFall.Presentation.Match
 
             CreateLocalHand(parent, Snapshot.LocalHand);
             CreateOpponentHand(parent, Snapshot.OpponentHandCount);
-            CreateCapturedPile(parent, Snapshot.LocalCapturedCards, FirstPlayableCardZone.LocalCaptured, new Vector3(-0.88f, 0.80f, -0.55f));
-            CreateCapturedPile(parent, Snapshot.OpponentCapturedCards, FirstPlayableCardZone.OpponentCaptured, new Vector3(0.88f, 0.80f, 0.55f));
+            CreateCapturedPile(parent, Snapshot.LocalCapturedCards, FirstPlayableCardZone.LocalCaptured);
+            CreateCapturedPile(parent, Snapshot.OpponentCapturedCards, FirstPlayableCardZone.OpponentCaptured);
         }
 
         private void CreateDealerSpread(Transform parent, int count)
         {
+            var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.DealerSpreadAnchor, "Dealer Spread Zone");
             for (var index = 0; index < count; index++)
             {
                 var row = index / 8;
                 var column = index % 8;
-                CreateCard(parent, $"Face-down Dealer Card {index + 1}",
-                    new Vector3((column - 3.5f) * 0.17f, 0.80f + row * 0.002f, (row - 2f) * 0.21f),
+                CreateCard(zoneParent, $"Face-down Dealer Card {index + 1}",
+                    new Vector3((column - 3.5f) * 0.17f, row * 0.002f, (row - 2f) * 0.21f),
                     FirstPlayableCardZone.DealerSpread, false, null, index, true);
             }
         }
 
         private void CreateDeck(Transform parent, int count)
         {
+            var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.DeckAnchor, "Deck Zone");
             for (var index = 0; index < count; index++)
             {
-                CreateCard(parent, $"Deck Card {index + 1}",
-                    new Vector3(0.72f, 0.80f + index * 0.0015f, 0f),
+                CreateCard(zoneParent, $"Deck Card {index + 1}",
+                    new Vector3(0f, index * 0.0015f, 0f),
                     FirstPlayableCardZone.Deck, false, null);
             }
         }
 
         private void CreateTableCards(Transform parent, IReadOnlyList<Card> cards)
         {
+            var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.TableCardsAnchor, "Table Cards Zone");
             for (var index = 0; index < cards.Count; index++)
             {
                 var row = index / 5;
                 var column = index % 5;
-                CreateCard(parent, $"Table {cards[index]}",
-                    new Vector3((column - 2f) * 0.23f, 0.805f + row * 0.002f, (row - 0.5f) * 0.31f),
+                CreateCard(zoneParent, $"Table {cards[index]}",
+                    new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f),
                     FirstPlayableCardZone.Table, true, cards[index]);
             }
         }
 
         private void CreateLocalHand(Transform parent, IReadOnlyList<Card> cards)
         {
+            var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.LocalHandAnchor, "Local Hand Zone");
             for (var index = 0; index < cards.Count; index++)
             {
                 var x = (index - (cards.Count - 1) * 0.5f) * 0.29f;
-                var rendered = CreateCard(parent, $"Local Hand {cards[index]}",
-                    new Vector3(x, 0.82f, -0.88f + Mathf.Abs(index - 1) * 0.025f),
+                var rendered = CreateCard(zoneParent, $"Local Hand {cards[index]}",
+                    new Vector3(x, 0f, Mathf.Abs(index - 1) * 0.025f),
                     FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
@@ -451,11 +445,12 @@ namespace TheFall.Presentation.Match
 
         private void CreateOpponentHand(Transform parent, int count)
         {
+            var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.OpponentHandAnchor, "Opponent Hand Zone");
             for (var index = 0; index < count; index++)
             {
                 var x = (index - (count - 1) * 0.5f) * 0.25f;
-                CreateCard(parent, $"Private Opponent Hand Card {index + 1}",
-                    new Vector3(-x, 0.82f, 0.88f),
+                CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
+                    new Vector3(-x, 0f, 0f),
                     FirstPlayableCardZone.OpponentHand, false, null);
             }
         }
@@ -463,13 +458,16 @@ namespace TheFall.Presentation.Match
         private void CreateCapturedPile(
             Transform parent,
             IReadOnlyList<Card> cards,
-            FirstPlayableCardZone zone,
-            Vector3 origin)
+            FirstPlayableCardZone zone)
         {
+            var authoredAnchor = zone == FirstPlayableCardZone.LocalCaptured
+                ? _authoredLayout.LocalCapturedAnchor
+                : _authoredLayout.OpponentCapturedAnchor;
+            var zoneParent = CreateRuntimeAnchor(parent, authoredAnchor, $"{zone} Zone");
             for (var index = 0; index < cards.Count; index++)
             {
-                CreateCard(parent, $"{zone} Card {index + 1}",
-                    origin + new Vector3((index % 4) * 0.012f, index * 0.002f, (index % 3) * 0.009f),
+                CreateCard(zoneParent, $"{zone} Card {index + 1}",
+                    new Vector3((index % 4) * 0.012f, index * 0.002f, (index % 3) * 0.009f),
                     zone, false, null);
             }
         }
@@ -492,7 +490,7 @@ namespace TheFall.Presentation.Match
             cardObject.transform.localRotation = faceUp
                 ? Quaternion.Euler(0f, 180f, 0f)
                 : Quaternion.identity;
-            cardObject.transform.localScale = new Vector3(GameplayCardWidth, 0.012f, GameplayCardLength);
+            cardObject.transform.localScale = _authoredLayout.CardScale;
 
             var collider = cardObject.GetComponent<Collider>();
             if (!interactive)
@@ -733,12 +731,44 @@ namespace TheFall.Presentation.Match
                 throw new MissingReferenceException("The Home scene has no gameplay camera.");
             }
 
-            _gameplayCamera.transform.position = FixedCameraPosition;
-            _gameplayCamera.transform.rotation = FixedCameraRotation;
-            _gameplayCamera.fieldOfView = FixedCameraFieldOfView;
             _gameplayCamera.nearClipPlane = 0.1f;
             _gameplayCamera.farClipPlane = 50f;
             _gameplayCamera.backgroundColor = Lampblack;
+        }
+
+        private static GameObject CloneAuthoredObject(GameObject source, Transform parent, string name)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var clone = Instantiate(source, parent, false);
+            clone.name = name;
+            clone.hideFlags = HideFlags.DontSave;
+            clone.SetActive(true);
+            return clone;
+        }
+
+        private static Transform CreateRuntimeAnchor(Transform parent, Transform source, string name)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var anchor = new GameObject(name);
+            anchor.hideFlags = HideFlags.DontSave;
+            anchor.transform.SetParent(parent, false);
+            CopyLocalTransform(source, anchor.transform);
+            return anchor.transform;
+        }
+
+        private static void CopyLocalTransform(Transform source, Transform destination)
+        {
+            destination.localPosition = source.localPosition;
+            destination.localRotation = source.localRotation;
+            destination.localScale = source.localScale;
         }
 
         private void EnsureCardBackMaterial()

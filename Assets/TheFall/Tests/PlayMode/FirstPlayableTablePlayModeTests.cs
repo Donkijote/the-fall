@@ -26,6 +26,8 @@ namespace TheFall.Tests.PlayMode
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
             Assert.That(table, Is.Not.Null);
             Assert.That(table.TablePrototypePrefab, Is.Not.Null);
+            Assert.That(table.AuthoredLayout, Is.Not.Null);
+            Assert.That(table.AuthoredLayout.IsConfigured, Is.True);
             Assert.That(table.CardCatalog.Entries.Count, Is.EqualTo(40));
             Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(FirstPlayableTablePresentation.CameraPosition));
             Assert.That(table.GameplayCamera.transform.rotation, Is.EqualTo(FirstPlayableTablePresentation.CameraRotation));
@@ -101,9 +103,8 @@ namespace TheFall.Tests.PlayMode
                 .Where(item => item.name == "RoundCardTable")
                 .ToArray();
             Assert.That(renderedTables, Is.Not.Empty);
-            Assert.That(renderedTables.All(item => Mathf.Approximately(item.localScale.x, 1.45f)), Is.True);
-            Assert.That(renderedTables.All(item => Mathf.Approximately(item.localScale.y, 1f)), Is.True);
-            Assert.That(renderedTables.All(item => Mathf.Approximately(item.localScale.z, 1.45f)), Is.True);
+            var authoredTableScale = table.AuthoredLayout.Table.transform.localScale;
+            Assert.That(renderedTables.All(item => item.localScale == authoredTableScale), Is.True);
 
             var localHandCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.LocalHand);
             var publicTableCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Table);

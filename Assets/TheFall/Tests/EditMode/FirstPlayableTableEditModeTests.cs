@@ -5,11 +5,34 @@ using TheFall.Application;
 using TheFall.Domain;
 using TheFall.Infrastructure;
 using TheFall.Presentation.Match;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace TheFall.Tests.EditMode
 {
     public sealed class FirstPlayableTableEditModeTests
     {
+        private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
+
+        [Test]
+        public void HomeSceneExposesThePersistentRuntimeAuthoringLayout()
+        {
+            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            var layout = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTableLayout>(true))
+                .Single();
+            var presentation = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTablePresentation>(true))
+                .Single();
+
+            Assert.That(layout.gameObject.activeSelf, Is.True);
+            Assert.That(layout.IsConfigured, Is.True);
+            Assert.That(presentation.AuthoredLayout, Is.SameAs(layout));
+            Assert.That(layout.Table.name, Does.StartWith("RoundCardTable"));
+            Assert.That(layout.CardScale.x / layout.CardScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
+        }
+
         [Test]
         public void SnapshotProjectsAuthoritativePublicStateWithoutOpponentHandIdentities()
         {
