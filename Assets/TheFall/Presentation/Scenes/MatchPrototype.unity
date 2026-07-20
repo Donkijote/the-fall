@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Table.TableCompositionPrototype
   _seatingMode: 2
   _gameplayCamera: {fileID: 1355229646}
+  _tablePrototypePrefab: {fileID: 5817732674550341530, guid: 1418070703fb940bcb4bdf6d7d90ccc7, type: 3}
   _activeLogicalSeat: 0
 --- !u!114 &202943771
 MonoBehaviour:
@@ -312,8 +313,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
   _description: Stationary-camera table and cross-platform card-interaction prototype
-    for shared touch, mouse, and keyboard application intents across safe-area-aware
-    portrait, landscape, and desktop profiles.
+    for shared touch, mouse, and keyboard application intents across 1v1, three-player,
+    and opposite-teammate 2v2 safe-area-aware layouts.
 --- !u!4 &802810340
 Transform:
   m_ObjectHideFlags: 0

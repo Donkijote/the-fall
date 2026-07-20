@@ -17,6 +17,8 @@ namespace TheFall.Tests.PlayMode
 
             var prototype = Object.FindAnyObjectByType<TableCompositionPrototype>();
             Assert.That(prototype, Is.Not.Null);
+            Assert.That(prototype.TablePrototypePrefab, Is.Not.Null);
+            Assert.That(GameObject.Find("Table Prototype"), Is.Not.Null);
 
             var camera = prototype.GameplayCamera;
             var cameraPosition = camera.transform.position;
