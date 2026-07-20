@@ -23,17 +23,24 @@ The HUD also maps the latest ordered domain event into localized semantic text. 
 
 ## Composition
 
-- the gameplay camera remains fixed at `(0, 7.2, -5.4)`, rotation `(52, 0, 0)`, and `44°` vertical field of view
+- the gameplay camera remains fixed at `(0, 8.6, -2.35)`, rotation `(74, 0, 0)`, and `36°` vertical field of view; this steep perspective emphasizes the play surface rather than the characters
 - the local player remains at the bottom and the bot remains at the top
-- `RoundCardTable` is the table asset
+- `RoundCardTable` is the table asset, widened uniformly across its surface to a `2.10 m` gameplay diameter while retaining its authored height
 - every visible face uses the forty-card `CardVisualCatalog` and shared atlas material
 - opponent hands and dealer-selection cards use the direction-neutral back
 - captured cards remain in separate owner piles
-- inexpensive generated primitive upper bodies preserve identity and active/dealer cues
+- compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker
 
-The UI leaves a transparent central table area and keeps scores, dealer, active turn, canto, round/deal state, latest resolved event, available non-card actions, and interaction feedback in screen-space panels.
+The UI leaves a transparent central table area and keeps scores, dealer, active turn, canto, round/deal
+state, latest resolved event, contextual non-card decisions, and interaction feedback in screen-space
+elements.
+
+Card sizes follow gameplay importance: the open local hand is largest, public table cards are next,
+opponent cards and the deck remain readable as closed cards, and capture piles remain compact. Dealer
+selection uses larger face-down targets in an eight-by-five spread. This hierarchy keeps ranks and suits
+readable from the required desktop resolutions while leaving ownership zones distinct.
 
 ## Interaction
 
@@ -89,7 +96,7 @@ Validated on 2026-07-20 with Unity `6000.5.4f1`:
 - complete Edit Mode suite: 63/63 passed
 - complete Play Mode suite: 16/16 passed
 - macOS universal development-player smoke build: passed
-- offscreen `1440 x 900` dealer-selection, dealer-options, and canto/selection captures: reviewed
+- offscreen `1440 x 900` dealer-selection, dealer-options, canto/selection, and overhead-composition captures: reviewed
 - built-player manual visual inspection: skipped because the desktop session was locked; issue #28 retains the full manual acceptance and performance matrix
 
 Production animation, VFX, timing, interruption sequencing, and audio remain owned by issues #26 and #27. This issue renders resolved state and semantic events immediately; it does not promote the AnimationLab sequencer into the complete match.

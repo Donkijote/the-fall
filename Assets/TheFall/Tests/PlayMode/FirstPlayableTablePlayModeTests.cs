@@ -27,6 +27,11 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table, Is.Not.Null);
             Assert.That(table.TablePrototypePrefab, Is.Not.Null);
             Assert.That(table.CardCatalog.Entries.Count, Is.EqualTo(40));
+            Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(FirstPlayableTablePresentation.CameraPosition));
+            Assert.That(table.GameplayCamera.transform.rotation, Is.EqualTo(FirstPlayableTablePresentation.CameraRotation));
+            Assert.That(table.GameplayCamera.fieldOfView,
+                Is.EqualTo(FirstPlayableTablePresentation.CameraFieldOfView).Within(0.001f));
+            Assert.That(table.GameplayCamera.transform.eulerAngles.x, Is.GreaterThan(70f));
             var ui = controller.GetComponent<UIDocument>().rootVisualElement;
             Assert.That(ui.Q("match-actions"), Is.Null);
             Assert.That(ui.Q("match-choices"), Is.Null);
@@ -92,6 +97,20 @@ namespace TheFall.Tests.PlayMode
                 Is.EqualTo(expectedDealerCard));
 
             AdvanceToHumanPlay(controller);
+            var renderedTables = controller.GetComponentsInChildren<Transform>(true)
+                .Where(item => item.name == "RoundCardTable")
+                .ToArray();
+            Assert.That(renderedTables, Is.Not.Empty);
+            Assert.That(renderedTables.All(item => Mathf.Approximately(item.localScale.x, 1.45f)), Is.True);
+            Assert.That(renderedTables.All(item => Mathf.Approximately(item.localScale.y, 1f)), Is.True);
+            Assert.That(renderedTables.All(item => Mathf.Approximately(item.localScale.z, 1.45f)), Is.True);
+
+            var localHandCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.LocalHand);
+            var publicTableCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Table);
+            var opponentCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.OpponentHand);
+            Assert.That(localHandCard.transform.localScale.x, Is.GreaterThan(publicTableCard.transform.localScale.x));
+            Assert.That(publicTableCard.transform.localScale.x, Is.GreaterThan(opponentCard.transform.localScale.x));
+
             var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
             Assert.That(cantoIntents, Is.Not.Empty);
             Assert.That(ui.Q<VisualElement>("canto-context").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));

@@ -48,29 +48,29 @@ namespace TheFall.Presentation.Interaction
         {
             VisualState = state;
             var color = Vellum;
-            var cue = "◇";
+            var cue = "+";
             var scale = 1f;
 
             switch (state)
             {
                 case PrototypeCardVisualState.Selected:
                     color = Woad;
-                    cue = "◆";
+                    cue = "*";
                     scale = 1.14f;
                     break;
                 case PrototypeCardVisualState.Confirmed:
                     color = Brass;
-                    cue = "✓";
+                    cue = "OK";
                     scale = 1.08f;
                     break;
                 case PrototypeCardVisualState.Rejected:
                     color = Madder;
-                    cue = "×";
+                    cue = "X";
                     scale = 0.96f;
                     break;
                 case PrototypeCardVisualState.TemporarilyBlocked:
                     color = Ochre;
-                    cue = "Ⅱ";
+                    cue = "||";
                     scale = 0.94f;
                     break;
             }
@@ -98,7 +98,11 @@ namespace TheFall.Presentation.Interaction
             cueObject.transform.SetParent(transform, false);
             cueObject.transform.localPosition = new Vector3(0f, 0.62f, 0f);
             cueObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            cueObject.transform.localScale = new Vector3(2.8f, 42f, 2f);
+            const float cueWorldScale = 0.065f;
+            cueObject.transform.localScale = new Vector3(
+                cueWorldScale / _baseScale.x,
+                cueWorldScale / _baseScale.z,
+                1f);
 
             _stateCue = cueObject.GetComponent<TextMeshPro>();
             _stateCue.alignment = TextAlignmentOptions.Center;

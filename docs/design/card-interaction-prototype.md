@@ -42,11 +42,11 @@ Every local card displays a persistent state cue that combines color, scale, and
 
 | State | Symbol | Meaning |
 | --- | --- | --- |
-| Legal | `◇` | the card can be selected for the active player |
-| Selected | `◆` | the card is selected but has not been played |
-| Confirmed | `✓` | confirmation produced an accepted domain play |
-| Rejected | `×` | the requested card or action is unavailable |
-| Temporarily blocked | `Ⅱ` | presentation is busy; the valid selection is retained |
+| Legal | `+` | the card can be selected for the active player |
+| Selected | `*` | the card is selected but has not been played |
+| Confirmed | `OK` | confirmation produced an accepted domain play |
+| Rejected | `X` | the requested card or action is unavailable |
+| Temporarily blocked | `||` | presentation is busy; the valid selection is retained |
 
 No state depends on hover or color alone. Application feedback also exposes stable localization keys such as `interaction.feedback.card-unavailable`; final localized player-facing copy and production visuals remain outside this prototype.
 

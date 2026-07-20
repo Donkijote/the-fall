@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using TheFall.Application;
 using TheFall.Application.Input;
 using TheFall.Application.Interaction;
@@ -22,13 +21,13 @@ namespace TheFall.Presentation.Match
     [DisallowMultipleComponent]
     public sealed class FirstPlayableTablePresentation : MonoBehaviour
     {
-        private static readonly Vector3 FixedCameraPosition = new Vector3(0f, 7.2f, -5.4f);
-        private static readonly Quaternion FixedCameraRotation = Quaternion.Euler(52f, 0f, 0f);
+        private static readonly Vector3 FixedCameraPosition = new Vector3(0f, 8.6f, -2.35f);
+        private static readonly Quaternion FixedCameraRotation = Quaternion.Euler(74f, 0f, 0f);
+        private const float FixedCameraFieldOfView = 36f;
 
         private static readonly Color Lampblack = FromHex(0x241A14);
         private static readonly Color CharredWalnut = FromHex(0x3B291F);
         private static readonly Color Ochre = FromHex(0xA06F3C);
-        private static readonly Color Vellum = FromHex(0xD8C493);
         private static readonly Color Moss = FromHex(0x6B7046);
         private static readonly Color Woad = FromHex(0x465C73);
         private static readonly Color Brass = FromHex(0xB58B3E);
@@ -81,6 +80,8 @@ namespace TheFall.Presentation.Match
         public static Vector3 CameraPosition => FixedCameraPosition;
 
         public static Quaternion CameraRotation => FixedCameraRotation;
+
+        public static float CameraFieldOfView => FixedCameraFieldOfView;
 
         private void OnEnable()
         {
@@ -334,19 +335,18 @@ namespace TheFall.Presentation.Match
             var table = Instantiate(_tablePrototypePrefab, parent, false);
             table.name = "RoundCardTable";
             table.hideFlags = HideFlags.DontSave;
+            table.transform.localScale = new Vector3(1.45f, 1f, 1.45f);
         }
 
         private void CreateSeats(Transform parent)
         {
-            CreateSeat(parent, Seat.First, Snapshot.LocalPlayerName, Snapshot.LocalScore, Moss, new Vector3(0f, 0f, -1.55f));
-            CreateSeat(parent, Seat.Second, Snapshot.OpponentPlayerName, Snapshot.OpponentScore, Woad, new Vector3(0f, 0f, 1.55f));
+            CreateSeat(parent, Seat.First, Moss, new Vector3(0f, 0f, -1.38f));
+            CreateSeat(parent, Seat.Second, Woad, new Vector3(0f, 0f, 1.38f));
         }
 
         private void CreateSeat(
             Transform parent,
             Seat seat,
-            string playerName,
-            int score,
             Color bodyColor,
             Vector3 position)
         {
@@ -361,28 +361,24 @@ namespace TheFall.Presentation.Match
             if (isActive)
             {
                 CreatePrimitive("Active Turn Ring", PrimitiveType.Cylinder, seatObject.transform,
-                    new Vector3(0f, 0.07f, -0.08f), new Vector3(0.47f, 0.025f, 0.47f), Quaternion.identity, Brass);
+                    new Vector3(0f, 0.05f, -0.04f), new Vector3(0.34f, 0.02f, 0.34f), Quaternion.identity, Brass);
             }
 
             if (isDealer)
             {
                 CreatePrimitive("Dealer Diamond Cue", PrimitiveType.Cube, seatObject.transform,
-                    new Vector3(0f, 0.12f, -0.32f), new Vector3(0.12f, 0.035f, 0.12f),
+                    new Vector3(0f, 0.10f, -0.25f), new Vector3(0.10f, 0.03f, 0.10f),
                     Quaternion.Euler(0f, 45f, 0f), Brass);
             }
 
             CreatePrimitive("Upper Body Placeholder", PrimitiveType.Capsule, seatObject.transform,
-                new Vector3(0f, 0.72f, -0.12f), new Vector3(0.4f, 0.43f, 0.26f), Quaternion.identity, bodyColor);
+                new Vector3(0f, 0.48f, -0.08f), new Vector3(0.28f, 0.29f, 0.20f), Quaternion.identity, bodyColor);
             CreatePrimitive("Placeholder Head", PrimitiveType.Sphere, seatObject.transform,
-                new Vector3(0f, 1.25f, -0.08f), new Vector3(0.32f, 0.38f, 0.32f), Quaternion.identity, Ochre);
+                new Vector3(0f, 0.82f, -0.05f), new Vector3(0.24f, 0.26f, 0.24f), Quaternion.identity, Ochre);
             CreatePrimitive("Left Placeholder Hand", PrimitiveType.Sphere, seatObject.transform,
-                new Vector3(-0.3f, 0.79f, 0.23f), new Vector3(0.12f, 0.08f, 0.16f), Quaternion.identity, Ochre);
+                new Vector3(-0.23f, 0.52f, 0.18f), new Vector3(0.09f, 0.06f, 0.12f), Quaternion.identity, Ochre);
             CreatePrimitive("Right Placeholder Hand", PrimitiveType.Sphere, seatObject.transform,
-                new Vector3(0.3f, 0.79f, 0.23f), new Vector3(0.12f, 0.08f, 0.16f), Quaternion.identity, Ochre);
-
-            var prefix = (isActive ? "> " : string.Empty) + (isDealer ? "D " : string.Empty);
-            CreateLabel($"{seat} Seat Status", parent, position + new Vector3(0f, 1.66f, 0f),
-                $"{prefix}{playerName}\n{score:00}", isActive ? Brass : Vellum, 3.6f);
+                new Vector3(0.23f, 0.52f, 0.18f), new Vector3(0.09f, 0.06f, 0.12f), Quaternion.identity, Ochre);
         }
 
         private void CreateStateCards(Transform parent)
@@ -410,8 +406,8 @@ namespace TheFall.Presentation.Match
                 var row = index / 8;
                 var column = index % 8;
                 CreateCard(parent, $"Face-down Dealer Card {index + 1}",
-                    new Vector3((column - 3.5f) * 0.13f, 0.80f + row * 0.002f, (row - 2f) * 0.16f),
-                    0.58f, FirstPlayableCardZone.DealerSpread, false, null, index, true);
+                    new Vector3((column - 3.5f) * 0.17f, 0.80f + row * 0.002f, (row - 2f) * 0.21f),
+                    0.75f, FirstPlayableCardZone.DealerSpread, false, null, index, true);
             }
         }
 
@@ -421,7 +417,7 @@ namespace TheFall.Presentation.Match
             {
                 CreateCard(parent, $"Deck Card {index + 1}",
                     new Vector3(0.72f, 0.80f + index * 0.0015f, 0f),
-                    0.66f, FirstPlayableCardZone.Deck, false, null);
+                    0.86f, FirstPlayableCardZone.Deck, false, null);
             }
         }
 
@@ -432,8 +428,8 @@ namespace TheFall.Presentation.Match
                 var row = index / 5;
                 var column = index % 5;
                 CreateCard(parent, $"Table {cards[index]}",
-                    new Vector3((column - 2f) * 0.17f, 0.805f + row * 0.002f, (row - 0.5f) * 0.25f),
-                    0.72f, FirstPlayableCardZone.Table, true, cards[index]);
+                    new Vector3((column - 2f) * 0.23f, 0.805f + row * 0.002f, (row - 0.5f) * 0.31f),
+                    0.96f, FirstPlayableCardZone.Table, true, cards[index]);
             }
         }
 
@@ -441,10 +437,10 @@ namespace TheFall.Presentation.Match
         {
             for (var index = 0; index < cards.Count; index++)
             {
-                var x = (index - (cards.Count - 1) * 0.5f) * 0.22f;
+                var x = (index - (cards.Count - 1) * 0.5f) * 0.29f;
                 var rendered = CreateCard(parent, $"Local Hand {cards[index]}",
-                    new Vector3(x, 0.82f, -0.92f + Mathf.Abs(index - 1) * 0.025f),
-                    0.9f, FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
+                    new Vector3(x, 0.82f, -0.88f + Mathf.Abs(index - 1) * 0.025f),
+                    1.18f, FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
                 _localHandViews.Add(view);
@@ -455,10 +451,10 @@ namespace TheFall.Presentation.Match
         {
             for (var index = 0; index < count; index++)
             {
-                var x = (index - (count - 1) * 0.5f) * 0.18f;
+                var x = (index - (count - 1) * 0.5f) * 0.25f;
                 CreateCard(parent, $"Private Opponent Hand Card {index + 1}",
-                    new Vector3(-x, 0.82f, 0.92f),
-                    0.76f, FirstPlayableCardZone.OpponentHand, false, null);
+                    new Vector3(-x, 0.82f, 0.88f),
+                    0.9f, FirstPlayableCardZone.OpponentHand, false, null);
             }
         }
 
@@ -472,7 +468,7 @@ namespace TheFall.Presentation.Match
             {
                 CreateCard(parent, $"{zone} {cards[index]}",
                     origin + new Vector3((index % 4) * 0.012f, index * 0.002f, (index % 3) * 0.009f),
-                    0.48f, zone, true, cards[index]);
+                    0.62f, zone, true, cards[index]);
             }
         }
 
@@ -735,7 +731,7 @@ namespace TheFall.Presentation.Match
 
             _gameplayCamera.transform.position = FixedCameraPosition;
             _gameplayCamera.transform.rotation = FixedCameraRotation;
-            _gameplayCamera.fieldOfView = 44f;
+            _gameplayCamera.fieldOfView = FixedCameraFieldOfView;
             _gameplayCamera.nearClipPlane = 0.1f;
             _gameplayCamera.farClipPlane = 50f;
             _gameplayCamera.backgroundColor = Lampblack;
@@ -802,32 +798,6 @@ namespace TheFall.Presentation.Match
             };
             _generatedMaterials.Add(key, material);
             return material;
-        }
-
-        private void CreateLabel(
-            string name,
-            Transform parent,
-            Vector3 position,
-            string text,
-            Color color,
-            float fontSize)
-        {
-            var labelObject = new GameObject(name, typeof(TextMeshPro));
-            labelObject.hideFlags = HideFlags.DontSave;
-            labelObject.transform.SetParent(parent, false);
-            labelObject.transform.localPosition = position;
-            var awayFromCamera = labelObject.transform.position - _gameplayCamera.transform.position;
-            labelObject.transform.rotation = Quaternion.LookRotation(awayFromCamera, _gameplayCamera.transform.up);
-            labelObject.transform.localScale = Vector3.one * 0.2f;
-
-            var label = labelObject.GetComponent<TextMeshPro>();
-            label.text = text;
-            label.alignment = TextAlignmentOptions.Center;
-            label.fontSize = fontSize;
-            label.fontStyle = FontStyles.Bold;
-            label.color = color;
-            label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.rectTransform.sizeDelta = new Vector2(6f, 2.2f);
         }
 
         private void DestroyGeneratedContent()

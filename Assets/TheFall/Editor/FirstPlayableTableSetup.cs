@@ -45,7 +45,7 @@ namespace TheFall.Editor
             presentation.Configure(camera, table, catalog);
             camera.transform.position = FirstPlayableTablePresentation.CameraPosition;
             camera.transform.rotation = FirstPlayableTablePresentation.CameraRotation;
-            camera.fieldOfView = 44f;
+            camera.fieldOfView = FirstPlayableTablePresentation.CameraFieldOfView;
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 50f;
 
@@ -85,7 +85,9 @@ namespace TheFall.Editor
                     presentation.GameplayCamera != null
                     && presentation.GameplayCamera.transform.position == FirstPlayableTablePresentation.CameraPosition
                     && presentation.GameplayCamera.transform.rotation == FirstPlayableTablePresentation.CameraRotation
-                    && Mathf.Approximately(presentation.GameplayCamera.fieldOfView, 44f),
+                    && Mathf.Approximately(
+                        presentation.GameplayCamera.fieldOfView,
+                        FirstPlayableTablePresentation.CameraFieldOfView),
                     "The integrated gameplay camera is not stationary at the approved prototype pose.",
                     errors);
             }
