@@ -10,7 +10,9 @@ All modes use the same deck, capture, cascade, Fall, clean-table, canto, round, 
 
 **Confirmed:** Two individual players compete. Each player has a 20-card captured-card quota before extra-card points begin.
 
-**Confirmed:** Use 1v1 against one bot as the first architecture-proving mode because it has the smallest state and presentation surface. This is a technical prototype decision, not yet the definition of the first public playable milestone.
+**Confirmed:** Use 1v1 against one bot as the first architecture-proving mode because it has the smallest state and presentation surface. That V0 technical decision supplied the basis for the later first-playable selection.
+
+**Confirmed:** The first playable extends that foundation into one complete offline 1v1 match against a deterministic baseline bot. See the [first playable milestone](../planning/first-playable-milestone.md) for the exact rules, fidelity, and macOS acceptance boundary.
 
 ## Three-player free-for-all
 
@@ -63,6 +65,6 @@ If both teams remain tied at 24 or more, both teams continue complete normal tie
 
 **Deferred:** Networking technology, matchmaking, authoritative hosting, reconnection, anti-cheat, and social features are outside the initial V0 implementation.
 
-## Open delivery decision
+## Delivery decision
 
-The first playable milestone and its mode have not been selected. V0 experiments should provide the evidence for that decision.
+**Confirmed:** Deliver the complete offline 1v1 bot match before Story Mode, three-player, 2v2, or online PvP. The first playable proves the integrated rules and presentation loop; it does not establish the long-term public release order for the deferred modes.

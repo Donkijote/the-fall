@@ -13,6 +13,12 @@ Status: Confirmed targets with open support commitments
 
 Controller support is not currently required.
 
+## First playable commitment
+
+**Confirmed:** Accept the first playable as a macOS universal development player on the project-owned Apple silicon reference Mac with mouse and keyboard. Required resizable layouts are `1280 x 720`, `1440 x 900`, `1920 x 1080`, and `2560 x 1440`; fullscreen is not an acceptance gate.
+
+Android, iOS, and Windows remain confirmed product targets. Existing simulated touch, portrait, landscape, safe-area, and orientation coverage must keep passing, but the first playable makes no physical-device, signing, store, or production-support claim for those platforms. See the [first playable milestone](../planning/first-playable-milestone.md).
+
 ## Shared requirements
 
 - one game-intent model across input methods

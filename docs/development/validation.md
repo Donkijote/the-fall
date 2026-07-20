@@ -110,13 +110,13 @@ These are owner-approved development gates for the representative V0 scenes, not
 | --- | ---: | ---: | ---: |
 | frame pacing during a 15-minute representative loop | at least 30 fps; p95 frame time at most `33.3 ms` | 60 fps target; p95 frame time at most `16.7 ms` | 60 fps target at `1920 x 1080`; p95 frame time at most `16.7 ms` |
 | peak app memory | at most `2.0 GiB` | at most `2.0 GiB` | at most `2.0 GiB` |
-| cold launch to usable Home | record three cold runs; no pass/fail budget yet | record three cold runs; no pass/fail budget yet | record three cold runs; no pass/fail budget yet |
-| Home to usable match scene | record three runs; no pass/fail budget yet | record three runs; no pass/fail budget yet | record three runs; no pass/fail budget yet |
+| cold launch to usable Home | record three cold runs; no pass/fail budget yet | record three cold runs; no pass/fail budget yet | first playable: every one of three runs at most `10 s` |
+| Home to usable match scene | record three runs; no pass/fail budget yet | record three runs; no pass/fail budget yet | first playable: every one of three runs at most `5 s` |
 | orientation recomposition | at most `250 ms`, with no changed or duplicated intent | at most `250 ms`, with no changed or duplicated intent | not applicable; resize uses the same state-preservation contract |
 
 All tiers must preserve the existing readability comparisons: card identity at 48-pixel card width, character expression at 64-pixel head height, names and scores without clipping, hover-independent interaction symbols, and distinguishable state cues in grayscale. A five-minute warm-up precedes the 15-minute sample. Record median and p95 CPU/GPU frame times, peak app memory, every loading sample, thermal state when available, and any frame over `100 ms`.
 
-Loading is measured from launching a fully closed app until Home accepts input, and from requesting the match until its first intended interaction is accepted. The current Home and match flow are prototypes, so their measurements are evidence rather than pass/fail gates. Issue #11 must decide loading budgets for the bounded first playable.
+Loading is measured from launching a fully closed app until Home accepts input, and from requesting the match until its first intended interaction is accepted. The current prototype scenes remain measurement evidence. The pass/fail budgets apply to the integrated macOS candidate defined by the [first playable milestone](../planning/first-playable-milestone.md), not to the isolated V0 scenes.
 
 ## Manual exploratory procedure
 
@@ -172,8 +172,8 @@ No workflow, Unity activation secret, third-party CI action, or self-hosted runn
 | physical Android and iOS input, safe area, thermal, memory, and frame pacing | unvalidated | create a mobile device-validation issue after exact devices and minimum OS candidates are selected |
 | Windows build and launch | unvalidated | create a Windows smoke issue when a Windows host or runner is available |
 | signed iOS launch and store toolchain | out of V0 build smoke | future distribution/signing issue after store direction is selected |
-| minimum OS versions, desktop fullscreen, and minimum window size | open platform commitments | first playable planning issue #11 proposes the bounded target; owner accepts it separately |
-| first-playable loading budgets | current prototype is not representative; measurement only | issue #11 sets pass/fail budgets after it bounds Home and match readiness |
+| minimum OS versions, desktop fullscreen, and minimum window size | first playable accepts the current project-owned macOS environment and four resizable layouts without setting production minimums or fullscreen behavior | revisit before a release or wider desktop-support milestone |
+| first-playable loading budgets | `10 s` cold launch and `5 s` Home-to-match for every one of three macOS samples | verify and record in acceptance issue #28 |
 | full-match allocation, GPU, VFX, audio, character, and repeated-round cost | prototype scenes are not representative | profile the first playable slice before production asset approval |
 | screenshot or visual-regression automation | deferred | presentation QA issue if manual capture comparison becomes unreliable or expensive |
 | accessibility and localized readability thresholds | prototype comparisons only | dedicated accessibility/localization validation before a release milestone |

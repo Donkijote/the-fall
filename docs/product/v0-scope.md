@@ -1,10 +1,10 @@
 # V0 Scope
 
-Status: Confirmed foundation scope
+Status: Completed confirmed foundation scope
 
 ## Purpose
 
-V0 is a foundation and exploration phase. It is not yet a committed playable milestone or production release.
+V0 was the foundation and exploration phase. It did not implement a playable milestone or production release; it reduced the uncertainties required to select one.
 
 ## Goals
 
@@ -53,10 +53,12 @@ V0 is complete when:
 - EditMode and PlayMode tests run through an agreed workflow
 - the next milestone is defined as a prioritized set of GitHub issues
 
-## Open decisions
+## Exit decision
 
-- exact first playable slice
-- which visual fidelity is required to exit V0
-- minimum supported device and performance targets
+**Confirmed:** V0 exits with issue #11. Every foundation exit criterion has sufficient evidence, and the remaining work is bounded first-playable implementation rather than missing discovery.
 
-**Confirmed:** Use 1v1 against one bot as the first technical rules prototype. This proves the architecture without committing V0 to a complete playable milestone.
+The [first playable milestone](../planning/first-playable-milestone.md) is one complete offline 1v1 match against a deterministic baseline bot, accepted first as a macOS development build with prototype fidelity. Its ordered implementation is tracked by issues #22–#28.
+
+Android, iOS, Windows, minimum supported OS versions, production performance tiers, Story Mode content, additional game modes, and online play remain later product or platform decisions. They do not block the bounded macOS first playable.
+
+The earlier decision to use 1v1 against one bot as the first technical rules prototype is retained and promoted into a complete match for this next milestone.
