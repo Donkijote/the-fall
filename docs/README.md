@@ -58,7 +58,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 ### Technical
 
 - [Architecture](technical/architecture.md): deterministic C# domain and Unity presentation boundaries.
-- [Animation](technical/animation.md): animation responsibilities, experiments, and orchestration.
+- [Animation](technical/animation.md): real-time sequence workbench, reusable presentation beats, presets, transport, diagnosis, and authoritative synchronization.
 - [Testing](technical/testing.md): domain, Unity, integration, and platform validation.
 - [Deterministic domain foundation](technical/domain-foundation.md): implemented 1v1 state, intent, result, and event vocabulary.
 - [First-playable match orchestration](technical/match-orchestration.md): human-facing session, deterministic baseline bot, information boundary, seeded replay, and failure diagnosis contract.
