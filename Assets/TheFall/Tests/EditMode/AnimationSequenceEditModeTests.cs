@@ -5,7 +5,9 @@ using TheFall.Application;
 using TheFall.Application.Animation;
 using TheFall.Domain;
 using TheFall.Presentation.Animation;
+using TheFall.Editor;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace TheFall.Tests.EditMode
@@ -223,6 +225,99 @@ namespace TheFall.Tests.EditMode
             transport.Reset();
             Assert.That(transport.ElapsedSeconds, Is.Zero);
             Assert.That(transport.IsPlaying, Is.False);
+        }
+
+        [Test]
+        public void BeatEvaluator_UsesTheSameWireframePathForAuthoringAndPlayback()
+        {
+            var start = new Vector3(-1f, 0f, 0f);
+            var target = new Vector3(1f, 0f, 0f);
+            var trajectory = new Vector3(0f, 0.5f, 0.25f);
+
+            var midpoint = AnimationBeatEvaluator.EvaluatePosition(
+                start,
+                target,
+                0.5f,
+                AnimationBeatEasing.Linear,
+                trajectory);
+
+            Assert.That(midpoint, Is.EqualTo(new Vector3(0f, 0.5f, 0.25f)));
+            Assert.That(AnimationBeatEvaluator.EvaluatePosition(
+                start,
+                target,
+                0f,
+                AnimationBeatEasing.EaseInOut,
+                trajectory), Is.EqualTo(start));
+            Assert.That(Vector3.Distance(
+                AnimationBeatEvaluator.EvaluatePosition(
+                    start,
+                    target,
+                    1f,
+                    AnimationBeatEasing.EaseInOut,
+                    trajectory),
+                target), Is.LessThan(0.00001f));
+        }
+
+        [Test]
+        public void EditModeWorkbench_PreviewsAndSeeksIndividualBeatsWithoutPlayMode()
+        {
+            EditorSceneManager.OpenScene(
+                "Assets/TheFall/Presentation/Scenes/AnimationLab.unity",
+                OpenSceneMode.Single);
+            var controller = UnityEngine.Object.FindAnyObjectByType<AnimationLabController>();
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(
+                "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset");
+
+            Assert.That(UnityEngine.Application.isPlaying, Is.False);
+            Assert.That(controller, Is.Not.Null);
+            controller.BeginEditorWorkbenchPreview(
+                (int)AnimationScenarioKind.FallCascadeAndCleanTable,
+                Seat.First,
+                AnimationPreviewProfile.Desktop,
+                preset);
+
+            try
+            {
+                var cardPlayIndex = controller.Sequence.Steps
+                    .Take(controller.AnimatableStepCount)
+                    .Select((step, index) => new { step, index })
+                    .Single(entry => entry.step.Kind == ResolvedAnimationStepKind.CardPlay)
+                    .index;
+                controller.SeekToStep(cardPlayIndex, 0.5f);
+
+                Assert.That(controller.PreviewRoot, Is.Not.Null);
+                Assert.That(controller.gameObject.scene.isDirty, Is.False);
+                Assert.That(controller.CurrentStepIndex, Is.EqualTo(cardPlayIndex));
+                Assert.That(controller.ActiveStep.Kind, Is.EqualTo(ResolvedAnimationStepKind.CardPlay));
+                Assert.That(controller.ActiveStepProgress, Is.EqualTo(0.5f).Within(0.001f));
+                Assert.That(controller.TryGetPrimaryMotion(out var motion), Is.True);
+                Assert.That(motion.StartWorld, Is.Not.EqualTo(motion.TargetWorld));
+
+                var before = controller.ElapsedSeconds;
+                controller.Resume();
+                Assert.That(controller.TickEditorPreview(0.05f), Is.True);
+                Assert.That(controller.ElapsedSeconds, Is.GreaterThan(before));
+                Assert.That(UnityEngine.Application.isPlaying, Is.False);
+            }
+            finally
+            {
+                controller.ClearEditorPreview();
+            }
+        }
+
+        [Test]
+        public void AnimationWorkbenchWindow_IsAvailableAsAnEditModeAuthoringSurface()
+        {
+            var window = ScriptableObject.CreateInstance<AnimationWorkbenchWindow>();
+            try
+            {
+                Assert.That(window, Is.Not.Null);
+                Assert.That(window.titleContent.text, Is.EqualTo("Animation Workbench"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(window);
+            }
         }
     }
 }

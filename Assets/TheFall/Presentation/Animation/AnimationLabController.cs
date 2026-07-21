@@ -28,6 +28,9 @@ namespace TheFall.Presentation.Animation
     [DisallowMultipleComponent]
     public sealed class AnimationLabController : MonoBehaviour
     {
+        private static readonly IReadOnlyList<string> ScenarioNames =
+            Array.AsReadOnly(Enum.GetNames(typeof(AnimationScenarioKind)));
+
         [SerializeField]
         private AnimationSequenceConfiguration _configuration;
 
@@ -52,6 +55,7 @@ namespace TheFall.Presentation.Animation
         private AnimationPresentationState _renderedState;
         private AnimationLabView _view;
         private AnimationSequenceConfiguration _workingConfiguration;
+        private AnimationSequenceConfiguration _activePresetAsset;
         private AnimationSequenceTransport _transport;
         private AnimationScenarioKind _scenarioKind = AnimationScenarioKind.FallCascadeAndCleanTable;
         private AnimationPreviewProfile _previewProfile = AnimationPreviewProfile.Desktop;
@@ -93,6 +97,10 @@ namespace TheFall.Presentation.Animation
 
         public AnimationScenarioKind ScenarioKind => _scenarioKind;
 
+        public int ScenarioIndex => (int)_scenarioKind;
+
+        public IReadOnlyList<string> AvailableScenarioNames => ScenarioNames;
+
         public AnimationPreviewProfile PreviewProfile => _previewProfile;
 
         public bool IsPlaying => _transport?.IsPlaying ?? false;
@@ -105,6 +113,10 @@ namespace TheFall.Presentation.Animation
 
         public float NormalizedPosition => _transport?.NormalizedPosition ?? 0f;
 
+        public float ActiveStepProgress => _transport?.Position.Progress ?? 0f;
+
+        public bool IsDelayingActiveStep => _transport?.Position.IsDelaying ?? false;
+
         public AnimationSequenceCompletionReason CompletionReason { get; private set; }
 
         public float LastSequenceElapsedSeconds { get; private set; }
@@ -116,6 +128,16 @@ namespace TheFall.Presentation.Animation
         public float LastSequencePeakUpdateCpuMilliseconds { get; private set; }
 
         public int CardViewCount => _view?.CardViewCount ?? 0;
+
+        public Transform PreviewRoot => _view?.GeneratedRoot;
+
+        public int AnimatableStepCount => _sequence == null
+            ? 0
+            : Math.Max(0, _sequence.Steps.Count - 1);
+
+        public ResolvedAnimationStep ActiveStep => GetActiveStep();
+
+        public AnimationBeatConfiguration ActiveBeat => GetActiveBeat();
 
         public TableCompositionProfile CurrentProfile => _view != null
             ? _view.CurrentProfile
@@ -396,6 +418,50 @@ namespace TheFall.Presentation.Animation
             RenderTransportPosition(true);
         }
 
+        public void SeekSeconds(float elapsedSeconds)
+        {
+            _transport?.Seek(elapsedSeconds);
+            RenderTransportPosition(true);
+        }
+
+        public void SeekToStep(int stepIndex, float progress)
+        {
+            if (_transport == null)
+            {
+                return;
+            }
+
+            _transport.Pause();
+            _transport.SeekToStep(stepIndex, progress);
+            RenderTransportPosition(true);
+        }
+
+        public float GetStepStartSeconds(int stepIndex)
+        {
+            return _transport?.GetStepStartSeconds(stepIndex) ?? 0f;
+        }
+
+        public float GetStepMotionStartSeconds(int stepIndex)
+        {
+            return _transport?.GetStepMotionStartSeconds(stepIndex) ?? 0f;
+        }
+
+        public float GetStepEndSeconds(int stepIndex)
+        {
+            return _transport?.GetStepEndSeconds(stepIndex) ?? 0f;
+        }
+
+        public bool TryGetPrimaryMotion(out AnimationMotionPreview preview)
+        {
+            if (_view != null && _view.TryGetPrimaryMotion(out preview))
+            {
+                return true;
+            }
+
+            preview = default;
+            return false;
+        }
+
         public void SetFastForward(bool enabled)
         {
             _fastForward = enabled;
@@ -439,6 +505,16 @@ namespace TheFall.Presentation.Animation
             InitializeRecording(_actingSeat);
             ComposeTransport();
             RenderTransportPosition(true);
+        }
+
+        public void SetScenarioIndex(int scenarioIndex)
+        {
+            if (scenarioIndex < 0 || scenarioIndex >= ScenarioNames.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(scenarioIndex));
+            }
+
+            SetScenario((AnimationScenarioKind)scenarioIndex);
         }
 
         public void SetPreviewProfile(AnimationPreviewProfile profile)
@@ -518,6 +594,85 @@ namespace TheFall.Presentation.Animation
         {
             StopActiveSequence();
             _view?.Destroy();
+            _view = null;
+            DestroyWorkingConfiguration();
+        }
+
+        public void BeginEditorWorkbenchPreview(
+            int scenarioIndex,
+            Seat actingSeat,
+            AnimationPreviewProfile previewProfile,
+            AnimationSequenceConfiguration preset)
+        {
+            if (UnityEngine.Application.isPlaying)
+            {
+                throw new InvalidOperationException("The Edit Mode workbench cannot initialize during Play Mode.");
+            }
+
+            ValidateReferences();
+            StopActiveSequence();
+            if (scenarioIndex < 0 || scenarioIndex >= ScenarioNames.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(scenarioIndex));
+            }
+
+            _scenarioKind = (AnimationScenarioKind)scenarioIndex;
+            _previewProfile = previewProfile;
+            _viewport = GetProfileViewport(previewProfile);
+            LoadWorkingConfiguration(preset ?? _configuration, FindPresetIndex(preset));
+            InitializeRecording(actingSeat);
+            _view = _view ?? new AnimationLabView(
+                transform,
+                _gameplayCamera,
+                _tablePrototypePrefab,
+                _cardVisualCatalog);
+            ComposeTransport();
+            RenderTransportPosition(true);
+        }
+
+        public bool TickEditorPreview(float deltaSeconds)
+        {
+            if (UnityEngine.Application.isPlaying || _transport == null || !_transport.IsPlaying)
+            {
+                return false;
+            }
+
+            var previousElapsed = _transport.ElapsedSeconds;
+            _transport.Tick(deltaSeconds);
+            var looped = _transport.Loop && _transport.ElapsedSeconds < previousElapsed;
+            RenderTransportPosition(looped);
+            if (!_transport.IsPlaying && _transport.ReachedEnd)
+            {
+                SynchronizeFinalState(AnimationSequenceCompletionReason.Completed);
+            }
+
+            return !Mathf.Approximately(previousElapsed, _transport.ElapsedSeconds);
+        }
+
+        public void LoadEditorPreset(AnimationSequenceConfiguration preset)
+        {
+            if (preset == null)
+            {
+                throw new ArgumentNullException(nameof(preset));
+            }
+
+            StopActiveSequence();
+            LoadWorkingConfiguration(preset, FindPresetIndex(preset));
+            ComposeTransport();
+            RenderTransportPosition(true);
+        }
+
+        public void RefreshEditorPreview()
+        {
+            if (_transport == null)
+            {
+                return;
+            }
+
+            var elapsed = _transport.ElapsedSeconds;
+            ComposeTransport();
+            _transport.Seek(Mathf.Min(elapsed, _transport.DurationSeconds));
+            RenderTransportPosition(true);
         }
 
         public void SaveWorkingPreset()
@@ -527,9 +682,7 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            var destination = _presets != null && _presets.Length > _activePresetIndex
-                ? _presets[_activePresetIndex]
-                : _configuration;
+            var destination = _activePresetAsset ?? _configuration;
             Undo.RecordObject(destination, "Save animation workbench preset");
             EditorUtility.CopySerialized(_workingConfiguration, destination);
             EditorUtility.SetDirty(destination);
@@ -697,11 +850,20 @@ namespace TheFall.Presentation.Animation
 
         private void LoadWorkingConfiguration(int presetIndex)
         {
-            DestroyWorkingConfiguration();
-            _activePresetIndex = presetIndex;
             var source = _presets != null && _presets.Length > presetIndex && _presets[presetIndex] != null
                 ? _presets[presetIndex]
                 : _configuration;
+            LoadWorkingConfiguration(source, presetIndex);
+        }
+
+        private void LoadWorkingConfiguration(
+            AnimationSequenceConfiguration source,
+            int presetIndex)
+        {
+            DestroyWorkingConfiguration();
+            _activePresetIndex = Math.Max(0, presetIndex);
+            _activePresetAsset = source ?? _configuration;
+            source = _activePresetAsset;
             source.EnsureDefaults();
             _workingConfiguration = Instantiate(source);
             _workingConfiguration.name = $"{source.name} (Workbench Copy)";
@@ -726,6 +888,24 @@ namespace TheFall.Presentation.Animation
             }
 
             _workingConfiguration = null;
+        }
+
+        private int FindPresetIndex(AnimationSequenceConfiguration preset)
+        {
+            if (_presets == null || preset == null)
+            {
+                return 0;
+            }
+
+            for (var index = 0; index < _presets.Length; index++)
+            {
+                if (_presets[index] == preset)
+                {
+                    return index;
+                }
+            }
+
+            return 0;
         }
 
         private AnimationBeatConfiguration GetActiveBeat()

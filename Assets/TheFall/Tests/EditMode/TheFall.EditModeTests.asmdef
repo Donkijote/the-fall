@@ -6,6 +6,7 @@
     "TheFall.Application",
     "TheFall.Infrastructure",
     "TheFall.Presentation",
+    "TheFall.Editor",
     "Unity.InputSystem"
   ],
   "optionalUnityReferences": [

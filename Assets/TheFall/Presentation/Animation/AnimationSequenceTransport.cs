@@ -131,6 +131,32 @@ namespace TheFall.Presentation.Animation
             Seek(_stepEndTimes[position.StepIndex]);
         }
 
+        public float GetStepStartSeconds(int stepIndex)
+        {
+            ValidateStepIndex(stepIndex);
+            return stepIndex == 0 ? 0f : _stepEndTimes[stepIndex - 1];
+        }
+
+        public float GetStepMotionStartSeconds(int stepIndex)
+        {
+            ValidateStepIndex(stepIndex);
+            return GetStepStartSeconds(stepIndex) + _timings[stepIndex].DelaySeconds;
+        }
+
+        public float GetStepEndSeconds(int stepIndex)
+        {
+            ValidateStepIndex(stepIndex);
+            return _stepEndTimes[stepIndex];
+        }
+
+        public void SeekToStep(int stepIndex, float progress)
+        {
+            ValidateStepIndex(stepIndex);
+            var timing = _timings[stepIndex];
+            Seek(GetStepMotionStartSeconds(stepIndex) +
+                timing.DurationSeconds * Math.Max(0f, Math.Min(1f, progress)));
+        }
+
         public bool Tick(float unscaledDeltaSeconds)
         {
             if (!IsPlaying)
@@ -183,6 +209,14 @@ namespace TheFall.Presentation.Animation
             }
 
             return new AnimationTransportPosition(_timings.Count, 1f, false);
+        }
+
+        private void ValidateStepIndex(int stepIndex)
+        {
+            if (stepIndex < 0 || stepIndex >= _timings.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(stepIndex));
+            }
         }
     }
 }

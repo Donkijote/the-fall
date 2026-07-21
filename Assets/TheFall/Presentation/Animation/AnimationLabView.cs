@@ -48,6 +48,8 @@ namespace TheFall.Presentation.Animation
 
         public int CardViewCount => _cardViews.Count;
 
+        public Transform GeneratedRoot => _generatedRoot;
+
         public void Build(
             AnimationPresentationState state,
             PlayerId actingPlayerId,
@@ -102,12 +104,17 @@ namespace TheFall.Presentation.Animation
         public void ApplyTransition(float progress)
         {
             var clamped = Mathf.Clamp01(progress);
-            var eased = EvaluateEasing(clamped, _easing);
-            var trajectory = Mathf.Sin(clamped * Mathf.PI) * _trajectoryOffset;
             foreach (var motion in _motions)
             {
                 motion.Transform.localPosition =
-                    Vector3.LerpUnclamped(motion.Start, motion.Target, eased) + trajectory;
+                    Vector3.SqrMagnitude(motion.Target - motion.Start) <= 0.000001f
+                        ? motion.Target
+                        : AnimationBeatEvaluator.EvaluatePosition(
+                            motion.Start,
+                            motion.Target,
+                            clamped,
+                            _easing,
+                            _trajectoryOffset);
             }
 
             if (_eventCue != null)
@@ -115,6 +122,35 @@ namespace TheFall.Presentation.Animation
                 var pulse = 1f + Mathf.Sin(clamped * Mathf.PI) * 0.12f * Mathf.Max(0f, _emphasis);
                 _eventCue.transform.localScale = Vector3.one * 0.18f * pulse;
             }
+        }
+
+        public bool TryGetPrimaryMotion(out AnimationMotionPreview preview)
+        {
+            CardMotion? selected = null;
+            var greatestDistance = 0f;
+            foreach (var motion in _motions)
+            {
+                var distance = Vector3.SqrMagnitude(motion.Target - motion.Start);
+                if (distance <= greatestDistance)
+                {
+                    continue;
+                }
+
+                greatestDistance = distance;
+                selected = motion;
+            }
+
+            if (!selected.HasValue || greatestDistance <= 0.000001f || _generatedRoot == null)
+            {
+                preview = default;
+                return false;
+            }
+
+            preview = new AnimationMotionPreview(
+                _generatedRoot.TransformPoint(selected.Value.Start),
+                _generatedRoot.TransformPoint(selected.Value.Target),
+                _generatedRoot);
+            return true;
         }
 
         public void RenderImmediate(AnimationPresentationState state)
@@ -393,21 +429,6 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.SynchronizeFinalState:
                     _eventCue.text = "RESOLVED";
                     break;
-            }
-        }
-
-        private static float EvaluateEasing(float progress, AnimationBeatEasing easing)
-        {
-            switch (easing)
-            {
-                case AnimationBeatEasing.Linear:
-                    return progress;
-                case AnimationBeatEasing.EaseInOut:
-                    return Mathf.SmoothStep(0f, 1f, progress);
-                case AnimationBeatEasing.Anticipate:
-                    return progress * progress * (2.70158f * progress - 1.70158f);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(easing), easing, null);
             }
         }
 

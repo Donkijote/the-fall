@@ -87,7 +87,7 @@ namespace TheFall.Editor
                 AssetDatabase.LoadAssetAtPath<GameObject>(TablePrefabPath),
                 AssetDatabase.LoadAssetAtPath<CardVisualCatalog>(CardCatalogPath));
             sceneRoot.GetComponent<ScenePurpose>()?.SetDescription(
-                "Real-time resolved-event sequence workbench for reusable beat composition, live presentation tuning, named versioned presets, deterministic transport, 1v1 seat and profile comparison, diagnosis, and authoritative state synchronization.");
+                "Edit Mode-first resolved-event animation workbench for Scene-view wireframe authoring, reusable beat composition, live preview, named versioned presets, deterministic transport, runtime reuse, diagnosis, and authoritative state synchronization.");
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
