@@ -28,6 +28,9 @@ namespace TheFall.Presentation.Animation
         private Transform _generatedRoot;
         private TextMeshPro _eventCue;
         private PlayerId _actingPlayerId;
+        private AnimationBeatEasing _easing;
+        private Vector3 _trajectoryOffset;
+        private float _emphasis = 1f;
 
         public AnimationLabView(
             Transform owner,
@@ -69,7 +72,10 @@ namespace TheFall.Presentation.Animation
 
         public void PrepareTransition(
             AnimationPresentationState state,
-            ResolvedAnimationStep step)
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            bool reducedMotion,
+            float reducedMotionTrajectoryScale)
         {
             EnsureCardViews(state);
             _motions.Clear();
@@ -81,19 +87,33 @@ namespace TheFall.Presentation.Animation
                     ResolveCardPosition(state, entry.Key)));
             }
 
+            _easing = beat?.Easing ?? AnimationBeatEasing.EaseInOut;
+            _trajectoryOffset = beat?.TrajectoryOffset ?? Vector3.zero;
+            if (reducedMotion)
+            {
+                _trajectoryOffset *= Mathf.Clamp01(reducedMotionTrajectoryScale);
+            }
+
+            _emphasis = beat?.Emphasis ?? 1f;
             RefreshLabels(state);
             SetEventCue(step);
         }
 
         public void ApplyTransition(float progress)
         {
-            var eased = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress));
+            var clamped = Mathf.Clamp01(progress);
+            var eased = EvaluateEasing(clamped, _easing);
+            var trajectory = Mathf.Sin(clamped * Mathf.PI) * _trajectoryOffset;
             foreach (var motion in _motions)
             {
-                motion.Transform.localPosition = Vector3.LerpUnclamped(
-                    motion.Start,
-                    motion.Target,
-                    eased);
+                motion.Transform.localPosition =
+                    Vector3.LerpUnclamped(motion.Start, motion.Target, eased) + trajectory;
+            }
+
+            if (_eventCue != null)
+            {
+                var pulse = 1f + Mathf.Sin(clamped * Mathf.PI) * 0.12f * Mathf.Max(0f, _emphasis);
+                _eventCue.transform.localScale = Vector3.one * 0.18f * pulse;
             }
         }
 
@@ -307,6 +327,24 @@ namespace TheFall.Presentation.Animation
 
             switch (step.Kind)
             {
+                case ResolvedAnimationStepKind.MatchStarted:
+                    _eventCue.text = "MATCH START";
+                    break;
+                case ResolvedAnimationStepKind.DealerSelection:
+                    _eventCue.text = "DEALER SELECTION";
+                    break;
+                case ResolvedAnimationStepKind.DealerChoice:
+                    _eventCue.text = "DEALER CHOICE";
+                    break;
+                case ResolvedAnimationStepKind.Deal:
+                    _eventCue.text = "DEAL";
+                    break;
+                case ResolvedAnimationStepKind.OpeningRejection:
+                    _eventCue.text = "OPENING REJECTED";
+                    break;
+                case ResolvedAnimationStepKind.OpeningPlacement:
+                    _eventCue.text = "OPENING TABLE";
+                    break;
                 case ResolvedAnimationStepKind.CardPlay:
                     _eventCue.text = "PLAY";
                     break;
@@ -325,6 +363,27 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.CleanTableScore:
                     _eventCue.text = $"CLEAN TABLE  +{step.PointsAwarded}";
                     break;
+                case ResolvedAnimationStepKind.Canto:
+                    _eventCue.text = "CANTO";
+                    break;
+                case ResolvedAnimationStepKind.Score:
+                    _eventCue.text = $"SCORE  {step.PointsAwarded:+#;-#;0}";
+                    break;
+                case ResolvedAnimationStepKind.DealCompleted:
+                    _eventCue.text = "DEAL COMPLETE";
+                    break;
+                case ResolvedAnimationStepKind.Leftovers:
+                    _eventCue.text = "COLLECT LEFTOVERS";
+                    break;
+                case ResolvedAnimationStepKind.Round:
+                    _eventCue.text = "ROUND COMPLETE";
+                    break;
+                case ResolvedAnimationStepKind.DealerRotation:
+                    _eventCue.text = "DEALER ROTATES";
+                    break;
+                case ResolvedAnimationStepKind.TieExtension:
+                    _eventCue.text = "TIE EXTENSION";
+                    break;
                 case ResolvedAnimationStepKind.TurnChanged:
                     _eventCue.text = "NEXT TURN";
                     break;
@@ -334,6 +393,21 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.SynchronizeFinalState:
                     _eventCue.text = "RESOLVED";
                     break;
+            }
+        }
+
+        private static float EvaluateEasing(float progress, AnimationBeatEasing easing)
+        {
+            switch (easing)
+            {
+                case AnimationBeatEasing.Linear:
+                    return progress;
+                case AnimationBeatEasing.EaseInOut:
+                    return Mathf.SmoothStep(0f, 1f, progress);
+                case AnimationBeatEasing.Anticipate:
+                    return progress * progress * (2.70158f * progress - 1.70158f);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(easing), easing, null);
             }
         }
 

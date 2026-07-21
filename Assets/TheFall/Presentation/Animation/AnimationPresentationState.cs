@@ -56,6 +56,26 @@ namespace TheFall.Presentation.Animation
 
             switch (step.Kind)
             {
+                case ResolvedAnimationStepKind.MatchStarted:
+                case ResolvedAnimationStepKind.DealerSelection:
+                case ResolvedAnimationStepKind.DealerChoice:
+                case ResolvedAnimationStepKind.OpeningRejection:
+                case ResolvedAnimationStepKind.Canto:
+                case ResolvedAnimationStepKind.DealCompleted:
+                case ResolvedAnimationStepKind.Round:
+                case ResolvedAnimationStepKind.DealerRotation:
+                case ResolvedAnimationStepKind.TieExtension:
+                    break;
+                case ResolvedAnimationStepKind.Deal:
+                    if (step.SourceEvent is CardDealtEvent)
+                    {
+                        AddUnique(_hands[step.PlayerId], step.Cards[0]);
+                    }
+
+                    break;
+                case ResolvedAnimationStepKind.OpeningPlacement:
+                    AddUnique(_table, step.Cards[0]);
+                    break;
                 case ResolvedAnimationStepKind.CardPlay:
                     MovePlayedCardToTable(step.PlayerId, step.Cards[0]);
                     break;
@@ -68,7 +88,11 @@ namespace TheFall.Presentation.Animation
                     break;
                 case ResolvedAnimationStepKind.FallScore:
                 case ResolvedAnimationStepKind.CleanTableScore:
+                case ResolvedAnimationStepKind.Score:
                     _scores[step.TeamId] = step.Total;
+                    break;
+                case ResolvedAnimationStepKind.Leftovers:
+                    MoveCapturedCards(step.PlayerId, step.Cards);
                     break;
                 case ResolvedAnimationStepKind.TurnChanged:
                     CurrentSeat = step.CurrentSeat;

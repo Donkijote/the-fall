@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dfad797163e8e46b5b309e3d6bef1f79, type: 3}
-  m_Name: AnimationSequenceConfiguration
+  m_Name: AnimationFastIterationPreset
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Animation.AnimationSequenceConfiguration
   _presetVersion: 1
-  _presetName: Workbench Default
+  _presetName: Fast Iteration
   _beats:
   - _kind: 0
     _enabled: 1
@@ -162,8 +162,8 @@ MonoBehaviour:
     _easing: 1
     _trajectoryOffset: {x: 0, y: 0, z: 0}
     _emphasis: 1.6
-  _playbackSpeed: 1
-  _loop: 0
+  _playbackSpeed: 2
+  _loop: 1
   _fastForwardMultiplier: 4
   _reducedMotionDurationScale: 0.25
   _reducedMotionTrajectoryScale: 0.15

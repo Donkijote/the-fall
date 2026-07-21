@@ -5,6 +5,7 @@ using TheFall.Application;
 using TheFall.Application.Animation;
 using TheFall.Domain;
 using TheFall.Presentation.Animation;
+using UnityEditor;
 using UnityEngine;
 
 namespace TheFall.Tests.EditMode
@@ -141,6 +142,87 @@ namespace TheFall.Tests.EditMode
             {
                 UnityEngine.Object.DestroyImmediate(configuration);
             }
+        }
+
+        [Test]
+        public void PresetAsset_IsNamedVersionedAndContainsReusableSerializedBeats()
+        {
+            const string presetPath = "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset";
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(presetPath);
+
+            Assert.That(preset, Is.Not.Null);
+            Assert.That(preset.PresetName, Is.Not.Empty);
+            Assert.That(preset.PresetVersion, Is.EqualTo(AnimationSequenceConfiguration.CurrentPresetVersion));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.Canto));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
+        }
+
+        [Test]
+        public void Composition_UsesPresetOrderWithoutChangingSourceEventsOrFinalState()
+        {
+            var recording = RepresentativeAnimationTurn.Create(Seat.First);
+            var sequence = ResolvedAnimationSequence.Create(
+                recording.Result.Events,
+                recording.Result.State,
+                new[]
+                {
+                    ResolvedAnimationStepKind.FallScore,
+                    ResolvedAnimationStepKind.CardPlay,
+                    ResolvedAnimationStepKind.NormalCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CleanTableScore,
+                    ResolvedAnimationStepKind.TurnChanged,
+                });
+            var rendered = new AnimationPresentationState(recording.InitialState);
+
+            foreach (var step in sequence.Steps)
+            {
+                rendered.Apply(step, sequence.FinalState);
+            }
+
+            Assert.That(sequence.Steps.Take(3).Select(step => step.Kind), Is.EqualTo(new[]
+            {
+                ResolvedAnimationStepKind.FallScore,
+                ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.NormalCapture,
+            }));
+            Assert.That(sequence.SourceEvents, Is.EqualTo(recording.Result.Events));
+            Assert.That(rendered.IsSynchronizedWith(recording.Result.State), Is.True);
+        }
+
+        [Test]
+        public void Transport_PauseStepSeekLoopSkipAndResetRemainDeterministic()
+        {
+            var transport = new AnimationSequenceTransport(new[]
+            {
+                new AnimationBeatTiming(0.1f, 0.2f),
+                new AnimationBeatTiming(0f, 0.3f),
+            });
+
+            transport.Play();
+            transport.Tick(0.15f);
+            transport.Pause();
+            var pausedAt = transport.ElapsedSeconds;
+            transport.Tick(1f);
+            Assert.That(transport.ElapsedSeconds, Is.EqualTo(pausedAt));
+
+            transport.StepForward();
+            Assert.That(transport.ElapsedSeconds, Is.EqualTo(0.3f).Within(0.0001f));
+            transport.SeekNormalized(0.5f);
+            Assert.That(transport.NormalizedPosition, Is.EqualTo(0.5f).Within(0.0001f));
+
+            transport.Loop = true;
+            transport.Play();
+            transport.Tick(0.5f);
+            Assert.That(transport.IsPlaying, Is.True);
+            Assert.That(transport.ElapsedSeconds, Is.LessThan(transport.DurationSeconds));
+
+            transport.SkipToEnd();
+            Assert.That(transport.ReachedEnd, Is.True);
+            transport.Reset();
+            Assert.That(transport.ElapsedSeconds, Is.Zero);
+            Assert.That(transport.IsPlaying, Is.False);
         }
     }
 }
