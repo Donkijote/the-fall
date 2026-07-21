@@ -240,10 +240,10 @@ Validated locally on 2026-07-20 with Unity `6000.5.4f1`:
 Validated locally on 2026-07-21 with Unity `6000.5.4f1`:
 
 - animation-workbench generation and structural validation: passed
-- complete Edit Mode suite: 67/67 passed, including named/versioned preset loading, reusable beat composition, deterministic transport, reset, and state convergence
+- complete Edit Mode suite: 70/70 passed, including named/versioned preset loading, reusable beat composition, shared wireframe/runtime path evaluation, scene-backed preview without Play Mode, deterministic transport, reset, and state convergence
 - complete Play Mode suite: 18/18 passed, including pause/resume, step, seek, reset, live preset/scenario changes, both 1v1 seats, portrait/landscape/desktop comparison, skip/interruption/cancellation, and authoritative convergence
 - macOS universal development-player smoke build: succeeded
-- source recordings and accepted final states remained unchanged by composition, timing, speed, loop, reduced-motion, and transport controls
+- source recordings and accepted final states remained unchanged by Edit Mode authoring, Scene-view trajectory changes, composition, timing, speed, loop, reduced-motion, and transport controls
 - Android, iOS, Windows, physical-device, production VFX/audio/character acting, and first-playable promotion were not run or claimed by this tooling issue
 
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

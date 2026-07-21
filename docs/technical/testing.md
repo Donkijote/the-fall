@@ -46,7 +46,7 @@ The interaction prototype's focused Play Mode coverage completes one representat
 
 The issue #9 animation laboratory replays a real resolved Fall/cascade/clean-table event list. Edit Mode verifies event-to-beat mapping, presentation-only timing, both acting seats, and authoritative final-state equality. Play Mode verifies normal completion, skip, interruption, cancellation, fast-forward, stationary-camera behavior, and equivalent portrait/landscape outcomes. Initial measurements and their limits are recorded in [gameplay animation laboratory](animation.md).
 
-Issue #29 turns that laboratory into a real-time workbench. Edit Mode additionally verifies named/versioned preset loading, reusable beat composition order, deterministic transport reset, pause, step, seek, loop, skip, and convergence. Play Mode verifies live preset changes, scenario selection, pause/resume, step, deterministic replay-to-position, reset, both 1v1 seats, portrait/landscape/desktop profiles, and final-state agreement without changing the accepted recording.
+Issue #29 turns that laboratory into an Edit Mode-first workbench. Edit Mode additionally verifies named/versioned preset loading, reusable beat composition order, shared Scene-view/runtime path evaluation, editor-window availability, scene-backed preview without Play Mode, deterministic transport reset, pause, step, seek, loop, skip, and convergence. Play Mode verifies runtime reuse through live preset changes, scenario selection, pause/resume, step, deterministic replay-to-position, reset, both 1v1 seats, portrait/landscape/desktop profiles, and final-state agreement without changing the accepted recording.
 
 ### Manual device validation
 

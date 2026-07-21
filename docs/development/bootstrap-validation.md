@@ -44,7 +44,7 @@ The enabled build scenes are ordered as follows:
 | 0 | `Bootstrap` | application startup and persistent manual dependency composition |
 | 1 | `Home` | localized first-playable flow plus the authoritative fixed-camera 1v1 table presentation |
 | 2 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
-| 3 | `AnimationLab` | real-time resolved-event sequence workbench with reusable beats, versioned presets, transport, profile comparison, and synchronization diagnosis |
+| 3 | `AnimationLab` | Edit Mode wireframe authoring and runtime preview for reusable resolved-event beats, versioned presets, transport, profile comparison, and synchronization diagnosis |
 | 4 | `AssetReview` | isolated generated-asset inspection with Play-mode orbit and zoom controls |
 
 Bootstrap remains deliberately minimal and composes the first-playable flow before loading `Home`. Home owns the functional application flow documented in [first-playable application flow](../technical/first-playable-flow.md) and the integrated table documented in [first-playable 1v1 table presentation](../technical/first-playable-table.md). `AnimationLab` owns the isolated real-time sequence workbench documented in [gameplay animation](../technical/animation.md). `MatchPrototype` retains the presentation-only multi-mode composition evidence documented in the [fixed table composition prototype](../design/table-composition-prototype.md). `AssetReview` remains an isolated generated-asset inspection scene.

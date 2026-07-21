@@ -4,7 +4,7 @@ Status: Implemented first-playable presentation tooling
 
 ## Purpose and authority boundary
 
-`AnimationLab` is a real-time sequence workbench for composing, tuning, comparing, and diagnosing reusable presentation beats without running a complete match. It extends the issue #9 experiment while retaining its central contract: resolved domain events and the authoritative final `MatchState` exist before presentation begins.
+`AnimationLab` is an Edit Mode-first sequence workbench for wireframing, composing, tuning, comparing, and diagnosing reusable presentation beats without entering Play Mode or running a complete match. It extends the issue #9 experiment while retaining its central contract: resolved domain events and the authoritative final `MatchState` exist before presentation begins.
 
 `AnimationScenarioRecording` resolves a selected deterministic scenario through `MatchSession` exactly once. The workbench may reorder presentation beats, change timing and visual treatment, pause, seek, skip, or replay that recording, but it never invokes the resolver during transport and never submits or changes an accepted intent.
 
@@ -29,6 +29,30 @@ Each recording supports either 1v1 acting seat. Portrait, landscape, and wide de
 
 The ordered source event list is retained unchanged for diagnosis. A preset selects and orders beat categories; repeated source events of one category retain their authoritative order. Final synchronization is mandatory and cannot be removed from a preset.
 
+## Edit Mode authoring workflow
+
+Open `The Fall > Animation Laboratory > Open Workbench`. The command opens the isolated `AnimationLab` scene and starts a transient preview while Unity remains in Edit Mode.
+
+The Editor window can:
+
+- select a deterministic recording, either 1v1 seat, and portrait, landscape, or desktop presentation profile
+- select and preview one resolved beat at a time or play the complete composition
+- play, pause, step, reset, loop one selected beat, and scrub the selected beat or complete sequence
+- reorder or disable reusable beat categories
+- edit duration, delay, easing, trajectory offset, and emphasis with Undo/Redo support
+- save the working preset or create a new named project-owned preset
+- display the active beat, source event, elapsed time, and state-agreement diagnosis
+
+For transform beats, the Scene view draws a wireframe path using the same evaluator as runtime:
+
+- green point: authoritative start supplied by the recorded initial/prefix state
+- blue point: authoritative target supplied by the resolved next state
+- yellow handle: editable presentation trajectory offset
+
+The endpoints are intentionally not authorable because moving them would allow presentation to contradict authoritative state. The path between them is presentation-owned and may be adjusted freely.
+
+Generated tables, cards, labels, materials, and preview roots use `DontSave` and are destroyed when the window closes, the scene changes, or Play Mode begins. Authoring never dirties the scene; only an explicit preset save changes a project asset.
+
 ## Versioned presentation presets
 
 `AnimationSequenceConfiguration` is a project-owned, versioned `ScriptableObject` presentation preset. The committed presets are:
@@ -46,11 +70,11 @@ Each reusable beat exposes:
 
 Each preset also owns playback speed, loop preference, fast-forward multiplier, reduced-motion duration scale, and reduced-motion trajectory scale. These assets live only under `Assets/TheFall/Content/Animation`; no field is translated into `RuleConfiguration` or domain state.
 
-In Play Mode, the workbench uses a transient copy of the selected asset. Changes affect the next restart immediately without scene regeneration or leaving Play Mode. **Save** writes the working copy back to the selected asset only in the Unity Editor, making named tuning changes reviewable and version controlled.
+The Edit Mode workbench uses a transient copy of the selected asset. Changes affect the next preview immediately without scene regeneration or entering Play Mode. **Save Preset** writes the working copy back to the selected asset; **Save Preset As…** creates a new version-controlled asset. Runtime playback also uses a transient copy, so neither authoring nor gameplay mutates a committed preset implicitly.
 
 ## Transport and deterministic replay
 
-`AnimationSequenceTransport` owns presentation time independently of Unity frame time and domain state. The workbench provides:
+`AnimationSequenceTransport` owns presentation time independently of Unity frame time and domain state. In Edit Mode it advances through `EditorApplication.update`; in game it advances through the runtime frame source. Both surfaces provide:
 
 - play, pause, and resume
 - restart from the deterministic initial snapshot
@@ -63,9 +87,13 @@ In Play Mode, the workbench uses a transient copy of the selected asset. Changes
 
 Seeking and stepping reconstruct rendered state from the initial snapshot by applying the same composed beat prefix. Normal completion, skip, interruption, cancellation, disable, and teardown converge on the accepted final `MatchState`. Reset reconstructs the accepted initial snapshot. Transport controls never mutate the recording, its source events, or its final state.
 
-## Workbench interface and diagnosis
+## Runtime reuse
 
-The in-scene overlay can select scenario, acting seat, preview profile, and preset; reorder or disable beat categories; tune the active beat; operate transport; and save the active preset in the Editor.
+`AnimationBeatEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. The Editor window is an authoring adapter around that code, not a separate approximation. Issue #26 can bind the same saved beat definitions to equivalent resolved events in the integrated match.
+
+The in-game AnimationLab overlay remains available for final runtime integration comparison, but it is no longer required to create, tune, or test an individual beat.
+
+## Workbench diagnosis
 
 Diagnosis displays:
 
@@ -90,9 +118,9 @@ Use:
 - `The Fall > Animation Laboratory > Validate`
 - `The Fall > Animation Laboratory > Capture Validation Set`
 
-The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content.
+The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content. The Editor command opens the dedicated authoring window without entering Play Mode.
 
-Focused Edit Mode coverage verifies source-event mapping, preset serialization, composition order, both seats, timing variants, transport behavior, and state convergence. Focused Play Mode coverage verifies normal completion, pause/resume, step, seek, reset, skip, interruption, cancellation, fast-forward, live preset changes, scenario selection, both seats, profile comparison, stationary camera, and authoritative convergence.
+Focused Edit Mode coverage verifies source-event mapping, preset serialization, composition order, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Focused Play Mode coverage verifies that the same assets and evaluator retain normal completion, pause/resume, step, seek, reset, skip, interruption, cancellation, fast-forward, live preset changes, scenario selection, both seats, profile comparison, stationary camera, and authoritative convergence.
 
 ## Remaining boundaries
 
