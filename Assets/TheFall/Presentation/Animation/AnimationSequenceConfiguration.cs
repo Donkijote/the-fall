@@ -113,7 +113,7 @@ namespace TheFall.Presentation.Animation
         menuName = "The Fall/Animation/Sequence Preset")]
     public sealed class AnimationSequenceConfiguration : ScriptableObject
     {
-        public const int CurrentPresetVersion = 1;
+        public const int CurrentPresetVersion = 2;
 
         [SerializeField]
         private int _presetVersion = CurrentPresetVersion;
@@ -197,12 +197,20 @@ namespace TheFall.Presentation.Animation
                 _beats = new List<AnimationBeatConfiguration>();
             }
 
-            if (_beats.Count > 0)
+            var defaults = CreateDefaultBeats();
+            if (_beats.Count == 0)
             {
+                _beats.AddRange(defaults);
                 return;
             }
 
-            _beats.AddRange(CreateDefaultBeats());
+            foreach (var fallback in defaults)
+            {
+                if (_beats.Find(beat => beat.Kind == fallback.Kind) == null)
+                {
+                    _beats.Add(fallback);
+                }
+            }
         }
 
         public AnimationBeatConfiguration GetBeat(ResolvedAnimationStepKind kind)
@@ -301,6 +309,7 @@ namespace TheFall.Presentation.Animation
             switch (stepKind)
             {
                 case ResolvedAnimationStepKind.CardPlay:
+                case ResolvedAnimationStepKind.HandReflow:
                 case ResolvedAnimationStepKind.TablePlacement:
                 case ResolvedAnimationStepKind.OpeningPlacement:
                     return _cardPlaySeconds;
@@ -333,6 +342,7 @@ namespace TheFall.Presentation.Animation
                 Beat(ResolvedAnimationStepKind.OpeningRejection, 0.12f),
                 Beat(ResolvedAnimationStepKind.OpeningPlacement, _cardPlaySeconds, new Vector3(0f, 0.1f, 0f)),
                 Beat(ResolvedAnimationStepKind.CardPlay, _cardPlaySeconds, new Vector3(0f, 0.14f, 0.03f)),
+                Beat(ResolvedAnimationStepKind.HandReflow, 0.16f),
                 Beat(ResolvedAnimationStepKind.TablePlacement, _cardPlaySeconds, new Vector3(0f, 0.08f, 0f)),
                 Beat(ResolvedAnimationStepKind.NormalCapture, _normalCaptureSeconds, new Vector3(0f, 0.18f, 0f), 1.15f),
                 Beat(ResolvedAnimationStepKind.CascadeCapture, _cascadeStepSeconds, new Vector3(0f, 0.13f, 0f), 1.1f),

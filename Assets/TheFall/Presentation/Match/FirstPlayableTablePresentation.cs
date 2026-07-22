@@ -527,6 +527,10 @@ namespace TheFall.Presentation.Match
                     snapshot.DeckPosition = rendered.transform.position;
                     snapshot.HasDeckPosition = true;
                 }
+                else if (rendered.Zone == FirstPlayableCardZone.OpponentHand)
+                {
+                    snapshot.OpponentHandPositions[rendered.InteractionIndex] = rendered.transform.position;
+                }
             }
 
             return snapshot;
@@ -563,7 +567,35 @@ namespace TheFall.Presentation.Match
                     continue;
                 }
 
+                if (step.Kind == ResolvedAnimationStepKind.CardPlay
+                    && !Contains(step.Cards, rendered.PresentationCard.Value))
+                {
+                    rendered.transform.position = start;
+                    continue;
+                }
+
                 AddCardMotion(rendered.transform, start, rendered.transform.position, beat, trajectory);
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.HandReflow
+                && step.PlayerId == Snapshot.OpponentPlayerId)
+            {
+                for (var index = 0; index < _renderedCards.Count; index++)
+                {
+                    var rendered = _renderedCards[index];
+                    if (rendered.Zone == FirstPlayableCardZone.OpponentHand
+                        && source.OpponentHandPositions.TryGetValue(
+                            rendered.InteractionIndex,
+                            out var opponentStart))
+                    {
+                        AddCardMotion(
+                            rendered.transform,
+                            opponentStart,
+                            rendered.transform.position,
+                            beat,
+                            trajectory);
+                    }
+                }
             }
 
             if (!source.HasDeckPosition || step.Cards.Count == 0)
@@ -675,6 +707,19 @@ namespace TheFall.Presentation.Match
             return false;
         }
 
+        private static bool Contains(IReadOnlyList<Card> cards, Card expected)
+        {
+            for (var index = 0; index < cards.Count; index++)
+            {
+                if (cards[index] == expected)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void PresentActiveEvent()
         {
             var step = _animationPlayer?.ActiveStep;
@@ -750,8 +795,16 @@ namespace TheFall.Presentation.Match
                 CreateTableCards(parent, Snapshot.TableCards);
             }
 
-            CreateLocalHand(parent, Snapshot.LocalHand);
-            CreateOpponentHand(parent, Snapshot.OpponentHandCount);
+            CreateLocalHand(
+                parent,
+                Snapshot.LocalHand,
+                Snapshot.LocalHandLayoutIndices,
+                Snapshot.LocalHandLayoutSlotCount);
+            CreateOpponentHand(
+                parent,
+                Snapshot.OpponentHandCount,
+                Snapshot.OpponentHandLayoutIndices,
+                Snapshot.OpponentHandLayoutSlotCount);
             CreateCapturedPile(parent, Snapshot.LocalCapturedCards, FirstPlayableCardZone.LocalCaptured);
             CreateCapturedPile(parent, Snapshot.OpponentCapturedCards, FirstPlayableCardZone.OpponentCaptured);
         }
@@ -793,14 +846,22 @@ namespace TheFall.Presentation.Match
             }
         }
 
-        private void CreateLocalHand(Transform parent, IReadOnlyList<Card> cards)
+        private void CreateLocalHand(
+            Transform parent,
+            IReadOnlyList<Card> cards,
+            IReadOnlyList<int> layoutIndices,
+            int layoutSlotCount)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.LocalHandAnchor, "Local Hand Zone");
             for (var index = 0; index < cards.Count; index++)
             {
-                var x = (index - (cards.Count - 1) * 0.5f) * 0.29f;
+                var layoutIndex = layoutIndices[index];
+                var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.29f;
                 var rendered = CreateCard(zoneParent, $"Local Hand {cards[index]}",
-                    new Vector3(x, 0f, Mathf.Abs(index - 1) * 0.025f),
+                    new Vector3(
+                        x,
+                        0f,
+                        Mathf.Abs(layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.025f),
                     FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
@@ -808,12 +869,17 @@ namespace TheFall.Presentation.Match
             }
         }
 
-        private void CreateOpponentHand(Transform parent, int count)
+        private void CreateOpponentHand(
+            Transform parent,
+            int count,
+            IReadOnlyList<int> layoutIndices,
+            int layoutSlotCount)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.OpponentHandAnchor, "Opponent Hand Zone");
             for (var index = 0; index < count; index++)
             {
-                var x = (index - (count - 1) * 0.5f) * 0.25f;
+                var layoutIndex = layoutIndices[index];
+                var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.25f;
                 CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
                     new Vector3(-x, 0f, 0f),
                     FirstPlayableCardZone.OpponentHand, false, null, index);
@@ -1270,6 +1336,9 @@ namespace TheFall.Presentation.Match
         private sealed class CardPositionSnapshot
         {
             public Dictionary<Card, Vector3> Cards { get; } = new Dictionary<Card, Vector3>();
+
+            public Dictionary<int, Vector3> OpponentHandPositions { get; } =
+                new Dictionary<int, Vector3>();
 
             public bool HasDeckPosition { get; set; }
 

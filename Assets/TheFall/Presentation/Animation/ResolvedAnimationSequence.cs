@@ -27,6 +27,7 @@ namespace TheFall.Presentation.Animation
         TieExtension,
         TurnChanged,
         MatchCompleted,
+        HandReflow,
         SynchronizeFinalState,
     }
 
@@ -210,6 +211,12 @@ namespace TheFall.Presentation.Animation
                     case CardPlayedEvent played:
                         steps.Add(Step(
                             ResolvedAnimationStepKind.CardPlay,
+                            played,
+                            eventIndex,
+                            playerId: played.PlayerId,
+                            cards: new[] { played.Card }));
+                        steps.Add(Step(
+                            ResolvedAnimationStepKind.HandReflow,
                             played,
                             eventIndex,
                             playerId: played.PlayerId,

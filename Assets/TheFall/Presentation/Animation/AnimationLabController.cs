@@ -29,7 +29,7 @@ namespace TheFall.Presentation.Animation
     public sealed class AnimationLabController : MonoBehaviour
     {
         private static readonly IReadOnlyList<string> ScenarioNames =
-            Array.AsReadOnly(Enum.GetNames(typeof(AnimationScenarioKind)));
+            AnimationScenarioRecording.DisplayNames;
 
         [SerializeField]
         private AnimationSequenceConfiguration _configuration;
@@ -57,7 +57,7 @@ namespace TheFall.Presentation.Animation
         private AnimationSequenceConfiguration _workingConfiguration;
         private AnimationSequenceConfiguration _activePresetAsset;
         private AnimationSequenceTransport _transport;
-        private AnimationScenarioKind _scenarioKind = AnimationScenarioKind.FallCascadeAndCleanTable;
+        private AnimationScenarioKind _scenarioKind = AnimationScenarioKind.PlayCard;
         private AnimationPreviewProfile _previewProfile = AnimationPreviewProfile.Desktop;
         private Seat _actingSeat = Seat.First;
         private Vector2Int _viewport;
@@ -203,11 +203,11 @@ namespace TheFall.Presentation.Animation
 
             GUILayout.BeginArea(new Rect(12f, 12f, 390f, Mathf.Max(300f, Screen.height - 24f)), GUI.skin.window);
             _workbenchScroll = GUILayout.BeginScrollView(_workbenchScroll);
-            GUILayout.Label("ANIMATIONLAB · SEQUENCE WORKBENCH");
-            GUILayout.Label($"Scenario: {_recording.DisplayName}");
+            GUILayout.Label("ANIMATIONLAB · ISOLATED BEAT WORKBENCH");
+            GUILayout.Label($"Animation: {_recording.DisplayName}");
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Scenario"))
+            if (GUILayout.Button("Animation"))
             {
                 SelectNextScenario();
             }
@@ -295,34 +295,6 @@ namespace TheFall.Presentation.Animation
             _workingConfiguration.SetTransport(speed, _workingConfiguration.Loop);
             GUILayout.Label($"Playback {speed:F2}x · changes apply on Restart");
 
-            GUILayout.Space(8f);
-            GUILayout.Label("COMPOSED BEATS");
-            var beats = _workingConfiguration.Beats;
-            for (var index = 0; index < beats.Count; index++)
-            {
-                var beat = beats[index];
-                GUILayout.BeginHorizontal();
-                var enabled = GUILayout.Toggle(beat.Enabled, string.Empty, GUILayout.Width(20f));
-                if (enabled != beat.Enabled)
-                {
-                    beat.SetEnabled(enabled);
-                }
-
-                GUILayout.Label(beat.Kind.ToString(), GUILayout.Width(150f));
-                if (GUILayout.Button("↑", GUILayout.Width(30f)))
-                {
-                    _workingConfiguration.MoveBeat(index, -1);
-                }
-
-                if (GUILayout.Button("↓", GUILayout.Width(30f)))
-                {
-                    _workingConfiguration.MoveBeat(index, 1);
-                }
-
-                GUILayout.Label($"{beat.DurationSeconds:F2}s", GUILayout.Width(52f));
-                GUILayout.EndHorizontal();
-            }
-
             var activeBeat = GetActiveBeat();
             if (activeBeat != null)
             {
@@ -361,7 +333,7 @@ namespace TheFall.Presentation.Animation
             GUILayout.EndArea();
         }
 
-        public void PlayRepresentativeSequence()
+        public void PlayAnimation()
         {
             RestartSequence();
         }
@@ -721,7 +693,7 @@ namespace TheFall.Presentation.Animation
             _sequence = ResolvedAnimationSequence.Create(
                 _resolvedBuffer.Events,
                 _resolvedBuffer.State,
-                _workingConfiguration.GetEnabledBeatOrder());
+                new[] { ResolveRecordingBeat(_recording.BeatKind) });
             var timings = new List<AnimationBeatTiming>();
             for (var index = 0; index < _sequence.Steps.Count; index++)
             {
@@ -765,7 +737,7 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            _renderedState = new AnimationPresentationState(_recording.InitialState);
+            _renderedState = CreateRecordingInitialState();
             var animatableCount = _sequence.Steps.Count - 1;
             var completedCount = Math.Min(position.StepIndex, animatableCount);
             for (var index = 0; index < completedCount; index++)
@@ -801,6 +773,39 @@ namespace TheFall.Presentation.Animation
         private void StopActiveSequence()
         {
             _transport?.Pause();
+        }
+
+        private AnimationPresentationState CreateRecordingInitialState()
+        {
+            var state = new AnimationPresentationState(_recording.InitialState);
+            if (_recording.WarmupBeats.Count == 0)
+            {
+                return state;
+            }
+
+            var complete = ResolvedAnimationSequence.Create(
+                _recording.Result.Events,
+                _recording.Result.State);
+            for (var warmupIndex = 0; warmupIndex < _recording.WarmupBeats.Count; warmupIndex++)
+            {
+                var expected = ResolveRecordingBeat(_recording.WarmupBeats[warmupIndex]);
+                for (var stepIndex = 0; stepIndex < complete.Steps.Count - 1; stepIndex++)
+                {
+                    var step = complete.Steps[stepIndex];
+                    if (step.Kind == expected)
+                    {
+                        state.Apply(step, complete.FinalState);
+                        break;
+                    }
+                }
+            }
+
+            return state;
+        }
+
+        private static ResolvedAnimationStepKind ResolveRecordingBeat(AnimationRecordingBeat beat)
+        {
+            return (ResolvedAnimationStepKind)(int)beat;
         }
 
         private void SynchronizeFinalState(AnimationSequenceCompletionReason reason)

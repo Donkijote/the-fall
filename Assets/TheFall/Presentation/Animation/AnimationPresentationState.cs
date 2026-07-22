@@ -26,6 +26,8 @@ namespace TheFall.Presentation.Animation
     {
         private readonly List<Player> _players = new List<Player>();
         private readonly Dictionary<PlayerId, List<Card>> _hands = new Dictionary<PlayerId, List<Card>>();
+        private readonly Dictionary<PlayerId, Dictionary<Card, int>> _handLayoutIndices =
+            new Dictionary<PlayerId, Dictionary<Card, int>>();
         private readonly Dictionary<PlayerId, List<Card>> _captured = new Dictionary<PlayerId, List<Card>>();
         private readonly Dictionary<TeamId, Score> _scores = new Dictionary<TeamId, Score>();
         private readonly List<Card> _table = new List<Card>();
@@ -72,6 +74,22 @@ namespace TheFall.Presentation.Animation
             return _captured[playerId];
         }
 
+        public int GetHandLayoutIndex(PlayerId playerId, Card card)
+        {
+            return _handLayoutIndices[playerId][card];
+        }
+
+        public int GetHandLayoutSlotCount(PlayerId playerId)
+        {
+            var slots = 0;
+            foreach (var index in _handLayoutIndices[playerId].Values)
+            {
+                slots = Math.Max(slots, index + 1);
+            }
+
+            return slots;
+        }
+
         public Score GetScore(TeamId teamId)
         {
             return _scores[teamId];
@@ -113,6 +131,7 @@ namespace TheFall.Presentation.Animation
                     else if (step.SourceEvent is CardDealtEvent)
                     {
                         AddUnique(_hands[step.PlayerId], step.Cards[0]);
+                        ReindexHand(step.PlayerId);
                         DeckCount = Math.Max(0, DeckCount - 1);
                     }
 
@@ -123,6 +142,9 @@ namespace TheFall.Presentation.Animation
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
                     MovePlayedCardToTable(step.PlayerId, step.Cards[0]);
+                    break;
+                case ResolvedAnimationStepKind.HandReflow:
+                    ReindexHand(step.PlayerId);
                     break;
                 case ResolvedAnimationStepKind.TablePlacement:
                     AddUnique(_table, step.Cards[0]);
@@ -191,12 +213,15 @@ namespace TheFall.Presentation.Animation
 
             _players.Clear();
             _hands.Clear();
+            _handLayoutIndices.Clear();
             _captured.Clear();
             foreach (var playerState in state.Players)
             {
                 _players.Add(playerState.Player);
                 _hands[playerState.Player.Id] = new List<Card>(playerState.Hand);
+                _handLayoutIndices[playerState.Player.Id] = new Dictionary<Card, int>();
                 _captured[playerState.Player.Id] = new List<Card>(playerState.CapturedCards);
+                ReindexHand(playerState.Player.Id);
             }
 
             _table.Clear();
@@ -287,6 +312,11 @@ namespace TheFall.Presentation.Animation
                         hand.Clear();
                     }
 
+                    foreach (var player in _players)
+                    {
+                        ReindexHand(player.Id);
+                    }
+
                     foreach (var captured in _captured.Values)
                     {
                         captured.Clear();
@@ -311,6 +341,17 @@ namespace TheFall.Presentation.Animation
             }
 
             AddUnique(_table, card);
+        }
+
+        private void ReindexHand(PlayerId playerId)
+        {
+            var indices = _handLayoutIndices[playerId];
+            indices.Clear();
+            var hand = _hands[playerId];
+            for (var index = 0; index < hand.Count; index++)
+            {
+                indices[hand[index]] = index;
+            }
         }
 
         private void MoveCapturedCards(PlayerId playerId, IReadOnlyList<Card> cards)

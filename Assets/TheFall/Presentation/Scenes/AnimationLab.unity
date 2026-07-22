@@ -245,10 +245,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9a22223c08b5427bb92037720106fb7, type: 3}
   m_Name:
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
-  _description: Edit Mode-first resolved-event animation workbench for Scene-view
-    wireframe authoring, reusable beat composition, live preview, named versioned
-    presets, deterministic transport, runtime reuse, diagnosis, and authoritative
-    state synchronization.
+  _description: Edit Mode-first library of isolated resolved-event animations for
+    Scene-view wireframe authoring, named versioned presets, deterministic transport,
+    runtime reuse, diagnosis, and authoritative state synchronization.
 --- !u!4 &474010534
 Transform:
   m_ObjectHideFlags: 0

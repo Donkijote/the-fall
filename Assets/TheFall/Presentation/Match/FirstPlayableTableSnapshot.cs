@@ -25,6 +25,8 @@ namespace TheFall.Presentation.Match
     public sealed class FirstPlayableTableSnapshot
     {
         private readonly IReadOnlyList<Card> _localHand;
+        private readonly IReadOnlyList<int> _localHandLayoutIndices;
+        private readonly IReadOnlyList<int> _opponentHandLayoutIndices;
         private readonly IReadOnlyList<Card> _tableCards;
         private readonly IReadOnlyList<Card> _localCapturedCards;
         private readonly IReadOnlyList<Card> _opponentCapturedCards;
@@ -41,7 +43,11 @@ namespace TheFall.Presentation.Match
             LocalPlayerName = local.Player.DisplayName;
             OpponentPlayerName = opponent.Player.DisplayName;
             _localHand = Copy(local.Hand);
+            _localHandLayoutIndices = SequentialIndices(local.Hand.Count);
+            LocalHandLayoutSlotCount = local.Hand.Count;
             OpponentHandCount = opponent.Hand.Count;
+            _opponentHandLayoutIndices = SequentialIndices(opponent.Hand.Count);
+            OpponentHandLayoutSlotCount = opponent.Hand.Count;
             _tableCards = Copy(state.Table);
             _localCapturedCards = Copy(local.CapturedCards);
             _opponentCapturedCards = Copy(opponent.CapturedCards);
@@ -86,7 +92,25 @@ namespace TheFall.Presentation.Match
             LocalPlayerName = local.DisplayName;
             OpponentPlayerName = opponent.DisplayName;
             _localHand = Copy(state.GetHand(local.Id));
+            var layoutIndices = new int[_localHand.Count];
+            for (var index = 0; index < _localHand.Count; index++)
+            {
+                layoutIndices[index] = state.GetHandLayoutIndex(local.Id, _localHand[index]);
+            }
+
+            _localHandLayoutIndices = Array.AsReadOnly(layoutIndices);
+            LocalHandLayoutSlotCount = state.GetHandLayoutSlotCount(local.Id);
             OpponentHandCount = state.GetHand(opponent.Id).Count;
+            var opponentLayoutIndices = new int[OpponentHandCount];
+            for (var index = 0; index < OpponentHandCount; index++)
+            {
+                opponentLayoutIndices[index] = state.GetHandLayoutIndex(
+                    opponent.Id,
+                    state.GetHand(opponent.Id)[index]);
+            }
+
+            _opponentHandLayoutIndices = Array.AsReadOnly(opponentLayoutIndices);
+            OpponentHandLayoutSlotCount = state.GetHandLayoutSlotCount(opponent.Id);
             _tableCards = Copy(state.Table);
             _localCapturedCards = Copy(state.GetCaptured(local.Id));
             _opponentCapturedCards = Copy(state.GetCaptured(opponent.Id));
@@ -125,7 +149,15 @@ namespace TheFall.Presentation.Match
 
         public IReadOnlyList<Card> LocalHand => _localHand;
 
+        public IReadOnlyList<int> LocalHandLayoutIndices => _localHandLayoutIndices;
+
+        public int LocalHandLayoutSlotCount { get; }
+
         public int OpponentHandCount { get; }
+
+        internal IReadOnlyList<int> OpponentHandLayoutIndices => _opponentHandLayoutIndices;
+
+        public int OpponentHandLayoutSlotCount { get; }
 
         public IReadOnlyList<Card> TableCards => _tableCards;
 
@@ -180,6 +212,17 @@ namespace TheFall.Presentation.Match
             }
 
             return Array.AsReadOnly(copy);
+        }
+
+        private static IReadOnlyList<int> SequentialIndices(int count)
+        {
+            var indices = new int[count];
+            for (var index = 0; index < count; index++)
+            {
+                indices[index] = index;
+            }
+
+            return Array.AsReadOnly(indices);
         }
 
         private static Player FindPlayer(IReadOnlyList<Player> players, Seat seat)

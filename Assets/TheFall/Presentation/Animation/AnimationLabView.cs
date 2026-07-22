@@ -79,14 +79,31 @@ namespace TheFall.Presentation.Animation
             bool reducedMotion,
             float reducedMotionTrajectoryScale)
         {
+            var existingCards = new HashSet<Card>(_cardViews.Keys);
             EnsureCardViews(state);
+            for (var index = 0; index < step.Cards.Count; index++)
+            {
+                EnsureCardView(step.Cards[index]);
+            }
+
             _motions.Clear();
             foreach (var entry in _cardViews)
             {
+                if (!existingCards.Contains(entry.Key) && Contains(step.Cards, entry.Key))
+                {
+                    entry.Value.localPosition = ResolveSyntheticSource(step, state, entry.Key);
+                }
+
+                var target = ResolveTransitionTarget(state, step, entry.Key);
+                if (step.Kind == ResolvedAnimationStepKind.CardPlay && !Contains(step.Cards, entry.Key))
+                {
+                    target = entry.Value.localPosition;
+                }
+
                 _motions.Add(new CardMotion(
                     entry.Value,
                     entry.Value.localPosition,
-                    ResolveCardPosition(state, entry.Key)));
+                    target));
             }
 
             _easing = beat?.Easing ?? AnimationBeatEasing.EaseInOut;
@@ -288,21 +305,26 @@ namespace TheFall.Presentation.Animation
 
             foreach (var card in visibleCards)
             {
-                if (_cardViews.ContainsKey(card))
-                {
-                    continue;
-                }
-
-                var cardObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                cardObject.name = card.ToString();
-                cardObject.hideFlags = HideFlags.DontSave;
-                cardObject.transform.SetParent(_generatedRoot, false);
-                cardObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-                cardObject.transform.localScale = new Vector3(0.24f, 0.34f, 1f);
-                DestroyObject(cardObject.GetComponent<Collider>());
-                CardVisualMaterialBinding.Apply(cardObject.GetComponent<Renderer>(), _cardCatalog, card);
-                _cardViews[card] = cardObject.transform;
+                EnsureCardView(card);
             }
+        }
+
+        private void EnsureCardView(Card card)
+        {
+            if (_cardViews.ContainsKey(card))
+            {
+                return;
+            }
+
+            var cardObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            cardObject.name = card.ToString();
+            cardObject.hideFlags = HideFlags.DontSave;
+            cardObject.transform.SetParent(_generatedRoot, false);
+            cardObject.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            cardObject.transform.localScale = new Vector3(0.24f, 0.34f, 1f);
+            DestroyObject(cardObject.GetComponent<Collider>());
+            CardVisualMaterialBinding.Apply(cardObject.GetComponent<Renderer>(), _cardCatalog, card);
+            _cardViews[card] = cardObject.transform;
         }
 
         private Vector3 ResolveCardPosition(AnimationPresentationState state, Card card)
@@ -326,17 +348,67 @@ namespace TheFall.Presentation.Animation
                 var handIndex = IndexOf(state.GetHand(player.Id), card);
                 if (player.Id == _actingPlayerId && handIndex >= 0)
                 {
-                    return GetSeatCardPosition(player.Seat, 1.02f, handIndex, 0.19f, 0.84f);
+                    return GetSeatCardPosition(
+                        player.Seat,
+                        1.02f,
+                        state.GetHandLayoutIndex(player.Id, card),
+                        state.GetHandLayoutSlotCount(player.Id),
+                        0.19f,
+                        0.84f);
                 }
 
                 var capturedIndex = IndexOf(state.GetCaptured(player.Id), card);
                 if (capturedIndex >= 0)
                 {
-                    return GetSeatCardPosition(player.Seat, 0.78f, capturedIndex, 0.025f, 0.84f + capturedIndex * 0.006f);
+                    return GetSeatCardPosition(
+                        player.Seat,
+                        0.78f,
+                        capturedIndex,
+                        Math.Max(1, state.GetCaptured(player.Id).Count),
+                        0.025f,
+                        0.84f + capturedIndex * 0.006f);
                 }
             }
 
             return new Vector3(0f, -5f, 0f);
+        }
+
+        private Vector3 ResolveSyntheticSource(
+            ResolvedAnimationStep step,
+            AnimationPresentationState state,
+            Card card)
+        {
+            switch (step.Kind)
+            {
+                case ResolvedAnimationStepKind.DealerSelection:
+                    return new Vector3(-0.24f, 0.84f, 0.04f);
+                case ResolvedAnimationStepKind.Deal:
+                case ResolvedAnimationStepKind.OpeningPlacement:
+                    return new Vector3(0.72f, 0.86f, 0.24f);
+                case ResolvedAnimationStepKind.OpeningRejection:
+                    return new Vector3(0f, 0.86f, 0.10f);
+                default:
+                    return ResolveCardPosition(state, card);
+            }
+        }
+
+        private Vector3 ResolveTransitionTarget(
+            AnimationPresentationState state,
+            ResolvedAnimationStep step,
+            Card card)
+        {
+            if (step.Kind == ResolvedAnimationStepKind.DealerSelection && Contains(step.Cards, card))
+            {
+                var actor = FindPlayer(state, step.PlayerId);
+                return GetSeatCardPosition(actor.Seat, 0.72f, 0, 1, 0f, 0.90f);
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.OpeningRejection && Contains(step.Cards, card))
+            {
+                return new Vector3(0.72f, 0.86f, 0.24f);
+            }
+
+            return ResolveCardPosition(state, card);
         }
 
         private void RefreshLabels(AnimationPresentationState state)
@@ -383,6 +455,9 @@ namespace TheFall.Presentation.Animation
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
                     _eventCue.text = "PLAY";
+                    break;
+                case ResolvedAnimationStepKind.HandReflow:
+                    _eventCue.text = "HAND REFLOW";
                     break;
                 case ResolvedAnimationStepKind.TablePlacement:
                     _eventCue.text = "TABLE";
@@ -469,6 +544,7 @@ namespace TheFall.Presentation.Animation
             Seat seat,
             float radius,
             int index,
+            int count,
             float spacing,
             float height)
         {
@@ -476,7 +552,33 @@ namespace TheFall.Presentation.Animation
             var radians = angle * Mathf.Deg2Rad;
             var basePosition = TableCompositionLayout.PositionAt(angle, radius, height);
             var tangent = new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians));
-            return basePosition + tangent * ((index - 1) * spacing);
+            return basePosition + tangent * ((index - (count - 1) * 0.5f) * spacing);
+        }
+
+        private static Player FindPlayer(AnimationPresentationState state, PlayerId playerId)
+        {
+            foreach (var player in state.Players)
+            {
+                if (player.Id == playerId)
+                {
+                    return player;
+                }
+            }
+
+            throw new InvalidOperationException($"The animation state has no player {playerId}.");
+        }
+
+        private static bool Contains(IReadOnlyList<Card> cards, Card expected)
+        {
+            for (var index = 0; index < cards.Count; index++)
+            {
+                if (cards[index] == expected)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void FaceCamera(Transform target)

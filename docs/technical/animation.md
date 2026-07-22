@@ -4,16 +4,21 @@ Status: Implemented workbench and first-playable runtime contract
 
 ## Purpose and authority boundary
 
-`AnimationLab` is an Edit Mode-first sequence workbench for wireframing, composing, tuning, comparing, and diagnosing reusable presentation beats without entering Play Mode or running a complete match. It extends the issue #9 experiment while retaining its central contract: resolved domain events and the authoritative final `MatchState` exist before presentation begins.
+`AnimationLab` is an Edit Mode-first library for wireframing, tuning, comparing, and diagnosing one reusable presentation beat at a time without entering Play Mode or running a complete match. It extends the issue #9 experiment while retaining its central contract: resolved domain events and the authoritative final `MatchState` exist before presentation begins.
 
-`AnimationScenarioRecording` resolves a selected deterministic scenario through `MatchSession` exactly once. The workbench may reorder presentation beats, change timing and visual treatment, pause, seek, skip, or replay that recording, but it never invokes the resolver during transport and never submits or changes an accepted intent.
+`AnimationScenarioRecording` supplies the minimal deterministic state and resolved event needed for one animation. The workbench may change that beat's timing and visual treatment, pause, seek, skip, or replay it, but it never invokes the resolver during transport and never submits or changes an accepted intent.
 
-The included recordings are:
+The isolated recording library is:
 
-- Fall, cascade, and clean table
-- non-capturing play and table placement
+- match start, dealer-card selection, and dealer choice
+- deal one card, opening rejection, and opening placement
+- play one card, reflow the remaining hand, and confirm table placement
+- normal capture and one cascade-card capture
+- Fall, clean-table, canto, and general score cues
+- deal completion, leftovers collection, round completion, dealer rotation, and tie extension
+- active-turn change and match victory
 
-Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
+Every selector entry contains exactly one tunable beat plus mandatory final synchronization. Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
 
 ## Reusable beat vocabulary
 
@@ -21,13 +26,13 @@ Each recording supports either 1v1 acting seat. Portrait, landscape, and wide de
 
 - match start, dealer selection, and dealer choice
 - deal, opening rejection, and opening placement
-- play, table placement, normal capture, and one beat per cascade card
+- play, remaining-hand reflow, table placement, normal capture, and one beat per cascade card
 - Fall, clean table, canto, and other score changes
 - deal completion, leftovers, round completion, dealer rotation, and tie extension
 - turn change and match victory
 - authoritative final-state synchronization
 
-The ordered source event list is retained unchanged for diagnosis. A preset selects and orders beat categories; repeated source events of one category retain their authoritative order. Final synchronization is mandatory and cannot be removed from a preset.
+The ordered source event list is retained unchanged for diagnosis. The workbench selects only the beat owned by the chosen isolated recording. The integrated game still maps all facts from a resolution in authoritative event order. Final synchronization is mandatory and cannot be removed from a preset.
 
 ## Edit Mode authoring workflow
 
@@ -35,10 +40,8 @@ Open `The Fall > Animation Laboratory > Open Workbench`. The command opens the i
 
 The Editor window can:
 
-- select a deterministic recording, either 1v1 seat, and portrait, landscape, or desktop presentation profile
-- select and preview one resolved beat at a time or play the complete composition
-- play, pause, step, reset, loop one selected beat, and scrub the selected beat or complete sequence
-- reorder or disable reusable beat categories
+- select one isolated animation, either 1v1 seat, and portrait, landscape, or desktop presentation profile
+- play, pause, step, reset, loop, and scrub that animation
 - edit duration, delay, easing, trajectory offset, and emphasis with Undo/Redo support
 - save the working preset or create a new named project-owned preset
 - display the active beat, source event, elapsed time, and state-agreement diagnosis
@@ -62,7 +65,6 @@ Generated tables, cards, labels, materials, and preview roots use `DontSave` and
 
 Each reusable beat exposes:
 
-- enabled state and composition order
 - duration and pre-beat delay
 - linear, ease-in-out, or anticipate easing
 - trajectory offset
@@ -91,7 +93,7 @@ Seeking and stepping reconstruct rendered state from the initial snapshot by app
 
 `AnimationBeatEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. The Editor window is an authoring adapter around that code, not a separate approximation. Issue #26 binds the same saved beat definitions to equivalent resolved events in the integrated match.
 
-`FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. Runtime deliberately does not apply the workbench's optional category reordering: composition remains useful for isolated authoring, while a live multi-effect resolution must explain facts in the order the resolver emitted them.
+`FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. Card play and remaining-hand reflow are separate beats produced from the same accepted `CardPlayedEvent`, so their durations and easing can be tuned independently before the runtime chains them.
 
 The integrated `Home` table renders an `AnimationPresentationState` prefix while a batch is active and swaps back to the exact accepted `MatchState` when it completes. Timing, delay, easing, trajectory, fast-forward multiplier, and reduced-motion scaling come from the versioned `Workbench Default` preset. Presentation never submits an intent, calculates a capture or score, or changes an accepted result.
 
@@ -114,7 +116,9 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 | card dealt | configured deck-to-hand motion, including face-down opponent cards |
 | opening rejection | configured semantic rejection cue; rejected card remains in the deck prefix |
 | opening placement | configured deck-to-table motion |
-| card played and non-capturing placement | configured hand-to-table motion followed by placement cue |
+| card played | configured motion for the selected card from hand to table; remaining cards retain their slots |
+| remaining-hand reflow | separately configured motion that closes the empty hand slot |
+| non-capturing placement | configured placement cue after play and reflow |
 | normal capture | configured table-to-capture motion for the played and matching card |
 | cascade capture | one configured table-to-capture beat per additional card, preserving event/card order |
 | Fall, clean table, canto, and other score changes | distinct configured semantic beats with ordered score/canto prefix updates |
@@ -156,9 +160,9 @@ Use:
 
 The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content. The Editor command opens the dedicated authoring window without entering Play Mode.
 
-Focused Edit Mode coverage verifies source-event mapping, preset serialization, composition order, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. It also drives a complete deterministic first-playable match through the runtime player and checks synchronization after every accepted batch. Focused Play Mode coverage verifies the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
+Focused Edit Mode coverage verifies that all 22 selector entries produce exactly one matching tunable beat, plus source-event mapping, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
 
-The representative seed-2400 profile completed 129 accepted intent records, 585 source events, and 614 visible beats without a pooling, tweening, Timeline, Animator, or third-party sequencing layer. The pure transport/prefix replay used 5,757 deterministic `20 ms` ticks and about `5.30 ms` aggregate presentation CPU (`0.197 ms` peak tick). The headless integrated Play Mode replay deliberately ran at the editor's uncapped batch update rate: 750,639 updates, about `2,029.79 ms` aggregate presentation CPU, and a `9.195 ms` maximum sampled update over `26.8 s` wall time. Those batch-mode values establish allocation/framework evidence, not desktop frame-pacing acceptance; issue #28 owns built-player median and p95 frame-time evidence. The implementation retains direct transient view rebuilding because this profile does not justify a framework or pool before representative production assets exist.
+The representative seed-2400 profile completed 129 accepted intent records, 585 source events, and 732 visible beats without a pooling, tweening, Timeline, Animator, or third-party sequencing layer. The pure transport/prefix replay used 6,879 deterministic `20 ms` ticks and about `9.98 ms` aggregate presentation CPU (`0.209 ms` peak tick). The headless integrated Play Mode replay deliberately ran at the editor's uncapped batch update rate: 955,791 updates, about `2,229.42 ms` aggregate presentation CPU, and a `4.260 ms` maximum sampled update over `31.5 s` wall time. Those batch-mode values establish allocation/framework evidence, not desktop frame-pacing acceptance; issue #28 owns built-player median and p95 frame-time evidence. The implementation retains direct transient view rebuilding because this profile does not justify a framework or pool before representative production assets exist.
 
 ## Remaining boundaries
 

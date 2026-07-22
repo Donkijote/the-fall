@@ -48,6 +48,7 @@ namespace TheFall.Tests.EditMode
             Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
                 ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.HandReflow,
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
@@ -88,6 +89,7 @@ namespace TheFall.Tests.EditMode
             Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
                 ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.HandReflow,
                 ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
@@ -157,6 +159,7 @@ namespace TheFall.Tests.EditMode
             Assert.That(preset.PresetName, Is.Not.Empty);
             Assert.That(preset.PresetVersion, Is.EqualTo(AnimationSequenceConfiguration.CurrentPresetVersion));
             Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.HandReflow));
             Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.Canto));
             Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
         }
@@ -272,7 +275,7 @@ namespace TheFall.Tests.EditMode
             Assert.That(UnityEngine.Application.isPlaying, Is.False);
             Assert.That(controller, Is.Not.Null);
             controller.BeginEditorWorkbenchPreview(
-                (int)AnimationScenarioKind.FallCascadeAndCleanTable,
+                (int)AnimationScenarioKind.PlayCard,
                 Seat.First,
                 AnimationPreviewProfile.Desktop,
                 preset);
@@ -370,6 +373,7 @@ namespace TheFall.Tests.EditMode
                 ResolvedAnimationStepKind.OpeningRejection,
                 ResolvedAnimationStepKind.OpeningPlacement,
                 ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.HandReflow,
                 ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
@@ -386,6 +390,34 @@ namespace TheFall.Tests.EditMode
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(sequence.SourceEvents, Is.EqualTo(events));
+        }
+
+        [Test]
+        public void WorkbenchLibrary_ProvidesExactlyOneTunableBeatPerRecordedAnimation()
+        {
+            var scenarios = (AnimationScenarioKind[])Enum.GetValues(typeof(AnimationScenarioKind));
+            Assert.That(AnimationScenarioRecording.DisplayNames, Has.Count.EqualTo(scenarios.Length));
+            Assert.That(
+                AnimationScenarioRecording.DisplayNames.Distinct().ToArray(),
+                Has.Length.EqualTo(scenarios.Length));
+
+            foreach (var scenario in scenarios)
+            {
+                var recording = AnimationScenarioRecording.Create(scenario, Seat.First);
+                var expectedBeat = (ResolvedAnimationStepKind)(int)recording.BeatKind;
+                var sequence = ResolvedAnimationSequence.Create(
+                    recording.Result.Events,
+                    recording.Result.State,
+                    new[] { expectedBeat });
+
+                Assert.That(recording.Result.IsAccepted, Is.True, scenario.ToString());
+                Assert.That(sequence.Steps, Has.Count.EqualTo(2), scenario.ToString());
+                Assert.That(sequence.Steps[0].Kind, Is.EqualTo(expectedBeat), scenario.ToString());
+                Assert.That(
+                    sequence.Steps[1].Kind,
+                    Is.EqualTo(ResolvedAnimationStepKind.SynchronizeFinalState),
+                    scenario.ToString());
+            }
         }
 
         [Test]

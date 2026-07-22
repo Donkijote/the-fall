@@ -26,8 +26,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.ResolvedEvents, Is.Not.Empty);
             Assert.That(controller.CompletionReason, Is.EqualTo(AnimationSequenceCompletionReason.Completed));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
-            Assert.That(controller.RenderedState.Table, Is.Empty);
-            Assert.That(controller.CardViewCount, Is.EqualTo(6));
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(1));
+            Assert.That(controller.Sequence.Steps[0].Kind, Is.EqualTo(ResolvedAnimationStepKind.CardPlay));
             Assert.That(controller.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
             Assert.That(controller.GameplayCamera.transform.rotation, Is.EqualTo(cameraRotation));
         }
@@ -63,13 +63,14 @@ namespace TheFall.Tests.PlayMode
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
 
             var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.NormalCapture);
             controller.ResetForTests(Seat.First, new Vector2Int(390, 844));
             controller.CompleteImmediatelyForTests();
             var firstActor = controller.FinalState.GetPlayerAt(Seat.First);
 
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
-            Assert.That(controller.RenderedState.GetCaptured(firstActor.Player.Id), Has.Count.EqualTo(4));
+            Assert.That(controller.RenderedState.GetCaptured(firstActor.Player.Id), Has.Count.EqualTo(2));
 
             controller.ResetForTests(Seat.Second, new Vector2Int(844, 390));
             controller.CompleteImmediatelyForTests();
@@ -77,8 +78,7 @@ namespace TheFall.Tests.PlayMode
 
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.WideLandscape));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
-            Assert.That(controller.RenderedState.GetCaptured(secondActor.Player.Id), Has.Count.EqualTo(4));
-            Assert.That(controller.RenderedState.GetScore(secondActor.Player.TeamId).Value, Is.EqualTo(12));
+            Assert.That(controller.RenderedState.GetCaptured(secondActor.Player.Id), Has.Count.EqualTo(2));
         }
 
         [UnityTest]
@@ -89,7 +89,7 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<AnimationLabController>();
             controller.ResetForTests(Seat.First, new Vector2Int(1920, 1080));
             controller.SetFastForward(true);
-            controller.PlayRepresentativeSequence();
+            controller.PlayAnimation();
             yield return new WaitUntil(() => !controller.IsPlaying);
 
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
@@ -142,7 +142,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.WorkingConfiguration.PresetName, Is.EqualTo("Fast Iteration"));
             Assert.That(controller.WorkingConfiguration.PlaybackSpeed, Is.EqualTo(2f));
             controller.WorkingConfiguration.SetTransport(2f, false);
-            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.NonCapturingPlacement);
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement);
             controller.SetActingSeat(Seat.Second);
             controller.SetPreviewProfile(AnimationPreviewProfile.Portrait);
             var playBeat = controller.WorkingConfiguration.GetBeat(ResolvedAnimationStepKind.CardPlay);
@@ -151,17 +151,54 @@ namespace TheFall.Tests.PlayMode
             yield return new WaitUntil(() => !controller.IsPlaying);
 
             Assert.That(controller.ScenarioKind,
-                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.NonCapturingPlacement));
+                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement));
             Assert.That(controller.ActingSeat, Is.EqualTo(Seat.Second));
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
             Assert.That(controller.Sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
-                ResolvedAnimationStepKind.CardPlay,
                 ResolvedAnimationStepKind.TablePlacement,
-                ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator EveryRecordedAnimation_PreviewsAsOneBeatForBothSeats()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            var scenarios = (TheFall.Application.Animation.AnimationScenarioKind[])
+                System.Enum.GetValues(typeof(TheFall.Application.Animation.AnimationScenarioKind));
+            foreach (var scenario in scenarios)
+            {
+                controller.SetScenario(scenario);
+                foreach (var seat in new[] { Seat.First, Seat.Second })
+                {
+                    controller.SetActingSeat(seat);
+                    controller.SeekToStep(0, 0.5f);
+                    Assert.That(controller.AnimatableStepCount, Is.EqualTo(1), scenario.ToString());
+                    Assert.That(controller.ActiveStep, Is.Not.Null, scenario.ToString());
+                    var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
+                        scenario,
+                        seat);
+                    Assert.That(
+                        controller.ActiveStep.Kind,
+                        Is.EqualTo((ResolvedAnimationStepKind)(int)recording.BeatKind),
+                        scenario.ToString());
+                    if (scenario == TheFall.Application.Animation.AnimationScenarioKind.PlayCard
+                        || scenario == TheFall.Application.Animation.AnimationScenarioKind.HandReflow)
+                    {
+                        Assert.That(
+                            controller.TryGetPrimaryMotion(out _),
+                            Is.True,
+                            $"{scenario} must expose its own adjustable motion path.");
+                    }
+
+                    controller.CompleteImmediatelyForTests();
+                    Assert.That(controller.IsRenderedStateSynchronized, Is.True, $"{scenario} · {seat}");
+                }
+            }
         }
     }
 }
