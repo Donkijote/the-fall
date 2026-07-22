@@ -28,6 +28,9 @@ namespace TheFall.Presentation.Animation
         private Transform _generatedRoot;
         private TextMeshPro _eventCue;
         private PlayerId _actingPlayerId;
+        private AnimationBeatEasing _easing;
+        private Vector3 _trajectoryOffset;
+        private float _emphasis = 1f;
 
         public AnimationLabView(
             Transform owner,
@@ -44,6 +47,8 @@ namespace TheFall.Presentation.Animation
         public TableCompositionProfile CurrentProfile { get; private set; }
 
         public int CardViewCount => _cardViews.Count;
+
+        public Transform GeneratedRoot => _generatedRoot;
 
         public void Build(
             AnimationPresentationState state,
@@ -69,7 +74,10 @@ namespace TheFall.Presentation.Animation
 
         public void PrepareTransition(
             AnimationPresentationState state,
-            ResolvedAnimationStep step)
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            bool reducedMotion,
+            float reducedMotionTrajectoryScale)
         {
             EnsureCardViews(state);
             _motions.Clear();
@@ -81,20 +89,68 @@ namespace TheFall.Presentation.Animation
                     ResolveCardPosition(state, entry.Key)));
             }
 
+            _easing = beat?.Easing ?? AnimationBeatEasing.EaseInOut;
+            _trajectoryOffset = beat?.TrajectoryOffset ?? Vector3.zero;
+            if (reducedMotion)
+            {
+                _trajectoryOffset *= Mathf.Clamp01(reducedMotionTrajectoryScale);
+            }
+
+            _emphasis = beat?.Emphasis ?? 1f;
             RefreshLabels(state);
             SetEventCue(step);
         }
 
         public void ApplyTransition(float progress)
         {
-            var eased = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress));
+            var clamped = Mathf.Clamp01(progress);
             foreach (var motion in _motions)
             {
-                motion.Transform.localPosition = Vector3.LerpUnclamped(
-                    motion.Start,
-                    motion.Target,
-                    eased);
+                motion.Transform.localPosition =
+                    Vector3.SqrMagnitude(motion.Target - motion.Start) <= 0.000001f
+                        ? motion.Target
+                        : AnimationBeatEvaluator.EvaluatePosition(
+                            motion.Start,
+                            motion.Target,
+                            clamped,
+                            _easing,
+                            _trajectoryOffset);
             }
+
+            if (_eventCue != null)
+            {
+                var pulse = 1f + Mathf.Sin(clamped * Mathf.PI) * 0.12f * Mathf.Max(0f, _emphasis);
+                _eventCue.transform.localScale = Vector3.one * 0.18f * pulse;
+            }
+        }
+
+        public bool TryGetPrimaryMotion(out AnimationMotionPreview preview)
+        {
+            CardMotion? selected = null;
+            var greatestDistance = 0f;
+            foreach (var motion in _motions)
+            {
+                var distance = Vector3.SqrMagnitude(motion.Target - motion.Start);
+                if (distance <= greatestDistance)
+                {
+                    continue;
+                }
+
+                greatestDistance = distance;
+                selected = motion;
+            }
+
+            if (!selected.HasValue || greatestDistance <= 0.000001f || _generatedRoot == null)
+            {
+                preview = default;
+                return false;
+            }
+
+            preview = new AnimationMotionPreview(
+                _generatedRoot.TransformPoint(selected.Value.Start),
+                _generatedRoot.TransformPoint(selected.Value.Target),
+                _generatedRoot);
+            return true;
         }
 
         public void RenderImmediate(AnimationPresentationState state)
@@ -307,6 +363,24 @@ namespace TheFall.Presentation.Animation
 
             switch (step.Kind)
             {
+                case ResolvedAnimationStepKind.MatchStarted:
+                    _eventCue.text = "MATCH START";
+                    break;
+                case ResolvedAnimationStepKind.DealerSelection:
+                    _eventCue.text = "DEALER SELECTION";
+                    break;
+                case ResolvedAnimationStepKind.DealerChoice:
+                    _eventCue.text = "DEALER CHOICE";
+                    break;
+                case ResolvedAnimationStepKind.Deal:
+                    _eventCue.text = "DEAL";
+                    break;
+                case ResolvedAnimationStepKind.OpeningRejection:
+                    _eventCue.text = "OPENING REJECTED";
+                    break;
+                case ResolvedAnimationStepKind.OpeningPlacement:
+                    _eventCue.text = "OPENING TABLE";
+                    break;
                 case ResolvedAnimationStepKind.CardPlay:
                     _eventCue.text = "PLAY";
                     break;
@@ -324,6 +398,27 @@ namespace TheFall.Presentation.Animation
                     break;
                 case ResolvedAnimationStepKind.CleanTableScore:
                     _eventCue.text = $"CLEAN TABLE  +{step.PointsAwarded}";
+                    break;
+                case ResolvedAnimationStepKind.Canto:
+                    _eventCue.text = "CANTO";
+                    break;
+                case ResolvedAnimationStepKind.Score:
+                    _eventCue.text = $"SCORE  {step.PointsAwarded:+#;-#;0}";
+                    break;
+                case ResolvedAnimationStepKind.DealCompleted:
+                    _eventCue.text = "DEAL COMPLETE";
+                    break;
+                case ResolvedAnimationStepKind.Leftovers:
+                    _eventCue.text = "COLLECT LEFTOVERS";
+                    break;
+                case ResolvedAnimationStepKind.Round:
+                    _eventCue.text = "ROUND COMPLETE";
+                    break;
+                case ResolvedAnimationStepKind.DealerRotation:
+                    _eventCue.text = "DEALER ROTATES";
+                    break;
+                case ResolvedAnimationStepKind.TieExtension:
+                    _eventCue.text = "TIE EXTENSION";
                     break;
                 case ResolvedAnimationStepKind.TurnChanged:
                     _eventCue.text = "NEXT TURN";

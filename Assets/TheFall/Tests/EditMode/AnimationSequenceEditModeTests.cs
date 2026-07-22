@@ -5,6 +5,9 @@ using TheFall.Application;
 using TheFall.Application.Animation;
 using TheFall.Domain;
 using TheFall.Presentation.Animation;
+using TheFall.Editor;
+using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace TheFall.Tests.EditMode
@@ -140,6 +143,180 @@ namespace TheFall.Tests.EditMode
             finally
             {
                 UnityEngine.Object.DestroyImmediate(configuration);
+            }
+        }
+
+        [Test]
+        public void PresetAsset_IsNamedVersionedAndContainsReusableSerializedBeats()
+        {
+            const string presetPath = "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset";
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(presetPath);
+
+            Assert.That(preset, Is.Not.Null);
+            Assert.That(preset.PresetName, Is.Not.Empty);
+            Assert.That(preset.PresetVersion, Is.EqualTo(AnimationSequenceConfiguration.CurrentPresetVersion));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.Canto));
+            Assert.That(preset.Beats.Select(beat => beat.Kind), Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
+        }
+
+        [Test]
+        public void Composition_UsesPresetOrderWithoutChangingSourceEventsOrFinalState()
+        {
+            var recording = RepresentativeAnimationTurn.Create(Seat.First);
+            var sequence = ResolvedAnimationSequence.Create(
+                recording.Result.Events,
+                recording.Result.State,
+                new[]
+                {
+                    ResolvedAnimationStepKind.FallScore,
+                    ResolvedAnimationStepKind.CardPlay,
+                    ResolvedAnimationStepKind.NormalCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CleanTableScore,
+                    ResolvedAnimationStepKind.TurnChanged,
+                });
+            var rendered = new AnimationPresentationState(recording.InitialState);
+
+            foreach (var step in sequence.Steps)
+            {
+                rendered.Apply(step, sequence.FinalState);
+            }
+
+            Assert.That(sequence.Steps.Take(3).Select(step => step.Kind), Is.EqualTo(new[]
+            {
+                ResolvedAnimationStepKind.FallScore,
+                ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.NormalCapture,
+            }));
+            Assert.That(sequence.SourceEvents, Is.EqualTo(recording.Result.Events));
+            Assert.That(rendered.IsSynchronizedWith(recording.Result.State), Is.True);
+        }
+
+        [Test]
+        public void Transport_PauseStepSeekLoopSkipAndResetRemainDeterministic()
+        {
+            var transport = new AnimationSequenceTransport(new[]
+            {
+                new AnimationBeatTiming(0.1f, 0.2f),
+                new AnimationBeatTiming(0f, 0.3f),
+            });
+
+            transport.Play();
+            transport.Tick(0.15f);
+            transport.Pause();
+            var pausedAt = transport.ElapsedSeconds;
+            transport.Tick(1f);
+            Assert.That(transport.ElapsedSeconds, Is.EqualTo(pausedAt));
+
+            transport.StepForward();
+            Assert.That(transport.ElapsedSeconds, Is.EqualTo(0.3f).Within(0.0001f));
+            transport.SeekNormalized(0.5f);
+            Assert.That(transport.NormalizedPosition, Is.EqualTo(0.5f).Within(0.0001f));
+
+            transport.Loop = true;
+            transport.Play();
+            transport.Tick(0.5f);
+            Assert.That(transport.IsPlaying, Is.True);
+            Assert.That(transport.ElapsedSeconds, Is.LessThan(transport.DurationSeconds));
+
+            transport.SkipToEnd();
+            Assert.That(transport.ReachedEnd, Is.True);
+            transport.Reset();
+            Assert.That(transport.ElapsedSeconds, Is.Zero);
+            Assert.That(transport.IsPlaying, Is.False);
+        }
+
+        [Test]
+        public void BeatEvaluator_UsesTheSameWireframePathForAuthoringAndPlayback()
+        {
+            var start = new Vector3(-1f, 0f, 0f);
+            var target = new Vector3(1f, 0f, 0f);
+            var trajectory = new Vector3(0f, 0.5f, 0.25f);
+
+            var midpoint = AnimationBeatEvaluator.EvaluatePosition(
+                start,
+                target,
+                0.5f,
+                AnimationBeatEasing.Linear,
+                trajectory);
+
+            Assert.That(midpoint, Is.EqualTo(new Vector3(0f, 0.5f, 0.25f)));
+            Assert.That(AnimationBeatEvaluator.EvaluatePosition(
+                start,
+                target,
+                0f,
+                AnimationBeatEasing.EaseInOut,
+                trajectory), Is.EqualTo(start));
+            Assert.That(Vector3.Distance(
+                AnimationBeatEvaluator.EvaluatePosition(
+                    start,
+                    target,
+                    1f,
+                    AnimationBeatEasing.EaseInOut,
+                    trajectory),
+                target), Is.LessThan(0.00001f));
+        }
+
+        [Test]
+        public void EditModeWorkbench_PreviewsAndSeeksIndividualBeatsWithoutPlayMode()
+        {
+            EditorSceneManager.OpenScene(
+                "Assets/TheFall/Presentation/Scenes/AnimationLab.unity",
+                OpenSceneMode.Single);
+            var controller = UnityEngine.Object.FindAnyObjectByType<AnimationLabController>();
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(
+                "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset");
+
+            Assert.That(UnityEngine.Application.isPlaying, Is.False);
+            Assert.That(controller, Is.Not.Null);
+            controller.BeginEditorWorkbenchPreview(
+                (int)AnimationScenarioKind.FallCascadeAndCleanTable,
+                Seat.First,
+                AnimationPreviewProfile.Desktop,
+                preset);
+
+            try
+            {
+                var cardPlayIndex = controller.Sequence.Steps
+                    .Take(controller.AnimatableStepCount)
+                    .Select((step, index) => new { step, index })
+                    .Single(entry => entry.step.Kind == ResolvedAnimationStepKind.CardPlay)
+                    .index;
+                controller.SeekToStep(cardPlayIndex, 0.5f);
+
+                Assert.That(controller.PreviewRoot, Is.Not.Null);
+                Assert.That(controller.gameObject.scene.isDirty, Is.False);
+                Assert.That(controller.CurrentStepIndex, Is.EqualTo(cardPlayIndex));
+                Assert.That(controller.ActiveStep.Kind, Is.EqualTo(ResolvedAnimationStepKind.CardPlay));
+                Assert.That(controller.ActiveStepProgress, Is.EqualTo(0.5f).Within(0.001f));
+                Assert.That(controller.TryGetPrimaryMotion(out var motion), Is.True);
+                Assert.That(motion.StartWorld, Is.Not.EqualTo(motion.TargetWorld));
+
+                var before = controller.ElapsedSeconds;
+                controller.Resume();
+                Assert.That(controller.TickEditorPreview(0.05f), Is.True);
+                Assert.That(controller.ElapsedSeconds, Is.GreaterThan(before));
+                Assert.That(UnityEngine.Application.isPlaying, Is.False);
+            }
+            finally
+            {
+                controller.ClearEditorPreview();
+            }
+        }
+
+        [Test]
+        public void AnimationWorkbenchWindow_IsAvailableAsAnEditModeAuthoringSurface()
+        {
+            var window = ScriptableObject.CreateInstance<AnimationWorkbenchWindow>();
+            try
+            {
+                Assert.That(window, Is.Not.Null);
+                Assert.That(window.titleContent.text, Is.EqualTo("Animation Workbench"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(window);
             }
         }
     }

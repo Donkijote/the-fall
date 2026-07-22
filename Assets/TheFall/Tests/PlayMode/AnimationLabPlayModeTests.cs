@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using TheFall.Domain;
 using TheFall.Presentation.Animation;
@@ -98,6 +99,69 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.LastSequencePeakUpdateCpuMilliseconds, Is.GreaterThan(0f));
             Debug.Log(
                 $"AnimationLab profile: fast-forward sequence completed in {controller.LastSequenceElapsedSeconds * 1000f:F1} ms, used {controller.LastSequenceCpuMilliseconds:F2} ms measured presentation CPU with a {controller.LastSequencePeakUpdateCpuMilliseconds:F3} ms peak update, and rendered {controller.CardViewCount} card views across {controller.LastSequenceFrameCount} batch-runner updates.");
+        }
+
+        [UnityTest]
+        public IEnumerator WorkbenchTransport_PausesStepsSeeksResetsAndResumesWithoutMutatingTheRecording()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.ResetForTests(Seat.First, new Vector2Int(1920, 1080), true);
+            var authoritativeState = controller.FinalState;
+            var sourceEvents = controller.ResolvedEvents;
+            yield return null;
+
+            controller.Pause();
+            var pausedAt = controller.ElapsedSeconds;
+            yield return null;
+            Assert.That(controller.ElapsedSeconds, Is.EqualTo(pausedAt));
+
+            controller.SingleStep();
+            Assert.That(controller.ElapsedSeconds, Is.GreaterThan(pausedAt));
+            controller.SeekNormalized(0.5f);
+            Assert.That(controller.NormalizedPosition, Is.EqualTo(0.5f).Within(0.01f));
+            controller.ResetToStart();
+            Assert.That(controller.ElapsedSeconds, Is.Zero);
+            Assert.That(controller.FinalState, Is.SameAs(authoritativeState));
+            Assert.That(controller.ResolvedEvents, Is.SameAs(sourceEvents));
+
+            controller.Resume();
+            yield return new WaitUntil(() => !controller.IsPlaying);
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator ScenarioSeatProfileAndLivePresetChanges_RecomposeTheNextPreview()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.Pause();
+            controller.LoadPreset(1);
+            Assert.That(controller.WorkingConfiguration.PresetName, Is.EqualTo("Fast Iteration"));
+            Assert.That(controller.WorkingConfiguration.PlaybackSpeed, Is.EqualTo(2f));
+            controller.WorkingConfiguration.SetTransport(2f, false);
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.NonCapturingPlacement);
+            controller.SetActingSeat(Seat.Second);
+            controller.SetPreviewProfile(AnimationPreviewProfile.Portrait);
+            var playBeat = controller.WorkingConfiguration.GetBeat(ResolvedAnimationStepKind.CardPlay);
+            playBeat.SetTiming(0f, 0f);
+            controller.RestartSequence();
+            yield return new WaitUntil(() => !controller.IsPlaying);
+
+            Assert.That(controller.ScenarioKind,
+                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.NonCapturingPlacement));
+            Assert.That(controller.ActingSeat, Is.EqualTo(Seat.Second));
+            Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
+            Assert.That(controller.Sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
+            {
+                ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.TablePlacement,
+                ResolvedAnimationStepKind.TurnChanged,
+                ResolvedAnimationStepKind.SynchronizeFinalState,
+            }));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
         }
     }
 }

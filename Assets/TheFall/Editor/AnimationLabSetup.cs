@@ -18,6 +18,7 @@ namespace TheFall.Editor
         private const string ScenePath = "Assets/TheFall/Presentation/Scenes/AnimationLab.unity";
         private const string ConfigurationFolder = "Assets/TheFall/Content/Animation";
         private const string ConfigurationPath = ConfigurationFolder + "/AnimationSequenceConfiguration.asset";
+        private const string IterationPresetPath = ConfigurationFolder + "/AnimationFastIterationPreset.asset";
         private const string TablePrefabPath = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable/Generated/RoundCardTable.prefab";
         private const string CardCatalogPath = "Assets/TheFall/Content/Cards/Generated/CardVisualCatalog.asset";
 
@@ -31,6 +32,23 @@ namespace TheFall.Editor
                 configuration = ScriptableObject.CreateInstance<AnimationSequenceConfiguration>();
                 AssetDatabase.CreateAsset(configuration, ConfigurationPath);
             }
+
+            configuration.SetPresetIdentity("Workbench Default");
+            configuration.EnsureDefaults();
+            EditorUtility.SetDirty(configuration);
+
+            var iterationPreset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(IterationPresetPath);
+            if (iterationPreset == null)
+            {
+                iterationPreset = UnityEngine.Object.Instantiate(configuration);
+                iterationPreset.name = "AnimationFastIterationPreset";
+                iterationPreset.SetPresetIdentity("Fast Iteration");
+                iterationPreset.SetTransport(2f, true);
+                AssetDatabase.CreateAsset(iterationPreset, IterationPresetPath);
+            }
+
+            iterationPreset.EnsureDefaults();
+            EditorUtility.SetDirty(iterationPreset);
 
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var sceneRoot = scene.GetRootGameObjects().Single(root => root.name == "AnimationLab");
@@ -64,11 +82,12 @@ namespace TheFall.Editor
 
             controller.Configure(
                 configuration,
+                new[] { configuration, iterationPreset },
                 camera,
                 AssetDatabase.LoadAssetAtPath<GameObject>(TablePrefabPath),
                 AssetDatabase.LoadAssetAtPath<CardVisualCatalog>(CardCatalogPath));
             sceneRoot.GetComponent<ScenePurpose>()?.SetDescription(
-                "Isolated domain-event animation laboratory for card play, normal and cascade capture, Fall and clean-table scoring, multi-seat and orientation recomposition, fast-forward, skip, interruption, cancellation, and authoritative end-state synchronization.");
+                "Edit Mode-first resolved-event animation workbench for Scene-view wireframe authoring, reusable beat composition, live preview, named versioned presets, deterministic transport, runtime reuse, diagnosis, and authoritative state synchronization.");
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -88,6 +107,8 @@ namespace TheFall.Editor
 
             if (controller == null ||
                 controller.Configuration == null ||
+                controller.Presets == null ||
+                controller.Presets.Count < 2 ||
                 controller.GameplayCamera == null ||
                 controller.TablePrototypePrefab == null ||
                 controller.CardVisualCatalog == null)
@@ -107,6 +128,7 @@ namespace TheFall.Editor
             }
 
             var configuration = controller.Configuration;
+            configuration.EnsureDefaults();
             if (configuration.CardPlaySeconds < 0f ||
                 configuration.NormalCaptureSeconds < 0f ||
                 configuration.CascadeStepSeconds < 0f ||
@@ -116,6 +138,18 @@ namespace TheFall.Editor
             {
                 throw new BuildFailedException(
                     "Animation timing must remain valid presentation configuration.");
+            }
+
+
+            if (configuration.PresetVersion != AnimationSequenceConfiguration.CurrentPresetVersion ||
+                configuration.Beats.Count == 0 ||
+                controller.Presets.Any(preset =>
+                    preset == null ||
+                    preset.PresetVersion != AnimationSequenceConfiguration.CurrentPresetVersion ||
+                    preset.Beats.Count == 0))
+            {
+                throw new BuildFailedException(
+                    "AnimationLab requires named, versioned presentation presets with reusable beats.");
             }
         }
 

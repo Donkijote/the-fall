@@ -245,10 +245,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9a22223c08b5427bb92037720106fb7, type: 3}
   m_Name:
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
-  _description: Isolated domain-event animation laboratory for card play, normal
-    and cascade capture, Fall and clean-table scoring, multi-seat and orientation
-    recomposition, fast-forward, skip, interruption, cancellation, and authoritative
-    end-state synchronization.
+  _description: Edit Mode-first resolved-event animation workbench for Scene-view
+    wireframe authoring, reusable beat composition, live preview, named versioned
+    presets, deterministic transport, runtime reuse, diagnosis, and authoritative
+    state synchronization.
 --- !u!4 &474010534
 Transform:
   m_ObjectHideFlags: 0
@@ -312,9 +312,13 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Animation.AnimationLabController
   _configuration: {fileID: 11400000, guid: 2101a8ea3f30b451b9c677ff6ac52823, type: 2}
+  _presets:
+  - {fileID: 11400000, guid: 2101a8ea3f30b451b9c677ff6ac52823, type: 2}
+  - {fileID: 11400000, guid: 76dfa68f8e6284da6b27badcc61c7c45, type: 2}
   _gameplayCamera: {fileID: 1241517791}
   _tablePrototypePrefab: {fileID: 5817732674550341530, guid: 1418070703fb940bcb4bdf6d7d90ccc7, type: 3}
   _cardVisualCatalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
+  _showWorkbench: 1
 --- !u!1 &1241517788
 GameObject:
   m_ObjectHideFlags: 0
