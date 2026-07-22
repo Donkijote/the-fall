@@ -1,6 +1,6 @@
 # Gameplay Animation Workbench
 
-Status: Implemented first-playable presentation tooling
+Status: Implemented workbench and first-playable runtime contract
 
 ## Purpose and authority boundary
 
@@ -70,7 +70,7 @@ Each reusable beat exposes:
 
 Each preset also owns playback speed, loop preference, fast-forward multiplier, reduced-motion duration scale, and reduced-motion trajectory scale. These assets live only under `Assets/TheFall/Content/Animation`; no field is translated into `RuleConfiguration` or domain state.
 
-The Edit Mode workbench uses a transient copy of the selected asset. Changes affect the next preview immediately without scene regeneration or entering Play Mode. **Save Preset** writes the working copy back to the selected asset; **Save Preset As…** creates a new version-controlled asset. Runtime playback also uses a transient copy, so neither authoring nor gameplay mutates a committed preset implicitly.
+The Edit Mode workbench uses a transient copy of the selected asset. Changes affect the next preview immediately without scene regeneration or entering Play Mode. **Save Preset** writes the working copy back to the selected asset; **Save Preset As…** creates a new version-controlled asset. Runtime playback reads the committed preset without writing it, so gameplay cannot persist an implicit tuning change.
 
 ## Transport and deterministic replay
 
@@ -87,9 +87,45 @@ The Edit Mode workbench uses a transient copy of the selected asset. Changes aff
 
 Seeking and stepping reconstruct rendered state from the initial snapshot by applying the same composed beat prefix. Normal completion, skip, interruption, cancellation, disable, and teardown converge on the accepted final `MatchState`. Reset reconstructs the accepted initial snapshot. Transport controls never mutate the recording, its source events, or its final state.
 
-## Runtime reuse
+## First-playable runtime integration
 
-`AnimationBeatEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. The Editor window is an authoring adapter around that code, not a separate approximation. Issue #26 can bind the same saved beat definitions to equivalent resolved events in the integrated match.
+`AnimationBeatEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. The Editor window is an authoring adapter around that code, not a separate approximation. Issue #26 binds the same saved beat definitions to equivalent resolved events in the integrated match.
+
+`FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. Runtime deliberately does not apply the workbench's optional category reordering: composition remains useful for isolated authoring, while a live multi-effect resolution must explain facts in the order the resolver emitted them.
+
+The integrated `Home` table renders an `AnimationPresentationState` prefix while a batch is active and swaps back to the exact accepted `MatchState` when it completes. Timing, delay, easing, trajectory, fast-forward multiplier, and reduced-motion scaling come from the versioned `Workbench Default` preset. Presentation never submits an intent, calculates a capture or score, or changes an accepted result.
+
+The player-visible controls are:
+
+- fast-forward, which changes presentation speed only
+- reduced motion, which shortens movement and suppresses trajectory while retaining semantic cues
+- skip, which immediately synchronizes to the accepted end state
+
+Interruption, cancellation, leaving the match, component disable, and teardown use the same synchronization path. While a batch is active, the flow and card-interaction session are both presentation-blocked. A repeated click, confirm, or contextual action therefore cannot create a second accepted intent, and the Result panel is not promoted until the final victory sequence has synchronized.
+
+## Runtime event treatment
+
+Every first-playable event has either spatial motion or an explicit semantic treatment. Both treatments update the rendered prefix from the already-resolved event; neither owns rules.
+
+| Resolved outcome | Runtime treatment |
+| --- | --- |
+| match start; dealer card selection, tie, dealer result, and shuffle | dealer-spread state change plus localized active-event cue |
+| dealer choice and deal start | semantic cue and round/deal metadata update |
+| card dealt | configured deck-to-hand motion, including face-down opponent cards |
+| opening rejection | configured semantic rejection cue; rejected card remains in the deck prefix |
+| opening placement | configured deck-to-table motion |
+| card played and non-capturing placement | configured hand-to-table motion followed by placement cue |
+| normal capture | configured table-to-capture motion for the played and matching card |
+| cascade capture | one configured table-to-capture beat per additional card, preserving event/card order |
+| Fall, clean table, canto, and other score changes | distinct configured semantic beats with ordered score/canto prefix updates |
+| deal completion | semantic completion cue |
+| leftovers | configured table-to-capture motion for each collected card |
+| round completion, dealer rotation, and tie extension | ordered semantic cues with round/dealer/tie metadata updates |
+| turn change | active-seat cue update |
+| match victory | ordered victory cue; Result remains deferred until synchronization |
+| final synchronization | instantaneous mandatory copy of the accepted `MatchState` |
+
+Captured-card identity is retained only inside the transient presentation matcher so a public card can move into the correct pile. The public rendered-card API and snapshot continue to expose those piles face down, and opponent hand identities remain unavailable.
 
 The in-game AnimationLab overlay remains available for final runtime integration comparison, but it is no longer required to create, tune, or test an individual beat.
 
@@ -120,11 +156,12 @@ Use:
 
 The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content. The Editor command opens the dedicated authoring window without entering Play Mode.
 
-Focused Edit Mode coverage verifies source-event mapping, preset serialization, composition order, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Focused Play Mode coverage verifies that the same assets and evaluator retain normal completion, pause/resume, step, seek, reset, skip, interruption, cancellation, fast-forward, live preset changes, scenario selection, both seats, profile comparison, stationary camera, and authoritative convergence.
+Focused Edit Mode coverage verifies source-event mapping, preset serialization, composition order, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. It also drives a complete deterministic first-playable match through the runtime player and checks synchronization after every accepted batch. Focused Play Mode coverage verifies the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
+
+The representative seed-2400 profile completed 129 accepted intent records, 585 source events, and 614 visible beats without a pooling, tweening, Timeline, Animator, or third-party sequencing layer. The pure transport/prefix replay used 5,757 deterministic `20 ms` ticks and about `5.30 ms` aggregate presentation CPU (`0.197 ms` peak tick). The headless integrated Play Mode replay deliberately ran at the editor's uncapped batch update rate: 750,639 updates, about `2,029.79 ms` aggregate presentation CPU, and a `9.195 ms` maximum sampled update over `26.8 s` wall time. Those batch-mode values establish allocation/framework evidence, not desktop frame-pacing acceptance; issue #28 owns built-player median and p95 frame-time evidence. The implementation retains direct transient view rebuilding because this profile does not justify a framework or pool before representative production assets exist.
 
 ## Remaining boundaries
 
-- Issue #26 promotes these lab-tested categories and presets into full-match presentation.
 - Production VFX, audio, character acting, haptics, and final easing remain outside the workbench milestone.
 - Animator, Timeline, pooling, and third-party tweening or sequencing frameworks remain unselected. Introducing one still requires measured need and an accepted architecture decision.
 - Physical mobile performance, safe areas, thermal behavior, and device frame pacing remain separate validation work.

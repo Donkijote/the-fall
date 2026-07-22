@@ -461,6 +461,18 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 3143288710239354880
+  - m_Id: 998511922372608
+    m_Localized: Fast forward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 998511943344128
+    m_Localized: Reduced motion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 998511943344129
+    m_Localized: Skip
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

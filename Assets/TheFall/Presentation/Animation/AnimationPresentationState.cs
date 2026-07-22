@@ -5,6 +5,19 @@ using TheFall.Domain;
 
 namespace TheFall.Presentation.Animation
 {
+    public readonly struct AnimationCantoState
+    {
+        public AnimationCantoState(PlayerId playerId, CantoKind claimedKind)
+        {
+            PlayerId = playerId;
+            ClaimedKind = claimedKind;
+        }
+
+        public PlayerId PlayerId { get; }
+
+        public CantoKind ClaimedKind { get; }
+    }
+
     /// <summary>
     /// Mutable rendered snapshot used only while explaining an authoritative match transition.
     /// Synchronization always copies the resolved domain state instead of deriving an outcome.
@@ -16,6 +29,7 @@ namespace TheFall.Presentation.Animation
         private readonly Dictionary<PlayerId, List<Card>> _captured = new Dictionary<PlayerId, List<Card>>();
         private readonly Dictionary<TeamId, Score> _scores = new Dictionary<TeamId, Score>();
         private readonly List<Card> _table = new List<Card>();
+        private readonly List<AnimationCantoState> _cantos = new List<AnimationCantoState>();
 
         public AnimationPresentationState(MatchState state)
         {
@@ -26,11 +40,27 @@ namespace TheFall.Presentation.Animation
 
         public IReadOnlyList<Card> Table => _table;
 
+        public IReadOnlyList<AnimationCantoState> Cantos => _cantos;
+
+        public int DeckCount { get; private set; }
+
+        public int DealerSpreadCount => Phase == MatchPhase.DealerSelection ? DeckCount : 0;
+
+        public Seat DealerSeat { get; private set; }
+
         public Seat CurrentSeat { get; private set; }
 
         public MatchPhase Phase { get; private set; }
 
         public TeamId? WinnerTeam { get; private set; }
+
+        public int RoundNumber { get; private set; }
+
+        public int DealNumber { get; private set; }
+
+        public bool IsFinalDeal { get; private set; }
+
+        public bool IsTieExtension { get; private set; }
 
         public IReadOnlyList<Card> GetHand(PlayerId playerId)
         {
@@ -57,24 +87,39 @@ namespace TheFall.Presentation.Animation
             switch (step.Kind)
             {
                 case ResolvedAnimationStepKind.MatchStarted:
+                    if (step.SourceEvent is MatchStartedEvent started)
+                    {
+                        Phase = MatchPhase.DealerSelection;
+                        DeckCount = started.DealerSpreadCardCount;
+                    }
+
+                    break;
                 case ResolvedAnimationStepKind.DealerSelection:
+                    ApplyDealerSelection(step.SourceEvent);
+                    break;
                 case ResolvedAnimationStepKind.DealerChoice:
+                    Phase = MatchPhase.Active;
+                    break;
                 case ResolvedAnimationStepKind.OpeningRejection:
-                case ResolvedAnimationStepKind.Canto:
-                case ResolvedAnimationStepKind.DealCompleted:
-                case ResolvedAnimationStepKind.Round:
-                case ResolvedAnimationStepKind.DealerRotation:
-                case ResolvedAnimationStepKind.TieExtension:
                     break;
                 case ResolvedAnimationStepKind.Deal:
-                    if (step.SourceEvent is CardDealtEvent)
+                    if (step.SourceEvent is DealStartedEvent dealStarted)
+                    {
+                        RoundNumber = dealStarted.RoundNumber;
+                        DealNumber = dealStarted.DealNumber;
+                        IsFinalDeal = dealStarted.IsFinalDeal;
+                        _cantos.Clear();
+                    }
+                    else if (step.SourceEvent is CardDealtEvent)
                     {
                         AddUnique(_hands[step.PlayerId], step.Cards[0]);
+                        DeckCount = Math.Max(0, DeckCount - 1);
                     }
 
                     break;
                 case ResolvedAnimationStepKind.OpeningPlacement:
                     AddUnique(_table, step.Cards[0]);
+                    DeckCount = Math.Max(0, DeckCount - 1);
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
                     MovePlayedCardToTable(step.PlayerId, step.Cards[0]);
@@ -91,8 +136,36 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.Score:
                     _scores[step.TeamId] = step.Total;
                     break;
+                case ResolvedAnimationStepKind.Canto:
+                    if (step.SourceEvent is CantoAnnouncedEvent canto
+                        && !_cantos.Exists(item => item.PlayerId == canto.PlayerId))
+                    {
+                        _cantos.Add(new AnimationCantoState(canto.PlayerId, canto.ClaimedKind));
+                    }
+
+                    break;
+                case ResolvedAnimationStepKind.DealCompleted:
+                    break;
                 case ResolvedAnimationStepKind.Leftovers:
                     MoveCapturedCards(step.PlayerId, step.Cards);
+                    break;
+                case ResolvedAnimationStepKind.Round:
+                    if (step.SourceEvent is RoundCompletedEvent completedRound)
+                    {
+                        RoundNumber = completedRound.RoundNumber;
+                    }
+
+                    break;
+                case ResolvedAnimationStepKind.DealerRotation:
+                    DealerSeat = step.CurrentSeat;
+                    break;
+                case ResolvedAnimationStepKind.TieExtension:
+                    IsTieExtension = true;
+                    if (step.SourceEvent is TieExtensionStartedEvent extension)
+                    {
+                        RoundNumber = extension.RoundNumber;
+                    }
+
                     break;
                 case ResolvedAnimationStepKind.TurnChanged:
                     CurrentSeat = step.CurrentSeat;
@@ -131,9 +204,21 @@ namespace TheFall.Presentation.Animation
             _scores.Clear();
             _scores[TeamId.One] = state.TeamOneScore;
             _scores[TeamId.Two] = state.TeamTwoScore;
+            _cantos.Clear();
+            foreach (var canto in state.CantoAnnouncements)
+            {
+                _cantos.Add(new AnimationCantoState(canto.PlayerId, canto.ClaimedKind));
+            }
+
+            DeckCount = state.Deck.Count;
+            DealerSeat = state.DealerSeat;
             CurrentSeat = state.CurrentSeat;
             Phase = state.Phase;
             WinnerTeam = state.WinnerTeam;
+            RoundNumber = state.RoundNumber;
+            DealNumber = state.DealNumber;
+            IsFinalDeal = state.IsFinalDeal;
+            IsTieExtension = state.IsTieExtension;
         }
 
         public bool IsSynchronizedWith(MatchState state)
@@ -142,6 +227,14 @@ namespace TheFall.Presentation.Animation
                 CurrentSeat != state.CurrentSeat ||
                 Phase != state.Phase ||
                 WinnerTeam != state.WinnerTeam ||
+                DeckCount != state.Deck.Count ||
+                DealerSeat != state.DealerSeat ||
+                RoundNumber != state.RoundNumber ||
+                DealNumber != state.DealNumber ||
+                IsFinalDeal != state.IsFinalDeal ||
+                IsTieExtension != state.IsTieExtension ||
+                _players.Count != state.Players.Count ||
+                _cantos.Count != state.CantoAnnouncements.Count ||
                 !GetScore(TeamId.One).Equals(state.TeamOneScore) ||
                 !GetScore(TeamId.Two).Equals(state.TeamTwoScore) ||
                 !_table.SequenceEqual(state.Table))
@@ -160,7 +253,54 @@ namespace TheFall.Presentation.Animation
                 }
             }
 
+            for (var index = 0; index < _cantos.Count; index++)
+            {
+                var presentedCanto = _cantos[index];
+                var authoritativeCanto = state.CantoAnnouncements[index];
+                if (presentedCanto.PlayerId != authoritativeCanto.PlayerId ||
+                    presentedCanto.ClaimedKind != authoritativeCanto.ClaimedKind)
+                {
+                    return false;
+                }
+            }
+
             return true;
+        }
+
+        private void ApplyDealerSelection(DomainEvent resolvedEvent)
+        {
+            if (resolvedEvent is DealerCardSelectedEvent)
+            {
+                DeckCount = Math.Max(0, DeckCount - 1);
+            }
+            else if (resolvedEvent is DealerSelectedEvent selected)
+            {
+                DealerSeat = selected.DealerSeat;
+                Phase = MatchPhase.AwaitingDealerChoice;
+            }
+            else if (resolvedEvent is DeckShuffledEvent shuffled)
+            {
+                if (shuffled.RoundNumber > RoundNumber)
+                {
+                    foreach (var hand in _hands.Values)
+                    {
+                        hand.Clear();
+                    }
+
+                    foreach (var captured in _captured.Values)
+                    {
+                        captured.Clear();
+                    }
+
+                    _table.Clear();
+                    _cantos.Clear();
+                    DealNumber = 0;
+                    IsFinalDeal = false;
+                }
+
+                RoundNumber = shuffled.RoundNumber;
+                DeckCount = shuffled.CardCount;
+            }
         }
 
         private void MovePlayedCardToTable(PlayerId playerId, Card card)

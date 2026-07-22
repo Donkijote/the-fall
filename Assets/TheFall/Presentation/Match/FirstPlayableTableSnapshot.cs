@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TheFall.Domain;
+using TheFall.Presentation.Animation;
 
 namespace TheFall.Presentation.Match
 {
@@ -67,6 +68,51 @@ namespace TheFall.Presentation.Match
             _cantos = Array.AsReadOnly(cantos);
         }
 
+        private FirstPlayableTableSnapshot(
+            AnimationPresentationState state,
+            MatchState referenceState)
+        {
+            if (state == null)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            AuthoritativeState = referenceState ?? throw new ArgumentNullException(nameof(referenceState));
+            var local = FindPlayer(state.Players, Seat.First);
+            var opponent = FindPlayer(state.Players, Seat.Second);
+
+            LocalPlayerId = local.Id;
+            OpponentPlayerId = opponent.Id;
+            LocalPlayerName = local.DisplayName;
+            OpponentPlayerName = opponent.DisplayName;
+            _localHand = Copy(state.GetHand(local.Id));
+            OpponentHandCount = state.GetHand(opponent.Id).Count;
+            _tableCards = Copy(state.Table);
+            _localCapturedCards = Copy(state.GetCaptured(local.Id));
+            _opponentCapturedCards = Copy(state.GetCaptured(opponent.Id));
+            DealerSpreadCount = state.DealerSpreadCount;
+            DeckCount = state.DeckCount;
+            DealerSeat = state.DealerSeat;
+            ActiveSeat = state.CurrentSeat;
+            LocalScore = state.GetScore(TeamId.One).Value;
+            OpponentScore = state.GetScore(TeamId.Two).Value;
+            RoundNumber = state.RoundNumber;
+            DealNumber = state.DealNumber;
+            IsFinalDeal = state.IsFinalDeal;
+            IsTieExtension = state.IsTieExtension;
+            Phase = state.Phase;
+            WinnerTeam = state.WinnerTeam;
+
+            var cantos = new FirstPlayableCantoView[state.Cantos.Count];
+            for (var index = 0; index < state.Cantos.Count; index++)
+            {
+                var canto = state.Cantos[index];
+                cantos[index] = new FirstPlayableCantoView(canto.PlayerId, canto.ClaimedKind);
+            }
+
+            _cantos = Array.AsReadOnly(cantos);
+        }
+
         public MatchState AuthoritativeState { get; }
 
         public PlayerId LocalPlayerId { get; }
@@ -118,6 +164,13 @@ namespace TheFall.Presentation.Match
             return new FirstPlayableTableSnapshot(state);
         }
 
+        public static FirstPlayableTableSnapshot Create(
+            AnimationPresentationState state,
+            MatchState referenceState)
+        {
+            return new FirstPlayableTableSnapshot(state, referenceState);
+        }
+
         private static IReadOnlyList<Card> Copy(IReadOnlyList<Card> cards)
         {
             var copy = new Card[cards.Count];
@@ -127,6 +180,19 @@ namespace TheFall.Presentation.Match
             }
 
             return Array.AsReadOnly(copy);
+        }
+
+        private static Player FindPlayer(IReadOnlyList<Player> players, Seat seat)
+        {
+            for (var index = 0; index < players.Count; index++)
+            {
+                if (players[index].Seat == seat)
+                {
+                    return players[index];
+                }
+            }
+
+            throw new InvalidOperationException($"The presentation state has no player at {seat}.");
         }
     }
 }

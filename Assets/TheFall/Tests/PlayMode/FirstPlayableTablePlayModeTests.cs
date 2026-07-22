@@ -60,6 +60,8 @@ namespace TheFall.Tests.PlayMode
                 }
 
                 Assert.That(controller.SubmitHumanIntent(ChooseHumanIntent(controller.Flow.Match.State, legal)), Is.True);
+                Assert.That(table.IsPresentationBusy, Is.True);
+                table.SkipPresentation();
                 humanIntentCount++;
             }
 
@@ -91,6 +93,8 @@ namespace TheFall.Tests.PlayMode
 
             var expectedDealerCard = dealerIntents[3].Card;
             Assert.That(table.ActivateDealerCard(3), Is.True);
+            Assert.That(table.IsPresentationBusy, Is.True);
+            table.SkipPresentation();
             Assert.That(controller.Flow.Match.Trace.IntentHistory
                 .Last(record => record.Actor == IntentActor.Human).Intent,
                 Is.TypeOf<SelectDealerCardIntent>());
@@ -201,6 +205,7 @@ namespace TheFall.Tests.PlayMode
             table.SetTemporarilyBlocked(false);
             var confirmed = table.InputAdapter.KeyboardConfirm();
             Assert.That(confirmed.IsAccepted, Is.True);
+            Assert.That(table.IsPresentationBusy, Is.True);
             Assert.That(controller.Flow.Match.Trace.IntentHistory.Count, Is.GreaterThan(traceCount));
             Assert.That(controller.Flow.Match.Trace.IntentHistory
                 .Skip(traceCount)
@@ -210,6 +215,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.Interaction.IntentHistory.Select(intent => intent.Kind), Does.Contain(CardInteractionIntentKind.Confirm));
             Assert.That(table.Interaction.IntentHistory.Select(intent => intent.Kind), Does.Contain(CardInteractionIntentKind.Cancel));
             Assert.That(table.Interaction.IntentHistory.Select(intent => intent.Kind), Does.Contain(CardInteractionIntentKind.Play));
+            table.SkipPresentation();
             Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
         }
 
@@ -258,6 +264,7 @@ namespace TheFall.Tests.PlayMode
             {
                 var legal = controller.Flow.Match.GetHumanLegalIntents();
                 Assert.That(controller.SubmitHumanIntent(ChooseHumanIntent(controller.Flow.Match.State, legal)), Is.True);
+                Object.FindAnyObjectByType<FirstPlayableTablePresentation>().SkipPresentation();
             }
 
             Assert.That(controller.Flow.Match.GetHumanLegalIntents().OfType<PlayCardIntent>().Any(), Is.True);
@@ -284,7 +291,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.StartMatch(), Is.True);
             yield return null;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
-            Assert.That(Object.FindAnyObjectByType<FirstPlayableTablePresentation>(), Is.Not.Null);
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            Assert.That(table, Is.Not.Null);
+            table.SkipPresentation();
         }
 
         private static PlayerIntent ChooseHumanIntent(MatchState state, IReadOnlyList<PlayerIntent> legal)

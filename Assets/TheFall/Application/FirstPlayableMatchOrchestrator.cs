@@ -58,6 +58,7 @@ namespace TheFall.Application
     {
         private readonly List<IntentResolutionRecord> _intentHistory = new List<IntentResolutionRecord>();
         private readonly List<DomainEvent> _events;
+        private readonly IReadOnlyList<DomainEvent> _startupEvents;
         private readonly IReadOnlyList<IntentResolutionRecord> _readOnlyIntentHistory;
         private readonly IReadOnlyList<DomainEvent> _readOnlyEvents;
 
@@ -67,6 +68,7 @@ namespace TheFall.Application
             InitialState = initialState ?? throw new ArgumentNullException(nameof(initialState));
             FinalState = initialState;
             _events = new List<DomainEvent>(startupEvents ?? throw new ArgumentNullException(nameof(startupEvents)));
+            _startupEvents = Array.AsReadOnly(new List<DomainEvent>(startupEvents).ToArray());
             _readOnlyIntentHistory = _intentHistory.AsReadOnly();
             _readOnlyEvents = _events.AsReadOnly();
         }
@@ -80,6 +82,8 @@ namespace TheFall.Application
         public IReadOnlyList<IntentResolutionRecord> IntentHistory => _readOnlyIntentHistory;
 
         public IReadOnlyList<DomainEvent> Events => _readOnlyEvents;
+
+        public IReadOnlyList<DomainEvent> StartupEvents => _startupEvents;
 
         internal void Append(IntentResolutionRecord record)
         {

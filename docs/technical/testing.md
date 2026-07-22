@@ -74,6 +74,8 @@ Issue #24 adds pure application-flow tests for defaults, guarded navigation, ses
 
 Issue #25 adds privacy-safe table-snapshot tests plus complete-match Play Mode agreement between every rendered public card collection and authoritative state. Recomposition coverage preserves a selected card, interaction revision, intent history, match instance, trace, and fixed camera across all four required desktop resolutions; the integrated adapter also covers inspect, select, confirm, cancel, reject, temporary blocking, and exactly-once play submission. See [first-playable 1v1 table presentation](first-playable-table.md).
 
+Issue #26 adds complete-vocabulary source-order mapping and a seed-2400 complete-match runtime replay in Edit Mode. The runtime player must converge after every accepted human-plus-bot batch, and skipped, interrupted, and cancelled exits must copy the accepted state. Integrated Play Mode starts with normal playback, exercises fast-forward plus reduced motion, blocks a duplicate submission without changing trace history, covers skip/interruption/cancellation/teardown, recomposes at all four desktop resolutions, verifies events from both acting seats, and profiles an entire match without introducing pooling or a sequencing framework. See [gameplay animation workbench](animation.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.

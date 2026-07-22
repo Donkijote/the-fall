@@ -42,7 +42,7 @@ The enabled build scenes are ordered as follows:
 | Order | Scene | Purpose |
 | ---: | --- | --- |
 | 0 | `Bootstrap` | application startup and persistent manual dependency composition |
-| 1 | `Home` | localized first-playable flow plus the authoritative fixed-camera 1v1 table presentation |
+| 1 | `Home` | localized first-playable flow plus the authoritative fixed-camera 1v1 table and resolved-event animation presentation |
 | 2 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
 | 3 | `AnimationLab` | Edit Mode wireframe authoring and runtime preview for reusable resolved-event beats, versioned presets, transport, profile comparison, and synchronization diagnosis |
 | 4 | `AssetReview` | isolated generated-asset inspection with Play-mode orbit and zoom controls |

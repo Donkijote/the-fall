@@ -1093,6 +1093,7 @@ MonoBehaviour:
   _tablePrototypePrefab: {fileID: 5817732674550341530, guid: 1418070703fb940bcb4bdf6d7d90ccc7, type: 3}
   _cardCatalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _authoredLayout: {fileID: 426452579}
+  _animationPreset: {fileID: 11400000, guid: 2101a8ea3f30b451b9c677ff6ac52823, type: 2}
 --- !u!1 &825948760
 GameObject:
   m_ObjectHideFlags: 0

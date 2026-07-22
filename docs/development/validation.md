@@ -246,4 +246,16 @@ Validated locally on 2026-07-21 with Unity `6000.5.4f1`:
 - source recordings and accepted final states remained unchanged by Edit Mode authoring, Scene-view trajectory changes, composition, timing, speed, loop, reduced-motion, and transport controls
 - Android, iOS, Windows, physical-device, production VFX/audio/character acting, and first-playable promotion were not run or claimed by this tooling issue
 
+## Issue #26 validation checkpoint
+
+Validated locally on 2026-07-22 with Unity `6000.5.4f1`:
+
+- Home generation and structural foundation validation: passed with the versioned Workbench Default animation preset bound to the integrated table
+- complete Edit Mode suite: 76/76 passed, including complete event-vocabulary mapping, batch-by-batch complete-match convergence, early-exit convergence, and timing-variant rule-state isolation
+- complete Play Mode suite: 20/20 passed, including normal, fast-forward, reduced-motion, skip, interruption, cancellation, teardown, duplicate-input blocking, both acting seats, four required desktop resolutions, and full-match authoritative agreement
+- macOS universal development-player smoke build: succeeded
+- seed-2400 pure replay: 129 accepted intent records, 585 source events, 614 beats, 5,757 deterministic transport ticks, `5.30 ms` aggregate presentation CPU, and `0.197 ms` peak tick
+- seed-2400 integrated headless replay: 750,639 uncapped editor updates, `2,029.79 ms` aggregate presentation CPU, `9.195 ms` peak sampled update, and about `26.8 s` wall time; these are framework/pooling evidence rather than built-player frame-pacing acceptance
+- no pooling, Animator, Timeline, tweening framework, or third-party sequencer was promoted; built-player median/p95 frame pacing, physical devices, production VFX/audio/character acting, and endurance remain outside this issue
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

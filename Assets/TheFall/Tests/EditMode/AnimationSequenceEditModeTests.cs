@@ -4,6 +4,7 @@ using NUnit.Framework;
 using TheFall.Application;
 using TheFall.Application.Animation;
 using TheFall.Domain;
+using TheFall.Infrastructure;
 using TheFall.Presentation.Animation;
 using TheFall.Editor;
 using UnityEditor;
@@ -318,6 +319,203 @@ namespace TheFall.Tests.EditMode
             {
                 UnityEngine.Object.DestroyImmediate(window);
             }
+        }
+
+        [Test]
+        public void CompleteDomainEventVocabulary_HasAReusablePresentationBeatInSourceOrder()
+        {
+            var playerId = new PlayerId("event-player");
+            var card = new Card(CardSuit.Coins, CardRank.Two);
+            var cascade = new Card(CardSuit.Cups, CardRank.Three);
+            var events = new DomainEvent[]
+            {
+                new MatchStartedEvent(40),
+                new DealerCardSelectedEvent(playerId, card),
+                new DealerSelectionTiedEvent(CardRank.Two),
+                new DealerSelectedEvent(playerId, Seat.First),
+                new DeckShuffledEvent(1, 40),
+                new DealerChoiceMadeEvent(playerId, true, OpeningPattern.Ascending),
+                new DealStartedEvent(1, 1, false),
+                new CardDealtEvent(playerId, card, 0),
+                new OpeningCardRejectedEvent(card, 0, 10),
+                new OpeningCardPlacedEvent(card, 0),
+                new CardPlayedEvent(playerId, card),
+                new CardPlacedOnTableEvent(playerId, card),
+                new CardsCapturedEvent(playerId, new[] { card, card, cascade }),
+                new CantoAnnouncedEvent(playerId, CantoKind.Ronda),
+                new CantoResolvedEvent(playerId, CantoKind.Ronda, true, true),
+                new ScoreChangedEvent(TeamId.One, 1, new Score(1), ScoreReason.Canto),
+                new DealCompletedEvent(1, 1),
+                new LeftoversCollectedEvent(playerId, new[] { card }),
+                new RoundCompletedEvent(1),
+                new DealerRotatedEvent(Seat.Second, Seat.First),
+                new TieExtensionStartedEvent(2, new Score(24)),
+                new TurnChangedEvent(Seat.Second, Seat.First),
+                new MatchCompletedEvent(TeamId.One),
+            };
+            var sequence = ResolvedAnimationSequence.Create(
+                events,
+                RepresentativeAnimationTurn.Create(Seat.First).Result.State);
+
+            Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
+            {
+                ResolvedAnimationStepKind.MatchStarted,
+                ResolvedAnimationStepKind.DealerSelection,
+                ResolvedAnimationStepKind.DealerSelection,
+                ResolvedAnimationStepKind.DealerSelection,
+                ResolvedAnimationStepKind.DealerSelection,
+                ResolvedAnimationStepKind.DealerChoice,
+                ResolvedAnimationStepKind.Deal,
+                ResolvedAnimationStepKind.Deal,
+                ResolvedAnimationStepKind.OpeningRejection,
+                ResolvedAnimationStepKind.OpeningPlacement,
+                ResolvedAnimationStepKind.CardPlay,
+                ResolvedAnimationStepKind.TablePlacement,
+                ResolvedAnimationStepKind.NormalCapture,
+                ResolvedAnimationStepKind.CascadeCapture,
+                ResolvedAnimationStepKind.Canto,
+                ResolvedAnimationStepKind.Canto,
+                ResolvedAnimationStepKind.Score,
+                ResolvedAnimationStepKind.DealCompleted,
+                ResolvedAnimationStepKind.Leftovers,
+                ResolvedAnimationStepKind.Round,
+                ResolvedAnimationStepKind.DealerRotation,
+                ResolvedAnimationStepKind.TieExtension,
+                ResolvedAnimationStepKind.TurnChanged,
+                ResolvedAnimationStepKind.MatchCompleted,
+                ResolvedAnimationStepKind.SynchronizeFinalState,
+            }));
+            Assert.That(sequence.SourceEvents, Is.EqualTo(events));
+        }
+
+        [Test]
+        public void FirstPlayableRuntimePlayer_ProfilesACompleteMatchAndConvergesAfterEveryBatch()
+        {
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(
+                "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset");
+            var match = CreateFirstPlayableMatch(2400);
+            var player = new FirstPlayableAnimationPlayer(preset);
+
+            player.PlayInitialTrace(match.Trace);
+            Drain(player);
+            var safety = 0;
+            while (match.State.Phase != MatchPhase.Completed && safety++ < 5000)
+            {
+                var legal = match.GetHumanLegalIntents();
+                var advance = match.SubmitHumanIntent(ChooseHumanIntent(match.State, legal));
+                player.PlayAdvance(advance);
+                Drain(player);
+                Assert.That(player.IsRenderedStateSynchronized, Is.True);
+                Assert.That(player.RenderedState.IsSynchronizedWith(match.State), Is.True);
+            }
+
+            Assert.That(safety, Is.LessThan(5000));
+            Assert.That(match.State.Phase, Is.EqualTo(MatchPhase.Completed));
+            Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.DealerSelection));
+            Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.Deal));
+            Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
+            Assert.That(
+                match.Trace.Events.OfType<CardPlayedEvent>().Select(item => item.PlayerId).Distinct().ToArray(),
+                Has.Length.EqualTo(2));
+            Assert.That(player.FrameCount, Is.GreaterThan(0));
+            Assert.That(player.CpuMilliseconds, Is.GreaterThanOrEqualTo(0d));
+            TestContext.WriteLine(
+                $"First-playable animation profile: {match.Trace.IntentHistory.Count} accepted intent records, " +
+                $"{match.Trace.Events.Count} source events, {player.PresentedSteps.Count} beats, " +
+                $"{player.FrameCount} deterministic transport ticks, {player.CpuMilliseconds:F2} ms presentation CPU, " +
+                $"{player.PeakTickCpuMilliseconds:F3} ms peak tick.");
+        }
+
+        [Test]
+        public void FirstPlayableRuntimePlayer_TimingVariantsCannotMutateAcceptedRuleState()
+        {
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(
+                "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset");
+            var match = CreateFirstPlayableMatch(2400);
+            var accepted = match.SubmitHumanIntent(ChooseHumanIntent(
+                match.State,
+                match.GetHumanLegalIntents()));
+            var acceptedState = match.State;
+            var acceptedTrace = match.Trace.IntentHistory.ToArray();
+
+            var normal = new FirstPlayableAnimationPlayer(preset);
+            normal.PlayAdvance(accepted);
+            Drain(normal);
+
+            var timingVariant = new FirstPlayableAnimationPlayer(preset);
+            timingVariant.PlayAdvance(accepted);
+            timingVariant.Tick(0.01f);
+            var activeSourceEvent = timingVariant.ActiveStep.SourceEvent;
+            timingVariant.SetFastForward(true);
+            timingVariant.SetReducedMotion(true);
+            Assert.That(timingVariant.ActiveStep.SourceEvent, Is.SameAs(activeSourceEvent));
+            Drain(timingVariant);
+
+            Assert.That(match.State, Is.SameAs(acceptedState));
+            Assert.That(match.Trace.IntentHistory, Is.EqualTo(acceptedTrace));
+            Assert.That(normal.RenderedState.IsSynchronizedWith(acceptedState), Is.True);
+            Assert.That(timingVariant.RenderedState.IsSynchronizedWith(acceptedState), Is.True);
+        }
+
+        [TestCase(AnimationSequenceCompletionReason.Skipped)]
+        [TestCase(AnimationSequenceCompletionReason.Interrupted)]
+        [TestCase(AnimationSequenceCompletionReason.Cancelled)]
+        public void FirstPlayableRuntimePlayer_EarlyExitAlwaysSynchronizesAcceptedState(
+            AnimationSequenceCompletionReason reason)
+        {
+            var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(
+                "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset");
+            var match = CreateFirstPlayableMatch(2400);
+            var player = new FirstPlayableAnimationPlayer(preset);
+            player.PlayInitialTrace(match.Trace);
+
+            if (reason == AnimationSequenceCompletionReason.Skipped)
+            {
+                player.SkipAndSynchronize();
+            }
+            else if (reason == AnimationSequenceCompletionReason.Interrupted)
+            {
+                player.InterruptAndSynchronize();
+            }
+            else
+            {
+                player.CancelAndSynchronize();
+            }
+
+            Assert.That(player.CompletionReason, Is.EqualTo(reason));
+            Assert.That(player.IsRenderedStateSynchronized, Is.True);
+            Assert.That(player.RenderedState.IsSynchronizedWith(match.State), Is.True);
+        }
+
+        private static FirstPlayableMatchOrchestrator CreateFirstPlayableMatch(int seed)
+        {
+            return FirstPlayableMatchFactory.Create(
+                seed,
+                new Player(new PlayerId("runtime-human"), "Human", Seat.First, TeamId.One, PlayerControl.Human),
+                new Player(new PlayerId("runtime-bot"), "Bot", Seat.Second, TeamId.Two, PlayerControl.Bot));
+        }
+
+        private static PlayerIntent ChooseHumanIntent(MatchState state, System.Collections.Generic.IReadOnlyList<PlayerIntent> legal)
+        {
+            if (state.Phase == MatchPhase.AwaitingDealerChoice)
+            {
+                return legal.OfType<ChooseDealOptionsIntent>()
+                    .Single(item => item.DealHandsBeforeTable && item.OpeningPattern == OpeningPattern.Ascending);
+            }
+
+            return legal.OfType<PlayCardIntent>().FirstOrDefault() ?? legal[0];
+        }
+
+        private static void Drain(FirstPlayableAnimationPlayer player)
+        {
+            var safety = 0;
+            while (player.IsBusy && safety++ < 100000)
+            {
+                player.Tick(0.02f);
+            }
+
+            Assert.That(safety, Is.LessThan(100000));
         }
     }
 }

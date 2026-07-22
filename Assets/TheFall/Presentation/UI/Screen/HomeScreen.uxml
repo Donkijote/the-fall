@@ -58,7 +58,12 @@
                         <ui:Label name="match-eyebrow" class="eyebrow" />
                         <ui:Label name="match-title" class="section-title compact-title" />
                     </ui:VisualElement>
-                    <ui:Button name="match-home-button" class="quiet-button" />
+                    <ui:VisualElement class="match-header-actions">
+                        <ui:Toggle name="animation-fast-toggle" class="presentation-toggle" />
+                        <ui:Toggle name="animation-reduced-toggle" class="presentation-toggle" />
+                        <ui:Button name="animation-skip-button" class="quiet-button presentation-skip" />
+                        <ui:Button name="match-home-button" class="quiet-button" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
 
                 <ui:VisualElement class="match-grid">

@@ -64,6 +64,7 @@ namespace TheFall.Presentation.UI
                 { "canto-options-button", "flow.context.canto-icon" },
                 { "result-replay-button", "flow.result.replay" },
                 { "result-home-button", "flow.common.return-home" },
+                { "animation-skip-button", "flow.animation.skip" },
             };
 
         private UIDocument _document;
@@ -89,6 +90,9 @@ namespace TheFall.Presentation.UI
         private VisualElement _cantoOptionsMenu;
         private VisualElement _cantoOptions;
         private Button _cantoOptionsButton;
+        private Toggle _animationFastToggle;
+        private Toggle _animationReducedToggle;
+        private Button _animationSkipButton;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
         private bool _isDealerMenuOpen;
@@ -98,6 +102,16 @@ namespace TheFall.Presentation.UI
         public FirstPlayableFlow Flow { get; private set; }
 
         public event Action PresentationChanged;
+
+        public event Action<MatchAdvanceResult> MatchAdvanced;
+
+        public event Action<bool> AnimationFastForwardChanged;
+
+        public event Action<bool> AnimationReducedMotionChanged;
+
+        public event Action AnimationSkipRequested;
+
+        public bool IsPresentationBusy { get; private set; }
 
         private void OnEnable()
         {
@@ -161,11 +175,18 @@ namespace TheFall.Presentation.UI
 
         public bool TrySubmitHumanIntent(PlayerIntent intent, out MatchAdvanceResult result)
         {
+            if (IsPresentationBusy)
+            {
+                result = null;
+                return false;
+            }
+
             if (!Flow.TrySubmitHumanIntent(intent, out result))
             {
                 return false;
             }
 
+            MatchAdvanced?.Invoke(result);
             Render();
             return true;
         }
@@ -206,6 +227,34 @@ namespace TheFall.Presentation.UI
             }
         }
 
+        public void RenderPresentationEvent(DomainEvent resolvedEvent)
+        {
+            if (_matchEvent != null && resolvedEvent != null)
+            {
+                _matchEvent.text = EventSummary(resolvedEvent);
+            }
+        }
+
+        public void SetPresentationBusy(bool isBusy)
+        {
+            if (IsPresentationBusy == isBusy)
+            {
+                return;
+            }
+
+            IsPresentationBusy = isBusy;
+            if (!isBusy)
+            {
+                _contextState = null;
+            }
+
+            UpdatePresentationAvailability();
+            if (!isBusy && _root != null && Flow != null)
+            {
+                Render();
+            }
+        }
+
         public void Render()
         {
             if (_root == null || Flow == null)
@@ -214,9 +263,12 @@ namespace TheFall.Presentation.UI
             }
 
             RefreshLocalizedStaticText();
-            ShowOnly(StageElementName(Flow.Stage));
+            var presentedStage = Flow.Stage == FirstPlayableFlowStage.Result && IsPresentationBusy
+                ? FirstPlayableFlowStage.Match
+                : Flow.Stage;
+            ShowOnly(StageElementName(presentedStage));
 
-            switch (Flow.Stage)
+            switch (presentedStage)
             {
                 case FirstPlayableFlowStage.Home:
                     Focus("home-start-button");
@@ -237,6 +289,7 @@ namespace TheFall.Presentation.UI
             _screen.EnableInClassList(
                 "show-table",
                 Flow.Match != null && (Flow.Stage == FirstPlayableFlowStage.Match || Flow.Stage == FirstPlayableFlowStage.Result));
+            UpdatePresentationAvailability();
             PresentationChanged?.Invoke();
         }
 
@@ -268,6 +321,9 @@ namespace TheFall.Presentation.UI
             _cantoOptionsMenu = Require<VisualElement>("canto-options-menu");
             _cantoOptions = Require<VisualElement>("canto-options");
             _cantoOptionsButton = Require<Button>("canto-options-button");
+            _animationFastToggle = Require<Toggle>("animation-fast-toggle");
+            _animationReducedToggle = Require<Toggle>("animation-reduced-toggle");
+            _animationSkipButton = Require<Button>("animation-skip-button");
 
             Require<Button>("home-start-button").clicked += () => OpenSetup();
             Require<Button>("setup-start-button").clicked += () => StartMatch();
@@ -275,6 +331,11 @@ namespace TheFall.Presentation.UI
             Require<Button>("match-home-button").clicked += () => ReturnHome();
             _dealerOptionsButton.clicked += ToggleDealerOptions;
             _cantoOptionsButton.clicked += ToggleCantoOptions;
+            _animationFastToggle.RegisterValueChangedCallback(change =>
+                AnimationFastForwardChanged?.Invoke(change.newValue));
+            _animationReducedToggle.RegisterValueChangedCallback(change =>
+                AnimationReducedMotionChanged?.Invoke(change.newValue));
+            _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
             Require<Button>("result-replay-button").clicked += () => Replay();
             Require<Button>("result-home-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
@@ -318,7 +379,9 @@ namespace TheFall.Presentation.UI
                     Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
             _matchCanto.text = CantoSummary(state);
             _matchEvent.text = EventSummary();
-            var legalIntents = Flow.Match.GetHumanLegalIntents();
+            var legalIntents = IsPresentationBusy
+                ? Array.Empty<PlayerIntent>()
+                : Flow.Match.GetHumanLegalIntents();
             if (!ReferenceEquals(_contextState, state))
             {
                 _contextState = state;
@@ -327,6 +390,10 @@ namespace TheFall.Presentation.UI
             }
 
             RenderContextualActions(state, legalIntents);
+            if (IsPresentationBusy)
+            {
+                _matchFeedback.text = Localize("interaction.feedback.temporarily-blocked");
+            }
         }
 
         private void RenderContextualActions(MatchState state, IReadOnlyList<PlayerIntent> legalIntents)
@@ -479,7 +546,11 @@ namespace TheFall.Presentation.UI
                 return Localize("flow.match.event.ready");
             }
 
-            var resolvedEvent = events[events.Count - 1];
+            return EventSummary(events[events.Count - 1]);
+        }
+
+        private string EventSummary(DomainEvent resolvedEvent)
+        {
             if (resolvedEvent is MatchStartedEvent started)
             {
                 return Localize("flow.match.event.match-started", started.DealerSpreadCardCount);
@@ -558,6 +629,15 @@ namespace TheFall.Presentation.UI
             return Localize("flow.match.event.resolved");
         }
 
+        private void UpdatePresentationAvailability()
+        {
+            _dealerOptionsButton?.SetEnabled(!IsPresentationBusy);
+            _cantoOptionsButton?.SetEnabled(!IsPresentationBusy);
+            _dealerOptions?.SetEnabled(!IsPresentationBusy);
+            _cantoOptions?.SetEnabled(!IsPresentationBusy);
+            _animationSkipButton?.SetEnabled(IsPresentationBusy);
+        }
+
         private string PlayerDisplayName(PlayerId playerId)
         {
             return Localize(playerId == Flow.Match.State.GetPlayerAt(Seat.First).Player.Id
@@ -600,6 +680,12 @@ namespace TheFall.Presentation.UI
             {
                 _casasToggle.text = Localize("flow.setup.casas");
                 _trivilinToggle.text = Localize("flow.setup.trivilin");
+            }
+
+            if (_animationFastToggle != null)
+            {
+                _animationFastToggle.text = Localize("flow.animation.fast-forward");
+                _animationReducedToggle.text = Localize("flow.animation.reduced-motion");
             }
         }
 
