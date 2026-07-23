@@ -242,12 +242,24 @@ namespace TheFall.Application.Animation
         private static AnimationScenarioRecording CreateOpeningRejection(ScenarioContext context)
         {
             var rejected = context.Card(CardSuit.Coins, CardRank.Five);
+            var initialDeck = new List<Card>(Deck.CreateSpanishDeck().Cards);
+            initialDeck.Remove(context.TableCard);
+            initialDeck.Remove(rejected);
+            var reinsertedDeckIndex = initialDeck.Count / 2;
+            var finalDeck = new List<Card>(initialDeck);
+            finalDeck.Insert(reinsertedDeckIndex, rejected);
             var initial = context.State(
+                table: new[] { context.TableCard, rejected },
+                deck: initialDeck);
+            var final = context.State(
                 table: new[] { context.TableCard },
-                deck: new[] { rejected });
+                deck: finalDeck);
             return Recording(context, AnimationScenarioKind.OpeningRejection, "Reject opening card",
-                AnimationRecordingBeat.OpeningRejection, initial, initial,
-                new DomainEvent[] { new OpeningCardRejectedEvent(rejected, 1, 0) });
+                AnimationRecordingBeat.OpeningRejection, initial, final,
+                new DomainEvent[]
+                {
+                    new OpeningCardRejectedEvent(rejected, 1, reinsertedDeckIndex),
+                });
         }
 
         private static AnimationScenarioRecording CreateOpeningPlacement(ScenarioContext context)

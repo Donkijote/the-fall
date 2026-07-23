@@ -122,6 +122,12 @@ namespace TheFall.Presentation.Animation
                     Phase = MatchPhase.Active;
                     break;
                 case ResolvedAnimationStepKind.OpeningRejection:
+                    if (step.SourceEvent is OpeningCardRejectedEvent rejected)
+                    {
+                        _table.Remove(rejected.Card);
+                        DeckCount++;
+                    }
+
                     break;
                 case ResolvedAnimationStepKind.Deal:
                     if (step.SourceEvent is DealStartedEvent dealStarted)

@@ -157,6 +157,8 @@ The isolated deal preview starts with a complete face-down deck and two cards al
 
 The isolated opening-placement preview starts with the already accepted table cards and the complete remaining deck face down. Its top card is reused as the moving card instead of creating a duplicate beside the stack: it leaves the deck back-up, follows the configured deck-to-table path, rotates to reveal its authoritative face, and settles in the next table slot. Existing table cards remain stationary.
 
+The isolated opening-rejection preview reverses that treatment. It begins with the rejected card face up beside the accepted table card and the remaining deck face down. The rejected card leaves its table slot, rotates back-down on the way to its authoritative reinsertion index, and enters a temporary middle-deck gap. The upper half of the deck lifts and shifts aside during insertion, then closes over the card; accepted table cards remain stationary and the final rendered state contains the reinserted card in the deck.
+
 ## Generation and validation
 
 Use:

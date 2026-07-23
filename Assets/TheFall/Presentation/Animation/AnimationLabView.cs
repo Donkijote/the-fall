@@ -33,21 +33,28 @@ namespace TheFall.Presentation.Animation
         private readonly List<DealerSpreadCardView> _dealerSpreadViews = new List<DealerSpreadCardView>();
         private readonly List<HiddenCardView> _deckViews = new List<HiddenCardView>();
         private readonly List<HiddenCardView> _opponentHandViews = new List<HiddenCardView>();
+        private readonly List<DeckSplitMotion> _rejectionDeckSplit = new List<DeckSplitMotion>();
         private Transform _generatedRoot;
         private TextMeshPro _eventCue;
         private Material _cardBackMaterial;
         private DealerSpreadCardView _activeDealerCard;
         private HiddenCardView _activeDealCard;
+        private HiddenCardView _activeRejectedCard;
         private Vector3 _activeDealerCardStart;
         private Vector3 _activeDealStart;
         private Vector3 _activeDealTarget;
+        private Vector3 _activeRejectionStart;
+        private Vector3 _activeRejectionTarget;
         private float _dealerFlipDirection = 1f;
         private float _dealFlipDirection = 1f;
         private float _dealerFlipLift;
         private float _dealerFlipDegrees;
         private float _dealFlipDegrees;
+        private float _rejectionFlipDegrees;
+        private float _rejectionDeckGap;
         private bool _activeDealFaceUp;
         private bool _dealRevealsFace;
+        private bool _activeRejectedCardFaceDown;
         private PlayerId _actingPlayerId;
         private AnimationBeatEasing _easing;
         private Vector3 _trajectoryOffset;
@@ -86,6 +93,13 @@ namespace TheFall.Presentation.Animation
         public bool ActiveDeckCardIsFaceUp => ActiveDealCardIsFaceUp;
 
         public float DeckCardFlipDegrees => DealCardFlipDegrees;
+
+        public bool ActiveRejectedCardIsFaceDown =>
+            _activeRejectedCard != null && _activeRejectedCardFaceDown;
+
+        public float RejectedCardFlipDegrees => _rejectionFlipDegrees;
+
+        public float RejectionDeckGap => _rejectionDeckGap;
 
         public int RevealedDealerCardViewCount
         {
@@ -206,6 +220,16 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
+            if (step.Kind == ResolvedAnimationStepKind.OpeningRejection &&
+                step.SourceEvent is OpeningCardRejectedEvent &&
+                step.Cards.Count > 0)
+            {
+                PrepareOpeningRejection(step);
+                RefreshLabels(state);
+                SetEventCue(step);
+                return;
+            }
+
             EnsureCardViews(state);
             for (var index = 0; index < step.Cards.Count; index++)
             {
@@ -252,6 +276,7 @@ namespace TheFall.Presentation.Animation
 
             ApplyDealerCardFlip(clamped);
             ApplyDealCard(clamped);
+            ApplyOpeningRejection(clamped);
 
             if (_eventCue != null)
             {
@@ -262,6 +287,17 @@ namespace TheFall.Presentation.Animation
 
         public bool TryGetPrimaryMotion(out AnimationMotionPreview preview)
         {
+            if (_activeRejectedCard != null &&
+                _generatedRoot != null &&
+                Vector3.SqrMagnitude(_activeRejectionTarget - _activeRejectionStart) > 0.000001f)
+            {
+                preview = new AnimationMotionPreview(
+                    _generatedRoot.TransformPoint(_activeRejectionStart),
+                    _generatedRoot.TransformPoint(_activeRejectionTarget),
+                    _generatedRoot);
+                return true;
+            }
+
             if (_activeDealCard != null &&
                 _generatedRoot != null &&
                 Vector3.SqrMagnitude(_activeDealTarget - _activeDealStart) > 0.000001f)
@@ -346,14 +382,19 @@ namespace TheFall.Presentation.Animation
             _dealerSpreadViews.Clear();
             _deckViews.Clear();
             _opponentHandViews.Clear();
+            _rejectionDeckSplit.Clear();
             _eventCue = null;
             _cardBackMaterial = null;
             _activeDealerCard = null;
             _activeDealCard = null;
+            _activeRejectedCard = null;
             _dealerFlipDegrees = 0f;
             _dealFlipDegrees = 0f;
+            _rejectionFlipDegrees = 0f;
+            _rejectionDeckGap = 0f;
             _activeDealFaceUp = false;
             _dealRevealsFace = false;
+            _activeRejectedCardFaceDown = false;
 
             if (_generatedRoot != null)
             {
@@ -471,7 +512,7 @@ namespace TheFall.Presentation.Animation
             {
                 _deckViews.Add(CreateHiddenCard(
                     $"Face-down Deck Card {index + 1}",
-                    new Vector3(0.72f, 0.845f + index * 0.0012f, 0.24f)));
+                    ResolveDeckPosition(index)));
             }
         }
 
@@ -609,6 +650,71 @@ namespace TheFall.Presentation.Animation
             _activeDealFaceUp = _dealRevealsFace && progress >= 0.5f;
         }
 
+        private void PrepareOpeningRejection(ResolvedAnimationStep step)
+        {
+            if (!_cardViews.TryGetValue(step.Cards[0], out var rejectedView))
+            {
+                return;
+            }
+
+            var rejected = (OpeningCardRejectedEvent)step.SourceEvent;
+            var insertionIndex = Mathf.Clamp(
+                rejected.ReinsertedDeckIndex,
+                0,
+                _deckViews.Count);
+            rejectedView.gameObject.SetActive(false);
+            _activeRejectedCard = CreateHiddenCard(
+                $"Rejected Opening Card {step.Cards[0]}",
+                rejectedView.localPosition);
+            _activeRejectedCard.FaceRenderer.gameObject.SetActive(true);
+            CardVisualMaterialBinding.Apply(
+                _activeRejectedCard.FaceRenderer,
+                _cardCatalog,
+                step.Cards[0]);
+            _activeRejectedCard.Transform.localRotation =
+                Quaternion.AngleAxis(180f, Vector3.forward);
+            _activeRejectionStart = rejectedView.localPosition;
+            _activeRejectionTarget = ResolveDeckPosition(insertionIndex);
+            _rejectionFlipDegrees = 180f;
+            _activeRejectedCardFaceDown = false;
+            _rejectionDeckGap = 0f;
+            _rejectionDeckSplit.Clear();
+            for (var index = insertionIndex; index < _deckViews.Count; index++)
+            {
+                _rejectionDeckSplit.Add(new DeckSplitMotion(
+                    _deckViews[index].Transform,
+                    _deckViews[index].Transform.localPosition));
+            }
+        }
+
+        private void ApplyOpeningRejection(float progress)
+        {
+            if (_activeRejectedCard == null)
+            {
+                return;
+            }
+
+            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, _easing);
+            _activeRejectedCard.Transform.localPosition = AnimationBeatEvaluator.EvaluatePosition(
+                _activeRejectionStart,
+                _activeRejectionTarget,
+                progress,
+                _easing,
+                _trajectoryOffset);
+            _rejectionFlipDegrees = 180f + eased * 180f;
+            _activeRejectedCard.Transform.localRotation = Quaternion.AngleAxis(
+                _rejectionFlipDegrees,
+                Vector3.forward);
+            _activeRejectedCardFaceDown = progress >= 0.5f;
+
+            _rejectionDeckGap = Mathf.Sin(progress * Mathf.PI);
+            var splitOffset = new Vector3(0.055f, 0.035f, 0f) * _rejectionDeckGap;
+            foreach (var motion in _rejectionDeckSplit)
+            {
+                motion.Transform.localPosition = motion.Start + splitOffset;
+            }
+        }
+
         private void PrepareDealerCardFlip(
             AnimationPresentationState state,
             ResolvedAnimationStep step)
@@ -705,6 +811,11 @@ namespace TheFall.Presentation.Animation
                 (column - 3.5f) * 0.17f,
                 0.845f + row * 0.002f,
                 (row - 2f) * 0.21f);
+        }
+
+        private static Vector3 ResolveDeckPosition(int index)
+        {
+            return new Vector3(0.72f, 0.845f + index * 0.0012f, 0.24f);
         }
 
         private void CreateStage()
@@ -1134,6 +1245,19 @@ namespace TheFall.Presentation.Animation
             public Vector3 Start { get; }
 
             public Vector3 Target { get; }
+        }
+
+        private readonly struct DeckSplitMotion
+        {
+            public DeckSplitMotion(Transform transform, Vector3 start)
+            {
+                Transform = transform;
+                Start = start;
+            }
+
+            public Transform Transform { get; }
+
+            public Vector3 Start { get; }
         }
 
         private sealed class DealerSpreadCardView

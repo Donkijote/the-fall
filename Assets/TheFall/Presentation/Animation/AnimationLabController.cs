@@ -143,6 +143,13 @@ namespace TheFall.Presentation.Animation
 
         public float DeckCardFlipDegrees => _view?.DeckCardFlipDegrees ?? 0f;
 
+        public bool ActiveRejectedCardIsFaceDown =>
+            _view?.ActiveRejectedCardIsFaceDown ?? false;
+
+        public float RejectedCardFlipDegrees => _view?.RejectedCardFlipDegrees ?? 0f;
+
+        public float RejectionDeckGap => _view?.RejectionDeckGap ?? 0f;
+
         public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
 
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;

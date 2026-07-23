@@ -206,6 +206,45 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator OpeningRejection_FlipsTheTableCardDownAndInsertsItIntoTheDeckMiddle()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.OpeningRejection);
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.DeckViewCount, Is.EqualTo(38));
+            Assert.That(controller.ActiveRejectedCardIsFaceDown, Is.False);
+            Assert.That(controller.RejectedCardFlipDegrees, Is.EqualTo(180f).Within(1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            var acceptedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            var acceptedTablePosition = acceptedTableCard.localPosition;
+
+            controller.SeekToStep(0, 0.5f);
+            Assert.That(controller.RejectionDeckGap, Is.GreaterThan(0.9f));
+            Assert.That(controller.RejectedCardFlipDegrees, Is.EqualTo(270f).Within(0.1f));
+
+            controller.SeekToStep(0, 0.75f);
+            acceptedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(
+                Vector3.Distance(acceptedTableCard.localPosition, acceptedTablePosition),
+                Is.LessThan(0.0001f));
+            Assert.That(controller.ActiveRejectedCardIsFaceDown, Is.True);
+            Assert.That(controller.RejectedCardFlipDegrees, Is.GreaterThan(270f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DeckViewCount, Is.EqualTo(39));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(1));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator FastForward_ProfilesTheRepresentativeSequenceWithoutChangingItsOutcome()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
