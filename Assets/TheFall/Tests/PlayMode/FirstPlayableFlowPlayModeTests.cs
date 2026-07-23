@@ -5,6 +5,7 @@ using NUnit.Framework;
 using TheFall.Application;
 using TheFall.Domain;
 using TheFall.Presentation.Bootstrap;
+using TheFall.Presentation.Match;
 using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.Localization;
@@ -30,6 +31,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Loading));
             yield return null;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            table.SkipPresentation();
 
             var humanIntentCount = 0;
             while (controller.Flow.Stage == FirstPlayableFlowStage.Match && humanIntentCount < 5000)
@@ -37,6 +40,8 @@ namespace TheFall.Tests.PlayMode
                 var legal = controller.Flow.Match.GetHumanLegalIntents();
                 var intent = ChooseHumanIntent(controller.Flow.Match.State, legal);
                 Assert.That(controller.SubmitHumanIntent(intent), Is.True);
+                Assert.That(table.IsPresentationBusy, Is.True);
+                table.SkipPresentation();
                 humanIntentCount++;
             }
 

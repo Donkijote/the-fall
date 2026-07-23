@@ -293,6 +293,27 @@ Button {
     flex-grow: 1;
 }
 
+.match-header-actions {
+    flex-direction: row;
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.presentation-toggle {
+    min-height: 38px;
+    margin-right: 12px;
+    color: rgb(216, 196, 147);
+    font-size: 13px;
+    white-space: normal;
+}
+
+.presentation-skip {
+    min-width: 90px;
+    margin-right: 10px;
+}
+
 .quiet-button {
     min-width: 150px;
 }

@@ -28,11 +28,7 @@ namespace TheFall.Editor
         private AnimationPreviewProfile _profile = AnimationPreviewProfile.Desktop;
         private int _presetIndex;
         private int _selectedStepIndex;
-        private bool _playingSelectedStep;
-        private bool _loopSelectedStep;
         private double _lastEditorTime;
-        private Vector2 _sequenceScroll;
-        private Vector2 _compositionScroll;
 
         [MenuItem("The Fall/Animation Laboratory/Open Workbench", priority = 0)]
         public static void Open()
@@ -91,7 +87,6 @@ namespace TheFall.Editor
             DrawSourceSelectors();
             DrawTransport();
             DrawSelectedStep();
-            DrawComposition();
             DrawDiagnostics();
         }
 
@@ -112,11 +107,9 @@ namespace TheFall.Editor
         private void DrawSourceSelectors()
         {
             EditorGUILayout.Space(5f);
-            EditorGUILayout.LabelField("Preview Source", EditorStyles.boldLabel);
-            var scenarioNames = _controller.AvailableScenarioNames
-                .Select(ObjectNames.NicifyVariableName)
-                .ToArray();
-            var nextScenario = EditorGUILayout.Popup("Recorded scenario", _scenarioIndex, scenarioNames);
+            EditorGUILayout.LabelField("Isolated Animation", EditorStyles.boldLabel);
+            var scenarioNames = _controller.AvailableScenarioNames.ToArray();
+            var nextScenario = EditorGUILayout.Popup("Animation", _scenarioIndex, scenarioNames);
             var nextSeat = (Seat)EditorGUILayout.EnumPopup("Acting seat", _seat);
             var nextProfile = (AnimationPreviewProfile)EditorGUILayout.EnumPopup("Presentation profile", _profile);
 
@@ -185,41 +178,24 @@ namespace TheFall.Editor
             EditorGUILayout.LabelField("Edit Mode Transport", EditorStyles.boldLabel);
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("▶ Sequence"))
+                if (GUILayout.Button("▶ Animation"))
                 {
-                    _playingSelectedStep = false;
-                    _controller.Resume();
-                }
-
-                if (GUILayout.Button("▶ Selected Beat"))
-                {
-                    PlaySelectedStep();
+                    _controller.PlayOnce();
                 }
 
                 if (GUILayout.Button("Pause"))
                 {
                     _controller.Pause();
-                    _playingSelectedStep = false;
-                }
-
-                if (GUILayout.Button("Step"))
-                {
-                    _controller.SingleStep();
-                    _selectedStepIndex = Mathf.Clamp(
-                        _controller.CurrentStepIndex,
-                        0,
-                        Mathf.Max(0, _controller.AnimatableStepCount - 1));
                 }
 
                 if (GUILayout.Button("Reset"))
                 {
                     _controller.ResetToStart();
-                    _playingSelectedStep = false;
                 }
             }
 
             var normalized = EditorGUILayout.Slider(
-                "Sequence scrub",
+                "Animation scrub",
                 _controller.NormalizedPosition,
                 0f,
                 1f);
@@ -231,10 +207,8 @@ namespace TheFall.Editor
                     _controller.CurrentStepIndex,
                     0,
                     Mathf.Max(0, _controller.AnimatableStepCount - 1));
-                _playingSelectedStep = false;
             }
 
-            _loopSelectedStep = EditorGUILayout.Toggle("Loop selected beat", _loopSelectedStep);
             EditorGUILayout.LabelField(
                 "Time",
                 $"{_controller.ElapsedSeconds:F3}s / {_controller.DurationSeconds:F3}s");
@@ -243,27 +217,19 @@ namespace TheFall.Editor
         private void DrawSelectedStep()
         {
             EditorGUILayout.Space(8f);
-            EditorGUILayout.LabelField("Sequence Beats", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Animation Settings", EditorStyles.boldLabel);
             var steps = _controller.Sequence.Steps;
-            _sequenceScroll = EditorGUILayout.BeginScrollView(_sequenceScroll, GUILayout.Height(145f));
-            for (var index = 0; index < _controller.AnimatableStepCount; index++)
-            {
-                var step = steps[index];
-                var marker = index == _selectedStepIndex ? "▶" : " ";
-                var source = step.SourceEvent == null ? "final sync" : step.SourceEvent.Kind.ToString();
-                if (GUILayout.Button(
-                    $"{marker} {index + 1:00}  {step.Kind,-20} ← {source}",
-                    index == _selectedStepIndex ? EditorStyles.miniButtonMid : EditorStyles.miniButton))
-                {
-                    SelectStep(index);
-                }
-            }
-
-            EditorGUILayout.EndScrollView();
-
             if (_controller.AnimatableStepCount == 0)
             {
                 return;
+            }
+
+            if (_controller.IsPlaying)
+            {
+                _selectedStepIndex = Mathf.Clamp(
+                    _controller.CurrentStepIndex,
+                    0,
+                    _controller.AnimatableStepCount - 1);
             }
 
             _selectedStepIndex = Mathf.Clamp(
@@ -271,6 +237,10 @@ namespace TheFall.Editor
                 0,
                 _controller.AnimatableStepCount - 1);
             var selectedStep = steps[_selectedStepIndex];
+            EditorGUILayout.LabelField("Beat", selectedStep.Kind.ToString());
+            EditorGUILayout.LabelField(
+                "Resolved event",
+                selectedStep.SourceEvent?.Kind.ToString() ?? "none");
             var beat = _controller.WorkingConfiguration.GetBeat(selectedStep.Kind);
             if (beat == null)
             {
@@ -300,6 +270,7 @@ namespace TheFall.Editor
                 SelectStep(_selectedStepIndex, Mathf.Max(MinimumPreviewProgress, _controller.ActiveStepProgress));
             }
 
+            EditorGUI.BeginChangeCheck();
             var beatProgress = EditorGUILayout.Slider(
                 "Selected beat scrub",
                 _controller.CurrentStepIndex == _selectedStepIndex
@@ -307,48 +278,10 @@ namespace TheFall.Editor
                     : 0f,
                 0f,
                 1f);
-            if (_controller.CurrentStepIndex != _selectedStepIndex ||
-                !Mathf.Approximately(beatProgress, _controller.ActiveStepProgress))
+            if (EditorGUI.EndChangeCheck())
             {
                 SelectStep(_selectedStepIndex, Mathf.Max(MinimumPreviewProgress, beatProgress));
             }
-        }
-
-        private void DrawComposition()
-        {
-            EditorGUILayout.Space(8f);
-            EditorGUILayout.LabelField("Reusable Beat Composition", EditorStyles.boldLabel);
-            _compositionScroll = EditorGUILayout.BeginScrollView(_compositionScroll, GUILayout.Height(150f));
-            var beats = _controller.WorkingConfiguration.Beats;
-            for (var index = 0; index < beats.Count; index++)
-            {
-                var beat = beats[index];
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    var enabled = EditorGUILayout.Toggle(beat.Enabled, GUILayout.Width(18f));
-                    if (enabled != beat.Enabled)
-                    {
-                        Undo.RecordObject(_controller.WorkingConfiguration, "Toggle presentation beat");
-                        beat.SetEnabled(enabled);
-                        EditorUtility.SetDirty(_controller.WorkingConfiguration);
-                        _controller.RefreshEditorPreview();
-                        SelectStep(0);
-                    }
-
-                    EditorGUILayout.LabelField(beat.Kind.ToString());
-                    if (GUILayout.Button("↑", GUILayout.Width(26f)))
-                    {
-                        MoveBeat(index, -1);
-                    }
-
-                    if (GUILayout.Button("↓", GUILayout.Width(26f)))
-                    {
-                        MoveBeat(index, 1);
-                    }
-                }
-            }
-
-            EditorGUILayout.EndScrollView();
         }
 
         private void DrawDiagnostics()
@@ -372,25 +305,6 @@ namespace TheFall.Editor
             if (!IsPreviewReady() || !_controller.TickEditorPreview(delta))
             {
                 return;
-            }
-
-            if (_playingSelectedStep)
-            {
-                var end = _controller.GetStepEndSeconds(_selectedStepIndex);
-                if (_controller.ElapsedSeconds >= end - 0.0001f)
-                {
-                    _controller.Pause();
-                    if (_loopSelectedStep)
-                    {
-                        _controller.SeekToStep(_selectedStepIndex, MinimumPreviewProgress);
-                        _controller.Resume();
-                    }
-                    else
-                    {
-                        _controller.SeekToStep(_selectedStepIndex, 1f);
-                        _playingSelectedStep = false;
-                    }
-                }
             }
 
             Repaint();
@@ -545,32 +459,8 @@ namespace TheFall.Editor
             _controller.SeekToStep(
                 _selectedStepIndex,
                 Mathf.Clamp(progress, MinimumPreviewProgress, 1f));
-            _playingSelectedStep = false;
             SceneView.RepaintAll();
             Repaint();
-        }
-
-        private void PlaySelectedStep()
-        {
-            if (!IsPreviewReady() || _controller.AnimatableStepCount == 0)
-            {
-                return;
-            }
-
-            _controller.SeekToStep(_selectedStepIndex, MinimumPreviewProgress);
-            _controller.Resume();
-            _playingSelectedStep = true;
-        }
-
-        private void MoveBeat(int index, int offset)
-        {
-            Undo.RecordObject(_controller.WorkingConfiguration, "Reorder presentation beat");
-            if (_controller.WorkingConfiguration.MoveBeat(index, offset))
-            {
-                EditorUtility.SetDirty(_controller.WorkingConfiguration);
-                _controller.RefreshEditorPreview();
-                SelectStep(0);
-            }
         }
 
         private void SavePresetAs()

@@ -27,6 +27,7 @@ namespace TheFall.Presentation.Animation
         TieExtension,
         TurnChanged,
         MatchCompleted,
+        HandReflow,
         SynchronizeFinalState,
     }
 
@@ -208,8 +209,24 @@ namespace TheFall.Presentation.Animation
                             cards: new[] { opening.Card }));
                         break;
                     case CardPlayedEvent played:
+                        var playedCards = new List<Card> { played.Card };
+                        if (eventIndex + 1 < resolvedEvents.Count &&
+                            resolvedEvents[eventIndex + 1] is CardsCapturedEvent pendingCapture &&
+                            pendingCapture.PlayerId == played.PlayerId &&
+                            pendingCapture.Cards.Count >= 2 &&
+                            pendingCapture.Cards[0] == played.Card)
+                        {
+                            playedCards.Add(pendingCapture.Cards[1]);
+                        }
+
                         steps.Add(Step(
                             ResolvedAnimationStepKind.CardPlay,
+                            played,
+                            eventIndex,
+                            playerId: played.PlayerId,
+                            cards: playedCards));
+                        steps.Add(Step(
+                            ResolvedAnimationStepKind.HandReflow,
                             played,
                             eventIndex,
                             playerId: played.PlayerId,
@@ -244,6 +261,16 @@ namespace TheFall.Presentation.Animation
                                 eventIndex,
                                 playerId: captured.PlayerId,
                                 cards: new[] { captured.Cards[cardIndex] }));
+                        }
+
+                        if (captured.Cards.Count > 2)
+                        {
+                            steps.Add(Step(
+                                ResolvedAnimationStepKind.CascadeCapture,
+                                captured,
+                                eventIndex,
+                                playerId: captured.PlayerId,
+                                cards: captured.Cards));
                         }
 
                         break;

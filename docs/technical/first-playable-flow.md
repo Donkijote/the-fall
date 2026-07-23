@@ -6,7 +6,7 @@ Status: Confirmed first-playable UI contract
 
 Issue #24 adds the minimal localized application flow around the complete deterministic match orchestrator from issue #23. A player can launch into Home, configure the bounded rules, progress through an explicit loading state, complete a match, see its authoritative result, replay with the same configuration, or return Home without editor intervention.
 
-This is functional prototype UI. Issue #25 now supplies complete table rendering and integrated card interaction within the same Home scene and application session. Production animation and audio remain owned by issues #26 and #27.
+This is functional prototype UI. Issue #25 supplies complete table rendering and integrated card interaction within the same Home scene and application session. Issue #26 adds resolved-event animation controls and presentation blocking; audio remains owned by issue #27.
 
 ## Application boundary
 
@@ -20,6 +20,8 @@ Home -> Setup -> Loading -> Match -> Result
 ```
 
 The flow accepts only valid transitions. Repeated start, replay, loading-completion, or return requests do not replace the current session or advance the state twice. A loading completion includes the expected session number, so a delayed completion from an abandoned session cannot reopen stale match state.
+
+The pure flow still reaches Result as soon as the authoritative match completes. The UI adapter deliberately continues to present the Match panel while its final animation batch is busy, then reveals Result after synchronization. This is presentation gating only; it does not add a flow stage or delay the accepted rule state.
 
 Starting a match creates one `FirstPlayableMatchOrchestrator` through the manual Bootstrap composition root. Replay replaces the completed orchestrator with a fresh seeded session while preserving the two selected rule options. Returning Home releases the match reference and restores the documented defaults before another setup begins.
 
@@ -46,6 +48,8 @@ Buttons and toggles remain mouse-clickable and keyboard-focusable through UI Too
 - all four dealer setup combinations
 - every canto claim, including false announcements
 - every legal card play
+
+The match header also exposes localized fast-forward, reduced-motion, and skip controls. While presentation is busy, legal-intent controls are disabled and direct submissions are rejected before reaching the orchestrator. Re-enabling input after synchronization reconstructs contextual menus from the current authoritative legal-intent surface.
 
 ## Bootstrap and teardown
 

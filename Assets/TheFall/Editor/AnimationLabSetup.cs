@@ -47,6 +47,7 @@ namespace TheFall.Editor
                 AssetDatabase.CreateAsset(iterationPreset, IterationPresetPath);
             }
 
+            iterationPreset.SetPresetIdentity("Fast Iteration");
             iterationPreset.EnsureDefaults();
             EditorUtility.SetDirty(iterationPreset);
 
@@ -87,7 +88,7 @@ namespace TheFall.Editor
                 AssetDatabase.LoadAssetAtPath<GameObject>(TablePrefabPath),
                 AssetDatabase.LoadAssetAtPath<CardVisualCatalog>(CardCatalogPath));
             sceneRoot.GetComponent<ScenePurpose>()?.SetDescription(
-                "Edit Mode-first resolved-event animation workbench for Scene-view wireframe authoring, reusable beat composition, live preview, named versioned presets, deterministic transport, runtime reuse, diagnosis, and authoritative state synchronization.");
+                "Edit Mode-first library of isolated resolved-event animations for Scene-view wireframe authoring, named versioned presets, deterministic transport, runtime reuse, diagnosis, and authoritative state synchronization.");
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -142,15 +143,28 @@ namespace TheFall.Editor
 
 
             if (configuration.PresetVersion != AnimationSequenceConfiguration.CurrentPresetVersion ||
-                configuration.Beats.Count == 0 ||
+                !HasCompleteBeatLibrary(configuration) ||
                 controller.Presets.Any(preset =>
                     preset == null ||
                     preset.PresetVersion != AnimationSequenceConfiguration.CurrentPresetVersion ||
-                    preset.Beats.Count == 0))
+                    !HasCompleteBeatLibrary(preset)))
             {
                 throw new BuildFailedException(
                     "AnimationLab requires named, versioned presentation presets with reusable beats.");
             }
+        }
+
+        private static bool HasCompleteBeatLibrary(AnimationSequenceConfiguration preset)
+        {
+            foreach (ResolvedAnimationStepKind kind in Enum.GetValues(typeof(ResolvedAnimationStepKind)))
+            {
+                if (kind != ResolvedAnimationStepKind.SynchronizeFinalState && preset.GetBeat(kind) == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         [MenuItem("The Fall/Animation Laboratory/Capture Validation Set")]

@@ -21,6 +21,8 @@ namespace TheFall.Presentation.Match
 
         public Card? Card { get; private set; }
 
+        internal Card? PresentationCard { get; private set; }
+
         public bool IsFaceUp { get; private set; }
 
         public int InteractionIndex { get; private set; } = -1;
@@ -34,6 +36,7 @@ namespace TheFall.Presentation.Match
             Zone = zone;
             IsFaceUp = isFaceUp;
             Card = isFaceUp ? card : null;
+            PresentationCard = card;
             InteractionIndex = interactionIndex;
         }
     }

@@ -1,0 +1,210 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
+using TheFall.Application;
+using TheFall.Domain;
+using TheFall.Presentation.Animation;
+using TheFall.Presentation.Bootstrap;
+using TheFall.Presentation.Match;
+using TheFall.Presentation.UI;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+using UnityEngine.UIElements;
+
+namespace TheFall.Tests.PlayMode
+{
+    public sealed class FirstPlayableAnimationPlayModeTests
+    {
+        [UnityTest]
+        public IEnumerator RuntimePresentation_BlocksDuplicateInputAndEveryExitConverges()
+        {
+            yield return LoadMatchWithoutSettlingPresentation();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            var ui = controller.GetComponent<UIDocument>().rootVisualElement;
+
+            Assert.That(table.AnimationPreset, Is.Not.Null);
+            Assert.That(table.AnimationPreset.PresetVersion, Is.EqualTo(AnimationSequenceConfiguration.CurrentPresetVersion));
+            Assert.That(table.IsPresentationBusy, Is.True);
+            Assert.That(controller.IsPresentationBusy, Is.True);
+            Assert.That(ui.Q<Toggle>("animation-fast-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("animation-reduced-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Button>("animation-skip-button"), Is.Not.Null);
+
+            var blockedIntent = ChooseHumanIntent(
+                controller.Flow.Match.State,
+                controller.Flow.Match.GetHumanLegalIntents());
+            var initialTraceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+            Assert.That(controller.SubmitHumanIntent(blockedIntent), Is.False);
+            Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(initialTraceCount));
+
+            yield return WaitForPresentation(table);
+            Assert.That(table.AnimationCompletionReason, Is.EqualTo(AnimationSequenceCompletionReason.Completed));
+            Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
+            Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
+
+            var unchangedState = controller.Flow.Match.State;
+            var unchangedTraceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+            foreach (var viewport in new[]
+            {
+                new Vector2Int(1280, 720),
+                new Vector2Int(1440, 900),
+                new Vector2Int(1920, 1080),
+                new Vector2Int(2560, 1440),
+            })
+            {
+                table.ApplyViewportForTests(viewport, new Rect(0f, 0f, viewport.x, viewport.y));
+                Assert.That(controller.Flow.Match.State, Is.SameAs(unchangedState));
+                Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(unchangedTraceCount));
+            }
+
+            var firstIntent = ChooseHumanIntent(
+                controller.Flow.Match.State,
+                controller.Flow.Match.GetHumanLegalIntents());
+            Assert.That(controller.SubmitHumanIntent(firstIntent), Is.True);
+            Assert.That(table.IsPresentationBusy, Is.True);
+            var acceptedTraceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+            Assert.That(controller.SubmitHumanIntent(firstIntent), Is.False);
+            Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(acceptedTraceCount));
+
+            table.SetFastForward(true);
+            table.SetReducedMotion(true);
+            yield return WaitForPresentation(table);
+            Assert.That(table.AnimationPlayer.FastForward, Is.True);
+            Assert.That(table.AnimationPlayer.ReducedMotion, Is.True);
+            Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
+
+            SubmitNext(controller);
+            table.InterruptPresentation();
+            AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Interrupted);
+
+            SubmitNext(controller);
+            table.CancelPresentation();
+            AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Cancelled);
+
+            SubmitNext(controller);
+            table.SkipPresentation();
+            AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Skipped);
+
+            SubmitNext(controller);
+            Assert.That(controller.ReturnHome(), Is.True);
+            Assert.That(table.AnimationCompletionReason, Is.EqualTo(AnimationSequenceCompletionReason.Interrupted));
+            Assert.That(controller.Flow.Match, Is.Null);
+            Assert.That(controller.IsPresentationBusy, Is.False);
+            Assert.That(table.Snapshot, Is.Null);
+        }
+
+        [UnityTest]
+        public IEnumerator FastForwardCompleteMatch_ProfilesIntegratedRenderingWithoutPooling()
+        {
+            yield return LoadMatchWithoutSettlingPresentation();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            table.SetFastForward(true);
+            var startedAt = Time.realtimeSinceStartup;
+            yield return WaitForPresentation(table);
+
+            var humanIntents = 0;
+            while (controller.Flow.Stage == FirstPlayableFlowStage.Match && humanIntents++ < 5000)
+            {
+                var legal = controller.Flow.Match.GetHumanLegalIntents();
+                Assert.That(
+                    controller.SubmitHumanIntent(ChooseHumanIntent(controller.Flow.Match.State, legal)),
+                    Is.True);
+                yield return WaitForPresentation(table);
+            }
+
+            Assert.That(humanIntents, Is.LessThan(5000));
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Result));
+            Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
+            Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
+            Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.Deal));
+            Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.NormalCapture));
+            Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
+            Assert.That(
+                controller.Flow.Match.Trace.Events.OfType<CardPlayedEvent>()
+                    .Select(item => item.PlayerId)
+                    .Distinct()
+                    .ToArray(),
+                Has.Length.EqualTo(2));
+
+            TestContext.WriteLine(
+                $"Integrated complete-match animation profile: " +
+                $"{controller.Flow.Match.Trace.IntentHistory.Count} intent records, " +
+                $"{controller.Flow.Match.Trace.Events.Count} source events, " +
+                $"{table.AnimationPlayer.PresentedSteps.Count} visible beats, " +
+                $"{table.AnimationPlayer.FrameCount} rendered updates, " +
+                $"{table.AnimationPresentationCpuMilliseconds:F2} ms integrated presentation CPU, " +
+                $"{table.AnimationPresentationPeakUpdateCpuMilliseconds:F3} ms peak update, " +
+                $"{(Time.realtimeSinceStartup - startedAt) * 1000f:F1} ms batch wall time.");
+        }
+
+        private static void SubmitNext(FirstPlayableFlowController controller)
+        {
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            var legal = controller.Flow.Match.GetHumanLegalIntents();
+            Assert.That(controller.SubmitHumanIntent(ChooseHumanIntent(controller.Flow.Match.State, legal)), Is.True);
+            Assert.That(controller.IsPresentationBusy, Is.True);
+        }
+
+        private static void AssertSynchronized(
+            FirstPlayableTablePresentation table,
+            FirstPlayableFlowController controller,
+            AnimationSequenceCompletionReason reason)
+        {
+            Assert.That(table.AnimationCompletionReason, Is.EqualTo(reason));
+            Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
+            Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
+            Assert.That(controller.IsPresentationBusy, Is.False);
+        }
+
+        private static IEnumerator WaitForPresentation(FirstPlayableTablePresentation table)
+        {
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (table.IsPresentationBusy && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(table.IsPresentationBusy, Is.False);
+        }
+
+        private static IEnumerator LoadMatchWithoutSettlingPresentation()
+        {
+            if (CompositionRoot.Instance != null)
+            {
+                Object.Destroy(CompositionRoot.Instance.gameObject);
+                yield return null;
+            }
+
+            yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            Assert.That(controller, Is.Not.Null);
+            Assert.That(controller.OpenSetup(), Is.True);
+            Assert.That(controller.StartMatch(), Is.True);
+            yield return null;
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            Assert.That(Object.FindAnyObjectByType<FirstPlayableTablePresentation>(), Is.Not.Null);
+        }
+
+        private static PlayerIntent ChooseHumanIntent(MatchState state, IReadOnlyList<PlayerIntent> legal)
+        {
+            if (state.Phase == MatchPhase.AwaitingDealerChoice)
+            {
+                return legal.OfType<ChooseDealOptionsIntent>()
+                    .Single(item => item.DealHandsBeforeTable && item.OpeningPattern == OpeningPattern.Ascending);
+            }
+
+            return legal.OfType<PlayCardIntent>().FirstOrDefault() ?? legal[0];
+        }
+    }
+}

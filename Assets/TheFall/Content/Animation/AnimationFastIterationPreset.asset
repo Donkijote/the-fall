@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfad797163e8e46b5b309e3d6bef1f79, type: 3}
   m_Name: AnimationFastIterationPreset
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Animation.AnimationSequenceConfiguration
-  _presetVersion: 1
+  _presetVersion: 2
   _presetName: Fast Iteration
   _beats:
   - _kind: 0
@@ -24,7 +24,7 @@ MonoBehaviour:
     _emphasis: 1
   - _kind: 1
     _enabled: 1
-    _durationSeconds: 0.16
+    _durationSeconds: 0.32
     _delaySeconds: 0
     _easing: 1
     _trajectoryOffset: {x: 0, y: 0, z: 0}
@@ -158,6 +158,13 @@ MonoBehaviour:
   - _kind: 20
     _enabled: 1
     _durationSeconds: 0.08
+    _delaySeconds: 0
+    _easing: 1
+    _trajectoryOffset: {x: 0, y: 0, z: 0}
+    _emphasis: 1.6
+  - _kind: 21
+    _enabled: 1
+    _durationSeconds: 0.16
     _delaySeconds: 0
     _easing: 1
     _trajectoryOffset: {x: 0, y: 0, z: 0}

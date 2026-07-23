@@ -26,8 +26,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.ResolvedEvents, Is.Not.Empty);
             Assert.That(controller.CompletionReason, Is.EqualTo(AnimationSequenceCompletionReason.Completed));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
-            Assert.That(controller.RenderedState.Table, Is.Empty);
-            Assert.That(controller.CardViewCount, Is.EqualTo(6));
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(1));
+            Assert.That(controller.Sequence.Steps[0].Kind, Is.EqualTo(ResolvedAnimationStepKind.CardPlay));
             Assert.That(controller.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
             Assert.That(controller.GameplayCamera.transform.rotation, Is.EqualTo(cameraRotation));
         }
@@ -63,13 +63,14 @@ namespace TheFall.Tests.PlayMode
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
 
             var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.NormalCapture);
             controller.ResetForTests(Seat.First, new Vector2Int(390, 844));
             controller.CompleteImmediatelyForTests();
             var firstActor = controller.FinalState.GetPlayerAt(Seat.First);
 
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
-            Assert.That(controller.RenderedState.GetCaptured(firstActor.Player.Id), Has.Count.EqualTo(4));
+            Assert.That(controller.RenderedState.GetCaptured(firstActor.Player.Id), Has.Count.EqualTo(2));
 
             controller.ResetForTests(Seat.Second, new Vector2Int(844, 390));
             controller.CompleteImmediatelyForTests();
@@ -77,8 +78,433 @@ namespace TheFall.Tests.PlayMode
 
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.WideLandscape));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
-            Assert.That(controller.RenderedState.GetCaptured(secondActor.Player.Id), Has.Count.EqualTo(4));
-            Assert.That(controller.RenderedState.GetScore(secondActor.Player.TeamId).Value, Is.EqualTo(12));
+            Assert.That(controller.RenderedState.GetCaptured(secondActor.Player.Id), Has.Count.EqualTo(2));
+        }
+
+        [UnityTest]
+        public IEnumerator CaptureMatchingPair_PlaysOntoTheMatchThenFlipsTheStackIntoTheCapturedPile()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.NormalCapture);
+
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(1));
+            Assert.That(controller.Sequence.Steps[0].Kind, Is.EqualTo(ResolvedAnimationStepKind.NormalCapture));
+
+            controller.SeekToStep(0, 0.01f);
+            var played = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Coins");
+            var matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            var matchingStart = matching.localPosition;
+            Assert.That(controller.CapturePairViewCount, Is.EqualTo(2));
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
+            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+
+            controller.SeekToStep(0, 0.3f);
+            matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            Assert.That(
+                Vector3.Distance(matching.localPosition, matchingStart),
+                Is.LessThan(0.0001f));
+
+            controller.SeekToStep(0, 0.42f);
+            played = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Coins");
+            matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            Assert.That(
+                Vector2.Distance(
+                    new Vector2(played.localPosition.x, played.localPosition.z),
+                    new Vector2(matching.localPosition.x, matching.localPosition.z)),
+                Is.LessThan(0.0001f));
+            Assert.That(played.localPosition.y, Is.GreaterThan(matching.localPosition.y));
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
+            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+
+            controller.SeekToStep(0, 0.75f);
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.EqualTo(2));
+            Assert.That(controller.CapturePairFlipDegrees, Is.GreaterThan(270f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.CapturePairViewCount, Is.Zero);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(2));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(1));
+            Assert.That(controller.RenderedState.GetCaptured(
+                controller.FinalState.GetPlayerAt(controller.ActingSeat).Player.Id),
+                Has.Count.EqualTo(2));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+
+            var firstSeatPile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .First(item => item.name == "Face-down Seat One Captured Card 1");
+            Assert.That(firstSeatPile.localPosition.x, Is.LessThan(-0.4f));
+
+            controller.SetActingSeat(Seat.Second);
+            controller.CompleteImmediatelyForTests();
+            var secondSeatPile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .First(item => item.name == "Face-down Seat Two Captured Card 1");
+            Assert.That(secondSeatPile.localPosition.x, Is.GreaterThan(0.4f));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator CascadeCapture_GrowsTheStackAtEachCardThenFlipsItOntoTheCapturedPile()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.CascadeCapture);
+
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(5));
+            Assert.That(
+                controller.Sequence.Steps.Take(5).Select(step => step.Kind),
+                Is.EqualTo(new[]
+                {
+                    ResolvedAnimationStepKind.NormalCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                }));
+
+            controller.SeekToStep(0, 0.01f);
+            var cascadeThree = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Three of Clubs");
+            var cascadeFour = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Four of Swords");
+            var cascadeFive = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Five of Cups");
+            var untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            var cascadeThreePosition = cascadeThree.localPosition;
+            var cascadeFourPosition = cascadeFour.localPosition;
+            var cascadeFivePosition = cascadeFive.localPosition;
+            var untouchedTablePosition = untouchedTableCard.localPosition;
+
+            controller.SeekToStep(0, 0.99f);
+            var played = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Coins");
+            var matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            Assert.That(
+                Vector2.Distance(
+                    new Vector2(played.localPosition.x, played.localPosition.z),
+                    new Vector2(matching.localPosition.x, matching.localPosition.z)),
+                Is.LessThan(0.0001f));
+            Assert.That(played.localPosition.y, Is.GreaterThan(matching.localPosition.y));
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
+
+            controller.SeekToStep(1, 0f);
+            cascadeThree = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Three of Clubs");
+            cascadeFour = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Four of Swords");
+            cascadeFive = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Five of Cups");
+            untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(cascadeThree.localPosition, Is.EqualTo(cascadeThreePosition));
+            Assert.That(cascadeFour.localPosition, Is.EqualTo(cascadeFourPosition));
+            Assert.That(cascadeFive.localPosition, Is.EqualTo(cascadeFivePosition));
+            Assert.That(untouchedTableCard.localPosition, Is.EqualTo(untouchedTablePosition));
+
+            controller.SeekToStep(1, 0.5f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(3));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            var stationaryCascadeTarget = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Cascade Stack Card Three of Clubs");
+            Assert.That(stationaryCascadeTarget.localPosition, Is.EqualTo(cascadeThreePosition));
+
+            controller.SeekToStep(2, 0f);
+            cascadeFour = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Four of Swords");
+            cascadeFive = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Five of Cups");
+            untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(cascadeFour.localPosition, Is.EqualTo(cascadeFourPosition));
+            Assert.That(cascadeFive.localPosition, Is.EqualTo(cascadeFivePosition));
+            Assert.That(untouchedTableCard.localPosition, Is.EqualTo(untouchedTablePosition));
+
+            controller.SeekToStep(2, 0.5f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(4));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            stationaryCascadeTarget = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Cascade Stack Card Four of Swords");
+            Assert.That(stationaryCascadeTarget.localPosition, Is.EqualTo(cascadeFourPosition));
+
+            controller.SeekToStep(3, 0.75f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+
+            controller.SeekToStep(4, 0.75f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.EqualTo(5));
+            Assert.That(controller.CascadeStackFlipDegrees, Is.GreaterThan(270f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.CascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(5));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(1));
+            Assert.That(controller.RenderedState.GetCaptured(
+                controller.FinalState.GetPlayerAt(controller.ActingSeat).Player.Id),
+                Has.Count.EqualTo(5));
+            var pile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .First(item => item.name == "Face-down Seat One Captured Card 1");
+            Assert.That(pile.localPosition.x, Is.LessThan(-0.4f));
+            untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(untouchedTableCard.localPosition, Is.EqualTo(untouchedTablePosition));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator Leftovers_FlipFaceDownAndSettleOnTopOfTheLeftCapturedPile()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.CollectLeftovers);
+
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(1));
+            Assert.That(
+                controller.Sequence.Steps[0].Kind,
+                Is.EqualTo(ResolvedAnimationStepKind.Leftovers));
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(1));
+            Assert.That(controller.LeftoverCollectionViewCount, Is.EqualTo(2));
+            Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.Zero);
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+
+            var existingPileCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Face-down Seat One Captured Card 1");
+
+            controller.SeekToStep(0, 0.75f);
+            Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.EqualTo(2));
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.GreaterThan(270f));
+
+            controller.SeekToStep(0, 0.99f);
+            var matchingLeftover = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Leftover Collection Card Two of Cups");
+            var cascadeLeftover = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Leftover Collection Card Three of Clubs");
+            Assert.That(matchingLeftover.localPosition.x, Is.LessThan(-0.4f));
+            Assert.That(cascadeLeftover.localPosition.x, Is.LessThan(-0.4f));
+            Assert.That(matchingLeftover.localPosition.y, Is.GreaterThan(existingPileCard.localPosition.y));
+            Assert.That(cascadeLeftover.localPosition.y, Is.GreaterThan(matchingLeftover.localPosition.y));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.LeftoverCollectionViewCount, Is.Zero);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(3));
+            var settledPile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Where(item => item.name.StartsWith("Face-down Seat One Captured Card"))
+                .OrderBy(item => item.name)
+                .ToArray();
+            Assert.That(settledPile, Has.Length.EqualTo(3));
+            Assert.That(settledPile[1].localPosition.y, Is.GreaterThan(settledPile[0].localPosition.y));
+            Assert.That(settledPile[2].localPosition.y, Is.GreaterThan(settledPile[1].localPosition.y));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator DealerSelection_ShowsTheWholeFaceDownSpreadAndFlipsTheSelectedCard()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.DealerCardSelection);
+
+            controller.SeekToStep(0, 0f);
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.RevealedDealerCardViewCount, Is.Zero);
+            Assert.That(controller.DealerCardFlipDegrees, Is.Zero);
+
+            controller.SeekToStep(0, 0.5f);
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.DealerCardFlipDegrees, Is.EqualTo(90f).Within(0.1f));
+
+            controller.SeekToStep(0, 0.75f);
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
+            Assert.That(controller.DealerCardFlipDegrees, Is.GreaterThan(90f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
+            Assert.That(controller.RevealedDealerCardClearance, Is.GreaterThan(0f));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator DealOneCard_ShowsTheDeckDealsFaceUpThenFaceDownAndKeepsTheHandStill()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.DealCard);
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(2));
+            Assert.That(controller.DeckViewCount, Is.EqualTo(36));
+            Assert.That(controller.OpponentHandViewCount, Is.EqualTo(2));
+            Assert.That(controller.ActiveDealCardIsFaceUp, Is.False);
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            var handOne = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Seven of Clubs");
+            var handTwo = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Twelve of Swords");
+            var handOneStart = handOne.localPosition;
+            var handTwoStart = handTwo.localPosition;
+
+            controller.SeekToStep(0, 0.75f);
+            handOne = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Seven of Clubs");
+            handTwo = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Twelve of Swords");
+            Assert.That(Vector3.Distance(handOne.localPosition, handOneStart), Is.LessThan(0.0001f));
+            Assert.That(Vector3.Distance(handTwo.localPosition, handTwoStart), Is.LessThan(0.0001f));
+            Assert.That(controller.ActiveDealCardIsFaceUp, Is.True);
+            Assert.That(controller.DealCardFlipDegrees, Is.GreaterThan(90f));
+
+            controller.SeekToStep(1, 0.75f);
+            handOne = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Seven of Clubs");
+            handTwo = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Twelve of Swords");
+            Assert.That(Vector3.Distance(handOne.localPosition, handOneStart), Is.LessThan(0.0001f));
+            Assert.That(Vector3.Distance(handTwo.localPosition, handTwoStart), Is.LessThan(0.0001f));
+            Assert.That(controller.DeckViewCount, Is.EqualTo(35));
+            Assert.That(controller.OpponentHandViewCount, Is.EqualTo(2));
+            Assert.That(controller.ActiveDealCardIsFaceUp, Is.False);
+            Assert.That(controller.DealCardFlipDegrees, Is.Zero);
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DeckViewCount, Is.EqualTo(34));
+            Assert.That(controller.OpponentHandViewCount, Is.EqualTo(3));
+            Assert.That(controller.RenderedState.GetHand(
+                controller.FinalState.GetPlayerAt(controller.ActingSeat).Player.Id), Has.Count.EqualTo(3));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator OpeningPlacement_PicksTheFaceDownDeckTopAndFlipsItOntoTheTable()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.OpeningPlacement);
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.DeckViewCount, Is.EqualTo(39));
+            Assert.That(controller.ActiveDeckCardIsFaceUp, Is.False);
+            Assert.That(controller.DeckCardFlipDegrees, Is.LessThan(1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            var existingTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            var existingTablePosition = existingTableCard.localPosition;
+
+            controller.SeekToStep(0, 0.75f);
+            existingTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(
+                Vector3.Distance(existingTableCard.localPosition, existingTablePosition),
+                Is.LessThan(0.0001f));
+            Assert.That(controller.DeckViewCount, Is.EqualTo(39));
+            Assert.That(controller.ActiveDeckCardIsFaceUp, Is.True);
+            Assert.That(controller.DeckCardFlipDegrees, Is.GreaterThan(90f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DeckViewCount, Is.EqualTo(38));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(2));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator OpeningRejection_FlipsTheTableCardDownAndInsertsItIntoTheDeckMiddle()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.OpeningRejection);
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.DeckViewCount, Is.EqualTo(38));
+            Assert.That(controller.ActiveRejectedCardIsFaceDown, Is.False);
+            Assert.That(controller.RejectedCardFlipDegrees, Is.EqualTo(180f).Within(1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            var acceptedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            var acceptedTablePosition = acceptedTableCard.localPosition;
+
+            controller.SeekToStep(0, 0.5f);
+            Assert.That(controller.RejectionDeckGap, Is.GreaterThan(0.9f));
+            Assert.That(controller.RejectedCardFlipDegrees, Is.EqualTo(270f).Within(0.1f));
+
+            controller.SeekToStep(0, 0.75f);
+            acceptedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(
+                Vector3.Distance(acceptedTableCard.localPosition, acceptedTablePosition),
+                Is.LessThan(0.0001f));
+            Assert.That(controller.ActiveRejectedCardIsFaceDown, Is.True);
+            Assert.That(controller.RejectedCardFlipDegrees, Is.GreaterThan(270f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DeckViewCount, Is.EqualTo(39));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(1));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
         }
 
         [UnityTest]
@@ -89,7 +515,7 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<AnimationLabController>();
             controller.ResetForTests(Seat.First, new Vector2Int(1920, 1080));
             controller.SetFastForward(true);
-            controller.PlayRepresentativeSequence();
+            controller.PlayAnimation();
             yield return new WaitUntil(() => !controller.IsPlaying);
 
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
@@ -142,7 +568,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.WorkingConfiguration.PresetName, Is.EqualTo("Fast Iteration"));
             Assert.That(controller.WorkingConfiguration.PlaybackSpeed, Is.EqualTo(2f));
             controller.WorkingConfiguration.SetTransport(2f, false);
-            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.NonCapturingPlacement);
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement);
             controller.SetActingSeat(Seat.Second);
             controller.SetPreviewProfile(AnimationPreviewProfile.Portrait);
             var playBeat = controller.WorkingConfiguration.GetBeat(ResolvedAnimationStepKind.CardPlay);
@@ -151,17 +577,65 @@ namespace TheFall.Tests.PlayMode
             yield return new WaitUntil(() => !controller.IsPlaying);
 
             Assert.That(controller.ScenarioKind,
-                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.NonCapturingPlacement));
+                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement));
             Assert.That(controller.ActingSeat, Is.EqualTo(Seat.Second));
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
             Assert.That(controller.Sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
-                ResolvedAnimationStepKind.CardPlay,
                 ResolvedAnimationStepKind.TablePlacement,
-                ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator EveryRecordedAnimation_PreviewsExpectedBeatsForBothSeats()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            var scenarios = (TheFall.Application.Animation.AnimationScenarioKind[])
+                System.Enum.GetValues(typeof(TheFall.Application.Animation.AnimationScenarioKind));
+            foreach (var scenario in scenarios)
+            {
+                controller.SetScenario(scenario);
+                foreach (var seat in new[] { Seat.First, Seat.Second })
+                {
+                    controller.SetActingSeat(seat);
+                    controller.SeekToStep(0, 0.5f);
+                    var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
+                        scenario,
+                        seat);
+                    var expectedSequence = ResolvedAnimationSequence.Create(
+                        recording.Result.Events,
+                        recording.Result.State,
+                        recording.PreviewBeats
+                            .Select(beat => (ResolvedAnimationStepKind)(int)beat)
+                            .ToArray());
+                    var expectedStepCount = expectedSequence.Steps.Count - 1;
+                    Assert.That(
+                        controller.AnimatableStepCount,
+                        Is.EqualTo(expectedStepCount),
+                        scenario.ToString());
+                    Assert.That(controller.ActiveStep, Is.Not.Null, scenario.ToString());
+                    Assert.That(
+                        controller.ActiveStep.Kind,
+                        Is.EqualTo((ResolvedAnimationStepKind)(int)recording.PreviewBeats[0]),
+                        scenario.ToString());
+                    if (scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
+                        || scenario == TheFall.Application.Animation.AnimationScenarioKind.PlayCard
+                        || scenario == TheFall.Application.Animation.AnimationScenarioKind.HandReflow)
+                    {
+                        Assert.That(
+                            controller.TryGetPrimaryMotion(out _),
+                            Is.True,
+                            $"{scenario} must expose its own adjustable motion path.");
+                    }
+
+                    controller.CompleteImmediatelyForTests();
+                    Assert.That(controller.IsRenderedStateSynchronized, Is.True, $"{scenario} · {seat}");
+                }
+            }
         }
     }
 }

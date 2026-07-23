@@ -427,6 +427,18 @@ MonoBehaviour:
     m_Key: flow.match.turn.dealer-pending
     m_Metadata:
       m_Items: []
+  - m_Id: 998511922372608
+    m_Key: flow.animation.fast-forward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 998511943344128
+    m_Key: flow.animation.reduced-motion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 998511943344129
+    m_Key: flow.animation.skip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

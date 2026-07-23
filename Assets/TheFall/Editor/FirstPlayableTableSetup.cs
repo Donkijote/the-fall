@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheFall.Domain;
 using TheFall.Presentation.Cards;
+using TheFall.Presentation.Animation;
 using TheFall.Presentation.Match;
 using TheFall.Presentation.Scenes;
 using TheFall.Presentation.UI;
@@ -17,6 +18,7 @@ namespace TheFall.Editor
         private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
         private const string TablePrefabPath = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable/Generated/RoundCardTable.prefab";
         private const string CardCatalogPath = "Assets/TheFall/Content/Cards/Generated/CardVisualCatalog.asset";
+        private const string AnimationPresetPath = "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset";
         private const string AuthoringRoot = "Assets/TheFall/Presentation/Match/Authoring";
 
         private static readonly Color Lampblack = FromHex(0x241A14);
@@ -47,6 +49,8 @@ namespace TheFall.Editor
                 ?? throw new InvalidOperationException("RoundCardTable is missing.");
             var catalog = AssetDatabase.LoadAssetAtPath<CardVisualCatalog>(CardCatalogPath)
                 ?? throw new InvalidOperationException("The complete card visual catalog is missing.");
+            var animationPreset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(AnimationPresetPath)
+                ?? throw new InvalidOperationException("The versioned first-playable animation preset is missing.");
             var layout = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTableLayout>(true))
                 .SingleOrDefault();
@@ -55,7 +59,7 @@ namespace TheFall.Editor
 
             var presentation = controller.GetComponent<FirstPlayableTablePresentation>()
                 ?? controller.gameObject.AddComponent<FirstPlayableTablePresentation>();
-            presentation.Configure(camera, table, catalog, layout);
+            presentation.Configure(camera, table, catalog, layout, animationPreset);
             if (createdLayout)
             {
                 camera.transform.position = FirstPlayableTablePresentation.CameraPosition;
@@ -120,6 +124,11 @@ namespace TheFall.Editor
                 Require(presentation.GameplayCamera != null, "The integrated table has no camera.", errors);
                 Require(presentation.TablePrototypePrefab != null, "The integrated table does not use RoundCardTable.", errors);
                 Require(presentation.CardCatalog != null, "The integrated table has no card catalog.", errors);
+                Require(presentation.AnimationPreset != null, "The integrated table has no animation preset.", errors);
+                Require(
+                    presentation.AnimationPreset?.PresetVersion == AnimationSequenceConfiguration.CurrentPresetVersion,
+                    "The integrated table animation preset version is unsupported.",
+                    errors);
                 Require(presentation.AuthoredLayout == layout, "The integrated table does not use the Home scene authoring layout.", errors);
                 Require(presentation.CardCatalog?.Entries.Count == 40, "The integrated table catalog must contain forty cards.", errors);
                 Require(

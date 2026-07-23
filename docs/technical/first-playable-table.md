@@ -1,16 +1,16 @@
 # First-Playable 1v1 Table Presentation
 
-Status: Implemented first-playable presentation contract
+Status: Implemented first-playable presentation and animation contract
 
 ## Purpose
 
-Issue #25 integrates the complete authoritative 1v1 match into the existing first-playable `Home` scene. The table is visible during Match and Result while the application flow continues to own setup, loading, replay, and return-to-Home lifecycle.
+Issue #25 integrates the complete authoritative 1v1 match into the existing first-playable `Home` scene. Issue #26 promotes the reusable AnimationLab beats into that table. The table is visible during Match and Result while the application flow continues to own setup, loading, replay, and return-to-Home lifecycle.
 
 The integration promotes the fixed-table, card-interaction, generated-table, and modular-card prototypes into one full-match presentation without promoting their prototype art to production fidelity.
 
 ## Authority boundary
 
-`FirstPlayableTablePresentation` reads the `FirstPlayableFlow.Match` orchestrator already composed by Bootstrap. It never creates a second match, invokes `OneVersusOneRules`, evaluates captures, validates cantos, awards points, rotates the dealer, or decides victory.
+`FirstPlayableTablePresentation` reads the `FirstPlayableFlow.Match` orchestrator already composed by Bootstrap. It never creates a second match, invokes `OneVersusOneRules`, evaluates captures, validates cantos, awards points, rotates the dealer, or decides victory. Its animation player consumes only immutable startup events and accepted resolution records.
 
 `FirstPlayableTableSnapshot` projects each immutable `MatchState` into rendering data:
 
@@ -19,7 +19,9 @@ The integration promotes the fixed-table, card-interaction, generated-table, and
 - face-down dealer-spread count without hidden card identities
 - deck count, scores, dealer, active seat, round, deal, final-deal, tie-extension, canto, phase, and winner state
 
-The HUD also maps the latest ordered domain event into localized semantic text. This communicates the resolved outcome while leaving all calculations in the domain.
+During presentation, the same projection can be built from an `AnimationPresentationState` prefix plus the authoritative reference state. The prefix exposes only facts explained by completed/current beats and preserves the snapshot's hidden-information boundary. On normal completion or any early exit, the table is rebuilt from the exact accepted `MatchState`.
+
+The HUD maps the active ordered domain event into localized semantic text. This communicates each resolved outcome while leaving all calculations in the domain.
 
 ## Edit Mode authoring
 
@@ -92,6 +94,8 @@ screen column, and they contain only intents supplied by the orchestrator.
 
 The interaction session now accepts application delegates as well as a direct `MatchSession`. The integrated delegate submits the confirmed `PlayCardIntent` through `FirstPlayableFlow.TrySubmitHumanIntent`, so automatic bot turns, trace recording, result transition, and authoritative rejection stay on the existing application path.
 
+After one intent is accepted, both the flow controller and card-interaction session remain blocked until all human and automatic-bot resolution records in that batch have been presented. Card selection is retained, but another card confirmation, dealer selection, dealer option, or canto cannot be accepted out of order. Fast-forward and reduced-motion toggles may change the active transport without changing the match; Skip synchronizes immediately. Interruption, cancellation, leaving Home, disable, and teardown also synchronize before transient views are released.
+
 Legal, selected, confirmed, rejected, and temporarily blocked states retain the documented shape/text symbols and localized feedback. Dealer selection, dealer setup, and canto announcements remain localized UI actions because they are not card-hand interactions.
 
 ## Recomposition contract
@@ -108,10 +112,10 @@ Use:
 - `The Fall > First Playable Table > Validate`
 
 The generator updates the existing Home flow assets, creates the persistent authoring hierarchy when it is
-missing, binds the authored camera, `RoundCardTable`, layout, and `CardVisualCatalog`, then saves the scene
+missing, binds the authored camera, `RoundCardTable`, layout, `CardVisualCatalog`, and versioned animation preset, then saves the scene
 through Unity serialization. Existing layout transforms and camera framing are preserved on subsequent runs.
 
-Focused Edit Mode coverage verifies privacy-safe state projection and complete-match snapshot agreement. Focused Play Mode coverage verifies full-match visual/state agreement, private hands, exact public card collections, interaction semantics, fixed camera, and resizing safety.
+Focused Edit Mode coverage verifies privacy-safe state projection, complete-match snapshot agreement, complete event-vocabulary mapping, and batch-by-batch animation convergence. Focused Play Mode coverage verifies full-match visual/state agreement, private hands, exact public card collections, interaction semantics, fixed camera, resizing safety, duplicate-input blocking, presentation controls, and every completion/early-exit synchronization path.
 
 Validated on 2026-07-20 with Unity `6000.5.4f1`:
 
@@ -122,6 +126,6 @@ Validated on 2026-07-20 with Unity `6000.5.4f1`:
 - offscreen `1440 x 900` dealer-selection, dealer-options, canto/selection, and overhead-composition captures: reviewed
 - built-player manual visual inspection: skipped because the desktop session was locked; issue #28 retains the full manual acceptance and performance matrix
 
-Production animation, VFX, timing, interruption sequencing, and audio remain owned by issues #26 and #27. This issue renders resolved state and semantic events immediately; it does not promote the AnimationLab sequencer into the complete match.
+Production VFX and audio remain outside this contract; audio is owned by issue #27. The implemented animation remains presentation-only and uses the lab-tested sequence transport and versioned timing preset.
 
 Related: [first-playable application flow](first-playable-flow.md), [match orchestration](match-orchestration.md), [fixed table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [modular card visuals](../assets/card-visual-pipeline.md).

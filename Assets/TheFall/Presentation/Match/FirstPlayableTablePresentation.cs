@@ -4,6 +4,7 @@ using TheFall.Application;
 using TheFall.Application.Input;
 using TheFall.Application.Interaction;
 using TheFall.Domain;
+using TheFall.Presentation.Animation;
 using TheFall.Presentation.Cards;
 using TheFall.Presentation.Input;
 using TheFall.Presentation.Interaction;
@@ -32,11 +33,14 @@ namespace TheFall.Presentation.Match
         [SerializeField] private GameObject _tablePrototypePrefab;
         [SerializeField] private CardVisualCatalog _cardCatalog;
         [SerializeField] private FirstPlayableTableLayout _authoredLayout;
+        [SerializeField] private AnimationSequenceConfiguration _animationPreset;
 
         private readonly Dictionary<Color32, Material> _generatedMaterials = new Dictionary<Color32, Material>();
         private readonly List<FirstPlayableRenderedCard> _renderedCards = new List<FirstPlayableRenderedCard>();
         private readonly List<PrototypeCardView> _localHandViews = new List<PrototypeCardView>();
+        private readonly List<CardMotion> _cardMotions = new List<CardMotion>();
         private FirstPlayableFlowController _flowController;
+        private FirstPlayableAnimationPlayer _animationPlayer;
         private Transform _generatedRoot;
         private Material _cardBackMaterial;
         private CardInteractionSession _interaction;
@@ -51,6 +55,10 @@ namespace TheFall.Presentation.Match
         private Vector2Int _viewportSize;
         private Rect _safeAreaPixels;
         private int _boundSessionNumber = -1;
+        private int _animationVisualRevision = -1;
+        private ResolvedAnimationStep _presentedStep;
+        private long _presentationCpuTicks;
+        private long _presentationPeakUpdateTicks;
 
         public Camera GameplayCamera => _gameplayCamera;
 
@@ -59,6 +67,21 @@ namespace TheFall.Presentation.Match
         public CardVisualCatalog CardCatalog => _cardCatalog;
 
         public FirstPlayableTableLayout AuthoredLayout => _authoredLayout;
+
+        public AnimationSequenceConfiguration AnimationPreset => _animationPreset;
+
+        public FirstPlayableAnimationPlayer AnimationPlayer => _animationPlayer;
+
+        public bool IsPresentationBusy => _animationPlayer?.IsBusy == true;
+
+        public AnimationSequenceCompletionReason AnimationCompletionReason =>
+            _animationPlayer?.CompletionReason ?? AnimationSequenceCompletionReason.None;
+
+        public double AnimationPresentationCpuMilliseconds =>
+            TicksToMilliseconds(_presentationCpuTicks);
+
+        public double AnimationPresentationPeakUpdateCpuMilliseconds =>
+            TicksToMilliseconds(_presentationPeakUpdateTicks);
 
         public FirstPlayableTableSnapshot Snapshot { get; private set; }
 
@@ -105,10 +128,22 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            if (_animationPreset == null)
+            {
+                Debug.LogError("The integrated table requires a versioned animation presentation preset.", this);
+                enabled = false;
+                return;
+            }
+
             _authoredLayout.gameObject.SetActive(false);
+            _animationPlayer = new FirstPlayableAnimationPlayer(_animationPreset);
             ConfigureFixedCamera();
             BindInputActions();
             _flowController.PresentationChanged += RefreshFromFlow;
+            _flowController.MatchAdvanced += HandleMatchAdvanced;
+            _flowController.AnimationFastForwardChanged += SetFastForward;
+            _flowController.AnimationReducedMotionChanged += SetReducedMotion;
+            _flowController.AnimationSkipRequested += SkipPresentation;
             RefreshFromFlow();
         }
 
@@ -117,6 +152,27 @@ namespace TheFall.Presentation.Match
             if (!UnityEngine.Application.isPlaying || Snapshot == null)
             {
                 return;
+            }
+
+            if (_animationPlayer?.IsBusy == true)
+            {
+                var animationUpdateStartedAt = System.Diagnostics.Stopwatch.GetTimestamp();
+                _animationPlayer.Tick(Time.unscaledDeltaTime);
+                if (_animationVisualRevision != _animationPlayer.VisualRevision)
+                {
+                    RefreshFromAnimation(true);
+                }
+
+                ApplyCardMotions();
+                PresentActiveEvent();
+                if (!_animationPlayer.IsBusy)
+                {
+                    FinishPresentationBatch();
+                }
+
+                var animationUpdateTicks = System.Diagnostics.Stopwatch.GetTimestamp() - animationUpdateStartedAt;
+                _presentationCpuTicks += animationUpdateTicks;
+                _presentationPeakUpdateTicks = Math.Max(_presentationPeakUpdateTicks, animationUpdateTicks);
             }
 
             var viewport = RuntimeViewport();
@@ -132,12 +188,24 @@ namespace TheFall.Presentation.Match
             if (_flowController != null)
             {
                 _flowController.PresentationChanged -= RefreshFromFlow;
+                _flowController.MatchAdvanced -= HandleMatchAdvanced;
+                _flowController.AnimationFastForwardChanged -= SetFastForward;
+                _flowController.AnimationReducedMotionChanged -= SetReducedMotion;
+                _flowController.AnimationSkipRequested -= SkipPresentation;
             }
+
+            if (_animationPlayer?.IsBusy == true)
+            {
+                _animationPlayer.InterruptAndSynchronize();
+            }
+
+            _flowController?.SetPresentationBusy(false);
 
             UnbindInputActions();
             ClearInteraction();
             DestroyGeneratedContent();
             DestroyGeneratedMaterials();
+            _animationPlayer = null;
             if (_authoredLayout != null)
             {
                 _authoredLayout.gameObject.SetActive(true);
@@ -159,6 +227,49 @@ namespace TheFall.Presentation.Match
         {
             _interaction?.SetTemporarilyBlocked(isBlocked);
             ApplyInteractionState();
+        }
+
+        public void SetFastForward(bool enabled)
+        {
+            _animationPlayer?.SetFastForward(enabled);
+        }
+
+        public void SetReducedMotion(bool enabled)
+        {
+            _animationPlayer?.SetReducedMotion(enabled);
+        }
+
+        public void SkipPresentation()
+        {
+            if (_animationPlayer?.IsBusy != true)
+            {
+                return;
+            }
+
+            _animationPlayer.SkipAndSynchronize();
+            FinishPresentationBatch();
+        }
+
+        public void InterruptPresentation()
+        {
+            if (_animationPlayer?.IsBusy != true)
+            {
+                return;
+            }
+
+            _animationPlayer.InterruptAndSynchronize();
+            FinishPresentationBatch();
+        }
+
+        public void CancelPresentation()
+        {
+            if (_animationPlayer?.IsBusy != true)
+            {
+                return;
+            }
+
+            _animationPlayer.CancelAndSynchronize();
+            FinishPresentationBatch();
         }
 
         public bool ActivateDealerCard(int interactionIndex)
@@ -191,12 +302,14 @@ namespace TheFall.Presentation.Match
             Camera gameplayCamera,
             GameObject tablePrototypePrefab,
             CardVisualCatalog cardCatalog,
-            FirstPlayableTableLayout authoredLayout)
+            FirstPlayableTableLayout authoredLayout,
+            AnimationSequenceConfiguration animationPreset)
         {
             _gameplayCamera = gameplayCamera;
             _tablePrototypePrefab = tablePrototypePrefab;
             _cardCatalog = cardCatalog;
             _authoredLayout = authoredLayout;
+            _animationPreset = animationPreset;
         }
 #endif
 
@@ -208,18 +321,37 @@ namespace TheFall.Presentation.Match
                 && (flow.Stage == FirstPlayableFlowStage.Match || flow.Stage == FirstPlayableFlowStage.Result);
             if (!isVisible)
             {
+                if (_animationPlayer?.IsBusy == true)
+                {
+                    _animationPlayer.InterruptAndSynchronize();
+                }
+
+                _flowController?.SetPresentationBusy(false);
                 Snapshot = null;
                 ClearInteraction();
                 DestroyGeneratedContent();
                 return;
             }
 
-            Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State);
             if (flow.Stage == FirstPlayableFlowStage.Match && _boundSessionNumber != flow.SessionNumber)
             {
+                _presentationCpuTicks = 0;
+                _presentationPeakUpdateTicks = 0;
+                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.Trace.InitialState);
                 CreateInteraction(flow.SessionNumber);
+                _animationPlayer.PlayInitialTrace(flow.Match.Trace);
+                _flowController.SetPresentationBusy(_animationPlayer.IsBusy);
+                RefreshFromAnimation(false);
+                return;
             }
 
+            if (_animationPlayer?.IsBusy == true)
+            {
+                RefreshFromAnimation(false);
+                return;
+            }
+
+            Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State);
             if (_inputAdapter != null)
             {
                 _inputAdapter.SetCards(Snapshot.LocalHand);
@@ -227,6 +359,56 @@ namespace TheFall.Presentation.Match
 
             Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
             ApplyInteractionState();
+        }
+
+        private void HandleMatchAdvanced(MatchAdvanceResult advance)
+        {
+            _animationPlayer.PlayAdvance(advance);
+            if (!_animationPlayer.IsBusy)
+            {
+                return;
+            }
+
+            _interaction?.SetTemporarilyBlocked(true);
+            _flowController.SetPresentationBusy(true);
+            _animationVisualRevision = -1;
+            RefreshFromAnimation(true);
+        }
+
+        private void RefreshFromAnimation(bool animateChangedCards)
+        {
+            if (_animationPlayer?.RenderedState == null || _animationPlayer.RenderedReferenceState == null)
+            {
+                return;
+            }
+
+            var sourcePositions = animateChangedCards ? CapturePresentationCardPositions() : null;
+            Snapshot = FirstPlayableTableSnapshot.Create(
+                _animationPlayer.RenderedState,
+                _animationPlayer.RenderedReferenceState);
+            _inputAdapter?.SetCards(Snapshot.LocalHand);
+            Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
+            _animationVisualRevision = _animationPlayer.VisualRevision;
+            PrepareCardMotions(sourcePositions);
+            ApplyInteractionState();
+            PresentActiveEvent();
+        }
+
+        private void FinishPresentationBatch()
+        {
+            _cardMotions.Clear();
+            _presentedStep = null;
+            var flow = _flowController?.Flow;
+            if (flow?.Match != null)
+            {
+                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State);
+                _inputAdapter?.SetCards(Snapshot.LocalHand);
+                Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
+            }
+
+            _interaction?.SetTemporarilyBlocked(false);
+            ApplyInteractionState();
+            _flowController?.SetPresentationBusy(false);
         }
 
         private void CreateInteraction(int sessionNumber)
@@ -267,7 +449,11 @@ namespace TheFall.Presentation.Match
                 return RuleResult.Rejected(unchangedState, RuleError.WrongPhase);
             }
 
-            _interaction.SetTemporarilyBlocked(false);
+            if (!IsPresentationBusy)
+            {
+                _interaction.SetTemporarilyBlocked(false);
+            }
+
             return advanceResult.HumanResult;
         }
 
@@ -323,6 +509,230 @@ namespace TheFall.Presentation.Match
                 _authoredLayout.CardZonesRoot,
                 "Card Zone Anchors");
             CreateStateCards(cardZones);
+        }
+
+        private CardPositionSnapshot CapturePresentationCardPositions()
+        {
+            var snapshot = new CardPositionSnapshot();
+            for (var index = 0; index < _renderedCards.Count; index++)
+            {
+                var rendered = _renderedCards[index];
+                if (rendered.PresentationCard.HasValue)
+                {
+                    snapshot.Cards[rendered.PresentationCard.Value] = rendered.transform.position;
+                }
+
+                if (rendered.Zone == FirstPlayableCardZone.Deck)
+                {
+                    snapshot.DeckPosition = rendered.transform.position;
+                    snapshot.HasDeckPosition = true;
+                }
+                else if (rendered.Zone == FirstPlayableCardZone.OpponentHand)
+                {
+                    snapshot.OpponentHandPositions[rendered.InteractionIndex] = rendered.transform.position;
+                }
+            }
+
+            return snapshot;
+        }
+
+        private void PrepareCardMotions(CardPositionSnapshot source)
+        {
+            _cardMotions.Clear();
+            var step = _animationPlayer?.ActiveStep;
+            if (source == null || step == null || _animationPlayer.IsDelayingActiveStep
+                || _animationPlayer.ActiveStepProgress <= 0f)
+            {
+                return;
+            }
+
+            var beat = _animationPreset.GetBeat(step.Kind);
+            var trajectory = beat?.TrajectoryOffset ?? Vector3.zero;
+            if (_animationPlayer.ReducedMotion)
+            {
+                trajectory *= _animationPreset.ReducedMotionTrajectoryScale;
+            }
+
+            if (_generatedRoot != null)
+            {
+                trajectory = _generatedRoot.TransformVector(trajectory);
+            }
+
+            for (var index = 0; index < _renderedCards.Count; index++)
+            {
+                var rendered = _renderedCards[index];
+                if (!rendered.PresentationCard.HasValue
+                    || !source.Cards.TryGetValue(rendered.PresentationCard.Value, out var start))
+                {
+                    continue;
+                }
+
+                if (step.Kind == ResolvedAnimationStepKind.CardPlay
+                    && !Contains(step.Cards, rendered.PresentationCard.Value))
+                {
+                    rendered.transform.position = start;
+                    continue;
+                }
+
+                AddCardMotion(rendered.transform, start, rendered.transform.position, beat, trajectory);
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.HandReflow
+                && step.PlayerId == Snapshot.OpponentPlayerId)
+            {
+                for (var index = 0; index < _renderedCards.Count; index++)
+                {
+                    var rendered = _renderedCards[index];
+                    if (rendered.Zone == FirstPlayableCardZone.OpponentHand
+                        && source.OpponentHandPositions.TryGetValue(
+                            rendered.InteractionIndex,
+                            out var opponentStart))
+                    {
+                        AddCardMotion(
+                            rendered.transform,
+                            opponentStart,
+                            rendered.transform.position,
+                            beat,
+                            trajectory);
+                    }
+                }
+            }
+
+            if (!source.HasDeckPosition || step.Cards.Count == 0)
+            {
+                return;
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.Deal)
+            {
+                FirstPlayableRenderedCard target = null;
+                if (step.PlayerId == Snapshot.LocalPlayerId)
+                {
+                    target = FindRenderedCard(step.Cards[0]);
+                }
+                else
+                {
+                    for (var index = _renderedCards.Count - 1; index >= 0; index--)
+                    {
+                        if (_renderedCards[index].Zone == FirstPlayableCardZone.OpponentHand)
+                        {
+                            target = _renderedCards[index];
+                            break;
+                        }
+                    }
+                }
+
+                if (target != null && !HasMotion(target.transform))
+                {
+                    AddCardMotion(target.transform, source.DeckPosition, target.transform.position, beat, trajectory);
+                }
+            }
+            else if (step.Kind == ResolvedAnimationStepKind.OpeningPlacement)
+            {
+                var target = FindRenderedCard(step.Cards[0]);
+                if (target != null && !HasMotion(target.transform))
+                {
+                    AddCardMotion(target.transform, source.DeckPosition, target.transform.position, beat, trajectory);
+                }
+            }
+        }
+
+        private void AddCardMotion(
+            Transform card,
+            Vector3 start,
+            Vector3 target,
+            AnimationBeatConfiguration beat,
+            Vector3 trajectory)
+        {
+            if (card == null || Vector3.SqrMagnitude(target - start) <= 0.000001f)
+            {
+                return;
+            }
+
+            card.position = start;
+            _cardMotions.Add(new CardMotion(
+                card,
+                start,
+                target,
+                beat?.Easing ?? AnimationBeatEasing.EaseInOut,
+                trajectory));
+        }
+
+        private void ApplyCardMotions()
+        {
+            if (_animationPlayer == null || _cardMotions.Count == 0)
+            {
+                return;
+            }
+
+            var progress = _animationPlayer.ActiveStepProgress;
+            for (var index = 0; index < _cardMotions.Count; index++)
+            {
+                var motion = _cardMotions[index];
+                if (motion.Card != null)
+                {
+                    motion.Card.position = AnimationBeatEvaluator.EvaluatePosition(
+                        motion.Start,
+                        motion.Target,
+                        progress,
+                        motion.Easing,
+                        motion.Trajectory);
+                }
+            }
+        }
+
+        private FirstPlayableRenderedCard FindRenderedCard(Card card)
+        {
+            for (var index = 0; index < _renderedCards.Count; index++)
+            {
+                if (_renderedCards[index].PresentationCard == card)
+                {
+                    return _renderedCards[index];
+                }
+            }
+
+            return null;
+        }
+
+        private bool HasMotion(Transform card)
+        {
+            for (var index = 0; index < _cardMotions.Count; index++)
+            {
+                if (_cardMotions[index].Card == card)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool Contains(IReadOnlyList<Card> cards, Card expected)
+        {
+            for (var index = 0; index < cards.Count; index++)
+            {
+                if (cards[index] == expected)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void PresentActiveEvent()
+        {
+            var step = _animationPlayer?.ActiveStep;
+            if (ReferenceEquals(step, _presentedStep))
+            {
+                return;
+            }
+
+            _presentedStep = step;
+            if (step?.SourceEvent != null)
+            {
+                _flowController?.RenderPresentationEvent(step.SourceEvent);
+            }
         }
 
         private void CreateTable(Transform parent)
@@ -385,8 +795,16 @@ namespace TheFall.Presentation.Match
                 CreateTableCards(parent, Snapshot.TableCards);
             }
 
-            CreateLocalHand(parent, Snapshot.LocalHand);
-            CreateOpponentHand(parent, Snapshot.OpponentHandCount);
+            CreateLocalHand(
+                parent,
+                Snapshot.LocalHand,
+                Snapshot.LocalHandLayoutIndices,
+                Snapshot.LocalHandLayoutSlotCount);
+            CreateOpponentHand(
+                parent,
+                Snapshot.OpponentHandCount,
+                Snapshot.OpponentHandLayoutIndices,
+                Snapshot.OpponentHandLayoutSlotCount);
             CreateCapturedPile(parent, Snapshot.LocalCapturedCards, FirstPlayableCardZone.LocalCaptured);
             CreateCapturedPile(parent, Snapshot.OpponentCapturedCards, FirstPlayableCardZone.OpponentCaptured);
         }
@@ -411,7 +829,7 @@ namespace TheFall.Presentation.Match
             {
                 CreateCard(zoneParent, $"Deck Card {index + 1}",
                     new Vector3(0f, index * 0.0015f, 0f),
-                    FirstPlayableCardZone.Deck, false, null);
+                    FirstPlayableCardZone.Deck, false, null, index);
             }
         }
 
@@ -424,18 +842,26 @@ namespace TheFall.Presentation.Match
                 var column = index % 5;
                 CreateCard(zoneParent, $"Table {cards[index]}",
                     new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f),
-                    FirstPlayableCardZone.Table, true, cards[index]);
+                    FirstPlayableCardZone.Table, true, cards[index], index);
             }
         }
 
-        private void CreateLocalHand(Transform parent, IReadOnlyList<Card> cards)
+        private void CreateLocalHand(
+            Transform parent,
+            IReadOnlyList<Card> cards,
+            IReadOnlyList<int> layoutIndices,
+            int layoutSlotCount)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.LocalHandAnchor, "Local Hand Zone");
             for (var index = 0; index < cards.Count; index++)
             {
-                var x = (index - (cards.Count - 1) * 0.5f) * 0.29f;
+                var layoutIndex = layoutIndices[index];
+                var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.29f;
                 var rendered = CreateCard(zoneParent, $"Local Hand {cards[index]}",
-                    new Vector3(x, 0f, Mathf.Abs(index - 1) * 0.025f),
+                    new Vector3(
+                        x,
+                        0f,
+                        Mathf.Abs(layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.025f),
                     FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
@@ -443,15 +869,20 @@ namespace TheFall.Presentation.Match
             }
         }
 
-        private void CreateOpponentHand(Transform parent, int count)
+        private void CreateOpponentHand(
+            Transform parent,
+            int count,
+            IReadOnlyList<int> layoutIndices,
+            int layoutSlotCount)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.OpponentHandAnchor, "Opponent Hand Zone");
             for (var index = 0; index < count; index++)
             {
-                var x = (index - (count - 1) * 0.5f) * 0.25f;
+                var layoutIndex = layoutIndices[index];
+                var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.25f;
                 CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
                     new Vector3(-x, 0f, 0f),
-                    FirstPlayableCardZone.OpponentHand, false, null);
+                    FirstPlayableCardZone.OpponentHand, false, null, index);
             }
         }
 
@@ -468,7 +899,7 @@ namespace TheFall.Presentation.Match
             {
                 CreateCard(zoneParent, $"{zone} Card {index + 1}",
                     new Vector3((index % 4) * 0.012f, index * 0.002f, (index % 3) * 0.009f),
-                    zone, false, null);
+                    zone, false, cards[index], index);
             }
         }
 
@@ -836,6 +1267,7 @@ namespace TheFall.Presentation.Match
 
         private void DestroyGeneratedContent()
         {
+            _cardMotions.Clear();
             _renderedCards.Clear();
             _localHandViews.Clear();
             if (_generatedRoot != null)
@@ -894,6 +1326,50 @@ namespace TheFall.Presentation.Match
                 ((rgb >> 8) & 0xFF) / 255f,
                 (rgb & 0xFF) / 255f,
                 1f);
+        }
+
+        private static double TicksToMilliseconds(long ticks)
+        {
+            return ticks * 1000d / System.Diagnostics.Stopwatch.Frequency;
+        }
+
+        private sealed class CardPositionSnapshot
+        {
+            public Dictionary<Card, Vector3> Cards { get; } = new Dictionary<Card, Vector3>();
+
+            public Dictionary<int, Vector3> OpponentHandPositions { get; } =
+                new Dictionary<int, Vector3>();
+
+            public bool HasDeckPosition { get; set; }
+
+            public Vector3 DeckPosition { get; set; }
+        }
+
+        private readonly struct CardMotion
+        {
+            public CardMotion(
+                Transform card,
+                Vector3 start,
+                Vector3 target,
+                AnimationBeatEasing easing,
+                Vector3 trajectory)
+            {
+                Card = card;
+                Start = start;
+                Target = target;
+                Easing = easing;
+                Trajectory = trajectory;
+            }
+
+            public Transform Card { get; }
+
+            public Vector3 Start { get; }
+
+            public Vector3 Target { get; }
+
+            public AnimationBeatEasing Easing { get; }
+
+            public Vector3 Trajectory { get; }
         }
     }
 }
