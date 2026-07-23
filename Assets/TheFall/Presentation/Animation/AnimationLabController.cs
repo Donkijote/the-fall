@@ -150,6 +150,14 @@ namespace TheFall.Presentation.Animation
 
         public float RejectionDeckGap => _view?.RejectionDeckGap ?? 0f;
 
+        public int CapturePairViewCount => _view?.CapturePairViewCount ?? 0;
+
+        public int FaceDownCapturePairViewCount => _view?.FaceDownCapturePairViewCount ?? 0;
+
+        public float CapturePairFlipDegrees => _view?.CapturePairFlipDegrees ?? 0f;
+
+        public int CapturedPileViewCount => _view?.CapturedPileViewCount ?? 0;
+
         public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
 
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;
@@ -723,10 +731,16 @@ namespace TheFall.Presentation.Animation
         private void ComposeTransport()
         {
             _workingConfiguration.EnsureDefaults();
+            var previewOrder = new List<ResolvedAnimationStepKind>();
+            foreach (var beat in _recording.PreviewBeats)
+            {
+                previewOrder.Add(ResolveRecordingBeat(beat));
+            }
+
             _sequence = ResolvedAnimationSequence.Create(
                 _resolvedBuffer.Events,
                 _resolvedBuffer.State,
-                new[] { ResolveRecordingBeat(_recording.BeatKind) });
+                previewOrder);
             var timings = new List<AnimationBeatTiming>();
             for (var index = 0; index < _sequence.Steps.Count; index++)
             {

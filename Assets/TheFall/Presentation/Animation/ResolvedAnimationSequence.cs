@@ -209,12 +209,22 @@ namespace TheFall.Presentation.Animation
                             cards: new[] { opening.Card }));
                         break;
                     case CardPlayedEvent played:
+                        var playedCards = new List<Card> { played.Card };
+                        if (eventIndex + 1 < resolvedEvents.Count &&
+                            resolvedEvents[eventIndex + 1] is CardsCapturedEvent pendingCapture &&
+                            pendingCapture.PlayerId == played.PlayerId &&
+                            pendingCapture.Cards.Count >= 2 &&
+                            pendingCapture.Cards[0] == played.Card)
+                        {
+                            playedCards.Add(pendingCapture.Cards[1]);
+                        }
+
                         steps.Add(Step(
                             ResolvedAnimationStepKind.CardPlay,
                             played,
                             eventIndex,
                             playerId: played.PlayerId,
-                            cards: new[] { played.Card }));
+                            cards: playedCards));
                         steps.Add(Step(
                             ResolvedAnimationStepKind.HandReflow,
                             played,

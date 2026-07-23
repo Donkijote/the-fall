@@ -57,6 +57,9 @@ namespace TheFall.Tests.EditMode
                 ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
+            Assert.That(
+                sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.CardPlay).Cards,
+                Has.Count.EqualTo(2));
             Assert.That(sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture).Cards, Has.Count.EqualTo(2));
         }
 
@@ -451,22 +454,32 @@ namespace TheFall.Tests.EditMode
             foreach (var scenario in scenarios)
             {
                 var recording = AnimationScenarioRecording.Create(scenario, Seat.First);
-                var expectedBeat = (ResolvedAnimationStepKind)(int)recording.BeatKind;
+                var expectedBeats = recording.PreviewBeats
+                    .Select(beat => (ResolvedAnimationStepKind)(int)beat)
+                    .ToArray();
                 var sequence = ResolvedAnimationSequence.Create(
                     recording.Result.Events,
                     recording.Result.State,
-                    new[] { expectedBeat });
+                    expectedBeats);
 
                 Assert.That(recording.Result.IsAccepted, Is.True, scenario.ToString());
-                var expectedTunableCount =
-                    scenario == AnimationScenarioKind.DealCard ? 2 : 1;
+                var expectedTunableCount = scenario == AnimationScenarioKind.DealCard
+                    ? 2
+                    : expectedBeats.Length;
                 Assert.That(
                     sequence.Steps,
                     Has.Count.EqualTo(expectedTunableCount + 1),
                     scenario.ToString());
                 Assert.That(
-                    sequence.Steps.Take(expectedTunableCount).All(step => step.Kind == expectedBeat),
-                    Is.True,
+                    sequence.Steps.Take(expectedTunableCount).Select(step => step.Kind),
+                    Is.EqualTo(
+                        scenario == AnimationScenarioKind.DealCard
+                            ? new[]
+                            {
+                                ResolvedAnimationStepKind.Deal,
+                                ResolvedAnimationStepKind.Deal,
+                            }
+                            : expectedBeats),
                     scenario.ToString());
                 Assert.That(
                     sequence.Steps[expectedTunableCount].Kind,
