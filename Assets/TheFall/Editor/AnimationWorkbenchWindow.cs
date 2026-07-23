@@ -224,6 +224,14 @@ namespace TheFall.Editor
                 return;
             }
 
+            if (_controller.IsPlaying)
+            {
+                _selectedStepIndex = Mathf.Clamp(
+                    _controller.CurrentStepIndex,
+                    0,
+                    _controller.AnimatableStepCount - 1);
+            }
+
             _selectedStepIndex = Mathf.Clamp(
                 _selectedStepIndex,
                 0,
@@ -262,6 +270,7 @@ namespace TheFall.Editor
                 SelectStep(_selectedStepIndex, Mathf.Max(MinimumPreviewProgress, _controller.ActiveStepProgress));
             }
 
+            EditorGUI.BeginChangeCheck();
             var beatProgress = EditorGUILayout.Slider(
                 "Selected beat scrub",
                 _controller.CurrentStepIndex == _selectedStepIndex
@@ -269,8 +278,7 @@ namespace TheFall.Editor
                     : 0f,
                 0f,
                 1f);
-            if (_controller.CurrentStepIndex != _selectedStepIndex ||
-                !Mathf.Approximately(beatProgress, _controller.ActiveStepProgress))
+            if (EditorGUI.EndChangeCheck())
             {
                 SelectStep(_selectedStepIndex, Mathf.Max(MinimumPreviewProgress, beatProgress));
             }

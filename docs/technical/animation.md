@@ -133,6 +133,8 @@ Captured-card identity is retained only inside the transient presentation matche
 
 The in-game AnimationLab overlay remains available for final runtime integration comparison, but it is no longer required to create, tune, or test an individual beat.
 
+During a multi-beat Edit Mode preview, the workbench settings selection follows the active transport step. The settings panel must never seek back to a previously selected beat while `Animation` playback is running; manual beat scrubbing remains available after pausing.
+
 ## Workbench diagnosis
 
 Diagnosis displays:
