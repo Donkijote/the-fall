@@ -158,6 +158,74 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator CascadeCapture_GrowsTheStackAtEachCardThenFlipsItOntoTheCapturedPile()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.CascadeCapture);
+
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(4));
+            Assert.That(
+                controller.Sequence.Steps.Take(4).Select(step => step.Kind),
+                Is.EqualTo(new[]
+                {
+                    ResolvedAnimationStepKind.NormalCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
+                }));
+
+            controller.SeekToStep(0, 0.99f);
+            var played = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Coins");
+            var matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            var firstCascade = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Three of Clubs");
+            Assert.That(
+                Vector2.Distance(
+                    new Vector2(played.localPosition.x, played.localPosition.z),
+                    new Vector2(firstCascade.localPosition.x, firstCascade.localPosition.z)),
+                Is.LessThan(0.005f));
+            Assert.That(matching.localPosition.y, Is.GreaterThan(firstCascade.localPosition.y));
+            Assert.That(played.localPosition.y, Is.GreaterThan(matching.localPosition.y));
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
+
+            controller.SeekToStep(1, 0.5f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(3));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+
+            controller.SeekToStep(2, 0.5f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(4));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+
+            controller.SeekToStep(3, 0.75f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.EqualTo(5));
+            Assert.That(controller.CascadeStackFlipDegrees, Is.GreaterThan(270f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.CascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(5));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(1));
+            Assert.That(controller.RenderedState.GetCaptured(
+                controller.FinalState.GetPlayerAt(controller.ActingSeat).Player.Id),
+                Has.Count.EqualTo(5));
+            var pile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .First(item => item.name == "Face-down Seat One Captured Card 1");
+            Assert.That(pile.localPosition.x, Is.LessThan(-0.4f));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator DealerSelection_ShowsTheWholeFaceDownSpreadAndFlipsTheSelectedCard()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
@@ -416,21 +484,24 @@ namespace TheFall.Tests.PlayMode
                 {
                     controller.SetActingSeat(seat);
                     controller.SeekToStep(0, 0.5f);
-                    var expectedStepCount =
-                        scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
-                            ? 2
-                            : 1;
+                    var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
+                        scenario,
+                        seat);
+                    var expectedSequence = ResolvedAnimationSequence.Create(
+                        recording.Result.Events,
+                        recording.Result.State,
+                        recording.PreviewBeats
+                            .Select(beat => (ResolvedAnimationStepKind)(int)beat)
+                            .ToArray());
+                    var expectedStepCount = expectedSequence.Steps.Count - 1;
                     Assert.That(
                         controller.AnimatableStepCount,
                         Is.EqualTo(expectedStepCount),
                         scenario.ToString());
                     Assert.That(controller.ActiveStep, Is.Not.Null, scenario.ToString());
-                    var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
-                        scenario,
-                        seat);
                     Assert.That(
                         controller.ActiveStep.Kind,
-                        Is.EqualTo((ResolvedAnimationStepKind)(int)recording.BeatKind),
+                        Is.EqualTo((ResolvedAnimationStepKind)(int)recording.PreviewBeats[0]),
                         scenario.ToString());
                     if (scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
                         || scenario == TheFall.Application.Animation.AnimationScenarioKind.PlayCard

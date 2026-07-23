@@ -154,7 +154,7 @@ namespace TheFall.Presentation.Animation
 
         [SerializeField]
         [Min(0f)]
-        private float _cascadeStepSeconds = 0.14f;
+        private float _cascadeStepSeconds = 0.4f;
 
         [SerializeField]
         [Min(0f)]

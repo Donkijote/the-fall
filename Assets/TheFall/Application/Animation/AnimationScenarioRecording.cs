@@ -57,11 +57,12 @@ namespace TheFall.Application.Animation
     }
 
     /// <summary>
-    /// Immutable one-beat input for the presentation workbench. A recording contains only the
-    /// domain facts needed to preview one reusable animation in isolation.
+    /// Immutable focused input for the presentation workbench. A recording contains only the
+    /// domain facts and reusable beats needed to preview one isolated animation scenario.
     /// </summary>
     public sealed class AnimationScenarioRecording
     {
+        private readonly IReadOnlyList<AnimationRecordingBeat> _previewBeats;
         private readonly IReadOnlyList<AnimationRecordingBeat> _warmupBeats;
 
         private AnimationScenarioRecording(
@@ -72,6 +73,7 @@ namespace TheFall.Application.Animation
             RuleResult result,
             PlayerId actingPlayerId,
             Seat actingSeat,
+            IReadOnlyList<AnimationRecordingBeat> previewBeats,
             params AnimationRecordingBeat[] warmupBeats)
         {
             Kind = kind;
@@ -81,6 +83,10 @@ namespace TheFall.Application.Animation
             Result = result ?? throw new ArgumentNullException(nameof(result));
             ActingPlayerId = actingPlayerId;
             ActingSeat = actingSeat;
+            _previewBeats = Array.AsReadOnly(
+                new List<AnimationRecordingBeat>(
+                    previewBeats ?? throw new ArgumentNullException(nameof(previewBeats)))
+                    .ToArray());
             _warmupBeats = Array.AsReadOnly(warmupBeats ?? Array.Empty<AnimationRecordingBeat>());
         }
 
@@ -97,6 +103,8 @@ namespace TheFall.Application.Animation
         public PlayerId ActingPlayerId { get; }
 
         public Seat ActingSeat { get; }
+
+        public IReadOnlyList<AnimationRecordingBeat> PreviewBeats => _previewBeats;
 
         public IReadOnlyList<AnimationRecordingBeat> WarmupBeats => _warmupBeats;
 
@@ -337,25 +345,48 @@ namespace TheFall.Application.Animation
         {
             var initial = context.State(
                 actorHand: new[] { context.CaptureCard, context.HandOne, context.HandTwo },
-                table: new[] { context.MatchingCard, context.CascadeCard, context.TableCard });
+                table: new[]
+                {
+                    context.MatchingCard,
+                    context.CascadeCard,
+                    context.CascadeFour,
+                    context.CascadeFive,
+                    context.TableCard,
+                });
             var final = context.State(
                 actorHand: new[] { context.HandOne, context.HandTwo },
-                actorCaptured: new[] { context.CaptureCard, context.MatchingCard, context.CascadeCard },
+                actorCaptured: new[]
+                {
+                    context.CaptureCard,
+                    context.MatchingCard,
+                    context.CascadeCard,
+                    context.CascadeFour,
+                    context.CascadeFive,
+                },
                 table: new[] { context.TableCard });
-            return Recording(context, AnimationScenarioKind.CascadeCapture, "Capture cascade card",
+            return RecordingWithPreview(
+                context,
+                AnimationScenarioKind.CascadeCapture,
+                "Capture cascade card",
                 AnimationRecordingBeat.CascadeCapture, initial, final,
                 new DomainEvent[]
                 {
                     new CardPlayedEvent(context.Actor.Id, context.CaptureCard),
                     new CardsCapturedEvent(
                         context.Actor.Id,
-                        new[] { context.CaptureCard, context.MatchingCard, context.CascadeCard }),
+                        new[]
+                        {
+                            context.CaptureCard,
+                            context.MatchingCard,
+                            context.CascadeCard,
+                            context.CascadeFour,
+                            context.CascadeFive,
+                        }),
                 },
                 new[]
                 {
-                    AnimationRecordingBeat.CardPlay,
-                    AnimationRecordingBeat.HandReflow,
                     AnimationRecordingBeat.NormalCapture,
+                    AnimationRecordingBeat.CascadeCapture,
                 });
         }
 
@@ -468,6 +499,30 @@ namespace TheFall.Application.Animation
                 RuleResult.Accepted(final, events),
                 context.Actor.Id,
                 context.Actor.Seat,
+                new[] { beat },
+                warmup);
+        }
+
+        private static AnimationScenarioRecording RecordingWithPreview(
+            ScenarioContext context,
+            AnimationScenarioKind kind,
+            string name,
+            AnimationRecordingBeat beat,
+            MatchState initial,
+            MatchState final,
+            IReadOnlyList<DomainEvent> events,
+            IReadOnlyList<AnimationRecordingBeat> previewBeats,
+            params AnimationRecordingBeat[] warmup)
+        {
+            return new AnimationScenarioRecording(
+                kind,
+                name,
+                beat,
+                initial,
+                RuleResult.Accepted(final, events),
+                context.Actor.Id,
+                context.Actor.Seat,
+                previewBeats,
                 warmup);
         }
 
@@ -522,6 +577,10 @@ namespace TheFall.Application.Animation
             public Card MatchingCard => Card(CardSuit.Cups, CardRank.Two);
 
             public Card CascadeCard => Card(CardSuit.Clubs, CardRank.Three);
+
+            public Card CascadeFour => Card(CardSuit.Swords, CardRank.Four);
+
+            public Card CascadeFive => Card(CardSuit.Cups, CardRank.Five);
 
             public Card TableCard => Card(CardSuit.Swords, CardRank.Ten);
 

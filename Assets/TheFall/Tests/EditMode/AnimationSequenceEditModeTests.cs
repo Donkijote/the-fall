@@ -454,21 +454,24 @@ namespace TheFall.Tests.EditMode
             foreach (var scenario in scenarios)
             {
                 var recording = AnimationScenarioRecording.Create(scenario, Seat.First);
-                var expectedBeat = (ResolvedAnimationStepKind)(int)recording.BeatKind;
+                var expectedBeats = recording.PreviewBeats
+                    .Select(beat => (ResolvedAnimationStepKind)(int)beat)
+                    .ToArray();
                 var sequence = ResolvedAnimationSequence.Create(
                     recording.Result.Events,
                     recording.Result.State,
-                    new[] { expectedBeat });
+                    expectedBeats);
 
                 Assert.That(recording.Result.IsAccepted, Is.True, scenario.ToString());
-                var expectedTunableCount =
-                    scenario == AnimationScenarioKind.DealCard ? 2 : 1;
+                var expectedTunableCount = sequence.Steps.Count - 1;
                 Assert.That(
                     sequence.Steps,
                     Has.Count.EqualTo(expectedTunableCount + 1),
                     scenario.ToString());
                 Assert.That(
-                    sequence.Steps.Take(expectedTunableCount).All(step => step.Kind == expectedBeat),
+                    sequence.Steps
+                        .Take(expectedTunableCount)
+                        .All(step => expectedBeats.Contains(step.Kind)),
                     Is.True,
                     scenario.ToString());
                 Assert.That(

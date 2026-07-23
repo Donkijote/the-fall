@@ -158,6 +158,13 @@ namespace TheFall.Presentation.Animation
 
         public int CapturedPileViewCount => _view?.CapturedPileViewCount ?? 0;
 
+        public int CascadeStackViewCount => _view?.CascadeStackViewCount ?? 0;
+
+        public int FaceDownCascadeStackViewCount =>
+            _view?.FaceDownCascadeStackViewCount ?? 0;
+
+        public float CascadeStackFlipDegrees => _view?.CascadeStackFlipDegrees ?? 0f;
+
         public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
 
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;
@@ -731,10 +738,16 @@ namespace TheFall.Presentation.Animation
         private void ComposeTransport()
         {
             _workingConfiguration.EnsureDefaults();
+            var previewOrder = new List<ResolvedAnimationStepKind>();
+            foreach (var beat in _recording.PreviewBeats)
+            {
+                previewOrder.Add(ResolveRecordingBeat(beat));
+            }
+
             _sequence = ResolvedAnimationSequence.Create(
                 _resolvedBuffer.Events,
                 _resolvedBuffer.State,
-                new[] { ResolveRecordingBeat(_recording.BeatKind) });
+                previewOrder);
             var timings = new List<AnimationBeatTiming>();
             for (var index = 0; index < _sequence.Steps.Count; index++)
             {
