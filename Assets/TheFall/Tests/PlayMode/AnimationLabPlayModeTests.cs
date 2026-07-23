@@ -290,6 +290,61 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator Leftovers_FlipFaceDownAndSettleOnTopOfTheLeftCapturedPile()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.CollectLeftovers);
+
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(1));
+            Assert.That(
+                controller.Sequence.Steps[0].Kind,
+                Is.EqualTo(ResolvedAnimationStepKind.Leftovers));
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(1));
+            Assert.That(controller.LeftoverCollectionViewCount, Is.EqualTo(2));
+            Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.Zero);
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+
+            var existingPileCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Face-down Seat One Captured Card 1");
+
+            controller.SeekToStep(0, 0.75f);
+            Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.EqualTo(2));
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.GreaterThan(270f));
+
+            controller.SeekToStep(0, 0.99f);
+            var matchingLeftover = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Leftover Collection Card Two of Cups");
+            var cascadeLeftover = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Leftover Collection Card Three of Clubs");
+            Assert.That(matchingLeftover.localPosition.x, Is.LessThan(-0.4f));
+            Assert.That(cascadeLeftover.localPosition.x, Is.LessThan(-0.4f));
+            Assert.That(matchingLeftover.localPosition.y, Is.GreaterThan(existingPileCard.localPosition.y));
+            Assert.That(cascadeLeftover.localPosition.y, Is.GreaterThan(matchingLeftover.localPosition.y));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.LeftoverCollectionViewCount, Is.Zero);
+            Assert.That(controller.CapturedPileViewCount, Is.EqualTo(3));
+            var settledPile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Where(item => item.name.StartsWith("Face-down Seat One Captured Card"))
+                .OrderBy(item => item.name)
+                .ToArray();
+            Assert.That(settledPile, Has.Length.EqualTo(3));
+            Assert.That(settledPile[1].localPosition.y, Is.GreaterThan(settledPile[0].localPosition.y));
+            Assert.That(settledPile[2].localPosition.y, Is.GreaterThan(settledPile[1].localPosition.y));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator DealerSelection_ShowsTheWholeFaceDownSpreadAndFlipsTheSelectedCard()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);

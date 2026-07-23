@@ -165,6 +165,14 @@ namespace TheFall.Presentation.Animation
 
         public float CascadeStackFlipDegrees => _view?.CascadeStackFlipDegrees ?? 0f;
 
+        public int LeftoverCollectionViewCount => _view?.LeftoverCollectionViewCount ?? 0;
+
+        public int FaceDownLeftoverCollectionViewCount =>
+            _view?.FaceDownLeftoverCollectionViewCount ?? 0;
+
+        public float LeftoverCollectionFlipDegrees =>
+            _view?.LeftoverCollectionFlipDegrees ?? 0f;
+
         public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
 
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;

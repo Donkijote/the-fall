@@ -40,6 +40,7 @@ namespace TheFall.Presentation.Animation
         private readonly List<HiddenCardView> _capturedPileViews = new List<HiddenCardView>();
         private readonly List<CapturePairMotion> _capturePairMotions = new List<CapturePairMotion>();
         private readonly List<CascadeStackMotion> _cascadeStackMotions = new List<CascadeStackMotion>();
+        private readonly List<CollectedCardMotion> _leftoverMotions = new List<CollectedCardMotion>();
         private readonly List<DeckSplitMotion> _rejectionDeckSplit = new List<DeckSplitMotion>();
         private Transform _generatedRoot;
         private TextMeshPro _eventCue;
@@ -61,6 +62,7 @@ namespace TheFall.Presentation.Animation
         private float _rejectionDeckGap;
         private float _capturePairFlipDegrees;
         private float _cascadeStackFlipDegrees;
+        private float _leftoverFlipDegrees;
         private bool _activeDealFaceUp;
         private bool _dealRevealsFace;
         private bool _activeRejectedCardFaceDown;
@@ -68,6 +70,7 @@ namespace TheFall.Presentation.Animation
         private bool _captureContinuesToCascade;
         private bool _cascadeStackFaceDown;
         private bool _cascadeStackCompletesCapture;
+        private bool _leftoversFaceDown;
         private PlayerId _actingPlayerId;
         private AnimationBeatEasing _easing;
         private Vector3 _trajectoryOffset;
@@ -130,6 +133,13 @@ namespace TheFall.Presentation.Animation
             _cascadeStackFaceDown ? _cascadeStackMotions.Count : 0;
 
         public float CascadeStackFlipDegrees => _cascadeStackFlipDegrees;
+
+        public int LeftoverCollectionViewCount => _leftoverMotions.Count;
+
+        public int FaceDownLeftoverCollectionViewCount =>
+            _leftoversFaceDown ? _leftoverMotions.Count : 0;
+
+        public float LeftoverCollectionFlipDegrees => _leftoverFlipDegrees;
 
         public int RevealedDealerCardViewCount
         {
@@ -280,6 +290,16 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
+            if (step.Kind == ResolvedAnimationStepKind.Leftovers &&
+                step.SourceEvent is LeftoversCollectedEvent &&
+                step.Cards.Count > 0)
+            {
+                PrepareLeftoverCollection(state, step);
+                RefreshLabels(state);
+                SetEventCue(step);
+                return;
+            }
+
             EnsureCardViews(state);
             for (var index = 0; index < step.Cards.Count; index++)
             {
@@ -329,6 +349,7 @@ namespace TheFall.Presentation.Animation
             ApplyOpeningRejection(clamped);
             ApplyNormalCapture(clamped);
             ApplyCascadeCapture(clamped);
+            ApplyLeftoverCollection(clamped);
 
             if (_eventCue != null)
             {
@@ -339,6 +360,16 @@ namespace TheFall.Presentation.Animation
 
         public bool TryGetPrimaryMotion(out AnimationMotionPreview preview)
         {
+            if (_leftoverMotions.Count > 0 && _generatedRoot != null)
+            {
+                var leftover = _leftoverMotions[0];
+                preview = new AnimationMotionPreview(
+                    _generatedRoot.TransformPoint(leftover.Start),
+                    _generatedRoot.TransformPoint(leftover.Target),
+                    _generatedRoot);
+                return true;
+            }
+
             if (_cascadeStackMotions.Count > 0 && _generatedRoot != null)
             {
                 var cascade = _cascadeStackMotions[0];
@@ -457,6 +488,7 @@ namespace TheFall.Presentation.Animation
             _capturedPileViews.Clear();
             _capturePairMotions.Clear();
             _cascadeStackMotions.Clear();
+            _leftoverMotions.Clear();
             _rejectionDeckSplit.Clear();
             _eventCue = null;
             _cardBackMaterial = null;
@@ -469,6 +501,7 @@ namespace TheFall.Presentation.Animation
             _rejectionDeckGap = 0f;
             _capturePairFlipDegrees = 0f;
             _cascadeStackFlipDegrees = 0f;
+            _leftoverFlipDegrees = 0f;
             _activeDealFaceUp = false;
             _dealRevealsFace = false;
             _activeRejectedCardFaceDown = false;
@@ -476,6 +509,7 @@ namespace TheFall.Presentation.Animation
             _captureContinuesToCascade = false;
             _cascadeStackFaceDown = false;
             _cascadeStackCompletesCapture = false;
+            _leftoversFaceDown = false;
 
             if (_generatedRoot != null)
             {
@@ -636,7 +670,7 @@ namespace TheFall.Presentation.Animation
                         $"Face-down {player.DisplayName} Captured Card {index + 1}",
                         ResolveCapturedPilePosition(
                             player.Seat,
-                            captured.Count - 1 - index)));
+                            index)));
                 }
             }
         }
@@ -847,7 +881,7 @@ namespace TheFall.Presentation.Animation
                         ? matchingSource.localPosition + Vector3.up * (index == 0 ? 0.012f : 0f)
                         : ResolveCapturedPilePosition(
                             player.Seat,
-                            capturedBaseIndex + 1 - index),
+                            capturedBaseIndex + index),
                     index == 0));
             }
 
@@ -960,7 +994,7 @@ namespace TheFall.Presentation.Animation
                 var target = _cascadeStackCompletesCapture
                     ? ResolveCapturedPilePosition(
                         player.Seat,
-                        existingCapturedCount + capturedEvent.Cards.Count - 1 - cardIndex)
+                        existingCapturedCount + cardIndex)
                     : targetBase +
                         Vector3.up * ((currentIndex - cardIndex) * 0.012f);
                 if (!isCollectionStep && cardIndex == currentIndex)
@@ -1012,6 +1046,67 @@ namespace TheFall.Presentation.Animation
             _cascadeStackFaceDown =
                 _cascadeStackCompletesCapture &&
                 progress >= 0.5f;
+        }
+
+        private void PrepareLeftoverCollection(
+            AnimationPresentationState state,
+            ResolvedAnimationStep step)
+        {
+            _leftoverMotions.Clear();
+            var player = FindPlayer(state, step.PlayerId);
+            var existingCapturedCount = Math.Max(
+                0,
+                state.GetCaptured(player.Id).Count - step.Cards.Count);
+            for (var index = 0; index < step.Cards.Count; index++)
+            {
+                var card = step.Cards[index];
+                if (!_cardViews.TryGetValue(card, out var source))
+                {
+                    continue;
+                }
+
+                source.gameObject.SetActive(false);
+                var moving = CreateHiddenCard(
+                    $"Leftover Collection Card {card}",
+                    source.localPosition);
+                moving.FaceRenderer.gameObject.SetActive(true);
+                CardVisualMaterialBinding.Apply(moving.FaceRenderer, _cardCatalog, card);
+                moving.Transform.localRotation = Quaternion.AngleAxis(180f, Vector3.forward);
+                _leftoverMotions.Add(new CollectedCardMotion(
+                    moving,
+                    source.localPosition,
+                    ResolveCapturedPilePosition(
+                        player.Seat,
+                        existingCapturedCount + index)));
+            }
+
+            _leftoverFlipDegrees = 180f;
+            _leftoversFaceDown = false;
+        }
+
+        private void ApplyLeftoverCollection(float progress)
+        {
+            if (_leftoverMotions.Count == 0)
+            {
+                return;
+            }
+
+            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, _easing);
+            _leftoverFlipDegrees = 180f + eased * 180f;
+            foreach (var motion in _leftoverMotions)
+            {
+                motion.View.Transform.localPosition = AnimationBeatEvaluator.EvaluatePosition(
+                    motion.Start,
+                    motion.Target,
+                    progress,
+                    _easing,
+                    _trajectoryOffset);
+                motion.View.Transform.localRotation = Quaternion.AngleAxis(
+                    _leftoverFlipDegrees,
+                    Vector3.forward);
+            }
+
+            _leftoversFaceDown = progress >= 0.5f;
         }
 
         private void PrepareDealerCardFlip(
@@ -1639,6 +1734,22 @@ namespace TheFall.Presentation.Animation
             public Vector3 Target { get; }
 
             public bool IsStationaryTarget { get; }
+        }
+
+        private readonly struct CollectedCardMotion
+        {
+            public CollectedCardMotion(HiddenCardView view, Vector3 start, Vector3 target)
+            {
+                View = view;
+                Start = start;
+                Target = target;
+            }
+
+            public HiddenCardView View { get; }
+
+            public Vector3 Start { get; }
+
+            public Vector3 Target { get; }
         }
 
         private sealed class DealerSpreadCardView

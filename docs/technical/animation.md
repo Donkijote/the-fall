@@ -123,7 +123,7 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 | cascade capture | one configured stack-to-next-card beat per additional card, followed by an explicit terminal stack-to-collected-pile beat |
 | Fall, clean table, canto, and other score changes | distinct configured semantic beats with ordered score/canto prefix updates |
 | deal completion | semantic completion cue |
-| leftovers | configured table-to-capture motion for each collected card |
+| leftovers | table cards travel to the collector's left-side pile, flip face down, and settle above its existing cards |
 | round completion, dealer rotation, and tie extension | ordered semantic cues with round/dealer/tie metadata updates |
 | turn change | active-seat cue update |
 | match victory | ordered victory cue; Result remains deferred until synchronization |
@@ -166,6 +166,8 @@ The isolated matching-pair capture is one uninterrupted `NormalCapture` cycle. I
 The isolated cascade capture reuses the matching-pair lead-in through the moment when the played card rests on its same-rank match. Each configured `CascadeCapture` beat then moves the entire growing stack onto one authoritative cascade card, including a distinct landing on the final cascade card. A separate terminal `CascadeCapture` beat lifts that completed stack from the last card, carries it to the same left-side collected anchor, flips every card face down in flight, and settles the stack onto the collected deck. The recording contains three consecutive cascade cards so the workbench exposes accumulation and final collection as separate visible actions.
 
 Table layout slots are stable for the full composite capture. Removing the matching card or a reached cascade card never compacts the untouched cards into newly empty slots: every future cascade target and every unrelated table card remains planted until the moving stack reaches it or the sequence completes. The incoming target remains stationary during its beat and joins the lifted stack only on the following cascade beat.
+
+The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top.
 
 ## Generation and validation
 
