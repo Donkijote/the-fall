@@ -10,15 +10,15 @@ Status: Implemented workbench and first-playable runtime contract
 
 The isolated recording library is:
 
-- match start, dealer-card selection, and dealer choice
+- dealer-card selection
 - deal one card to each 1v1 seat, opening rejection, and opening placement
 - play one card, reflow the remaining hand, and confirm table placement
 - normal capture and one cascade-card capture
-- Fall, clean-table, canto, and general score cues
-- deal completion, leftovers collection, round completion, dealer rotation, and tie extension
-- active-turn change and match victory
+- leftovers collection
 
-Every selector entry isolates one presentation treatment plus mandatory final synchronization. Most contain one tunable beat. **Deal one card** contains two consecutive instances of the same Deal beat so one preview shows a complete current-player/opponent pass without mixing in another treatment. Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
+Status-only outcomes are deliberately absent from the isolated animation selector: match start, dealer choice, canto, Fall/clean-table/general score changes, deal and round completion, dealer rotation, tie extension, active-turn change, and match victory remain localized plain-text runtime messages until a later VFX pass. Their domain events, authoritative state changes, and ordered runtime mappings remain intact.
+
+Every selector entry isolates one gameplay/card presentation treatment plus mandatory final synchronization. Most contain one tunable beat. **Deal one card** contains two consecutive instances of the same Deal beat so one preview shows a complete current-player/opponent pass without mixing in another treatment. Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
 
 ## Reusable beat vocabulary
 
@@ -111,8 +111,8 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 
 | Resolved outcome | Runtime treatment |
 | --- | --- |
-| match start; dealer card selection, tie, dealer result, and shuffle | dealer-spread state change plus localized active-event cue |
-| dealer choice and deal start | semantic cue and round/deal metadata update |
+| match start; dealer card selection, tie, dealer result, and shuffle | dealer-spread state change plus localized plain-text event |
+| dealer choice and deal start | localized plain text plus round/deal metadata update |
 | card dealt | configured deck-to-hand motion, including face-down opponent cards |
 | opening rejection | configured semantic rejection cue; rejected card remains in the deck prefix |
 | opening placement | configured deck-to-table motion |
@@ -121,12 +121,12 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 | non-capturing placement | configured placement cue after play and reflow |
 | normal capture | configured table-to-capture motion for the played and matching card |
 | cascade capture | one configured stack-to-next-card beat per additional card, followed by an explicit terminal stack-to-collected-pile beat |
-| Fall, clean table, canto, and other score changes | distinct configured semantic beats with ordered score/canto prefix updates |
-| deal completion | semantic completion cue |
+| Fall, clean table, canto, and other score changes | localized plain text with ordered score/canto prefix updates |
+| deal completion | localized plain-text completion message |
 | leftovers | table cards travel to the collector's left-side pile, flip face down, and settle above its existing cards |
-| round completion, dealer rotation, and tie extension | ordered semantic cues with round/dealer/tie metadata updates |
-| turn change | active-seat cue update |
-| match victory | ordered victory cue; Result remains deferred until synchronization |
+| round completion, dealer rotation, and tie extension | localized plain text with round/dealer/tie metadata updates |
+| turn change | localized plain text plus active-seat update |
+| match victory | localized plain-text victory message; Result remains deferred until synchronization |
 | final synchronization | instantaneous mandatory copy of the accepted `MatchState` |
 
 Captured-card identity is retained only inside the transient presentation matcher so a public card can move into the correct pile. The public rendered-card API and snapshot continue to expose those piles face down, and opponent hand identities remain unavailable.

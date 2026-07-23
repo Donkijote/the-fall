@@ -6,9 +6,7 @@ namespace TheFall.Application.Animation
 {
     public enum AnimationScenarioKind
     {
-        MatchStart,
         DealerCardSelection,
-        DealerChoice,
         DealCard,
         OpeningRejection,
         OpeningPlacement,
@@ -17,17 +15,7 @@ namespace TheFall.Application.Animation
         TablePlacement,
         NormalCapture,
         CascadeCapture,
-        FallScore,
-        CleanTableScore,
-        Canto,
-        ScoreChange,
-        DealComplete,
         CollectLeftovers,
-        RoundComplete,
-        DealerRotation,
-        TieExtension,
-        TurnChange,
-        MatchVictory,
     }
 
     public enum AnimationRecordingBeat
@@ -115,13 +103,8 @@ namespace TheFall.Application.Animation
             var context = new ScenarioContext(actingSeat);
             switch (kind)
             {
-                case AnimationScenarioKind.MatchStart:
-                    return CreateMatchStart(context);
                 case AnimationScenarioKind.DealerCardSelection:
                     return CreateDealerCardSelection(context);
-                case AnimationScenarioKind.DealerChoice:
-                    return Cue(context, kind, "Dealer choice", AnimationRecordingBeat.DealerChoice,
-                        new DealerChoiceMadeEvent(context.Actor.Id, true, OpeningPattern.Ascending));
                 case AnimationScenarioKind.DealCard:
                     return CreateDealCard(context);
                 case AnimationScenarioKind.OpeningRejection:
@@ -143,54 +126,11 @@ namespace TheFall.Application.Animation
                     return CreateNormalCapture(context);
                 case AnimationScenarioKind.CascadeCapture:
                     return CreateCascadeCapture(context);
-                case AnimationScenarioKind.FallScore:
-                    return CreateScore(context, kind, "Fall score", AnimationRecordingBeat.FallScore,
-                        ScoreReason.Fall, 1, 8);
-                case AnimationScenarioKind.CleanTableScore:
-                    return CreateScore(context, kind, "Clean-table score", AnimationRecordingBeat.CleanTableScore,
-                        ScoreReason.CleanTable, 2, 10);
-                case AnimationScenarioKind.Canto:
-                    return CreateCanto(context);
-                case AnimationScenarioKind.ScoreChange:
-                    return CreateScore(context, kind, "Score change", AnimationRecordingBeat.Score,
-                        ScoreReason.CapturedCards, 3, 11);
-                case AnimationScenarioKind.DealComplete:
-                    return Cue(context, kind, "Deal complete", AnimationRecordingBeat.DealCompleted,
-                        new DealCompletedEvent(1, 1));
                 case AnimationScenarioKind.CollectLeftovers:
                     return CreateLeftovers(context);
-                case AnimationScenarioKind.RoundComplete:
-                    return Cue(context, kind, "Round complete", AnimationRecordingBeat.Round,
-                        new RoundCompletedEvent(1));
-                case AnimationScenarioKind.DealerRotation:
-                    return CreateDealerRotation(context);
-                case AnimationScenarioKind.TieExtension:
-                    return Cue(context, kind, "Tie extension", AnimationRecordingBeat.TieExtension,
-                        new TieExtensionStartedEvent(2, new Score(24)));
-                case AnimationScenarioKind.TurnChange:
-                    return CreateTurnChange(context);
-                case AnimationScenarioKind.MatchVictory:
-                    return CreateMatchVictory(context);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
             }
-        }
-
-        private static AnimationScenarioRecording CreateMatchStart(ScenarioContext context)
-        {
-            var result = OneVersusOneRules.StartMatch(
-                context.First,
-                context.Second,
-                RuleConfiguration.Standard,
-                new PredictableRandomSource());
-            return Recording(
-                context,
-                AnimationScenarioKind.MatchStart,
-                "Match start",
-                AnimationRecordingBeat.MatchStarted,
-                result.State,
-                result.State,
-                result.Events);
         }
 
         private static AnimationScenarioRecording CreateDealerCardSelection(ScenarioContext context)
@@ -390,49 +330,6 @@ namespace TheFall.Application.Animation
                 });
         }
 
-        private static AnimationScenarioRecording CreateScore(
-            ScenarioContext context,
-            AnimationScenarioKind kind,
-            string name,
-            AnimationRecordingBeat beat,
-            ScoreReason reason,
-            int points,
-            int total)
-        {
-            var initial = context.State(actorScore: total - points);
-            var final = context.State(actorScore: total);
-            return Recording(context, kind, name, beat, initial, final,
-                new DomainEvent[]
-                {
-                    new ScoreChangedEvent(context.Actor.TeamId, points, new Score(total), reason),
-                });
-        }
-
-        private static AnimationScenarioRecording CreateCanto(ScenarioContext context)
-        {
-            var initial = context.State(actorHand: context.RondaHand());
-            var result = new MatchSession(initial).Submit(
-                new AnnounceCantoIntent(context.Actor.Id, CantoKind.Ronda));
-            return Recording(context, AnimationScenarioKind.Canto, "Canto announcement",
-                AnimationRecordingBeat.Canto, initial, result.State, result.Events);
-        }
-
-        private static AnimationScenarioRecording CreateMatchVictory(ScenarioContext context)
-        {
-            var initial = context.State(actorHand: context.RondaHand(), actorScore: 23);
-            var result = new MatchSession(initial).Submit(
-                new AnnounceCantoIntent(context.Actor.Id, CantoKind.Ronda));
-            if (!result.IsAccepted || result.State.Phase != MatchPhase.Completed)
-            {
-                throw new InvalidOperationException("The isolated victory recording must complete the match.");
-            }
-
-            return Recording(context, AnimationScenarioKind.MatchVictory, "Match victory",
-                AnimationRecordingBeat.MatchCompleted, initial, result.State, result.Events,
-                AnimationRecordingBeat.Canto,
-                AnimationRecordingBeat.Score);
-        }
-
         private static AnimationScenarioRecording CreateLeftovers(ScenarioContext context)
         {
             var initial = context.State(
@@ -448,37 +345,6 @@ namespace TheFall.Application.Animation
                         context.Actor.Id,
                         new[] { context.MatchingCard, context.CascadeCard }),
                 });
-        }
-
-        private static AnimationScenarioRecording CreateDealerRotation(ScenarioContext context)
-        {
-            var previous = context.Actor.Seat == Seat.First ? Seat.Second : Seat.First;
-            var initial = context.State(dealerSeat: previous);
-            var final = context.State(dealerSeat: context.Actor.Seat);
-            return Recording(context, AnimationScenarioKind.DealerRotation, "Rotate dealer",
-                AnimationRecordingBeat.DealerRotation, initial, final,
-                new DomainEvent[] { new DealerRotatedEvent(previous, context.Actor.Seat) });
-        }
-
-        private static AnimationScenarioRecording CreateTurnChange(ScenarioContext context)
-        {
-            var next = context.Actor.Seat == Seat.First ? Seat.Second : Seat.First;
-            var initial = context.State(currentSeat: context.Actor.Seat);
-            var final = context.State(currentSeat: next);
-            return Recording(context, AnimationScenarioKind.TurnChange, "Change active turn",
-                AnimationRecordingBeat.TurnChanged, initial, final,
-                new DomainEvent[] { new TurnChangedEvent(context.Actor.Seat, next) });
-        }
-
-        private static AnimationScenarioRecording Cue(
-            ScenarioContext context,
-            AnimationScenarioKind kind,
-            string name,
-            AnimationRecordingBeat beat,
-            DomainEvent resolvedEvent)
-        {
-            var state = context.State();
-            return Recording(context, kind, name, beat, state, state, new[] { resolvedEvent });
         }
 
         private static AnimationScenarioRecording Recording(
@@ -587,16 +453,6 @@ namespace TheFall.Application.Animation
             public Card HandOne => Card(CardSuit.Clubs, CardRank.Seven);
 
             public Card HandTwo => Card(CardSuit.Swords, CardRank.Twelve);
-
-            public IReadOnlyList<Card> RondaHand()
-            {
-                return new[]
-                {
-                    Card(CardSuit.Coins, CardRank.One),
-                    Card(CardSuit.Cups, CardRank.One),
-                    Card(CardSuit.Clubs, CardRank.Five),
-                };
-            }
 
             public Card Card(CardSuit suit, CardRank rank)
             {

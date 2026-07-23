@@ -451,6 +451,19 @@ namespace TheFall.Tests.EditMode
         public void WorkbenchLibrary_ProvidesTheExpectedTunableBeatsPerRecordedAnimation()
         {
             var scenarios = (AnimationScenarioKind[])Enum.GetValues(typeof(AnimationScenarioKind));
+            Assert.That(scenarios, Is.EqualTo(new[]
+            {
+                AnimationScenarioKind.DealerCardSelection,
+                AnimationScenarioKind.DealCard,
+                AnimationScenarioKind.OpeningRejection,
+                AnimationScenarioKind.OpeningPlacement,
+                AnimationScenarioKind.PlayCard,
+                AnimationScenarioKind.HandReflow,
+                AnimationScenarioKind.TablePlacement,
+                AnimationScenarioKind.NormalCapture,
+                AnimationScenarioKind.CascadeCapture,
+                AnimationScenarioKind.CollectLeftovers,
+            }));
             Assert.That(AnimationScenarioRecording.DisplayNames, Has.Count.EqualTo(scenarios.Length));
             Assert.That(
                 AnimationScenarioRecording.DisplayNames.Distinct().ToArray(),
