@@ -159,7 +159,7 @@ The isolated opening-placement preview starts with the already accepted table ca
 
 The isolated opening-rejection preview reverses that treatment. It begins with the rejected card face up beside the accepted table card and the remaining deck face down. The rejected card leaves its table slot, rotates back-down on the way to its authoritative reinsertion index, and enters a temporary middle-deck gap. The upper half of the deck lifts and shifts aside during insertion, then closes over the card; accepted table cards remain stationary and the final rendered state contains the reinserted card in the deck.
 
-The isolated matching-pair capture is one uninterrupted `NormalCapture` cycle. It first moves the played card out of the acting player's hand and directly onto the authoritative same-rank table card, keeping the played card visibly above its match. After a short contact beat, both cards lift as one stack, travel together to the acting player's collected pile, rotate face down in flight, and settle on top as opaque card backs.
+The isolated matching-pair capture is one uninterrupted `NormalCapture` cycle. It first moves the played card out of the acting player's hand and directly onto the authoritative same-rank table card, keeping the played card visibly above its match. After a short contact beat, both cards lift as one stack, travel together to the dedicated collected-pile anchor on the acting player's left, rotate face down in flight, and settle on top as opaque card backs. The pile anchor mirrors by seat so “left” remains relative to each player's perspective rather than a fixed world-space side.
 
 ## Generation and validation
 

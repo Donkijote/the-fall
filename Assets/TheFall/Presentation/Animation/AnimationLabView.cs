@@ -23,6 +23,8 @@ namespace TheFall.Presentation.Animation
         private const float DealerSelectedRestHeight = 0.015f;
         private const float CapturePlayEndProgress = 0.38f;
         private const float CapturePickupStartProgress = 0.46f;
+        private const float CapturedPileRadius = 0.92f;
+        private const float CapturedPileLeftOffset = 0.52f;
 
         private readonly Transform _owner;
         private readonly Camera _camera;
@@ -960,7 +962,14 @@ namespace TheFall.Presentation.Animation
 
         private Vector3 ResolveCapturedPilePosition(Seat seat, int stackIndex)
         {
-            return GetSeatCardPosition(seat, 0.78f, 0, 1, 0f, 0.84f + stackIndex * 0.006f);
+            var angle = GetSeatAngle(seat);
+            var radians = angle * Mathf.Deg2Rad;
+            var playerLeft = new Vector3(-Mathf.Cos(radians), 0f, -Mathf.Sin(radians));
+            return TableCompositionLayout.PositionAt(
+                    angle,
+                    CapturedPileRadius,
+                    0.84f + stackIndex * 0.006f) +
+                playerLeft * CapturedPileLeftOffset;
         }
 
         private void CreateStage()

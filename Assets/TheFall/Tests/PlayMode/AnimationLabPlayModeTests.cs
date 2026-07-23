@@ -142,6 +142,19 @@ namespace TheFall.Tests.PlayMode
                 controller.FinalState.GetPlayerAt(controller.ActingSeat).Player.Id),
                 Has.Count.EqualTo(2));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+
+            var firstSeatPile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .First(item => item.name == "Face-down Seat One Captured Card 1");
+            Assert.That(firstSeatPile.localPosition.x, Is.LessThan(-0.4f));
+
+            controller.SetActingSeat(Seat.Second);
+            controller.CompleteImmediatelyForTests();
+            var secondSeatPile = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .First(item => item.name == "Face-down Seat Two Captured Card 1");
+            Assert.That(secondSeatPile.localPosition.x, Is.GreaterThan(0.4f));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
         }
 
         [UnityTest]
