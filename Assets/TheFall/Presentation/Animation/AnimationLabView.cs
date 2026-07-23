@@ -83,6 +83,10 @@ namespace TheFall.Presentation.Animation
 
         public float DealCardFlipDegrees => _dealFlipDegrees;
 
+        public bool ActiveDeckCardIsFaceUp => ActiveDealCardIsFaceUp;
+
+        public float DeckCardFlipDegrees => DealCardFlipDegrees;
+
         public int RevealedDealerCardViewCount
         {
             get
@@ -188,6 +192,15 @@ namespace TheFall.Presentation.Animation
                 step.Cards.Count > 0)
             {
                 PrepareDealCard(state, step);
+                RefreshLabels(state);
+                SetEventCue(step);
+                return;
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.OpeningPlacement &&
+                step.Cards.Count > 0)
+            {
+                PrepareOpeningCard(state, step);
                 RefreshLabels(state);
                 SetEventCue(step);
                 return;
@@ -516,26 +529,53 @@ namespace TheFall.Presentation.Animation
             AnimationPresentationState state,
             ResolvedAnimationStep step)
         {
+            var recipient = FindPlayer(state, step.PlayerId);
+            var handIndex = state.GetHandLayoutIndex(step.PlayerId, step.Cards[0]);
+            PrepareDeckCardMotion(
+                step.Cards[0],
+                GetSeatCardPosition(
+                    recipient.Seat,
+                    1.02f,
+                    handIndex,
+                    Math.Max(3, state.GetHandLayoutSlotCount(step.PlayerId)),
+                    0.19f,
+                    0.84f),
+                step.PlayerId == _actingPlayerId,
+                recipient.Seat,
+                $"Dealt Card to {step.PlayerId}");
+        }
+
+        private void PrepareOpeningCard(
+            AnimationPresentationState state,
+            ResolvedAnimationStep step)
+        {
+            PrepareDeckCardMotion(
+                step.Cards[0],
+                ResolveCardPosition(state, step.Cards[0]),
+                true,
+                FindPlayer(state, _actingPlayerId).Seat,
+                $"Opening Card {step.Cards[0]}");
+        }
+
+        private void PrepareDeckCardMotion(
+            Card card,
+            Vector3 target,
+            bool revealFace,
+            Seat recipientSeat,
+            string name)
+        {
             if (_deckViews.Count == 0)
             {
                 return;
             }
 
             _activeDealCard = _deckViews[_deckViews.Count - 1];
-            _activeDealCard.Transform.gameObject.name = $"Dealt Card to {step.PlayerId}";
+            _activeDealCard.Transform.gameObject.name = name;
             _activeDealStart = _activeDealCard.Transform.localPosition;
-            var recipient = FindPlayer(state, step.PlayerId);
-            var handIndex = state.GetHandLayoutIndex(step.PlayerId, step.Cards[0]);
-            _activeDealTarget = GetSeatCardPosition(
-                recipient.Seat,
-                1.02f,
-                handIndex,
-                Math.Max(3, state.GetHandLayoutSlotCount(step.PlayerId)),
-                0.19f,
-                0.84f);
-            _dealRevealsFace = step.PlayerId == _actingPlayerId;
+            _activeDealTarget = target;
+            _dealRevealsFace = revealFace;
             _activeDealFaceUp = false;
-            _dealFlipDirection = recipient.Seat == Seat.First ? 1f : -1f;
+            _dealFlipDirection = recipientSeat == Seat.First ? 1f : -1f;
             _dealFlipDegrees = 0f;
             _activeDealCard.Transform.localRotation = Quaternion.identity;
             _activeDealCard.FaceRenderer.gameObject.SetActive(_dealRevealsFace);
@@ -544,7 +584,7 @@ namespace TheFall.Presentation.Animation
                 CardVisualMaterialBinding.Apply(
                     _activeDealCard.FaceRenderer,
                     _cardCatalog,
-                    step.Cards[0]);
+                    card);
             }
         }
 

@@ -155,6 +155,8 @@ The revealed card rests above every face-down row so its complete face remains r
 
 The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards retain fixed three-card slots throughout both motions, so only the incoming card moves and the opponent's identities remain opaque.
 
+The isolated opening-placement preview starts with the already accepted table cards and the complete remaining deck face down. Its top card is reused as the moving card instead of creating a duplicate beside the stack: it leaves the deck back-up, follows the configured deck-to-table path, rotates to reveal its authoritative face, and settles in the next table slot. Existing table cards remain stationary.
+
 ## Generation and validation
 
 Use:

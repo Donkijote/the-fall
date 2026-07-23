@@ -170,6 +170,42 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator OpeningPlacement_PicksTheFaceDownDeckTopAndFlipsItOntoTheTable()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.OpeningPlacement);
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.DeckViewCount, Is.EqualTo(39));
+            Assert.That(controller.ActiveDeckCardIsFaceUp, Is.False);
+            Assert.That(controller.DeckCardFlipDegrees, Is.LessThan(1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            var existingTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            var existingTablePosition = existingTableCard.localPosition;
+
+            controller.SeekToStep(0, 0.75f);
+            existingTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(
+                Vector3.Distance(existingTableCard.localPosition, existingTablePosition),
+                Is.LessThan(0.0001f));
+            Assert.That(controller.DeckViewCount, Is.EqualTo(39));
+            Assert.That(controller.ActiveDeckCardIsFaceUp, Is.True);
+            Assert.That(controller.DeckCardFlipDegrees, Is.GreaterThan(90f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DeckViewCount, Is.EqualTo(38));
+            Assert.That(controller.RenderedState.Table, Has.Count.EqualTo(2));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator FastForward_ProfilesTheRepresentativeSequenceWithoutChangingItsOutcome()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);

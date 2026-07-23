@@ -253,10 +253,16 @@ namespace TheFall.Application.Animation
         private static AnimationScenarioRecording CreateOpeningPlacement(ScenarioContext context)
         {
             var opening = context.Card(CardSuit.Coins, CardRank.Five);
+            var initialDeck = new List<Card>(Deck.CreateSpanishDeck().Cards);
+            initialDeck.Remove(context.TableCard);
+            var finalDeck = new List<Card>(initialDeck);
+            finalDeck.Remove(opening);
             var initial = context.State(
                 table: new[] { context.TableCard },
-                deck: new[] { opening });
-            var final = context.State(table: new[] { context.TableCard, opening });
+                deck: initialDeck);
+            var final = context.State(
+                table: new[] { context.TableCard, opening },
+                deck: finalDeck);
             return Recording(context, AnimationScenarioKind.OpeningPlacement, "Place opening card",
                 AnimationRecordingBeat.OpeningPlacement, initial, final,
                 new DomainEvent[] { new OpeningCardPlacedEvent(opening, 1) });
