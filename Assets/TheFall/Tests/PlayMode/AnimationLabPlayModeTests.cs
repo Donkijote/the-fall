@@ -107,6 +107,7 @@ namespace TheFall.Tests.PlayMode
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
             Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
+            Assert.That(controller.RevealedDealerCardClearance, Is.GreaterThan(0f));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
         }
 

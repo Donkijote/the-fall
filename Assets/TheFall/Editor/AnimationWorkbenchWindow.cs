@@ -180,7 +180,7 @@ namespace TheFall.Editor
             {
                 if (GUILayout.Button("▶ Animation"))
                 {
-                    _controller.RestartSequence();
+                    _controller.PlayOnce();
                 }
 
                 if (GUILayout.Button("Pause"))

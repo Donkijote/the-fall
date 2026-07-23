@@ -20,6 +20,7 @@ namespace TheFall.Presentation.Animation
         private const float DealerCardWidth = 0.24f;
         private const float DealerCardHeight = 0.34f;
         private const float DealerFlipLift = 0.13f;
+        private const float DealerSelectedRestHeight = 0.015f;
 
         private readonly Transform _owner;
         private readonly Camera _camera;
@@ -75,6 +76,35 @@ namespace TheFall.Presentation.Animation
                 }
 
                 return count;
+            }
+        }
+
+        public float RevealedDealerCardClearance
+        {
+            get
+            {
+                var highestFaceDown = float.NegativeInfinity;
+                var lowestRevealed = float.PositiveInfinity;
+                foreach (var view in _dealerSpreadViews)
+                {
+                    if (view.IsFaceUp)
+                    {
+                        lowestRevealed = Mathf.Min(
+                            lowestRevealed,
+                            view.Transform.localPosition.y);
+                    }
+                    else
+                    {
+                        highestFaceDown = Mathf.Max(
+                            highestFaceDown,
+                            view.Transform.localPosition.y);
+                    }
+                }
+
+                return float.IsNegativeInfinity(highestFaceDown) ||
+                    float.IsPositiveInfinity(lowestRevealed)
+                        ? 0f
+                        : lowestRevealed - highestFaceDown;
             }
         }
 
@@ -309,7 +339,11 @@ namespace TheFall.Presentation.Animation
                     : $"Face-down Dealer Card {slot + 1}");
             rootObject.hideFlags = HideFlags.DontSave;
             rootObject.transform.SetParent(_generatedRoot, false);
-            rootObject.transform.localPosition = ResolveDealerSpreadPosition(slot);
+            rootObject.transform.localPosition =
+                ResolveDealerSpreadPosition(slot) +
+                (revealedCard.HasValue
+                    ? Vector3.up * DealerSelectedRestHeight
+                    : Vector3.zero);
             rootObject.transform.localRotation = revealedCard.HasValue
                 ? Quaternion.AngleAxis(180f, Vector3.forward)
                 : Quaternion.identity;
@@ -399,7 +433,9 @@ namespace TheFall.Presentation.Animation
                 Quaternion.AngleAxis(_dealerFlipDegrees * _dealerFlipDirection, Vector3.forward);
             _activeDealerCard.Transform.localPosition =
                 _activeDealerCardStart +
-                Vector3.up * (Mathf.Sin(progress * Mathf.PI) * _dealerFlipLift);
+                Vector3.up * (
+                    Mathf.Sin(progress * Mathf.PI) * _dealerFlipLift +
+                    eased * DealerSelectedRestHeight);
             _activeDealerCard.IsFaceUp = progress >= 0.5f;
         }
 

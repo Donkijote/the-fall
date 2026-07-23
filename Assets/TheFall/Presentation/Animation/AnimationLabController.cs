@@ -133,6 +133,8 @@ namespace TheFall.Presentation.Animation
 
         public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
 
+        public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;
+
         public float DealerCardFlipDegrees => _view?.DealerCardFlipDegrees ?? 0f;
 
         public Transform PreviewRoot => _view?.GeneratedRoot;
@@ -371,6 +373,12 @@ namespace TheFall.Presentation.Animation
             _transport.Restart();
             BeginMetrics();
             RenderTransportPosition(true);
+        }
+
+        public void PlayOnce()
+        {
+            RestartSequence();
+            _transport.Loop = false;
         }
 
         public void ResetToStart()

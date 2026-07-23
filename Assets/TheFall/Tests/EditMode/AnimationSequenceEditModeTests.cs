@@ -310,6 +310,53 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void EditModeWorkbench_PlayOnceIgnoresPresetLoopAndRestsAtTheFinalState()
+        {
+            EditorSceneManager.OpenScene(
+                "Assets/TheFall/Presentation/Scenes/AnimationLab.unity",
+                OpenSceneMode.Single);
+            var controller = UnityEngine.Object.FindAnyObjectByType<AnimationLabController>();
+            var loopingPreset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(
+                "Assets/TheFall/Content/Animation/AnimationFastIterationPreset.asset");
+
+            Assert.That(controller, Is.Not.Null);
+            Assert.That(loopingPreset.Loop, Is.True);
+            controller.BeginEditorWorkbenchPreview(
+                (int)AnimationScenarioKind.DealerCardSelection,
+                Seat.First,
+                AnimationPreviewProfile.Desktop,
+                loopingPreset);
+
+            try
+            {
+                controller.PlayOnce();
+                for (var tick = 0; tick < 100 && controller.IsPlaying; tick++)
+                {
+                    controller.TickEditorPreview(0.05f);
+                }
+
+                Assert.That(controller.IsPlaying, Is.False);
+                Assert.That(controller.NormalizedPosition, Is.EqualTo(1f));
+                Assert.That(
+                    controller.CompletionReason,
+                    Is.EqualTo(AnimationSequenceCompletionReason.Completed));
+                Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+                Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
+                Assert.That(controller.RevealedDealerCardClearance, Is.GreaterThan(0f));
+
+                var completedRoot = controller.PreviewRoot;
+                Assert.That(controller.TickEditorPreview(1f), Is.False);
+                Assert.That(controller.NormalizedPosition, Is.EqualTo(1f));
+                Assert.That(controller.PreviewRoot, Is.SameAs(completedRoot));
+                Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+            }
+            finally
+            {
+                controller.ClearEditorPreview();
+            }
+        }
+
+        [Test]
         public void AnimationWorkbenchWindow_IsAvailableAsAnEditModeAuthoringSurface()
         {
             var window = ScriptableObject.CreateInstance<AnimationWorkbenchWindow>();

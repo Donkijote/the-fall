@@ -41,7 +41,7 @@ Open `The Fall > Animation Laboratory > Open Workbench`. The command opens the i
 The Editor window can:
 
 - select one isolated animation, either 1v1 seat, and portrait, landscape, or desktop presentation profile
-- play, pause, step, reset, loop, and scrub that animation
+- play an animation once through its final resting pose, pause it, reset it explicitly, and scrub it
 - edit duration, delay, easing, trajectory offset, and emphasis with Undo/Redo support
 - save the working preset or create a new named project-owned preset
 - display the active beat, source event, elapsed time, and state-agreement diagnosis
@@ -151,6 +151,7 @@ Agreement is expected at the end state. During an in-flight preview the rendered
 Trajectory and easing affect transient card movement only. Emphasis affects the diagnostic event cue. Reduced motion shortens duration and suppresses trajectory while keeping semantic cues and final-state synchronization.
 
 The isolated dealer-card selection begins with the complete forty-card spread face down. The selected position uses separate back and face surfaces, lifts from the table, rotates 180 degrees around its long edge, and remains face up among the other anonymous cards. Previously selected dealer cards remain revealed through tie rounds while the unselected spread stays opaque.
+The revealed card rests above every face-down row so its complete face remains readable. The workbench Animation button always performs a one-shot preview and leaves this resolved pose in place; pressing Animation again restarts the preview, while Reset explicitly returns to the initial spread.
 
 ## Generation and validation
 
