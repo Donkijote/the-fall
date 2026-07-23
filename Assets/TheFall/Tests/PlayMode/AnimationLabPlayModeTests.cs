@@ -82,6 +82,35 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator DealerSelection_ShowsTheWholeFaceDownSpreadAndFlipsTheSelectedCard()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.DealerCardSelection);
+
+            controller.SeekToStep(0, 0f);
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.RevealedDealerCardViewCount, Is.Zero);
+            Assert.That(controller.DealerCardFlipDegrees, Is.Zero);
+
+            controller.SeekToStep(0, 0.5f);
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.DealerCardFlipDegrees, Is.EqualTo(90f).Within(0.1f));
+
+            controller.SeekToStep(0, 0.75f);
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
+            Assert.That(controller.DealerCardFlipDegrees, Is.GreaterThan(90f));
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
+            Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator FastForward_ProfilesTheRepresentativeSequenceWithoutChangingItsOutcome()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);

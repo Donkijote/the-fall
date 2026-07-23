@@ -336,7 +336,7 @@ namespace TheFall.Presentation.Animation
             return new List<AnimationBeatConfiguration>
             {
                 Beat(ResolvedAnimationStepKind.MatchStarted, 0.08f),
-                Beat(ResolvedAnimationStepKind.DealerSelection, 0.16f),
+                Beat(ResolvedAnimationStepKind.DealerSelection, 0.55f),
                 Beat(ResolvedAnimationStepKind.DealerChoice, 0.12f),
                 Beat(ResolvedAnimationStepKind.Deal, 0.16f, new Vector3(0f, 0.12f, 0.04f)),
                 Beat(ResolvedAnimationStepKind.OpeningRejection, 0.12f),

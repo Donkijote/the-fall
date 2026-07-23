@@ -31,6 +31,7 @@ namespace TheFall.Presentation.Animation
         private readonly Dictionary<PlayerId, List<Card>> _captured = new Dictionary<PlayerId, List<Card>>();
         private readonly Dictionary<TeamId, Score> _scores = new Dictionary<TeamId, Score>();
         private readonly List<Card> _table = new List<Card>();
+        private readonly List<Card> _dealerSelectionCards = new List<Card>();
         private readonly List<AnimationCantoState> _cantos = new List<AnimationCantoState>();
 
         public AnimationPresentationState(MatchState state)
@@ -41,6 +42,8 @@ namespace TheFall.Presentation.Animation
         public IReadOnlyList<Player> Players => _players;
 
         public IReadOnlyList<Card> Table => _table;
+
+        public IReadOnlyList<Card> DealerSelectionCards => _dealerSelectionCards;
 
         public IReadOnlyList<AnimationCantoState> Cantos => _cantos;
 
@@ -226,6 +229,8 @@ namespace TheFall.Presentation.Animation
 
             _table.Clear();
             _table.AddRange(state.Table);
+            _dealerSelectionCards.Clear();
+            _dealerSelectionCards.AddRange(state.DealerSelectionCards);
             _scores.Clear();
             _scores[TeamId.One] = state.TeamOneScore;
             _scores[TeamId.Two] = state.TeamTwoScore;
@@ -260,6 +265,7 @@ namespace TheFall.Presentation.Animation
                 IsTieExtension != state.IsTieExtension ||
                 _players.Count != state.Players.Count ||
                 _cantos.Count != state.CantoAnnouncements.Count ||
+                !_dealerSelectionCards.SequenceEqual(state.DealerSelectionCards) ||
                 !GetScore(TeamId.One).Equals(state.TeamOneScore) ||
                 !GetScore(TeamId.Two).Equals(state.TeamTwoScore) ||
                 !_table.SequenceEqual(state.Table))
@@ -294,9 +300,10 @@ namespace TheFall.Presentation.Animation
 
         private void ApplyDealerSelection(DomainEvent resolvedEvent)
         {
-            if (resolvedEvent is DealerCardSelectedEvent)
+            if (resolvedEvent is DealerCardSelectedEvent selectedCard)
             {
                 DeckCount = Math.Max(0, DeckCount - 1);
+                AddUnique(_dealerSelectionCards, selectedCard.Card);
             }
             else if (resolvedEvent is DealerSelectedEvent selected)
             {
@@ -330,6 +337,7 @@ namespace TheFall.Presentation.Animation
 
                 RoundNumber = shuffled.RoundNumber;
                 DeckCount = shuffled.CardCount;
+                _dealerSelectionCards.Clear();
             }
         }
 

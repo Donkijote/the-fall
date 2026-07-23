@@ -129,6 +129,12 @@ namespace TheFall.Presentation.Animation
 
         public int CardViewCount => _view?.CardViewCount ?? 0;
 
+        public int DealerSpreadViewCount => _view?.DealerSpreadViewCount ?? 0;
+
+        public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
+
+        public float DealerCardFlipDegrees => _view?.DealerCardFlipDegrees ?? 0f;
+
         public Transform PreviewRoot => _view?.GeneratedRoot;
 
         public int AnimatableStepCount => _sequence == null

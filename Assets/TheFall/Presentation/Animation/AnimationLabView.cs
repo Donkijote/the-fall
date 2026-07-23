@@ -16,6 +16,10 @@ namespace TheFall.Presentation.Animation
         private static readonly Color Woad = FromHex(0x465C73);
         private static readonly Color Vellum = FromHex(0xD8C493);
         private static readonly Color Brass = FromHex(0xB58B3E);
+        private const int DealerSpreadColumns = 8;
+        private const float DealerCardWidth = 0.24f;
+        private const float DealerCardHeight = 0.34f;
+        private const float DealerFlipLift = 0.13f;
 
         private readonly Transform _owner;
         private readonly Camera _camera;
@@ -25,8 +29,15 @@ namespace TheFall.Presentation.Animation
         private readonly Dictionary<TeamId, TextMeshPro> _scoreLabels = new Dictionary<TeamId, TextMeshPro>();
         private readonly List<Material> _ownedMaterials = new List<Material>();
         private readonly List<CardMotion> _motions = new List<CardMotion>();
+        private readonly List<DealerSpreadCardView> _dealerSpreadViews = new List<DealerSpreadCardView>();
         private Transform _generatedRoot;
         private TextMeshPro _eventCue;
+        private Material _cardBackMaterial;
+        private DealerSpreadCardView _activeDealerCard;
+        private Vector3 _activeDealerCardStart;
+        private float _dealerFlipDirection = 1f;
+        private float _dealerFlipLift;
+        private float _dealerFlipDegrees;
         private PlayerId _actingPlayerId;
         private AnimationBeatEasing _easing;
         private Vector3 _trajectoryOffset;
@@ -46,7 +57,28 @@ namespace TheFall.Presentation.Animation
 
         public TableCompositionProfile CurrentProfile { get; private set; }
 
-        public int CardViewCount => _cardViews.Count;
+        public int CardViewCount => _cardViews.Count + _dealerSpreadViews.Count;
+
+        public int DealerSpreadViewCount => _dealerSpreadViews.Count;
+
+        public int RevealedDealerCardViewCount
+        {
+            get
+            {
+                var count = 0;
+                foreach (var view in _dealerSpreadViews)
+                {
+                    if (view.IsFaceUp)
+                    {
+                        count++;
+                    }
+                }
+
+                return count;
+            }
+        }
+
+        public float DealerCardFlipDegrees => _dealerFlipDegrees;
 
         public Transform GeneratedRoot => _generatedRoot;
 
@@ -68,6 +100,7 @@ namespace TheFall.Presentation.Animation
             CreateStage();
             CreateSeats(state);
             CreateEventCue();
+            CreateDealerSpread(state);
             EnsureCardViews(state);
             RenderImmediate(state);
         }
@@ -80,13 +113,29 @@ namespace TheFall.Presentation.Animation
             float reducedMotionTrajectoryScale)
         {
             var existingCards = new HashSet<Card>(_cardViews.Keys);
+            _motions.Clear();
+            _easing = beat?.Easing ?? AnimationBeatEasing.EaseInOut;
+            _trajectoryOffset = beat?.TrajectoryOffset ?? Vector3.zero;
+            if (reducedMotion)
+            {
+                _trajectoryOffset *= Mathf.Clamp01(reducedMotionTrajectoryScale);
+            }
+
+            _emphasis = beat?.Emphasis ?? 1f;
+            if (step.Kind == ResolvedAnimationStepKind.DealerSelection && step.Cards.Count > 0)
+            {
+                PrepareDealerCardFlip(state, step);
+                RefreshLabels(state);
+                SetEventCue(step);
+                return;
+            }
+
             EnsureCardViews(state);
             for (var index = 0; index < step.Cards.Count; index++)
             {
                 EnsureCardView(step.Cards[index]);
             }
 
-            _motions.Clear();
             foreach (var entry in _cardViews)
             {
                 if (!existingCards.Contains(entry.Key) && Contains(step.Cards, entry.Key))
@@ -105,15 +154,6 @@ namespace TheFall.Presentation.Animation
                     entry.Value.localPosition,
                     target));
             }
-
-            _easing = beat?.Easing ?? AnimationBeatEasing.EaseInOut;
-            _trajectoryOffset = beat?.TrajectoryOffset ?? Vector3.zero;
-            if (reducedMotion)
-            {
-                _trajectoryOffset *= Mathf.Clamp01(reducedMotionTrajectoryScale);
-            }
-
-            _emphasis = beat?.Emphasis ?? 1f;
             RefreshLabels(state);
             SetEventCue(step);
         }
@@ -133,6 +173,8 @@ namespace TheFall.Presentation.Animation
                             _easing,
                             _trajectoryOffset);
             }
+
+            ApplyDealerCardFlip(clamped);
 
             if (_eventCue != null)
             {
@@ -213,7 +255,11 @@ namespace TheFall.Presentation.Animation
             _cardViews.Clear();
             _scoreLabels.Clear();
             _motions.Clear();
+            _dealerSpreadViews.Clear();
             _eventCue = null;
+            _cardBackMaterial = null;
+            _activeDealerCard = null;
+            _dealerFlipDegrees = 0f;
 
             if (_generatedRoot != null)
             {
@@ -227,6 +273,188 @@ namespace TheFall.Presentation.Animation
             }
 
             _ownedMaterials.Clear();
+        }
+
+        private void CreateDealerSpread(AnimationPresentationState state)
+        {
+            var revealedCards = state.DealerSelectionCards;
+            var totalCount = state.DealerSpreadCount + revealedCards.Count;
+            if (totalCount <= 0)
+            {
+                return;
+            }
+
+            EnsureCardBackMaterial();
+            var revealedSlots = new Dictionary<int, Card>();
+            for (var index = 0; index < revealedCards.Count; index++)
+            {
+                revealedSlots[GetDealerSelectionSlot(totalCount, index)] = revealedCards[index];
+            }
+
+            for (var slot = 0; slot < totalCount; slot++)
+            {
+                revealedSlots.TryGetValue(slot, out var revealedCard);
+                var isRevealed = revealedSlots.ContainsKey(slot);
+                CreateDealerSpreadCard(slot, isRevealed ? revealedCard : (Card?)null);
+            }
+
+            _dealerFlipDegrees = revealedCards.Count > 0 ? 180f : 0f;
+        }
+
+        private void CreateDealerSpreadCard(int slot, Card? revealedCard)
+        {
+            var rootObject = new GameObject(
+                revealedCard.HasValue
+                    ? $"Revealed Dealer Card {revealedCard.Value}"
+                    : $"Face-down Dealer Card {slot + 1}");
+            rootObject.hideFlags = HideFlags.DontSave;
+            rootObject.transform.SetParent(_generatedRoot, false);
+            rootObject.transform.localPosition = ResolveDealerSpreadPosition(slot);
+            rootObject.transform.localRotation = revealedCard.HasValue
+                ? Quaternion.AngleAxis(180f, Vector3.forward)
+                : Quaternion.identity;
+
+            var backRenderer = CreateDealerCardSurface(
+                rootObject.transform,
+                "Card Back",
+                new Vector3(0f, 0.001f, 0f),
+                Quaternion.Euler(90f, 0f, 0f));
+            backRenderer.sharedMaterial = _cardBackMaterial;
+
+            var faceRenderer = CreateDealerCardSurface(
+                rootObject.transform,
+                "Card Face",
+                new Vector3(0f, -0.001f, 0f),
+                Quaternion.Inverse(Quaternion.AngleAxis(180f, Vector3.forward)) *
+                Quaternion.Euler(90f, 0f, 0f));
+            if (revealedCard.HasValue)
+            {
+                CardVisualMaterialBinding.Apply(faceRenderer, _cardCatalog, revealedCard.Value);
+            }
+            else
+            {
+                faceRenderer.gameObject.SetActive(false);
+            }
+
+            _dealerSpreadViews.Add(new DealerSpreadCardView(
+                rootObject.transform,
+                backRenderer,
+                faceRenderer,
+                slot,
+                revealedCard.HasValue));
+        }
+
+        private Renderer CreateDealerCardSurface(
+            Transform parent,
+            string name,
+            Vector3 localPosition,
+            Quaternion localRotation)
+        {
+            var surface = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            surface.name = name;
+            surface.hideFlags = HideFlags.DontSave;
+            surface.transform.SetParent(parent, false);
+            surface.transform.localPosition = localPosition;
+            surface.transform.localRotation = localRotation;
+            surface.transform.localScale = new Vector3(DealerCardWidth, DealerCardHeight, 1f);
+            DestroyObject(surface.GetComponent<Collider>());
+            return surface.GetComponent<Renderer>();
+        }
+
+        private void PrepareDealerCardFlip(
+            AnimationPresentationState state,
+            ResolvedAnimationStep step)
+        {
+            var selectionIndex = IndexOf(state.DealerSelectionCards, step.Cards[0]);
+            var totalCount = state.DealerSpreadCount + state.DealerSelectionCards.Count;
+            var selectedSlot = GetDealerSelectionSlot(totalCount, Math.Max(0, selectionIndex));
+            _activeDealerCard = FindDealerSpreadView(selectedSlot);
+            if (_activeDealerCard == null)
+            {
+                return;
+            }
+
+            _activeDealerCard.Transform.gameObject.name = $"Selected Dealer Card {step.Cards[0]}";
+            _activeDealerCard.FaceRenderer.gameObject.SetActive(true);
+            CardVisualMaterialBinding.Apply(_activeDealerCard.FaceRenderer, _cardCatalog, step.Cards[0]);
+            _activeDealerCard.IsFaceUp = false;
+            _activeDealerCardStart = ResolveDealerSpreadPosition(selectedSlot);
+            _activeDealerCard.Transform.localPosition = _activeDealerCardStart;
+            _activeDealerCard.Transform.localRotation = Quaternion.identity;
+            _dealerFlipDirection = FindPlayer(state, step.PlayerId).Seat == Seat.First ? 1f : -1f;
+            _dealerFlipLift = DealerFlipLift + Mathf.Max(0f, _trajectoryOffset.y);
+            _dealerFlipDegrees = 0f;
+        }
+
+        private void ApplyDealerCardFlip(float progress)
+        {
+            if (_activeDealerCard == null)
+            {
+                return;
+            }
+
+            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, _easing);
+            _dealerFlipDegrees = eased * 180f;
+            _activeDealerCard.Transform.localRotation =
+                Quaternion.AngleAxis(_dealerFlipDegrees * _dealerFlipDirection, Vector3.forward);
+            _activeDealerCard.Transform.localPosition =
+                _activeDealerCardStart +
+                Vector3.up * (Mathf.Sin(progress * Mathf.PI) * _dealerFlipLift);
+            _activeDealerCard.IsFaceUp = progress >= 0.5f;
+        }
+
+        private DealerSpreadCardView FindDealerSpreadView(int slot)
+        {
+            foreach (var view in _dealerSpreadViews)
+            {
+                if (view.Slot == slot)
+                {
+                    return view;
+                }
+            }
+
+            return null;
+        }
+
+        private void EnsureCardBackMaterial()
+        {
+            if (_cardBackMaterial != null)
+            {
+                return;
+            }
+
+            if (_cardCatalog.SharedFaceMaterial == null || _cardCatalog.BackTexture == null)
+            {
+                throw new MissingReferenceException(
+                    "The animation workbench is missing the shared card material or card-back texture.");
+            }
+
+            _cardBackMaterial = new Material(_cardCatalog.SharedFaceMaterial)
+            {
+                name = "Animation Lab Card Back",
+                hideFlags = HideFlags.DontSave,
+            };
+            _cardBackMaterial.SetTexture("_BaseMap", _cardCatalog.BackTexture);
+            _cardBackMaterial.SetTexture("_MainTex", _cardCatalog.BackTexture);
+            _cardBackMaterial.SetColor("_BaseColor", Color.white);
+            _cardBackMaterial.SetColor("_Color", Color.white);
+            _ownedMaterials.Add(_cardBackMaterial);
+        }
+
+        private static int GetDealerSelectionSlot(int totalCount, int selectionIndex)
+        {
+            var firstSlot = Math.Max(0, (totalCount - 1) / 2);
+            return Mathf.Clamp(firstSlot + selectionIndex, 0, Math.Max(0, totalCount - 1));
+        }
+
+        private static Vector3 ResolveDealerSpreadPosition(int slot)
+        {
+            var row = slot / DealerSpreadColumns;
+            var column = slot % DealerSpreadColumns;
+            return new Vector3(
+                (column - 3.5f) * 0.17f,
+                0.845f + row * 0.002f,
+                (row - 2f) * 0.21f);
         }
 
         private void CreateStage()
@@ -656,6 +884,33 @@ namespace TheFall.Presentation.Animation
             public Vector3 Start { get; }
 
             public Vector3 Target { get; }
+        }
+
+        private sealed class DealerSpreadCardView
+        {
+            public DealerSpreadCardView(
+                Transform transform,
+                Renderer backRenderer,
+                Renderer faceRenderer,
+                int slot,
+                bool isFaceUp)
+            {
+                Transform = transform;
+                BackRenderer = backRenderer;
+                FaceRenderer = faceRenderer;
+                Slot = slot;
+                IsFaceUp = isFaceUp;
+            }
+
+            public Transform Transform { get; }
+
+            public Renderer BackRenderer { get; }
+
+            public Renderer FaceRenderer { get; }
+
+            public int Slot { get; }
+
+            public bool IsFaceUp { get; set; }
         }
     }
 }

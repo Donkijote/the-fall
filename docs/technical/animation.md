@@ -150,6 +150,8 @@ Agreement is expected at the end state. During an in-flight preview the rendered
 
 Trajectory and easing affect transient card movement only. Emphasis affects the diagnostic event cue. Reduced motion shortens duration and suppresses trajectory while keeping semantic cues and final-state synchronization.
 
+The isolated dealer-card selection begins with the complete forty-card spread face down. The selected position uses separate back and face surfaces, lifts from the table, rotates 180 degrees around its long edge, and remains face up among the other anonymous cards. Previously selected dealer cards remain revealed through tie rounds while the unselected spread stays opaque.
+
 ## Generation and validation
 
 Use:
