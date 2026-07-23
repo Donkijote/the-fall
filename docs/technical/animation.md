@@ -120,7 +120,7 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 | remaining-hand reflow | separately configured motion that closes the empty hand slot |
 | non-capturing placement | configured placement cue after play and reflow |
 | normal capture | configured table-to-capture motion for the played and matching card |
-| cascade capture | one configured table-to-capture beat per additional card, preserving event/card order |
+| cascade capture | one configured stack-to-next-card beat per additional card, followed by an explicit terminal stack-to-collected-pile beat |
 | Fall, clean table, canto, and other score changes | distinct configured semantic beats with ordered score/canto prefix updates |
 | deal completion | semantic completion cue |
 | leftovers | configured table-to-capture motion for each collected card |
@@ -161,7 +161,7 @@ The isolated opening-rejection preview reverses that treatment. It begins with t
 
 The isolated matching-pair capture is one uninterrupted `NormalCapture` cycle. It first moves the played card out of the acting player's hand and directly onto the authoritative same-rank table card, keeping the played card visibly above its match. After a short contact beat, both cards lift as one stack, travel together to the dedicated collected-pile anchor on the acting player's left, rotate face down in flight, and settle on top as opaque card backs. The pile anchor mirrors by seat so “left” remains relative to each player's perspective rather than a fixed world-space side.
 
-The isolated cascade capture reuses that complete matching-pair lead-in but redirects the face-up pair onto the first sequential cascade card. Each configured `CascadeCapture` beat then moves the entire growing stack onto the next authoritative cascade card, adding that card beneath the pile while preserving the stack. Only the final cascade beat carries the complete pile to the same left-side collected anchor, flips every card face down in flight, and settles the stack onto the collected deck. The recording contains three consecutive cascade cards so the workbench exposes accumulation rather than a single-card shortcut.
+The isolated cascade capture reuses the matching-pair lead-in through the moment when the played card rests on its same-rank match. Each configured `CascadeCapture` beat then moves the entire growing stack onto one authoritative cascade card, including a distinct landing on the final cascade card. A separate terminal `CascadeCapture` beat lifts that completed stack from the last card, carries it to the same left-side collected anchor, flips every card face down in flight, and settles the stack onto the collected deck. The recording contains three consecutive cascade cards so the workbench exposes accumulation and final collection as separate visible actions.
 
 ## Generation and validation
 

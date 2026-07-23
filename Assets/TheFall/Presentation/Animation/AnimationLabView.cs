@@ -827,11 +827,9 @@ namespace TheFall.Presentation.Animation
             var player = FindPlayer(state, step.PlayerId);
             var capturedBaseIndex = Math.Max(0, state.GetCaptured(player.Id).Count - 2);
             var capturedEvent = step.SourceEvent as CardsCapturedEvent;
-            Transform firstCascade = null;
             _captureContinuesToCascade =
                 capturedEvent != null &&
-                capturedEvent.Cards.Count > 2 &&
-                _cardViews.TryGetValue(capturedEvent.Cards[2], out firstCascade);
+                capturedEvent.Cards.Count > 2;
             for (var index = 0; index < 2; index++)
             {
                 var card = step.Cards[index];
@@ -846,7 +844,7 @@ namespace TheFall.Presentation.Animation
                     source.localPosition,
                     matchingSource.localPosition + Vector3.up * (index == 0 ? 0.012f : 0f),
                     _captureContinuesToCascade
-                        ? firstCascade.localPosition + Vector3.up * ((2 - index) * 0.012f)
+                        ? matchingSource.localPosition + Vector3.up * (index == 0 ? 0.012f : 0f)
                         : ResolveCapturedPilePosition(
                             player.Seat,
                             capturedBaseIndex + 1 - index),
@@ -891,12 +889,14 @@ namespace TheFall.Presentation.Animation
                 }
                 else
                 {
-                    motion.View.Transform.localPosition = AnimationBeatEvaluator.EvaluatePosition(
-                        motion.StackStart,
-                        motion.Target,
-                        captureProgress,
-                        _easing,
-                        _trajectoryOffset);
+                    motion.View.Transform.localPosition = _captureContinuesToCascade
+                        ? motion.StackStart
+                        : AnimationBeatEvaluator.EvaluatePosition(
+                            motion.StackStart,
+                            motion.Target,
+                            captureProgress,
+                            _easing,
+                            _trajectoryOffset);
                 }
 
                 motion.View.Transform.localRotation = Quaternion.AngleAxis(
@@ -916,42 +916,59 @@ namespace TheFall.Presentation.Animation
         {
             _cascadeStackMotions.Clear();
             var capturedEvent = (CardsCapturedEvent)step.SourceEvent;
-            var currentIndex = IndexOf(capturedEvent.Cards, step.Cards[0]);
-            if (currentIndex < 2 ||
-                !_cardViews.TryGetValue(step.Cards[0], out var currentSource))
+            var isCollectionStep = step.Cards.Count > 1;
+            var currentIndex = isCollectionStep
+                ? capturedEvent.Cards.Count - 1
+                : IndexOf(capturedEvent.Cards, step.Cards[0]);
+            if (currentIndex < 2)
             {
                 return;
             }
 
+            RestoreCascadeTablePositions(state, capturedEvent);
             foreach (var capturedView in _capturedPileViews)
             {
                 capturedView.Transform.gameObject.SetActive(false);
             }
 
-            currentSource.gameObject.SetActive(false);
-            _cascadeStackCompletesCapture = currentIndex == capturedEvent.Cards.Count - 1;
-            Transform nextCascade = null;
-            if (!_cascadeStackCompletesCapture &&
-                !_cardViews.TryGetValue(capturedEvent.Cards[currentIndex + 1], out nextCascade))
+            Transform currentSource = null;
+            if (!isCollectionStep &&
+                !_cardViews.TryGetValue(capturedEvent.Cards[currentIndex], out currentSource))
             {
                 return;
             }
 
+            if (currentSource != null)
+            {
+                currentSource.gameObject.SetActive(false);
+            }
+
+            _cascadeStackCompletesCapture = isCollectionStep;
             var player = FindPlayer(state, step.PlayerId);
             var existingCapturedCount = Math.Max(
                 0,
                 state.GetCaptured(player.Id).Count - capturedEvent.Cards.Count);
+            var sourceBase = ResolveTablePosition(
+                isCollectionStep ? capturedEvent.Cards.Count - 2 : currentIndex - 2);
+            var targetBase = isCollectionStep
+                ? Vector3.zero
+                : ResolveTablePosition(currentIndex - 1);
             for (var cardIndex = 0; cardIndex <= currentIndex; cardIndex++)
             {
                 var card = capturedEvent.Cards[cardIndex];
-                var start = currentSource.localPosition +
+                var start = sourceBase +
                     Vector3.up * ((currentIndex - cardIndex) * 0.012f);
                 var target = _cascadeStackCompletesCapture
                     ? ResolveCapturedPilePosition(
                         player.Seat,
                         existingCapturedCount + capturedEvent.Cards.Count - 1 - cardIndex)
-                    : nextCascade.localPosition +
-                        Vector3.up * ((currentIndex + 1 - cardIndex) * 0.012f);
+                    : targetBase +
+                        Vector3.up * ((currentIndex - cardIndex) * 0.012f);
+                if (!isCollectionStep && cardIndex == currentIndex)
+                {
+                    start = target;
+                }
+
                 var moving = CreateHiddenCard($"Cascade Stack Card {card}", start);
                 moving.FaceRenderer.gameObject.SetActive(true);
                 CardVisualMaterialBinding.Apply(moving.FaceRenderer, _cardCatalog, card);
@@ -961,6 +978,25 @@ namespace TheFall.Presentation.Animation
 
             _cascadeStackFlipDegrees = 180f;
             _cascadeStackFaceDown = false;
+        }
+
+        private void RestoreCascadeTablePositions(
+            AnimationPresentationState state,
+            CardsCapturedEvent capturedEvent)
+        {
+            var unaffectedIndex = capturedEvent.Cards.Count - 1;
+            foreach (var card in state.Table)
+            {
+                if (!_cardViews.TryGetValue(card, out var view))
+                {
+                    continue;
+                }
+
+                var captureIndex = IndexOf(capturedEvent.Cards, card);
+                view.localPosition = captureIndex >= 2
+                    ? ResolveTablePosition(captureIndex - 1)
+                    : ResolveTablePosition(unaffectedIndex++);
+            }
         }
 
         private void ApplyCascadeCapture(float progress)

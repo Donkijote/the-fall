@@ -263,6 +263,16 @@ namespace TheFall.Presentation.Animation
                                 cards: new[] { captured.Cards[cardIndex] }));
                         }
 
+                        if (captured.Cards.Count > 2)
+                        {
+                            steps.Add(Step(
+                                ResolvedAnimationStepKind.CascadeCapture,
+                                captured,
+                                eventIndex,
+                                playerId: captured.PlayerId,
+                                cards: captured.Cards));
+                        }
+
                         break;
                     case CantoAnnouncedEvent announced:
                         steps.Add(Step(

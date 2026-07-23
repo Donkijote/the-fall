@@ -52,6 +52,7 @@ namespace TheFall.Tests.EditMode
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
+                ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.FallScore,
                 ResolvedAnimationStepKind.CleanTableScore,
                 ResolvedAnimationStepKind.TurnChanged,
@@ -61,6 +62,9 @@ namespace TheFall.Tests.EditMode
                 sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.CardPlay).Cards,
                 Has.Count.EqualTo(2));
             Assert.That(sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture).Cards, Has.Count.EqualTo(2));
+            Assert.That(
+                sequence.Steps.Last(step => step.Kind == ResolvedAnimationStepKind.CascadeCapture).Cards,
+                Has.Count.EqualTo(4));
         }
 
         [Test]
@@ -426,6 +430,7 @@ namespace TheFall.Tests.EditMode
                 ResolvedAnimationStepKind.HandReflow,
                 ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.NormalCapture,
+                ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.Canto,
                 ResolvedAnimationStepKind.Canto,

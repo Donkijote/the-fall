@@ -166,12 +166,13 @@ namespace TheFall.Tests.PlayMode
             controller.SetScenario(
                 TheFall.Application.Animation.AnimationScenarioKind.CascadeCapture);
 
-            Assert.That(controller.AnimatableStepCount, Is.EqualTo(4));
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(5));
             Assert.That(
-                controller.Sequence.Steps.Take(4).Select(step => step.Kind),
+                controller.Sequence.Steps.Take(5).Select(step => step.Kind),
                 Is.EqualTo(new[]
                 {
                     ResolvedAnimationStepKind.NormalCapture,
+                    ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
@@ -184,15 +185,11 @@ namespace TheFall.Tests.PlayMode
             var matching = controller.PreviewRoot
                 .GetComponentsInChildren<Transform>(true)
                 .Single(item => item.name == "Captured Pair Card Two of Cups");
-            var firstCascade = controller.PreviewRoot
-                .GetComponentsInChildren<Transform>(true)
-                .Single(item => item.name == "Three of Clubs");
             Assert.That(
                 Vector2.Distance(
                     new Vector2(played.localPosition.x, played.localPosition.z),
-                    new Vector2(firstCascade.localPosition.x, firstCascade.localPosition.z)),
-                Is.LessThan(0.005f));
-            Assert.That(matching.localPosition.y, Is.GreaterThan(firstCascade.localPosition.y));
+                    new Vector2(matching.localPosition.x, matching.localPosition.z)),
+                Is.LessThan(0.0001f));
             Assert.That(played.localPosition.y, Is.GreaterThan(matching.localPosition.y));
             Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
 
@@ -207,6 +204,11 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
 
             controller.SeekToStep(3, 0.75f);
+            Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
+            Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+
+            controller.SeekToStep(4, 0.75f);
             Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
             Assert.That(controller.FaceDownCascadeStackViewCount, Is.EqualTo(5));
             Assert.That(controller.CascadeStackFlipDegrees, Is.GreaterThan(270f));
