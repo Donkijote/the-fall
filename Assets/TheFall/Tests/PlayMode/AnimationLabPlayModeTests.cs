@@ -90,31 +90,47 @@ namespace TheFall.Tests.PlayMode
             controller.SetScenario(
                 TheFall.Application.Animation.AnimationScenarioKind.NormalCapture);
 
-            Assert.That(controller.AnimatableStepCount, Is.EqualTo(2));
-            Assert.That(controller.Sequence.Steps[0].Kind, Is.EqualTo(ResolvedAnimationStepKind.CardPlay));
-            Assert.That(controller.Sequence.Steps[1].Kind, Is.EqualTo(ResolvedAnimationStepKind.NormalCapture));
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(1));
+            Assert.That(controller.Sequence.Steps[0].Kind, Is.EqualTo(ResolvedAnimationStepKind.NormalCapture));
 
-            controller.SeekToStep(0, 0.99f);
+            controller.SeekToStep(0, 0.01f);
             var played = controller.PreviewRoot
                 .GetComponentsInChildren<Transform>(true)
-                .Single(item => item.name == "Two of Coins");
+                .Single(item => item.name == "Captured Pair Card Two of Coins");
             var matching = controller.PreviewRoot
                 .GetComponentsInChildren<Transform>(true)
-                .Single(item => item.name == "Two of Cups");
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            var matchingStart = matching.localPosition;
+            Assert.That(controller.CapturePairViewCount, Is.EqualTo(2));
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
+            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+
+            controller.SeekToStep(0, 0.3f);
+            matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
+            Assert.That(
+                Vector3.Distance(matching.localPosition, matchingStart),
+                Is.LessThan(0.0001f));
+
+            controller.SeekToStep(0, 0.42f);
+            played = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Coins");
+            matching = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Captured Pair Card Two of Cups");
             Assert.That(
                 Vector2.Distance(
                     new Vector2(played.localPosition.x, played.localPosition.z),
                     new Vector2(matching.localPosition.x, matching.localPosition.z)),
-                Is.LessThan(0.005f));
+                Is.LessThan(0.0001f));
             Assert.That(played.localPosition.y, Is.GreaterThan(matching.localPosition.y));
-
-            controller.SeekToStep(1, 0.01f);
-            Assert.That(controller.CapturePairViewCount, Is.EqualTo(2));
             Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
-            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(180f).Within(1f));
-            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(180f).Within(0.1f));
 
-            controller.SeekToStep(1, 0.75f);
+            controller.SeekToStep(0, 0.75f);
             Assert.That(controller.FaceDownCapturePairViewCount, Is.EqualTo(2));
             Assert.That(controller.CapturePairFlipDegrees, Is.GreaterThan(270f));
 
@@ -387,21 +403,21 @@ namespace TheFall.Tests.PlayMode
                 {
                     controller.SetActingSeat(seat);
                     controller.SeekToStep(0, 0.5f);
-                    var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
-                        scenario,
-                        seat);
-                    var expectedStepCount = scenario ==
-                        TheFall.Application.Animation.AnimationScenarioKind.DealCard
+                    var expectedStepCount =
+                        scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
                             ? 2
-                            : recording.PreviewBeats.Count;
+                            : 1;
                     Assert.That(
                         controller.AnimatableStepCount,
                         Is.EqualTo(expectedStepCount),
                         scenario.ToString());
                     Assert.That(controller.ActiveStep, Is.Not.Null, scenario.ToString());
+                    var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
+                        scenario,
+                        seat);
                     Assert.That(
                         controller.ActiveStep.Kind,
-                        Is.EqualTo((ResolvedAnimationStepKind)(int)recording.PreviewBeats[0]),
+                        Is.EqualTo((ResolvedAnimationStepKind)(int)recording.BeatKind),
                         scenario.ToString());
                     if (scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
                         || scenario == TheFall.Application.Animation.AnimationScenarioKind.PlayCard

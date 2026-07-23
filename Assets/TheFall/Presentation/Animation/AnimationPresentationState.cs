@@ -371,10 +371,17 @@ namespace TheFall.Presentation.Animation
         private void MoveCapturedCards(PlayerId playerId, IReadOnlyList<Card> cards)
         {
             var captured = _captured[playerId];
+            var removedFromHand = false;
             foreach (var card in cards)
             {
+                removedFromHand |= _hands[playerId].Remove(card);
                 _table.Remove(card);
                 AddUnique(captured, card);
+            }
+
+            if (removedFromHand)
+            {
+                ReindexHand(playerId);
             }
         }
 

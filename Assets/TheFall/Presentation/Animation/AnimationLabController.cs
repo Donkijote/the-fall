@@ -731,16 +731,10 @@ namespace TheFall.Presentation.Animation
         private void ComposeTransport()
         {
             _workingConfiguration.EnsureDefaults();
-            var previewOrder = new List<ResolvedAnimationStepKind>();
-            foreach (var beat in _recording.PreviewBeats)
-            {
-                previewOrder.Add(ResolveRecordingBeat(beat));
-            }
-
             _sequence = ResolvedAnimationSequence.Create(
                 _resolvedBuffer.Events,
                 _resolvedBuffer.State,
-                previewOrder);
+                new[] { ResolveRecordingBeat(_recording.BeatKind) });
             var timings = new List<AnimationBeatTiming>();
             for (var index = 0; index < _sequence.Steps.Count; index++)
             {

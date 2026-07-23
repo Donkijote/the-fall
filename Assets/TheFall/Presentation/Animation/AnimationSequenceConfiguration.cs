@@ -150,7 +150,7 @@ namespace TheFall.Presentation.Animation
 
         [SerializeField]
         [Min(0f)]
-        private float _normalCaptureSeconds = 0.28f;
+        private float _normalCaptureSeconds = 0.9f;
 
         [SerializeField]
         [Min(0f)]

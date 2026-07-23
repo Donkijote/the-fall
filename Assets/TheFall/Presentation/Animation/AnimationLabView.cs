@@ -21,6 +21,8 @@ namespace TheFall.Presentation.Animation
         private const float DealerCardHeight = 0.34f;
         private const float DealerFlipLift = 0.13f;
         private const float DealerSelectedRestHeight = 0.015f;
+        private const float CapturePlayEndProgress = 0.38f;
+        private const float CapturePickupStartProgress = 0.46f;
 
         private readonly Transform _owner;
         private readonly Camera _camera;
@@ -774,16 +776,18 @@ namespace TheFall.Presentation.Animation
             ResolvedAnimationStep step)
         {
             _capturePairMotions.Clear();
+            if (!_cardViews.TryGetValue(step.Cards[0], out var playedSource) ||
+                !_cardViews.TryGetValue(step.Cards[1], out var matchingSource))
+            {
+                return;
+            }
+
             var player = FindPlayer(state, step.PlayerId);
+            var capturedBaseIndex = Math.Max(0, state.GetCaptured(player.Id).Count - 2);
             for (var index = 0; index < 2; index++)
             {
                 var card = step.Cards[index];
-                if (!_cardViews.TryGetValue(card, out var source))
-                {
-                    _capturePairMotions.Clear();
-                    return;
-                }
-
+                var source = index == 0 ? playedSource : matchingSource;
                 source.gameObject.SetActive(false);
                 var moving = CreateHiddenCard($"Captured Pair Card {card}", source.localPosition);
                 moving.FaceRenderer.gameObject.SetActive(true);
@@ -792,7 +796,11 @@ namespace TheFall.Presentation.Animation
                 _capturePairMotions.Add(new CapturePairMotion(
                     moving,
                     source.localPosition,
-                    ResolveCapturedPilePosition(player.Seat, 1 - index)));
+                    matchingSource.localPosition + Vector3.up * (index == 0 ? 0.012f : 0f),
+                    ResolveCapturedPilePosition(
+                        player.Seat,
+                        capturedBaseIndex + 1 - index),
+                    index == 0));
             }
 
             _capturePairFlipDegrees = 180f;
@@ -806,22 +814,45 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, _easing);
-            _capturePairFlipDegrees = 180f + eased * 180f;
+            var isCapturing = progress >= CapturePickupStartProgress;
+            var playProgress = Mathf.InverseLerp(0f, CapturePlayEndProgress, progress);
+            var captureProgress = Mathf.InverseLerp(
+                CapturePickupStartProgress,
+                1f,
+                progress);
+            var captureEased = AnimationBeatEvaluator.EvaluateEasedProgress(
+                captureProgress,
+                _easing);
+            _capturePairFlipDegrees = 180f + captureEased * 180f;
             foreach (var motion in _capturePairMotions)
             {
-                motion.View.Transform.localPosition = AnimationBeatEvaluator.EvaluatePosition(
-                    motion.Start,
-                    motion.Target,
-                    progress,
-                    _easing,
-                    _trajectoryOffset);
+                if (!isCapturing)
+                {
+                    motion.View.Transform.localPosition = motion.IsPlayedCard
+                        ? AnimationBeatEvaluator.EvaluatePosition(
+                            motion.Start,
+                            motion.StackStart,
+                            playProgress,
+                            _easing,
+                            _trajectoryOffset * 0.55f)
+                        : motion.StackStart;
+                }
+                else
+                {
+                    motion.View.Transform.localPosition = AnimationBeatEvaluator.EvaluatePosition(
+                        motion.StackStart,
+                        motion.Target,
+                        captureProgress,
+                        _easing,
+                        _trajectoryOffset);
+                }
+
                 motion.View.Transform.localRotation = Quaternion.AngleAxis(
                     _capturePairFlipDegrees,
                     Vector3.forward);
             }
 
-            _capturePairFaceDown = progress >= 0.5f;
+            _capturePairFaceDown = isCapturing && captureProgress >= 0.5f;
         }
 
         private void PrepareDealerCardFlip(
@@ -1394,18 +1425,29 @@ namespace TheFall.Presentation.Animation
 
         private readonly struct CapturePairMotion
         {
-            public CapturePairMotion(HiddenCardView view, Vector3 start, Vector3 target)
+            public CapturePairMotion(
+                HiddenCardView view,
+                Vector3 start,
+                Vector3 stackStart,
+                Vector3 target,
+                bool isPlayedCard)
             {
                 View = view;
                 Start = start;
+                StackStart = stackStart;
                 Target = target;
+                IsPlayedCard = isPlayedCard;
             }
 
             public HiddenCardView View { get; }
 
             public Vector3 Start { get; }
 
+            public Vector3 StackStart { get; }
+
             public Vector3 Target { get; }
+
+            public bool IsPlayedCard { get; }
         }
 
         private sealed class DealerSpreadCardView

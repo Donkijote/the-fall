@@ -57,12 +57,11 @@ namespace TheFall.Application.Animation
     }
 
     /// <summary>
-    /// Immutable focused input for the presentation workbench. A recording contains only the
-    /// domain facts and reusable beats needed to preview one isolated animation scenario.
+    /// Immutable one-beat input for the presentation workbench. A recording contains only the
+    /// domain facts needed to preview one reusable animation in isolation.
     /// </summary>
     public sealed class AnimationScenarioRecording
     {
-        private readonly IReadOnlyList<AnimationRecordingBeat> _previewBeats;
         private readonly IReadOnlyList<AnimationRecordingBeat> _warmupBeats;
 
         private AnimationScenarioRecording(
@@ -73,7 +72,6 @@ namespace TheFall.Application.Animation
             RuleResult result,
             PlayerId actingPlayerId,
             Seat actingSeat,
-            IReadOnlyList<AnimationRecordingBeat> previewBeats,
             params AnimationRecordingBeat[] warmupBeats)
         {
             Kind = kind;
@@ -83,10 +81,6 @@ namespace TheFall.Application.Animation
             Result = result ?? throw new ArgumentNullException(nameof(result));
             ActingPlayerId = actingPlayerId;
             ActingSeat = actingSeat;
-            _previewBeats = Array.AsReadOnly(
-                new List<AnimationRecordingBeat>(
-                    previewBeats ?? throw new ArgumentNullException(nameof(previewBeats)))
-                    .ToArray());
             _warmupBeats = Array.AsReadOnly(warmupBeats ?? Array.Empty<AnimationRecordingBeat>());
         }
 
@@ -103,8 +97,6 @@ namespace TheFall.Application.Animation
         public PlayerId ActingPlayerId { get; }
 
         public Seat ActingSeat { get; }
-
-        public IReadOnlyList<AnimationRecordingBeat> PreviewBeats => _previewBeats;
 
         public IReadOnlyList<AnimationRecordingBeat> WarmupBeats => _warmupBeats;
 
@@ -338,12 +330,6 @@ namespace TheFall.Application.Animation
                 {
                     new CardPlayedEvent(context.Actor.Id, context.CaptureCard),
                     new CardsCapturedEvent(context.Actor.Id, new[] { context.CaptureCard, context.MatchingCard }),
-                },
-                Array.Empty<AnimationRecordingBeat>(),
-                new[]
-                {
-                    AnimationRecordingBeat.CardPlay,
-                    AnimationRecordingBeat.NormalCapture,
                 });
         }
 
@@ -412,11 +398,8 @@ namespace TheFall.Application.Animation
 
             return Recording(context, AnimationScenarioKind.MatchVictory, "Match victory",
                 AnimationRecordingBeat.MatchCompleted, initial, result.State, result.Events,
-                new[]
-                {
-                    AnimationRecordingBeat.Canto,
-                    AnimationRecordingBeat.Score,
-                });
+                AnimationRecordingBeat.Canto,
+                AnimationRecordingBeat.Score);
         }
 
         private static AnimationScenarioRecording CreateLeftovers(ScenarioContext context)
@@ -475,8 +458,7 @@ namespace TheFall.Application.Animation
             MatchState initial,
             MatchState final,
             IReadOnlyList<DomainEvent> events,
-            AnimationRecordingBeat[] warmup = null,
-            AnimationRecordingBeat[] previewBeats = null)
+            params AnimationRecordingBeat[] warmup)
         {
             return new AnimationScenarioRecording(
                 kind,
@@ -486,8 +468,7 @@ namespace TheFall.Application.Animation
                 RuleResult.Accepted(final, events),
                 context.Actor.Id,
                 context.Actor.Seat,
-                previewBeats ?? new[] { beat },
-                warmup ?? Array.Empty<AnimationRecordingBeat>());
+                warmup);
         }
 
         private static IReadOnlyList<string> CreateDisplayNames()
