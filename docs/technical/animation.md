@@ -11,14 +11,14 @@ Status: Implemented workbench and first-playable runtime contract
 The isolated recording library is:
 
 - match start, dealer-card selection, and dealer choice
-- deal one card, opening rejection, and opening placement
+- deal one card to each 1v1 seat, opening rejection, and opening placement
 - play one card, reflow the remaining hand, and confirm table placement
 - normal capture and one cascade-card capture
 - Fall, clean-table, canto, and general score cues
 - deal completion, leftovers collection, round completion, dealer rotation, and tie extension
 - active-turn change and match victory
 
-Every selector entry contains exactly one tunable beat plus mandatory final synchronization. Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
+Every selector entry isolates one presentation treatment plus mandatory final synchronization. Most contain one tunable beat. **Deal one card** contains two consecutive instances of the same Deal beat so one preview shows a complete current-player/opponent pass without mixing in another treatment. Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
 
 ## Reusable beat vocabulary
 
@@ -153,6 +153,8 @@ Trajectory and easing affect transient card movement only. Emphasis affects the 
 The isolated dealer-card selection begins with the complete forty-card spread face down. The selected position uses separate back and face surfaces, lifts from the table, rotates 180 degrees around its long edge, and remains face up among the other anonymous cards. Previously selected dealer cards remain revealed through tie rounds while the unselected spread stays opaque.
 The revealed card rests above every face-down row so its complete face remains readable. The workbench Animation button always performs a one-shot preview and leaves this resolved pose in place; pressing Animation again restarts the preview, while Reset explicitly returns to the initial spread.
 
+The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards retain fixed three-card slots throughout both motions, so only the incoming card moves and the opponent's identities remain opaque.
+
 ## Generation and validation
 
 Use:
@@ -163,7 +165,7 @@ Use:
 
 The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content. The Editor command opens the dedicated authoring window without entering Play Mode.
 
-Focused Edit Mode coverage verifies that all 22 selector entries produce exactly one matching tunable beat, plus source-event mapping, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
+Focused Edit Mode coverage verifies that all 22 selector entries produce their expected matching tunable beats (one each except the two-step Deal pass), plus source-event mapping, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
 
 The representative seed-2400 profile completed 129 accepted intent records, 585 source events, and 732 visible beats without a pooling, tweening, Timeline, Animator, or third-party sequencing layer. The pure transport/prefix replay used 6,879 deterministic `20 ms` ticks and about `9.98 ms` aggregate presentation CPU (`0.209 ms` peak tick). The headless integrated Play Mode replay deliberately ran at the editor's uncapped batch update rate: 955,791 updates, about `2,229.42 ms` aggregate presentation CPU, and a `4.260 ms` maximum sampled update over `31.5 s` wall time. Those batch-mode values establish allocation/framework evidence, not desktop frame-pacing acceptance; issue #28 owns built-player median and p95 frame-time evidence. The implementation retains direct transient view rebuilding because this profile does not justify a framework or pool before representative production assets exist.
 

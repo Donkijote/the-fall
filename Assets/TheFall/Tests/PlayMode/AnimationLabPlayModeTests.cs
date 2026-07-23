@@ -112,6 +112,64 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator DealOneCard_ShowsTheDeckDealsFaceUpThenFaceDownAndKeepsTheHandStill()
+        {
+            yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
+
+            var controller = Object.FindAnyObjectByType<AnimationLabController>();
+            controller.SetScenario(
+                TheFall.Application.Animation.AnimationScenarioKind.DealCard);
+
+            controller.SeekToStep(0, 0.01f);
+            Assert.That(controller.AnimatableStepCount, Is.EqualTo(2));
+            Assert.That(controller.DeckViewCount, Is.EqualTo(36));
+            Assert.That(controller.OpponentHandViewCount, Is.EqualTo(2));
+            Assert.That(controller.ActiveDealCardIsFaceUp, Is.False);
+            Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
+            var handOne = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Seven of Clubs");
+            var handTwo = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Twelve of Swords");
+            var handOneStart = handOne.localPosition;
+            var handTwoStart = handTwo.localPosition;
+
+            controller.SeekToStep(0, 0.75f);
+            handOne = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Seven of Clubs");
+            handTwo = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Twelve of Swords");
+            Assert.That(Vector3.Distance(handOne.localPosition, handOneStart), Is.LessThan(0.0001f));
+            Assert.That(Vector3.Distance(handTwo.localPosition, handTwoStart), Is.LessThan(0.0001f));
+            Assert.That(controller.ActiveDealCardIsFaceUp, Is.True);
+            Assert.That(controller.DealCardFlipDegrees, Is.GreaterThan(90f));
+
+            controller.SeekToStep(1, 0.75f);
+            handOne = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Seven of Clubs");
+            handTwo = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Twelve of Swords");
+            Assert.That(Vector3.Distance(handOne.localPosition, handOneStart), Is.LessThan(0.0001f));
+            Assert.That(Vector3.Distance(handTwo.localPosition, handTwoStart), Is.LessThan(0.0001f));
+            Assert.That(controller.DeckViewCount, Is.EqualTo(35));
+            Assert.That(controller.OpponentHandViewCount, Is.EqualTo(2));
+            Assert.That(controller.ActiveDealCardIsFaceUp, Is.False);
+            Assert.That(controller.DealCardFlipDegrees, Is.Zero);
+
+            controller.CompleteImmediatelyForTests();
+            Assert.That(controller.DeckViewCount, Is.EqualTo(34));
+            Assert.That(controller.OpponentHandViewCount, Is.EqualTo(3));
+            Assert.That(controller.RenderedState.GetHand(
+                controller.FinalState.GetPlayerAt(controller.ActingSeat).Player.Id), Has.Count.EqualTo(3));
+            Assert.That(controller.IsRenderedStateSynchronized, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator FastForward_ProfilesTheRepresentativeSequenceWithoutChangingItsOutcome()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
@@ -193,7 +251,7 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator EveryRecordedAnimation_PreviewsAsOneBeatForBothSeats()
+        public IEnumerator EveryRecordedAnimation_PreviewsExpectedBeatsForBothSeats()
         {
             yield return SceneManager.LoadSceneAsync("AnimationLab", LoadSceneMode.Single);
 
@@ -207,7 +265,14 @@ namespace TheFall.Tests.PlayMode
                 {
                     controller.SetActingSeat(seat);
                     controller.SeekToStep(0, 0.5f);
-                    Assert.That(controller.AnimatableStepCount, Is.EqualTo(1), scenario.ToString());
+                    var expectedStepCount =
+                        scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
+                            ? 2
+                            : 1;
+                    Assert.That(
+                        controller.AnimatableStepCount,
+                        Is.EqualTo(expectedStepCount),
+                        scenario.ToString());
                     Assert.That(controller.ActiveStep, Is.Not.Null, scenario.ToString());
                     var recording = TheFall.Application.Animation.AnimationScenarioRecording.Create(
                         scenario,
@@ -216,7 +281,8 @@ namespace TheFall.Tests.PlayMode
                         controller.ActiveStep.Kind,
                         Is.EqualTo((ResolvedAnimationStepKind)(int)recording.BeatKind),
                         scenario.ToString());
-                    if (scenario == TheFall.Application.Animation.AnimationScenarioKind.PlayCard
+                    if (scenario == TheFall.Application.Animation.AnimationScenarioKind.DealCard
+                        || scenario == TheFall.Application.Animation.AnimationScenarioKind.PlayCard
                         || scenario == TheFall.Application.Animation.AnimationScenarioKind.HandReflow)
                     {
                         Assert.That(

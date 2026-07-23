@@ -440,7 +440,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
-        public void WorkbenchLibrary_ProvidesExactlyOneTunableBeatPerRecordedAnimation()
+        public void WorkbenchLibrary_ProvidesTheExpectedTunableBeatsPerRecordedAnimation()
         {
             var scenarios = (AnimationScenarioKind[])Enum.GetValues(typeof(AnimationScenarioKind));
             Assert.That(AnimationScenarioRecording.DisplayNames, Has.Count.EqualTo(scenarios.Length));
@@ -458,10 +458,18 @@ namespace TheFall.Tests.EditMode
                     new[] { expectedBeat });
 
                 Assert.That(recording.Result.IsAccepted, Is.True, scenario.ToString());
-                Assert.That(sequence.Steps, Has.Count.EqualTo(2), scenario.ToString());
-                Assert.That(sequence.Steps[0].Kind, Is.EqualTo(expectedBeat), scenario.ToString());
+                var expectedTunableCount =
+                    scenario == AnimationScenarioKind.DealCard ? 2 : 1;
                 Assert.That(
-                    sequence.Steps[1].Kind,
+                    sequence.Steps,
+                    Has.Count.EqualTo(expectedTunableCount + 1),
+                    scenario.ToString());
+                Assert.That(
+                    sequence.Steps.Take(expectedTunableCount).All(step => step.Kind == expectedBeat),
+                    Is.True,
+                    scenario.ToString());
+                Assert.That(
+                    sequence.Steps[expectedTunableCount].Kind,
                     Is.EqualTo(ResolvedAnimationStepKind.SynchronizeFinalState),
                     scenario.ToString());
             }

@@ -207,15 +207,36 @@ namespace TheFall.Application.Animation
 
         private static AnimationScenarioRecording CreateDealCard(ScenarioContext context)
         {
-            var dealt = context.Card(CardSuit.Coins, CardRank.Seven);
+            var actorDealt = context.Card(CardSuit.Coins, CardRank.Seven);
+            var opponentDealt = context.Card(CardSuit.Cups, CardRank.Six);
+            var opponentHand = new[]
+            {
+                context.Card(CardSuit.Cups, CardRank.Five),
+                context.Card(CardSuit.Coins, CardRank.Ten),
+            };
+            var initialDeck = new List<Card>(Deck.CreateSpanishDeck().Cards);
+            initialDeck.Remove(context.HandOne);
+            initialDeck.Remove(context.HandTwo);
+            initialDeck.Remove(opponentHand[0]);
+            initialDeck.Remove(opponentHand[1]);
+            var finalDeck = new List<Card>(initialDeck);
+            finalDeck.Remove(actorDealt);
+            finalDeck.Remove(opponentDealt);
             var initial = context.State(
                 actorHand: new[] { context.HandOne, context.HandTwo },
-                deck: new[] { dealt });
+                opponentHand: opponentHand,
+                deck: initialDeck);
             var final = context.State(
-                actorHand: new[] { context.HandOne, context.HandTwo, dealt });
+                actorHand: new[] { context.HandOne, context.HandTwo, actorDealt },
+                opponentHand: new[] { opponentHand[0], opponentHand[1], opponentDealt },
+                deck: finalDeck);
             return Recording(context, AnimationScenarioKind.DealCard, "Deal one card",
                 AnimationRecordingBeat.Deal, initial, final,
-                new DomainEvent[] { new CardDealtEvent(context.Actor.Id, dealt, 2) });
+                new DomainEvent[]
+                {
+                    new CardDealtEvent(context.Actor.Id, actorDealt, 2),
+                    new CardDealtEvent(context.Opponent.Id, opponentDealt, 2),
+                });
         }
 
         private static AnimationScenarioRecording CreateOpeningRejection(ScenarioContext context)

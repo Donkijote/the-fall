@@ -131,6 +131,14 @@ namespace TheFall.Presentation.Animation
 
         public int DealerSpreadViewCount => _view?.DealerSpreadViewCount ?? 0;
 
+        public int DeckViewCount => _view?.DeckViewCount ?? 0;
+
+        public int OpponentHandViewCount => _view?.OpponentHandViewCount ?? 0;
+
+        public bool ActiveDealCardIsFaceUp => _view?.ActiveDealCardIsFaceUp ?? false;
+
+        public float DealCardFlipDegrees => _view?.DealCardFlipDegrees ?? 0f;
+
         public int RevealedDealerCardViewCount => _view?.RevealedDealerCardViewCount ?? 0;
 
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;
