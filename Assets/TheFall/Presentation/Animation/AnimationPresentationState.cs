@@ -31,6 +31,7 @@ namespace TheFall.Presentation.Animation
         private readonly Dictionary<PlayerId, List<Card>> _captured = new Dictionary<PlayerId, List<Card>>();
         private readonly Dictionary<TeamId, Score> _scores = new Dictionary<TeamId, Score>();
         private readonly List<Card> _table = new List<Card>();
+        private readonly Dictionary<Card, int> _tableLayoutIndices = new Dictionary<Card, int>();
         private readonly List<Card> _dealerSelectionCards = new List<Card>();
         private readonly List<AnimationCantoState> _cantos = new List<AnimationCantoState>();
 
@@ -93,6 +94,11 @@ namespace TheFall.Presentation.Animation
             return slots;
         }
 
+        public int GetTableLayoutIndex(Card card)
+        {
+            return _tableLayoutIndices[card];
+        }
+
         public Score GetScore(TeamId teamId)
         {
             return _scores[teamId];
@@ -124,7 +130,7 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.OpeningRejection:
                     if (step.SourceEvent is OpeningCardRejectedEvent rejected)
                     {
-                        _table.Remove(rejected.Card);
+                        RemoveTableCard(rejected.Card);
                         DeckCount++;
                     }
 
@@ -146,7 +152,7 @@ namespace TheFall.Presentation.Animation
 
                     break;
                 case ResolvedAnimationStepKind.OpeningPlacement:
-                    AddUnique(_table, step.Cards[0]);
+                    AddTableCard(step.Cards[0]);
                     DeckCount = Math.Max(0, DeckCount - 1);
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
@@ -156,7 +162,7 @@ namespace TheFall.Presentation.Animation
                     ReindexHand(step.PlayerId);
                     break;
                 case ResolvedAnimationStepKind.TablePlacement:
-                    AddUnique(_table, step.Cards[0]);
+                    AddTableCard(step.Cards[0]);
                     break;
                 case ResolvedAnimationStepKind.NormalCapture:
                 case ResolvedAnimationStepKind.CascadeCapture:
@@ -233,8 +239,34 @@ namespace TheFall.Presentation.Animation
                 ReindexHand(playerState.Player.Id);
             }
 
+            var previousTableLayoutIndices =
+                new Dictionary<Card, int>(_tableLayoutIndices);
             _table.Clear();
             _table.AddRange(state.Table);
+            _tableLayoutIndices.Clear();
+            foreach (var card in _table)
+            {
+                if (previousTableLayoutIndices.TryGetValue(card, out var previousIndex))
+                {
+                    _tableLayoutIndices[card] = previousIndex;
+                }
+            }
+
+            var nextTableLayoutIndex = 0;
+            foreach (var card in _table)
+            {
+                if (_tableLayoutIndices.ContainsKey(card))
+                {
+                    continue;
+                }
+
+                while (_tableLayoutIndices.ContainsValue(nextTableLayoutIndex))
+                {
+                    nextTableLayoutIndex++;
+                }
+
+                _tableLayoutIndices[card] = nextTableLayoutIndex++;
+            }
             _dealerSelectionCards.Clear();
             _dealerSelectionCards.AddRange(state.DealerSelectionCards);
             _scores.Clear();
@@ -354,7 +386,7 @@ namespace TheFall.Presentation.Animation
                 hand.Remove(card);
             }
 
-            AddUnique(_table, card);
+            AddTableCard(card);
         }
 
         private void ReindexHand(PlayerId playerId)
@@ -375,7 +407,7 @@ namespace TheFall.Presentation.Animation
             foreach (var card in cards)
             {
                 removedFromHand |= _hands[playerId].Remove(card);
-                _table.Remove(card);
+                RemoveTableCard(card);
                 AddUnique(captured, card);
             }
 
@@ -390,6 +422,31 @@ namespace TheFall.Presentation.Animation
             if (!cards.Contains(card))
             {
                 cards.Add(card);
+            }
+        }
+
+        private void AddTableCard(Card card)
+        {
+            if (_table.Contains(card))
+            {
+                return;
+            }
+
+            _table.Add(card);
+            var nextIndex = 0;
+            foreach (var index in _tableLayoutIndices.Values)
+            {
+                nextIndex = Math.Max(nextIndex, index + 1);
+            }
+
+            _tableLayoutIndices[card] = nextIndex;
+        }
+
+        private void RemoveTableCard(Card card)
+        {
+            if (_table.Remove(card))
+            {
+                _tableLayoutIndices.Remove(card);
             }
         }
     }

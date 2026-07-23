@@ -165,6 +165,8 @@ The isolated matching-pair capture is one uninterrupted `NormalCapture` cycle. I
 
 The isolated cascade capture reuses the matching-pair lead-in through the moment when the played card rests on its same-rank match. Each configured `CascadeCapture` beat then moves the entire growing stack onto one authoritative cascade card, including a distinct landing on the final cascade card. A separate terminal `CascadeCapture` beat lifts that completed stack from the last card, carries it to the same left-side collected anchor, flips every card face down in flight, and settles the stack onto the collected deck. The recording contains three consecutive cascade cards so the workbench exposes accumulation and final collection as separate visible actions.
 
+Table layout slots are stable for the full composite capture. Removing the matching card or a reached cascade card never compacts the untouched cards into newly empty slots: every future cascade target and every unrelated table card remains planted until the moving stack reaches it or the sequence completes. The incoming target remains stationary during its beat and joins the lifted stack only on the following cascade beat.
+
 ## Generation and validation
 
 Use:

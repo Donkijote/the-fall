@@ -869,7 +869,15 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            _renderedState = new AnimationPresentationState(_resolvedBuffer.State);
+            if (_renderedState == null)
+            {
+                _renderedState = new AnimationPresentationState(_resolvedBuffer.State);
+            }
+            else
+            {
+                _renderedState.Synchronize(_resolvedBuffer.State);
+            }
+
             _view?.Build(_renderedState, _recording.ActingPlayerId, _viewport);
             _view?.RenderImmediate(_renderedState);
             CompletionReason = reason;

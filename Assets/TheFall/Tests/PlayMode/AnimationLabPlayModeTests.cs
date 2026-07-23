@@ -178,6 +178,24 @@ namespace TheFall.Tests.PlayMode
                     ResolvedAnimationStepKind.CascadeCapture,
                 }));
 
+            controller.SeekToStep(0, 0.01f);
+            var cascadeThree = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Three of Clubs");
+            var cascadeFour = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Four of Swords");
+            var cascadeFive = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Five of Cups");
+            var untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            var cascadeThreePosition = cascadeThree.localPosition;
+            var cascadeFourPosition = cascadeFour.localPosition;
+            var cascadeFivePosition = cascadeFive.localPosition;
+            var untouchedTablePosition = untouchedTableCard.localPosition;
+
             controller.SeekToStep(0, 0.99f);
             var played = controller.PreviewRoot
                 .GetComponentsInChildren<Transform>(true)
@@ -193,15 +211,55 @@ namespace TheFall.Tests.PlayMode
             Assert.That(played.localPosition.y, Is.GreaterThan(matching.localPosition.y));
             Assert.That(controller.FaceDownCapturePairViewCount, Is.Zero);
 
+            controller.SeekToStep(1, 0f);
+            cascadeThree = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Three of Clubs");
+            cascadeFour = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Four of Swords");
+            cascadeFive = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Five of Cups");
+            untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(cascadeThree.localPosition, Is.EqualTo(cascadeThreePosition));
+            Assert.That(cascadeFour.localPosition, Is.EqualTo(cascadeFourPosition));
+            Assert.That(cascadeFive.localPosition, Is.EqualTo(cascadeFivePosition));
+            Assert.That(untouchedTableCard.localPosition, Is.EqualTo(untouchedTablePosition));
+
             controller.SeekToStep(1, 0.5f);
             Assert.That(controller.CascadeStackViewCount, Is.EqualTo(3));
             Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
             Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            var stationaryCascadeTarget = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Cascade Stack Card Three of Clubs");
+            Assert.That(stationaryCascadeTarget.localPosition, Is.EqualTo(cascadeThreePosition));
+
+            controller.SeekToStep(2, 0f);
+            cascadeFour = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Four of Swords");
+            cascadeFive = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Five of Cups");
+            untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(cascadeFour.localPosition, Is.EqualTo(cascadeFourPosition));
+            Assert.That(cascadeFive.localPosition, Is.EqualTo(cascadeFivePosition));
+            Assert.That(untouchedTableCard.localPosition, Is.EqualTo(untouchedTablePosition));
 
             controller.SeekToStep(2, 0.5f);
             Assert.That(controller.CascadeStackViewCount, Is.EqualTo(4));
             Assert.That(controller.FaceDownCascadeStackViewCount, Is.Zero);
             Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            stationaryCascadeTarget = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Cascade Stack Card Four of Swords");
+            Assert.That(stationaryCascadeTarget.localPosition, Is.EqualTo(cascadeFourPosition));
 
             controller.SeekToStep(3, 0.75f);
             Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
@@ -224,6 +282,10 @@ namespace TheFall.Tests.PlayMode
                 .GetComponentsInChildren<Transform>(true)
                 .First(item => item.name == "Face-down Seat One Captured Card 1");
             Assert.That(pile.localPosition.x, Is.LessThan(-0.4f));
+            untouchedTableCard = controller.PreviewRoot
+                .GetComponentsInChildren<Transform>(true)
+                .Single(item => item.name == "Ten of Swords");
+            Assert.That(untouchedTableCard.localPosition, Is.EqualTo(untouchedTablePosition));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);
         }
 

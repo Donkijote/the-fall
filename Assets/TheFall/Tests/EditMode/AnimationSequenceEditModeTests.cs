@@ -487,6 +487,36 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void CascadeCapture_PreservesEverySurvivingTableSlotAcrossStepBoundaries()
+        {
+            var recording = AnimationScenarioRecording.Create(
+                AnimationScenarioKind.CascadeCapture,
+                Seat.First);
+            var sequence = ResolvedAnimationSequence.Create(
+                recording.Result.Events,
+                recording.Result.State,
+                recording.PreviewBeats
+                    .Select(beat => (ResolvedAnimationStepKind)(int)beat)
+                    .ToArray());
+            var rendered = new AnimationPresentationState(recording.InitialState);
+            var originalSlots = recording.InitialState.Table.ToDictionary(
+                card => card,
+                rendered.GetTableLayoutIndex);
+
+            foreach (var step in sequence.Steps)
+            {
+                rendered.Apply(step, sequence.FinalState);
+                foreach (var card in rendered.Table)
+                {
+                    Assert.That(
+                        rendered.GetTableLayoutIndex(card),
+                        Is.EqualTo(originalSlots[card]),
+                        $"{card} moved to another table slot after {step.Kind}.");
+                }
+            }
+        }
+
+        [Test]
         public void FirstPlayableRuntimePlayer_ProfilesACompleteMatchAndConvergesAfterEveryBatch()
         {
             var preset = AssetDatabase.LoadAssetAtPath<AnimationSequenceConfiguration>(

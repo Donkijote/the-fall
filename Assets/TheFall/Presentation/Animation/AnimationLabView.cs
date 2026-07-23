@@ -925,7 +925,6 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            RestoreCascadeTablePositions(state, capturedEvent);
             foreach (var capturedView in _capturedPileViews)
             {
                 capturedView.Transform.gameObject.SetActive(false);
@@ -973,30 +972,15 @@ namespace TheFall.Presentation.Animation
                 moving.FaceRenderer.gameObject.SetActive(true);
                 CardVisualMaterialBinding.Apply(moving.FaceRenderer, _cardCatalog, card);
                 moving.Transform.localRotation = Quaternion.AngleAxis(180f, Vector3.forward);
-                _cascadeStackMotions.Add(new CascadeStackMotion(moving, start, target));
+                _cascadeStackMotions.Add(new CascadeStackMotion(
+                    moving,
+                    start,
+                    target,
+                    !isCollectionStep && cardIndex == currentIndex));
             }
 
             _cascadeStackFlipDegrees = 180f;
             _cascadeStackFaceDown = false;
-        }
-
-        private void RestoreCascadeTablePositions(
-            AnimationPresentationState state,
-            CardsCapturedEvent capturedEvent)
-        {
-            var unaffectedIndex = capturedEvent.Cards.Count - 1;
-            foreach (var card in state.Table)
-            {
-                if (!_cardViews.TryGetValue(card, out var view))
-                {
-                    continue;
-                }
-
-                var captureIndex = IndexOf(capturedEvent.Cards, card);
-                view.localPosition = captureIndex >= 2
-                    ? ResolveTablePosition(captureIndex - 1)
-                    : ResolveTablePosition(unaffectedIndex++);
-            }
         }
 
         private void ApplyCascadeCapture(float progress)
@@ -1012,12 +996,14 @@ namespace TheFall.Presentation.Animation
                 : 180f;
             foreach (var motion in _cascadeStackMotions)
             {
-                motion.View.Transform.localPosition = AnimationBeatEvaluator.EvaluatePosition(
-                    motion.Start,
-                    motion.Target,
-                    progress,
-                    _easing,
-                    _trajectoryOffset);
+                motion.View.Transform.localPosition = motion.IsStationaryTarget
+                    ? motion.Target
+                    : AnimationBeatEvaluator.EvaluatePosition(
+                        motion.Start,
+                        motion.Target,
+                        progress,
+                        _easing,
+                        _trajectoryOffset);
                 motion.View.Transform.localRotation = Quaternion.AngleAxis(
                     _cascadeStackFlipDegrees,
                     Vector3.forward);
@@ -1248,11 +1234,13 @@ namespace TheFall.Presentation.Animation
                 {
                     if (state.Table[index].Rank == card.Rank)
                     {
-                        return ResolveTablePosition(index) + Vector3.up * 0.012f;
+                        return ResolveTablePosition(
+                            state.GetTableLayoutIndex(state.Table[index])) +
+                            Vector3.up * 0.012f;
                     }
                 }
 
-                return ResolveTablePosition(tableIndex);
+                return ResolveTablePosition(state.GetTableLayoutIndex(card));
             }
 
             foreach (var player in state.Players)
@@ -1632,11 +1620,16 @@ namespace TheFall.Presentation.Animation
 
         private readonly struct CascadeStackMotion
         {
-            public CascadeStackMotion(HiddenCardView view, Vector3 start, Vector3 target)
+            public CascadeStackMotion(
+                HiddenCardView view,
+                Vector3 start,
+                Vector3 target,
+                bool isStationaryTarget)
             {
                 View = view;
                 Start = start;
                 Target = target;
+                IsStationaryTarget = isStationaryTarget;
             }
 
             public HiddenCardView View { get; }
@@ -1644,6 +1637,8 @@ namespace TheFall.Presentation.Animation
             public Vector3 Start { get; }
 
             public Vector3 Target { get; }
+
+            public bool IsStationaryTarget { get; }
         }
 
         private sealed class DealerSpreadCardView
