@@ -5,6 +5,7 @@ using NUnit.Framework;
 using TheFall.Application;
 using TheFall.Domain;
 using TheFall.Presentation.Animation;
+using TheFall.Presentation.Audio;
 using TheFall.Presentation.Bootstrap;
 using TheFall.Presentation.Match;
 using TheFall.Presentation.UI;
@@ -23,6 +24,7 @@ namespace TheFall.Tests.PlayMode
             yield return LoadMatchWithoutSettlingPresentation();
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            var audio = table.AudioPresenter;
             var ui = controller.GetComponent<UIDocument>().rootVisualElement;
 
             Assert.That(table.AnimationPreset, Is.Not.Null);
@@ -32,6 +34,12 @@ namespace TheFall.Tests.PlayMode
             Assert.That(ui.Q<Toggle>("animation-fast-toggle"), Is.Not.Null);
             Assert.That(ui.Q<Toggle>("animation-reduced-toggle"), Is.Not.Null);
             Assert.That(ui.Q<Button>("animation-skip-button"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("audio-master-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("audio-effects-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("audio-music-toggle"), Is.Not.Null);
+            Assert.That(audio.MasterEnabled, Is.True);
+            Assert.That(audio.EffectsEnabled, Is.True);
+            Assert.That(audio.MusicEnabled, Is.False);
 
             var blockedIntent = ChooseHumanIntent(
                 controller.Flow.Match.State,
@@ -45,6 +53,11 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
             Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
 
+            var masterToggle = ui.Q<Toggle>("audio-master-toggle");
+            var effectsToggle = ui.Q<Toggle>("audio-effects-toggle");
+            var musicToggle = ui.Q<Toggle>("audio-music-toggle");
+            masterToggle.value = false;
+            var playedBeforeMutedBatch = audio.PlayedCueCount;
             var unchangedState = controller.Flow.Match.State;
             var unchangedTraceCount = controller.Flow.Match.Trace.IntentHistory.Count;
             foreach (var viewport in new[]
@@ -72,6 +85,13 @@ namespace TheFall.Tests.PlayMode
             table.SetFastForward(true);
             table.SetReducedMotion(true);
             yield return WaitForPresentation(table);
+            Assert.That(audio.PlayedCueCount, Is.EqualTo(playedBeforeMutedBatch));
+            masterToggle.value = true;
+            effectsToggle.value = false;
+            Assert.That(audio.EffectsAudible, Is.False);
+            musicToggle.value = true;
+            Assert.That(audio.MusicEnabled, Is.True);
+            musicToggle.value = false;
             Assert.That(table.AnimationPlayer.FastForward, Is.True);
             Assert.That(table.AnimationPlayer.ReducedMotion, Is.True);
             Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
@@ -79,14 +99,20 @@ namespace TheFall.Tests.PlayMode
             SubmitNext(controller);
             table.InterruptPresentation();
             AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Interrupted);
+            Assert.That(audio.PlayedCueCount, Is.EqualTo(playedBeforeMutedBatch));
+            Assert.That(audio.ActiveCue, Is.Null);
+            effectsToggle.value = true;
+            Assert.That(audio.EffectsAudible, Is.True);
 
             SubmitNext(controller);
             table.CancelPresentation();
             AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Cancelled);
+            Assert.That(audio.ActiveCue, Is.Null);
 
             SubmitNext(controller);
             table.SkipPresentation();
             AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Skipped);
+            Assert.That(audio.ActiveCue, Is.Null);
 
             SubmitNext(controller);
             Assert.That(controller.ReturnHome(), Is.True);
@@ -94,6 +120,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.Match, Is.Null);
             Assert.That(controller.IsPresentationBusy, Is.False);
             Assert.That(table.Snapshot, Is.Null);
+            Assert.That(audio.ActiveCue, Is.Null);
         }
 
         [UnityTest]
@@ -102,6 +129,7 @@ namespace TheFall.Tests.PlayMode
             yield return LoadMatchWithoutSettlingPresentation();
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            var audio = table.AudioPresenter;
             table.SetFastForward(true);
             var startedAt = Time.realtimeSinceStartup;
             yield return WaitForPresentation(table);
@@ -124,6 +152,20 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.CardPlay));
             Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.NormalCapture));
             Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
+            var expectedAudio = table.AnimationPlayer.PresentedSteps
+                .Where(step => PrototypeAudioCueLibrary.TryResolve(step, out _))
+                .Select(step =>
+                {
+                    PrototypeAudioCueLibrary.TryResolve(step, out var cue);
+                    return cue;
+                })
+                .ToArray();
+            Assert.That(audio.CueHistory, Is.EqualTo(expectedAudio));
+            Assert.That(audio.PlayedCueCount, Is.EqualTo(expectedAudio.Length));
+            Assert.That(audio.CueHistory, Does.Contain(PrototypeAudioCueKind.Deal));
+            Assert.That(audio.CueHistory, Does.Contain(PrototypeAudioCueKind.Play));
+            Assert.That(audio.CueHistory, Does.Contain(PrototypeAudioCueKind.Capture));
+            Assert.That(audio.CueHistory, Does.Contain(PrototypeAudioCueKind.Victory));
             Assert.That(
                 controller.Flow.Match.Trace.Events.OfType<CardPlayedEvent>()
                     .Select(item => item.PlayerId)

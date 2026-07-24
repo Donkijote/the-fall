@@ -4,6 +4,7 @@ using System.Linq;
 using TheFall.Domain;
 using TheFall.Presentation.Cards;
 using TheFall.Presentation.Animation;
+using TheFall.Presentation.Audio;
 using TheFall.Presentation.Match;
 using TheFall.Presentation.Scenes;
 using TheFall.Presentation.UI;
@@ -60,6 +61,12 @@ namespace TheFall.Editor
             var presentation = controller.GetComponent<FirstPlayableTablePresentation>()
                 ?? controller.gameObject.AddComponent<FirstPlayableTablePresentation>();
             presentation.Configure(camera, table, catalog, layout, animationPreset);
+            var audioPresenter = controller.GetComponent<FirstPlayableAudioPresenter>()
+                ?? controller.gameObject.AddComponent<FirstPlayableAudioPresenter>();
+            var audioSource = controller.GetComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+            audioSource.spatialBlend = 0f;
             if (createdLayout)
             {
                 camera.transform.position = FirstPlayableTablePresentation.CameraPosition;
@@ -73,9 +80,11 @@ namespace TheFall.Editor
                 .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
                 .FirstOrDefault();
             purpose?.SetDescription(
-                "Localized first-playable flow with an authoritative fixed-camera 1v1 table presentation.");
+                "Localized first-playable flow with an authoritative fixed-camera 1v1 table presentation and resolved-beat prototype audio.");
 
             EditorUtility.SetDirty(presentation);
+            EditorUtility.SetDirty(audioPresenter);
+            EditorUtility.SetDirty(audioSource);
             EditorUtility.SetDirty(layout);
             EditorUtility.SetDirty(camera);
             EditorSceneManager.MarkSceneDirty(scene);
@@ -115,10 +124,22 @@ namespace TheFall.Editor
             var layout = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTableLayout>(true))
                 .SingleOrDefault();
+            var audioPresenter = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<FirstPlayableAudioPresenter>(true))
+                .SingleOrDefault();
 
             Require(presentation != null, "The Home scene has no integrated table presentation.", errors);
             Require(layout != null, "The Home scene has no persistent table authoring layout.", errors);
+            Require(audioPresenter != null, "The Home scene has no first-playable audio presenter.", errors);
             Require(layout?.IsConfigured == true, "The persistent table authoring layout is incomplete.", errors);
+            Require(
+                audioPresenter != null
+                && audioPresenter.TryGetComponent<AudioSource>(out var audioSource)
+                && !audioSource.playOnAwake
+                && !audioSource.loop
+                && audioSource.spatialBlend == 0f,
+                "The prototype effects source must be non-looping, non-spatial, and disabled on awake.",
+                errors);
             if (presentation != null)
             {
                 Require(presentation.GameplayCamera != null, "The integrated table has no camera.", errors);

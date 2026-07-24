@@ -4,7 +4,10 @@ Status: Implemented first-playable presentation and animation contract
 
 ## Purpose
 
-Issue #25 integrates the complete authoritative 1v1 match into the existing first-playable `Home` scene. Issue #26 promotes the reusable AnimationLab beats into that table. The table is visible during Match and Result while the application flow continues to own setup, loading, replay, and return-to-Home lifecycle.
+Issue #25 integrates the complete authoritative 1v1 match into the existing first-playable `Home` scene.
+Issue #26 promotes the reusable AnimationLab beats into that table, and issue #27 maps those resolved beats
+to functional prototype audio. The table is visible during Match and Result while the application flow
+continues to own setup, loading, replay, and return-to-Home lifecycle.
 
 The integration promotes the fixed-table, card-interaction, generated-table, and modular-card prototypes into one full-match presentation without promoting their prototype art to production fidelity.
 
@@ -126,6 +129,13 @@ Validated on 2026-07-20 with Unity `6000.5.4f1`:
 - offscreen `1440 x 900` dealer-selection, dealer-options, canto/selection, and overhead-composition captures: reviewed
 - built-player manual visual inspection: skipped because the desktop session was locked; issue #28 retains the full manual acceptance and performance matrix
 
-Production VFX and audio remain outside this contract; audio is owned by issue #27. The implemented animation remains presentation-only and uses the lab-tested sequence transport and versioned timing preset.
+Production VFX and production audio remain outside this contract. Functional project-owned procedural
+cues now distinguish the required first-playable actions and outcomes, use independent master/effects/music
+controls, and stop on every early-exit or session boundary. The implemented animation and audio remain
+presentation-only and use the same resolved beat stream without changing transport or rule state.
 
-Related: [first-playable application flow](first-playable-flow.md), [match orchestration](match-orchestration.md), [fixed table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [modular card visuals](../assets/card-visual-pipeline.md).
+Related: [first-playable application flow](first-playable-flow.md),
+[first-playable functional audio](audio.md), [match orchestration](match-orchestration.md),
+[fixed table composition](../design/table-composition-prototype.md),
+[card interaction](../design/card-interaction-prototype.md), and
+[modular card visuals](../assets/card-visual-pipeline.md).

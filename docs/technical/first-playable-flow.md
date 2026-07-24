@@ -6,7 +6,7 @@ Status: Confirmed first-playable UI contract
 
 Issue #24 adds the minimal localized application flow around the complete deterministic match orchestrator from issue #23. A player can launch into Home, configure the bounded rules, progress through an explicit loading state, complete a match, see its authoritative result, replay with the same configuration, or return Home without editor intervention.
 
-This is functional prototype UI. Issue #25 supplies complete table rendering and integrated card interaction within the same Home scene and application session. Issue #26 adds resolved-event animation controls and presentation blocking; audio remains owned by issue #27.
+This is functional prototype UI. Issue #25 supplies complete table rendering and integrated card interaction within the same Home scene and application session. Issue #26 adds resolved-event animation controls and presentation blocking. Issue #27 adds resolved-beat prototype audio plus independent master, effects, and music controls.
 
 ## Application boundary
 
@@ -49,7 +49,11 @@ Buttons and toggles remain mouse-clickable and keyboard-focusable through UI Too
 - every canto claim, including false announcements
 - every legal card play
 
-The match header also exposes localized fast-forward, reduced-motion, and skip controls. While presentation is busy, legal-intent controls are disabled and direct submissions are rejected before reaching the orchestrator. Re-enabling input after synchronization reconstructs contextual menus from the current authoritative legal-intent surface.
+The match header also exposes localized fast-forward, reduced-motion, and skip controls plus independent
+master-audio, effects, and music toggles. Music remains intentionally source-free for the milestone. While
+presentation is busy, legal-intent controls are disabled and direct submissions are rejected before
+reaching the orchestrator. Re-enabling input after synchronization reconstructs contextual menus from the
+current authoritative legal-intent surface.
 
 ## Bootstrap and teardown
 

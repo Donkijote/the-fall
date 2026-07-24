@@ -5,6 +5,7 @@ using TheFall.Application.Input;
 using TheFall.Application.Interaction;
 using TheFall.Domain;
 using TheFall.Presentation.Animation;
+using TheFall.Presentation.Audio;
 using TheFall.Presentation.Cards;
 using TheFall.Presentation.Input;
 using TheFall.Presentation.Interaction;
@@ -41,6 +42,7 @@ namespace TheFall.Presentation.Match
         private readonly List<CardMotion> _cardMotions = new List<CardMotion>();
         private FirstPlayableFlowController _flowController;
         private FirstPlayableAnimationPlayer _animationPlayer;
+        private FirstPlayableAudioPresenter _audioPresenter;
         private Transform _generatedRoot;
         private Material _cardBackMaterial;
         private CardInteractionSession _interaction;
@@ -71,6 +73,8 @@ namespace TheFall.Presentation.Match
         public AnimationSequenceConfiguration AnimationPreset => _animationPreset;
 
         public FirstPlayableAnimationPlayer AnimationPlayer => _animationPlayer;
+
+        public FirstPlayableAudioPresenter AudioPresenter => _audioPresenter;
 
         public bool IsPresentationBusy => _animationPlayer?.IsBusy == true;
 
@@ -121,6 +125,14 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            _audioPresenter = GetComponent<FirstPlayableAudioPresenter>();
+            if (_audioPresenter == null)
+            {
+                Debug.LogError("The integrated table requires its first-playable audio presenter.", this);
+                enabled = false;
+                return;
+            }
+
             if (_authoredLayout == null || !_authoredLayout.IsConfigured)
             {
                 Debug.LogError("The integrated table requires a configured scene-authored layout.", this);
@@ -144,6 +156,12 @@ namespace TheFall.Presentation.Match
             _flowController.AnimationFastForwardChanged += SetFastForward;
             _flowController.AnimationReducedMotionChanged += SetReducedMotion;
             _flowController.AnimationSkipRequested += SkipPresentation;
+            _flowController.AudioMasterChanged += _audioPresenter.SetMasterEnabled;
+            _flowController.AudioEffectsChanged += _audioPresenter.SetEffectsEnabled;
+            _flowController.AudioMusicChanged += _audioPresenter.SetMusicEnabled;
+            _audioPresenter.SetMasterEnabled(_flowController.AudioMasterEnabled);
+            _audioPresenter.SetEffectsEnabled(_flowController.AudioEffectsEnabled);
+            _audioPresenter.SetMusicEnabled(_flowController.AudioMusicEnabled);
             RefreshFromFlow();
         }
 
@@ -192,6 +210,12 @@ namespace TheFall.Presentation.Match
                 _flowController.AnimationFastForwardChanged -= SetFastForward;
                 _flowController.AnimationReducedMotionChanged -= SetReducedMotion;
                 _flowController.AnimationSkipRequested -= SkipPresentation;
+                if (_audioPresenter != null)
+                {
+                    _flowController.AudioMasterChanged -= _audioPresenter.SetMasterEnabled;
+                    _flowController.AudioEffectsChanged -= _audioPresenter.SetEffectsEnabled;
+                    _flowController.AudioMusicChanged -= _audioPresenter.SetMusicEnabled;
+                }
             }
 
             if (_animationPlayer?.IsBusy == true)
@@ -200,6 +224,7 @@ namespace TheFall.Presentation.Match
             }
 
             _flowController?.SetPresentationBusy(false);
+            _audioPresenter?.StopAll();
 
             UnbindInputActions();
             ClearInteraction();
@@ -232,6 +257,7 @@ namespace TheFall.Presentation.Match
         public void SetFastForward(bool enabled)
         {
             _animationPlayer?.SetFastForward(enabled);
+            _audioPresenter?.SetFastForward(enabled);
         }
 
         public void SetReducedMotion(bool enabled)
@@ -246,6 +272,7 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            _audioPresenter?.StopAll();
             _animationPlayer.SkipAndSynchronize();
             FinishPresentationBatch();
         }
@@ -257,6 +284,7 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            _audioPresenter?.StopAll();
             _animationPlayer.InterruptAndSynchronize();
             FinishPresentationBatch();
         }
@@ -268,6 +296,7 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            _audioPresenter?.StopAll();
             _animationPlayer.CancelAndSynchronize();
             FinishPresentationBatch();
         }
@@ -321,6 +350,7 @@ namespace TheFall.Presentation.Match
                 && (flow.Stage == FirstPlayableFlowStage.Match || flow.Stage == FirstPlayableFlowStage.Result);
             if (!isVisible)
             {
+                _audioPresenter?.StopAll();
                 if (_animationPlayer?.IsBusy == true)
                 {
                     _animationPlayer.InterruptAndSynchronize();
@@ -339,6 +369,8 @@ namespace TheFall.Presentation.Match
                 _presentationPeakUpdateTicks = 0;
                 Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.Trace.InitialState);
                 CreateInteraction(flow.SessionNumber);
+                _presentedStep = null;
+                _audioPresenter.BeginSession();
                 _animationPlayer.PlayInitialTrace(flow.Match.Trace);
                 _flowController.SetPresentationBusy(_animationPlayer.IsBusy);
                 RefreshFromAnimation(false);
@@ -729,6 +761,7 @@ namespace TheFall.Presentation.Match
             }
 
             _presentedStep = step;
+            _audioPresenter?.Present(step);
             if (step?.SourceEvent != null)
             {
                 _flowController?.RenderPresentationEvent(step.SourceEvent);

@@ -95,6 +95,10 @@ Seeking and stepping reconstruct rendered state from the initial snapshot by app
 
 `FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. Card play and remaining-hand reflow are separate beats produced from the same accepted `CardPlayedEvent`, so their durations and easing can be tuned independently before the runtime chains them.
 
+Issue #27 maps the same active resolved beats to short functional prototype cues. Audio observes the beat
+stream but never owns transport time, schedules an accepted intent, or changes synchronization. See
+[first-playable functional audio](audio.md).
+
 The integrated `Home` table renders an `AnimationPresentationState` prefix while a batch is active and swaps back to the exact accepted `MatchState` when it completes. Timing, delay, easing, trajectory, fast-forward multiplier, and reduced-motion scaling come from the versioned `Workbench Default` preset. Presentation never submits an intent, calculates a capture or score, or changes an accepted result.
 
 The player-visible controls are:
