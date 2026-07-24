@@ -111,9 +111,17 @@ namespace TheFall.Tests.PlayMode
             Assert.That(dealerMotion.TargetWorld.y, Is.GreaterThan(dealerMotion.StartWorld.y));
             var revealedCard = table.RenderedCards
                 .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
-            var earlyPosition = revealedCard.transform.position;
             var earlyFlip = table.DealerCardFlipDegrees;
             Assert.That(earlyFlip, Is.GreaterThan(0f).And.LessThan(90f));
+            Assert.That(revealedCard.IsFaceUp, Is.False);
+            Assert.That(revealedCard.Card, Is.Null);
+
+            table.ApplyViewportForTests(
+                new Vector2Int(1440, 900),
+                new Rect(0f, 0f, 1440f, 900f));
+            revealedCard = table.RenderedCards
+                .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
+            Assert.That(table.DealerCardFlipDegrees, Is.GreaterThan(0f).And.LessThan(90f));
             Assert.That(revealedCard.IsFaceUp, Is.False);
             Assert.That(revealedCard.Card, Is.Null);
 
@@ -124,8 +132,12 @@ namespace TheFall.Tests.PlayMode
                 yield return null;
             }
 
+            revealedCard = table.RenderedCards
+                .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
             Assert.That(table.DealerCardFlipDegrees, Is.GreaterThan(90f).And.LessThan(180f));
-            Assert.That(Vector3.Distance(revealedCard.transform.position, earlyPosition), Is.GreaterThan(0.005f));
+            Assert.That(
+                Vector3.Distance(revealedCard.transform.position, dealerMotion.StartWorld),
+                Is.GreaterThan(0.005f));
             Assert.That(revealedCard.IsFaceUp, Is.True);
             Assert.That(revealedCard.Card, Is.EqualTo(expectedDealerCard));
             table.SkipPresentation();

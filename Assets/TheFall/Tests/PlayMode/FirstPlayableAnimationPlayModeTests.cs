@@ -124,6 +124,89 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator LocalDeal_RecompositionKeepsOneContinuousFaceDownToFaceUpFlip()
+        {
+            yield return LoadMatchWithoutSettlingPresentation();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            table.SkipPresentation();
+
+            var deadline = Time.realtimeSinceStartup + 20f;
+            ResolvedAnimationStep dealStep = null;
+            while (Time.realtimeSinceStartup < deadline)
+            {
+                var active = table.AnimationPlayer.ActiveStep;
+                if (active?.Kind == ResolvedAnimationStepKind.Deal
+                    && active.PlayerId == table.Snapshot.LocalPlayerId)
+                {
+                    dealStep = active;
+                    break;
+                }
+
+                if (!table.IsPresentationBusy)
+                {
+                    var legal = controller.Flow.Match.GetHumanLegalIntents();
+                    Assert.That(
+                        controller.SubmitHumanIntent(
+                            ChooseHumanIntent(controller.Flow.Match.State, legal)),
+                        Is.True);
+                }
+
+                yield return null;
+            }
+
+            Assert.That(dealStep, Is.Not.Null);
+            while (table.AnimationPlayer.ActiveStepProgress < 0.15f
+                && ReferenceEquals(table.AnimationPlayer.ActiveStep, dealStep)
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            var movingCardName = $"Local Hand {dealStep.Cards[0]}";
+            var movingCard = table.RenderedCards.Single(card =>
+                card.Zone == FirstPlayableCardZone.LocalHand
+                && card.name == movingCardName);
+            Assert.That(movingCard.IsFaceUp, Is.False);
+            Assert.That(movingCard.Card, Is.Null);
+
+            table.ApplyViewportForTests(
+                new Vector2Int(1440, 900),
+                new Rect(0f, 0f, 1440f, 900f));
+            movingCard = table.RenderedCards.Single(card =>
+                card.Zone == FirstPlayableCardZone.LocalHand
+                && card.name == movingCardName);
+            Assert.That(movingCard.IsFaceUp, Is.False);
+            Assert.That(movingCard.Card, Is.Null);
+
+            var previousFaceUp = false;
+            var faceTransitions = 0;
+            while (ReferenceEquals(table.AnimationPlayer.ActiveStep, dealStep)
+                && table.IsPresentationBusy
+                && Time.realtimeSinceStartup < deadline)
+            {
+                movingCard = table.RenderedCards.Single(card =>
+                    card.Zone == FirstPlayableCardZone.LocalHand
+                    && card.name == movingCardName);
+                if (movingCard.IsFaceUp != previousFaceUp)
+                {
+                    faceTransitions++;
+                    previousFaceUp = movingCard.IsFaceUp;
+                }
+
+                if (faceTransitions > 0)
+                {
+                    Assert.That(movingCard.IsFaceUp, Is.True);
+                }
+
+                yield return null;
+            }
+
+            Assert.That(faceTransitions, Is.EqualTo(1));
+            table.SkipPresentation();
+        }
+
+        [UnityTest]
         public IEnumerator FastForwardCompleteMatch_ProfilesIntegratedRenderingWithoutPooling()
         {
             yield return LoadMatchWithoutSettlingPresentation();

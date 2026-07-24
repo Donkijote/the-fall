@@ -91,7 +91,7 @@ Seeking and stepping reconstruct rendered state from the initial snapshot by app
 
 ## First-playable runtime integration
 
-`AnimationBeatEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. The Editor window is an authoring adapter around that code, not a separate approximation. Issue #26 binds the same saved beat definitions to equivalent resolved events in the integrated match.
+`AnimationBeatEvaluator`, `AnimationCardTreatmentEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. `AnimationCardTreatmentEvaluator` is the single choreography engine for translation, reveal/hide flips, normal-capture contact and pickup phases, cascade accumulation, and terminal collection. AnimationLab and the integrated table are view adapters around those evaluated poses; neither owns a second copy of the phase math. Issue #26 binds the same saved beat definitions to equivalent resolved events in the integrated match.
 
 `FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. A visible outcome owns one transport beat: remaining-hand reflow runs concurrently inside Deal, Card Play, or Normal Capture and still reads the separately tuned Hand Reflow duration and easing. It never adds another blocking transport step.
 
@@ -174,6 +174,11 @@ stack the played card on its match, cascade beats move the complete growing stac
 `CaptureCollection` treatment turns that stack face down. Leftovers use the same face-up-to-collected
 treatment. Each path reads its duration, delay, easing, trajectory, fast-forward, and reduced-motion
 values from the active versioned preset.
+
+An active viewport or safe-area recomposition is atomic: the table captures the current presentation
+pose, rebuilds transient views, prepares the same shared treatment, and applies its current progress
+before Unity can render the rebuilt frame. A moving card must therefore never flash in its
+authoritative face-up destination before returning to its face-down animation start.
 
 The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating once from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards close into their new slots concurrently using the Hand Reflow tuning without inheriting the Deal trajectory; opponent identities remain opaque.
 

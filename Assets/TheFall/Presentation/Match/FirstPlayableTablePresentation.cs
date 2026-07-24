@@ -31,8 +31,6 @@ namespace TheFall.Presentation.Match
         private static readonly Color Brass = FromHex(0xB58B3E);
         private const float DealerFlipLift = 0.13f;
         private const float DealerSelectedRestHeight = 0.015f;
-        private const float CapturePlayEndProgress = 0.38f;
-        private const float CapturePickupStartProgress = 0.46f;
 
         [SerializeField] private Camera _gameplayCamera;
         [SerializeField] private GameObject _tablePrototypePrefab;
@@ -225,7 +223,14 @@ namespace TheFall.Presentation.Match
             var safeArea = RuntimeSafeArea(viewport);
             if (viewport != _viewportSize || safeArea != _safeAreaPixels)
             {
-                Rebuild(viewport, safeArea);
+                if (_animationPlayer?.IsBusy == true)
+                {
+                    RefreshFromAnimation(true, viewport, safeArea);
+                }
+                else
+                {
+                    Rebuild(viewport, safeArea);
+                }
             }
         }
 
@@ -272,7 +277,15 @@ namespace TheFall.Presentation.Match
                 throw new InvalidOperationException("The table has no active match snapshot.");
             }
 
-            Rebuild(viewportSize, safeAreaPixels);
+            if (_animationPlayer?.IsBusy == true)
+            {
+                RefreshFromAnimation(true, viewportSize, safeAreaPixels);
+            }
+            else
+            {
+                Rebuild(viewportSize, safeAreaPixels);
+            }
+
             ApplyInteractionState();
         }
 
@@ -415,7 +428,7 @@ namespace TheFall.Presentation.Match
 
             if (_animationPlayer?.IsBusy == true)
             {
-                RefreshFromAnimation(false);
+                RefreshFromAnimation(true);
                 return;
             }
 
@@ -445,6 +458,18 @@ namespace TheFall.Presentation.Match
 
         private void RefreshFromAnimation(bool animateChangedCards)
         {
+            var viewport = RuntimeViewport();
+            RefreshFromAnimation(
+                animateChangedCards,
+                viewport,
+                RuntimeSafeArea(viewport));
+        }
+
+        private void RefreshFromAnimation(
+            bool animateChangedCards,
+            Vector2Int viewport,
+            Rect safeArea)
+        {
             if (_animationPlayer?.RenderedState == null || _animationPlayer.RenderedReferenceState == null)
             {
                 return;
@@ -456,9 +481,10 @@ namespace TheFall.Presentation.Match
                 _animationPlayer.RenderedReferenceState);
             ResolveActiveDealerSelectionSlot(sourcePositions);
             _inputAdapter?.SetCards(Snapshot.LocalHand);
-            Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
+            Rebuild(viewport, safeArea);
             _animationVisualRevision = _animationPlayer.VisualRevision;
             PrepareCardMotions(sourcePositions);
+            ApplyCardMotions();
             ApplyInteractionState();
             PresentActiveEvent();
         }
@@ -653,8 +679,7 @@ namespace TheFall.Presentation.Match
             DealerCardFlipDegrees = 0f;
             ActiveParallelHandReflowMotionCount = 0;
             var step = _animationPlayer?.ActiveStep;
-            if (source == null || step == null || _animationPlayer.IsDelayingActiveStep
-                || _animationPlayer.ActiveStepProgress <= 0f)
+            if (source == null || step == null)
             {
                 RestoreSourceCardPoses(source);
                 return;
@@ -824,7 +849,7 @@ namespace TheFall.Presentation.Match
                     AddCardMotion(target.transform, source.DeckPosition, target.transform.position, beat, trajectory);
                     if (step.PlayerId == Snapshot.LocalPlayerId)
                     {
-                        PrepareFaceMotion(target, step.Cards[0], true, true);
+                        PrepareFaceMotion(target, step.Cards[0], true);
                     }
                 }
             }
@@ -834,7 +859,7 @@ namespace TheFall.Presentation.Match
                 if (target != null && !HasMotion(target.transform))
                 {
                     AddCardMotion(target.transform, source.DeckPosition, target.transform.position, beat, trajectory);
-                    PrepareFaceMotion(target, step.Cards[0], true, true);
+                    PrepareFaceMotion(target, step.Cards[0], true);
                 }
             }
 
@@ -902,8 +927,7 @@ namespace TheFall.Presentation.Match
         private void PrepareFaceMotion(
             FirstPlayableRenderedCard rendered,
             Card card,
-            bool revealFace,
-            bool animateFlip)
+            bool revealFace)
         {
             if (rendered == null)
             {
@@ -912,17 +936,12 @@ namespace TheFall.Presentation.Match
 
             var renderer = rendered.GetComponent<Renderer>();
             var startDegrees = revealFace ? 0f : 180f;
-            var targetDegrees = animateFlip
-                ? revealFace ? 180f : 360f
-                : startDegrees;
             ApplyCardFace(rendered, renderer, card, !revealFace, startDegrees);
             _cardFaceMotions.Add(new CardFaceMotion(
                 rendered,
                 renderer,
                 card,
-                revealFace,
-                startDegrees,
-                targetDegrees));
+                revealFace));
         }
 
         private void PrepareOpeningRejection(
@@ -980,7 +999,7 @@ namespace TheFall.Presentation.Match
                 AddCardMotion(target.transform, start, target.transform.position, beat, trajectory);
             }
 
-            PrepareFaceMotion(target, step.Cards[0], false, true);
+            PrepareFaceMotion(target, step.Cards[0], false);
         }
 
         private void PrepareCaptureMotions(
@@ -1090,7 +1109,7 @@ namespace TheFall.Presentation.Match
             }
 
             AddCardMotion(target.transform, start, targetPosition, beat, trajectory);
-            PrepareFaceMotion(target, step.Cards[0], true, true);
+            PrepareFaceMotion(target, step.Cards[0], true);
         }
 
         private void PrepareCascadeMotions(
@@ -1239,6 +1258,13 @@ namespace TheFall.Presentation.Match
 
         private bool IsOwnedBySpecialMotion(ResolvedAnimationStep step, Card card)
         {
+            if ((step.Kind == ResolvedAnimationStepKind.Deal
+                    || step.Kind == ResolvedAnimationStepKind.OpeningPlacement)
+                && Contains(step.Cards, card))
+            {
+                return true;
+            }
+
             if ((step.Kind == ResolvedAnimationStepKind.NormalCapture
                     || step.Kind == ResolvedAnimationStepKind.CascadeCapture
                     || step.Kind == ResolvedAnimationStepKind.CaptureCollection)
@@ -1312,7 +1338,7 @@ namespace TheFall.Presentation.Match
                 {
                     var motionProgress = Mathf.Clamp01(
                         progress / motion.NormalizedDuration);
-                    motion.Card.position = AnimationBeatEvaluator.EvaluatePosition(
+                    motion.Card.position = AnimationCardTreatmentEvaluator.EvaluateTranslation(
                         motion.Start,
                         motion.Target,
                         motionProgress,
@@ -1333,18 +1359,19 @@ namespace TheFall.Presentation.Match
             }
 
             var dealerMotion = _dealerCardMotion;
-            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, dealerMotion.Easing);
-            DealerCardFlipDegrees = eased * 180f;
-            dealerMotion.Card.transform.position = AnimationBeatEvaluator.EvaluatePosition(
+            var dealerPose = AnimationCardTreatmentEvaluator.EvaluateRevealMove(
                 dealerMotion.Start,
                 dealerMotion.Target,
                 progress,
                 dealerMotion.Easing,
-                dealerMotion.Trajectory);
+                dealerMotion.Trajectory,
+                true);
+            DealerCardFlipDegrees = dealerPose.FlipDegrees;
+            dealerMotion.Card.transform.position = dealerPose.Position;
             dealerMotion.Card.transform.localRotation = Quaternion.AngleAxis(
                 DealerCardFlipDegrees * dealerMotion.FlipDirection,
                 Vector3.forward);
-            var isFaceUp = progress >= 0.5f;
+            var isFaceUp = dealerPose.FaceUp;
             if (dealerMotion.Card.IsFaceUp != isFaceUp)
             {
                 dealerMotion.Card.SetFaceUp(isFaceUp);
@@ -1369,17 +1396,32 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
-            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(
-                progress,
-                _animationPreset.GetBeat(_animationPlayer.ActiveStep.Kind)?.Easing
-                    ?? AnimationBeatEasing.EaseInOut);
+            var easing = _animationPreset.GetBeat(_animationPlayer.ActiveStep.Kind)?.Easing
+                ?? AnimationBeatEasing.EaseInOut;
             for (var index = 0; index < _cardFaceMotions.Count; index++)
             {
                 var motion = _cardFaceMotions[index];
-                var degrees = Mathf.LerpUnclamped(motion.StartDegrees, motion.TargetDegrees, eased);
-                ActiveCardFlipDegrees = degrees;
-                var faceUp = motion.RevealFace ? progress >= 0.5f : progress < 0.5f;
-                ApplyCardFace(motion.Card, motion.Renderer, motion.CardValue, faceUp, degrees);
+                var pose = motion.RevealFace
+                    ? AnimationCardTreatmentEvaluator.EvaluateRevealMove(
+                        Vector3.zero,
+                        Vector3.zero,
+                        progress,
+                        easing,
+                        Vector3.zero,
+                        true)
+                    : AnimationCardTreatmentEvaluator.EvaluateHideMove(
+                        Vector3.zero,
+                        Vector3.zero,
+                        progress,
+                        easing,
+                        Vector3.zero);
+                ActiveCardFlipDegrees = pose.FlipDegrees;
+                ApplyCardFace(
+                    motion.Card,
+                    motion.Renderer,
+                    motion.CardValue,
+                    pose.FaceUp,
+                    pose.FlipDegrees);
             }
         }
 
@@ -1411,51 +1453,27 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
-            var playProgress = Mathf.InverseLerp(0f, CapturePlayEndProgress, progress);
-            var isCollecting = progress >= CapturePickupStartProgress;
-            var captureProgress = Mathf.InverseLerp(CapturePickupStartProgress, 1f, progress);
             for (var index = 0; index < _captureCardMotions.Count; index++)
             {
                 var motion = _captureCardMotions[index];
-                if (!isCollecting)
-                {
-                    motion.Card.transform.position = motion.IsPlayedCard
-                        ? AnimationBeatEvaluator.EvaluatePosition(
-                            motion.Start,
-                            motion.Stack,
-                            playProgress,
-                            motion.Easing,
-                            motion.Trajectory * 0.55f)
-                        : motion.Stack;
-                }
-                else
-                {
-                    motion.Card.transform.position = motion.ContinuesToCascade
-                        ? motion.Stack
-                        : AnimationBeatEvaluator.EvaluatePosition(
-                            motion.Stack,
-                            motion.Target,
-                            captureProgress,
-                            motion.Easing,
-                            motion.Trajectory);
-                }
-
-                var captureEased = AnimationBeatEvaluator.EvaluateEasedProgress(
-                    captureProgress,
-                    motion.Easing);
-                var playEased = AnimationBeatEvaluator.EvaluateEasedProgress(
-                    playProgress,
-                    motion.Easing);
-                var degrees = motion.RevealsFace && !isCollecting
-                    ? playEased * 180f
-                    : motion.ContinuesToCascade
-                        ? 180f
-                        : 180f + captureEased * 180f;
-                ActiveCardFlipDegrees = degrees;
-                var faceUp = motion.RevealsFace && !isCollecting
-                    ? playProgress >= 0.5f
-                    : motion.ContinuesToCascade || !isCollecting || captureProgress < 0.5f;
-                ApplyCardFace(motion.Card, motion.Renderer, motion.CardValue, faceUp, degrees);
+                var pose = AnimationCardTreatmentEvaluator.EvaluateNormalCapture(
+                    motion.Start,
+                    motion.Stack,
+                    motion.Target,
+                    progress,
+                    motion.Easing,
+                    motion.Trajectory,
+                    motion.IsPlayedCard,
+                    motion.RevealsFace,
+                    motion.ContinuesToCascade);
+                motion.Card.transform.position = pose.Position;
+                ActiveCardFlipDegrees = pose.FlipDegrees;
+                ApplyCardFace(
+                    motion.Card,
+                    motion.Renderer,
+                    motion.CardValue,
+                    pose.FaceUp,
+                    pose.FlipDegrees);
             }
         }
 
@@ -1464,23 +1482,22 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < _cascadeCardMotions.Count; index++)
             {
                 var motion = _cascadeCardMotions[index];
-                motion.Card.transform.position = motion.StationaryTarget
-                    ? motion.Target
-                    : AnimationBeatEvaluator.EvaluatePosition(
-                        motion.Start,
-                        motion.Target,
-                        progress,
-                        motion.Easing,
-                        motion.Trajectory);
-                var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, motion.Easing);
-                var degrees = motion.CompletesCapture ? 180f + eased * 180f : 180f;
-                ActiveCardFlipDegrees = degrees;
+                var pose = AnimationCardTreatmentEvaluator.EvaluateCascade(
+                    motion.Start,
+                    motion.Target,
+                    progress,
+                    motion.Easing,
+                    motion.Trajectory,
+                    motion.StationaryTarget,
+                    motion.CompletesCapture);
+                motion.Card.transform.position = pose.Position;
+                ActiveCardFlipDegrees = pose.FlipDegrees;
                 ApplyCardFace(
                     motion.Card,
                     motion.Renderer,
                     motion.CardValue,
-                    !motion.CompletesCapture || progress < 0.5f,
-                    degrees);
+                    pose.FaceUp,
+                    pose.FlipDegrees);
             }
         }
 
@@ -1489,21 +1506,22 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < _collectionCardMotions.Count; index++)
             {
                 var motion = _collectionCardMotions[index];
-                motion.Card.transform.position = AnimationBeatEvaluator.EvaluatePosition(
+                var pose = AnimationCardTreatmentEvaluator.EvaluateCascade(
                     motion.Start,
                     motion.Target,
                     progress,
                     motion.Easing,
-                    motion.Trajectory);
-                var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, motion.Easing);
-                var degrees = 180f + eased * 180f;
-                ActiveCardFlipDegrees = degrees;
+                    motion.Trajectory,
+                    false,
+                    true);
+                motion.Card.transform.position = pose.Position;
+                ActiveCardFlipDegrees = pose.FlipDegrees;
                 ApplyCardFace(
                     motion.Card,
                     motion.Renderer,
                     motion.CardValue,
-                    progress < 0.5f,
-                    degrees);
+                    pose.FaceUp,
+                    pose.FlipDegrees);
             }
         }
 
@@ -2436,16 +2454,12 @@ namespace TheFall.Presentation.Match
                 FirstPlayableRenderedCard card,
                 Renderer renderer,
                 Card cardValue,
-                bool revealFace,
-                float startDegrees,
-                float targetDegrees)
+                bool revealFace)
             {
                 Card = card;
                 Renderer = renderer;
                 CardValue = cardValue;
                 RevealFace = revealFace;
-                StartDegrees = startDegrees;
-                TargetDegrees = targetDegrees;
             }
 
             public FirstPlayableRenderedCard Card { get; }
@@ -2455,10 +2469,6 @@ namespace TheFall.Presentation.Match
             public Card CardValue { get; }
 
             public bool RevealFace { get; }
-
-            public float StartDegrees { get; }
-
-            public float TargetDegrees { get; }
         }
 
         private sealed class CaptureCardMotion
