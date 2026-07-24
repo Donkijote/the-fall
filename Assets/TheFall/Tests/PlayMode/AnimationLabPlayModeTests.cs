@@ -175,7 +175,7 @@ namespace TheFall.Tests.PlayMode
                     ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
-                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CaptureCollection,
                 }));
 
             controller.SeekToStep(0, 0.01f);
@@ -568,7 +568,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.WorkingConfiguration.PresetName, Is.EqualTo("Fast Iteration"));
             Assert.That(controller.WorkingConfiguration.PlaybackSpeed, Is.EqualTo(2f));
             controller.WorkingConfiguration.SetTransport(2f, false);
-            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement);
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.PlayCard);
             controller.SetActingSeat(Seat.Second);
             controller.SetPreviewProfile(AnimationPreviewProfile.Portrait);
             var playBeat = controller.WorkingConfiguration.GetBeat(ResolvedAnimationStepKind.CardPlay);
@@ -577,12 +577,12 @@ namespace TheFall.Tests.PlayMode
             yield return new WaitUntil(() => !controller.IsPlaying);
 
             Assert.That(controller.ScenarioKind,
-                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement));
+                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.PlayCard));
             Assert.That(controller.ActingSeat, Is.EqualTo(Seat.Second));
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
             Assert.That(controller.Sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
-                ResolvedAnimationStepKind.TablePlacement,
+                ResolvedAnimationStepKind.CardPlay,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);

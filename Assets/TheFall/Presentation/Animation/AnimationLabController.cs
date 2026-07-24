@@ -856,7 +856,12 @@ namespace TheFall.Presentation.Animation
                     var step = complete.Steps[stepIndex];
                     if (step.Kind == expected)
                     {
-                        state.Apply(step, complete.FinalState);
+                        state.Apply(
+                            step,
+                            complete.FinalState,
+                            deferHandReflow:
+                                expected == ResolvedAnimationStepKind.CardPlay
+                                && _recording.BeatKind == AnimationRecordingBeat.HandReflow);
                         break;
                     }
                 }

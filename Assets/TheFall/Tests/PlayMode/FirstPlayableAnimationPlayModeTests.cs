@@ -134,12 +134,14 @@ namespace TheFall.Tests.PlayMode
             var startedAt = Time.realtimeSinceStartup;
             var observedSpatialBeats = new HashSet<ResolvedAnimationStepKind>();
             var spatialFrameCounts = new Dictionary<ResolvedAnimationStepKind, int>();
+            var observedParallelReflowBeats = new HashSet<ResolvedAnimationStepKind>();
             var observedRevealFlip = false;
             var observedCollectionFlip = false;
             yield return ObservePresentation(
                 table,
                 observedSpatialBeats,
                 spatialFrameCounts,
+                observedParallelReflowBeats,
                 value => observedRevealFlip |= value,
                 value => observedCollectionFlip |= value);
 
@@ -154,6 +156,7 @@ namespace TheFall.Tests.PlayMode
                     table,
                     observedSpatialBeats,
                     spatialFrameCounts,
+                    observedParallelReflowBeats,
                     value => observedRevealFlip |= value,
                     value => observedCollectionFlip |= value);
             }
@@ -170,10 +173,25 @@ namespace TheFall.Tests.PlayMode
             Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.Deal));
             Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.OpeningPlacement));
             Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.CardPlay));
-            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.HandReflow));
             Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.NormalCapture));
             Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.CascadeCapture));
             Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.Leftovers));
+            Assert.That(
+                table.AnimationPlayer.PresentedSteps,
+                Has.None.EqualTo(ResolvedAnimationStepKind.HandReflow));
+            Assert.That(
+                table.AnimationPlayer.PresentedSteps,
+                Has.None.EqualTo(ResolvedAnimationStepKind.TablePlacement));
+            Assert.That(observedParallelReflowBeats, Does.Contain(ResolvedAnimationStepKind.Deal));
+            Assert.That(observedParallelReflowBeats, Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(observedParallelReflowBeats, Does.Contain(ResolvedAnimationStepKind.NormalCapture));
+            if (table.AnimationPlayer.PresentedSteps.Contains(
+                    ResolvedAnimationStepKind.CaptureCollection))
+            {
+                Assert.That(
+                    observedSpatialBeats,
+                    Does.Contain(ResolvedAnimationStepKind.CaptureCollection));
+            }
             if (table.AnimationPlayer.PresentedSteps.Contains(
                     ResolvedAnimationStepKind.OpeningRejection))
             {
@@ -252,6 +270,7 @@ namespace TheFall.Tests.PlayMode
             FirstPlayableTablePresentation table,
             ISet<ResolvedAnimationStepKind> observedSpatialBeats,
             IDictionary<ResolvedAnimationStepKind, int> spatialFrameCounts,
+            ISet<ResolvedAnimationStepKind> observedParallelReflowBeats,
             System.Action<bool> observeRevealFlip,
             System.Action<bool> observeCollectionFlip)
         {
@@ -269,6 +288,11 @@ namespace TheFall.Tests.PlayMode
                     observedSpatialBeats.Add(step.Kind);
                     spatialFrameCounts.TryGetValue(step.Kind, out var count);
                     spatialFrameCounts[step.Kind] = count + 1;
+                    if (table.ActiveParallelHandReflowMotionCount > 0)
+                    {
+                        observedParallelReflowBeats.Add(step.Kind);
+                    }
+
                     observeRevealFlip(
                         (step.Kind == ResolvedAnimationStepKind.Deal
                             || step.Kind == ResolvedAnimationStepKind.OpeningPlacement)
@@ -277,6 +301,7 @@ namespace TheFall.Tests.PlayMode
                     observeCollectionFlip(
                         (step.Kind == ResolvedAnimationStepKind.NormalCapture
                             || step.Kind == ResolvedAnimationStepKind.CascadeCapture
+                            || step.Kind == ResolvedAnimationStepKind.CaptureCollection
                             || step.Kind == ResolvedAnimationStepKind.Leftovers)
                         && table.ActiveCardFlipDegrees > 180f
                         && table.ActiveCardFlipDegrees < 360f);

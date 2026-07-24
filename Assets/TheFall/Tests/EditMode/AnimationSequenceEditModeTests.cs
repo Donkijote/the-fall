@@ -47,28 +47,25 @@ namespace TheFall.Tests.EditMode
 
             Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
-                ResolvedAnimationStepKind.CardPlay,
-                ResolvedAnimationStepKind.HandReflow,
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
-                ResolvedAnimationStepKind.CascadeCapture,
+                ResolvedAnimationStepKind.CaptureCollection,
                 ResolvedAnimationStepKind.FallScore,
                 ResolvedAnimationStepKind.CleanTableScore,
                 ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
-            Assert.That(
-                sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.CardPlay).Cards,
-                Has.Count.EqualTo(2));
             Assert.That(sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture).Cards, Has.Count.EqualTo(2));
             Assert.That(
-                sequence.Steps.Last(step => step.Kind == ResolvedAnimationStepKind.CascadeCapture).Cards,
+                sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.CaptureCollection).Cards,
                 Has.Count.EqualTo(4));
+            Assert.That(sequence.Steps.Select(step => step.Kind), Has.None.EqualTo(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(sequence.Steps.Select(step => step.Kind), Has.None.EqualTo(ResolvedAnimationStepKind.HandReflow));
         }
 
         [Test]
-        public void NonCapturingPlay_MapsCardPlayAndTablePlacementWithoutPresentationRules()
+        public void NonCapturingPlay_UsesOneCardPlayBeatWithParallelHandReflow()
         {
             var firstId = new PlayerId("placement-first");
             var secondId = new PlayerId("placement-second");
@@ -96,13 +93,39 @@ namespace TheFall.Tests.EditMode
             Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
                 ResolvedAnimationStepKind.CardPlay,
-                ResolvedAnimationStepKind.HandReflow,
-                ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(renderedState.IsSynchronizedWith(result.State), Is.True);
             Assert.That(renderedState.Table, Does.Contain(playedCard));
+        }
+
+        [Test]
+        public void DealerAndInitialDeal_OnlyAnimatePhysicalCardOutcomes()
+        {
+            var playerId = new PlayerId("dealer-flow");
+            var selectedCard = new Card(CardSuit.Coins, CardRank.Five);
+            var dealtCard = new Card(CardSuit.Cups, CardRank.Six);
+            var events = new DomainEvent[]
+            {
+                new DealerCardSelectedEvent(playerId, selectedCard),
+                new DealerSelectionTiedEvent(CardRank.Five),
+                new DealerSelectedEvent(playerId, Seat.First),
+                new DeckShuffledEvent(1, 40),
+                new DealStartedEvent(1, 1, false),
+                new CardDealtEvent(playerId, dealtCard, 0),
+            };
+            var sequence = ResolvedAnimationSequence.Create(
+                events,
+                RepresentativeAnimationTurn.Create(Seat.First).Result.State);
+
+            Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
+            {
+                ResolvedAnimationStepKind.DealerSelection,
+                ResolvedAnimationStepKind.Deal,
+                ResolvedAnimationStepKind.SynchronizeFinalState,
+            }));
+            Assert.That(sequence.SourceEvents, Is.EqualTo(events));
         }
 
         [TestCase(Seat.First)]
@@ -184,6 +207,7 @@ namespace TheFall.Tests.EditMode
                     ResolvedAnimationStepKind.CardPlay,
                     ResolvedAnimationStepKind.NormalCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CaptureCollection,
                     ResolvedAnimationStepKind.CleanTableScore,
                     ResolvedAnimationStepKind.TurnChanged,
                 });
@@ -197,8 +221,8 @@ namespace TheFall.Tests.EditMode
             Assert.That(sequence.Steps.Take(3).Select(step => step.Kind), Is.EqualTo(new[]
             {
                 ResolvedAnimationStepKind.FallScore,
-                ResolvedAnimationStepKind.CardPlay,
                 ResolvedAnimationStepKind.NormalCapture,
+                ResolvedAnimationStepKind.CascadeCapture,
             }));
             Assert.That(sequence.SourceEvents, Is.EqualTo(recording.Result.Events));
             Assert.That(rendered.IsSynchronizedWith(recording.Result.State), Is.True);
@@ -379,7 +403,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
-        public void CompleteDomainEventVocabulary_HasAReusablePresentationBeatInSourceOrder()
+        public void CompleteDomainEventVocabulary_RetainsFactsWithoutRedundantSpatialBeats()
         {
             var playerId = new PlayerId("event-player");
             var card = new Card(CardSuit.Coins, CardRank.Two);
@@ -418,20 +442,14 @@ namespace TheFall.Tests.EditMode
             {
                 ResolvedAnimationStepKind.MatchStarted,
                 ResolvedAnimationStepKind.DealerSelection,
-                ResolvedAnimationStepKind.DealerSelection,
-                ResolvedAnimationStepKind.DealerSelection,
-                ResolvedAnimationStepKind.DealerSelection,
                 ResolvedAnimationStepKind.DealerChoice,
-                ResolvedAnimationStepKind.Deal,
                 ResolvedAnimationStepKind.Deal,
                 ResolvedAnimationStepKind.OpeningRejection,
                 ResolvedAnimationStepKind.OpeningPlacement,
                 ResolvedAnimationStepKind.CardPlay,
-                ResolvedAnimationStepKind.HandReflow,
-                ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
-                ResolvedAnimationStepKind.CascadeCapture,
+                ResolvedAnimationStepKind.CaptureCollection,
                 ResolvedAnimationStepKind.Canto,
                 ResolvedAnimationStepKind.Canto,
                 ResolvedAnimationStepKind.Score,
@@ -459,7 +477,6 @@ namespace TheFall.Tests.EditMode
                 AnimationScenarioKind.OpeningPlacement,
                 AnimationScenarioKind.PlayCard,
                 AnimationScenarioKind.HandReflow,
-                AnimationScenarioKind.TablePlacement,
                 AnimationScenarioKind.NormalCapture,
                 AnimationScenarioKind.CascadeCapture,
                 AnimationScenarioKind.CollectLeftovers,

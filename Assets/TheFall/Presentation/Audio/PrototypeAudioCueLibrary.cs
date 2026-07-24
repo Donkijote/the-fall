@@ -110,6 +110,9 @@ namespace TheFall.Presentation.Audio
                 case ResolvedAnimationStepKind.CascadeCapture:
                     cueKind = PrototypeAudioCueKind.Cascade;
                     return true;
+                case ResolvedAnimationStepKind.CaptureCollection:
+                    cueKind = PrototypeAudioCueKind.Capture;
+                    return true;
                 case ResolvedAnimationStepKind.FallScore:
                     cueKind = PrototypeAudioCueKind.Fall;
                     return true;

@@ -153,9 +153,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(opponentCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(deckCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(expectedScale.x / expectedScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
-            Assert.That(localHandCard.transform.localEulerAngles.y, Is.EqualTo(180f).Within(0.001f));
-            Assert.That(publicTableCard.transform.localEulerAngles.y, Is.EqualTo(180f).Within(0.001f));
-            Assert.That(deckCard.transform.localEulerAngles.y, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(localHandCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
+            Assert.That(publicTableCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
+            Assert.That(deckCard.transform.localEulerAngles.z, Is.EqualTo(0f).Within(0.001f));
 
             var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
             Assert.That(cantoIntents, Is.Not.Empty);

@@ -12,7 +12,7 @@ The isolated recording library is:
 
 - dealer-card selection
 - deal one card to each 1v1 seat, opening rejection, and opening placement
-- play one card, reflow the remaining hand, and confirm table placement
+- play one card and reflow the remaining hand
 - normal capture and one cascade-card capture
 - leftovers collection
 
@@ -26,7 +26,7 @@ Every selector entry isolates one gameplay/card presentation treatment plus mand
 
 - match start, dealer selection, and dealer choice
 - deal, opening rejection, and opening placement
-- play, remaining-hand reflow, table placement, normal capture, and one beat per cascade card
+- play, parallel remaining-hand reflow, normal capture, one beat per cascade card, and capture collection
 - Fall, clean table, canto, and other score changes
 - deal completion, leftovers, round completion, dealer rotation, and tie extension
 - turn change and match victory
@@ -93,7 +93,7 @@ Seeking and stepping reconstruct rendered state from the initial snapshot by app
 
 `AnimationBeatEvaluator`, `AnimationSequenceTransport`, `ResolvedAnimationSequence`, and `AnimationPresentationState` are shared by Edit Mode preview and runtime playback. The Editor window is an authoring adapter around that code, not a separate approximation. Issue #26 binds the same saved beat definitions to equivalent resolved events in the integrated match.
 
-`FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. Card play and remaining-hand reflow are separate beats produced from the same accepted `CardPlayedEvent`, so their durations and easing can be tuned independently before the runtime chains them.
+`FirstPlayableAnimationPlayer` now performs that binding for the complete 1v1 match. It consumes the immutable startup events and accepted human/bot resolution records already retained by `MatchTrace`. Each record is presented in authoritative source-event order, then ends with the mandatory final-state synchronization beat. A visible outcome owns one transport beat: remaining-hand reflow runs concurrently inside Deal, Card Play, or Normal Capture and still reads the separately tuned Hand Reflow duration and easing. It never adds another blocking transport step.
 
 Issue #27 maps the same active resolved beats to short functional prototype cues. Audio observes the beat
 stream but never owns transport time, schedules an accepted intent, or changes synchronization. See
@@ -115,16 +115,14 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 
 | Resolved outcome | Runtime treatment |
 | --- | --- |
-| match start; dealer card selection, tie, dealer result, and shuffle | selected dealer card lifts from its opaque spread slot, flips face up along the configured path, and remains revealed; tie/result/shuffle also retain localized plain-text events |
-| dealer choice and deal start | localized plain text plus round/deal metadata update |
-| card dealt | configured deck-to-hand motion, including face-down opponent cards |
+| match start; dealer card selection, tie, dealer result, and shuffle | each actual selected dealer card lifts from its opaque spread slot, flips face up along the configured path, and remains revealed; tie/result/shuffle update semantic state without replaying that spatial treatment |
+| dealer choice and deal start | localized plain text plus round/deal metadata update; deal start itself consumes no card-motion time |
+| card dealt | one configured deck-to-hand motion, including face-down opponent cards; existing cards reflow concurrently without trajectory bounce |
 | opening rejection | configured semantic rejection cue; rejected card remains in the deck prefix |
 | opening placement | configured deck-to-table motion |
-| card played | configured motion for the selected card from hand to table; remaining cards retain their slots |
-| remaining-hand reflow | separately configured motion that closes the empty hand slot |
-| non-capturing placement | configured placement cue after play and reflow |
-| normal capture | configured table-to-capture motion for the played and matching card |
-| cascade capture | one configured stack-to-next-card beat per additional card, followed by an explicit terminal stack-to-collected-pile beat |
+| non-capturing card play | one configured motion from hand to the authoritative table slot; remaining-hand reflow runs concurrently |
+| normal capture | the capture treatment owns the played-card motion directly from hand to its match, then collects the pair; remaining-hand reflow runs concurrently and no Card Play beat is emitted |
+| cascade capture | Normal Capture owns the hand-to-match lead-in, one configured Cascade Capture beat moves the growing stack to each additional card, and an explicit Capture Collection beat moves the finished stack to the pile |
 | Fall, clean table, canto, and other score changes | localized plain text with ordered score/canto prefix updates |
 | deal completion | localized plain-text completion message |
 | leftovers | table cards travel to the collector's left-side pile, flip face down, and settle above its existing cards |
@@ -168,14 +166,16 @@ while every unselected card remains represented only by an anonymous count and c
 
 Runtime transitions retain the outgoing card pose while the next resolved beat is delayed or begins.
 Rebuilding the authoritative prefix therefore cannot snap a card to its final zone between adjacent
-beats. Deal and opening-placement cards leave the deck back-up and reveal in flight; an opening
+beats. Local Deal and opening-placement cards leave the deck back-up and reveal once in flight;
+opponent Deal cards stay face down for the complete deck-to-hand path. Existing hand cards use a
+concurrent zero-trajectory reflow, so they do not inherit the incoming card's arc. An opening
 rejection remains face-up until it turns back into the temporary deck gap. Normal captures first
 stack the played card on its match, cascade beats move the complete growing stack, and only the
-terminal collection turns that stack face down. Leftovers use the same face-up-to-collected
+`CaptureCollection` treatment turns that stack face down. Leftovers use the same face-up-to-collected
 treatment. Each path reads its duration, delay, easing, trajectory, fast-forward, and reduced-motion
 values from the active versioned preset.
 
-The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards retain fixed three-card slots throughout both motions, so only the incoming card moves and the opponent's identities remain opaque.
+The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating once from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards close into their new slots concurrently using the Hand Reflow tuning without inheriting the Deal trajectory; opponent identities remain opaque.
 
 The isolated opening-placement preview starts with the already accepted table cards and the complete remaining deck face down. Its top card is reused as the moving card instead of creating a duplicate beside the stack: it leaves the deck back-up, follows the configured deck-to-table path, rotates to reveal its authoritative face, and settles in the next table slot. Existing table cards remain stationary.
 
@@ -183,7 +183,7 @@ The isolated opening-rejection preview reverses that treatment. It begins with t
 
 The isolated matching-pair capture is one uninterrupted `NormalCapture` cycle. It first moves the played card out of the acting player's hand and directly onto the authoritative same-rank table card, keeping the played card visibly above its match. After a short contact beat, both cards lift as one stack, travel together to the dedicated collected-pile anchor on the acting player's left, rotate face down in flight, and settle on top as opaque card backs. The pile anchor mirrors by seat so “left” remains relative to each player's perspective rather than a fixed world-space side.
 
-The isolated cascade capture reuses the matching-pair lead-in through the moment when the played card rests on its same-rank match. Each configured `CascadeCapture` beat then moves the entire growing stack onto one authoritative cascade card, including a distinct landing on the final cascade card. A separate terminal `CascadeCapture` beat lifts that completed stack from the last card, carries it to the same left-side collected anchor, flips every card face down in flight, and settles the stack onto the collected deck. The recording contains three consecutive cascade cards so the workbench exposes accumulation and final collection as separate visible actions.
+The isolated cascade capture reuses the matching-pair lead-in through the moment when the played card rests on its same-rank match. Each configured `CascadeCapture` beat then moves the entire growing stack onto one authoritative cascade card, including a distinct landing on the final cascade card. A separate terminal `CaptureCollection` beat lifts that completed stack from the last card, carries it to the same left-side collected anchor, flips every card face down in flight, and settles the stack onto the collected deck. The recording contains three consecutive cascade cards so the workbench exposes accumulation and final collection as separate visible actions.
 
 Table layout slots are stable for the full composite capture. Removing the matching card or a reached cascade card never compacts the untouched cards into newly empty slots: every future cascade target and every unrelated table card remains planted until the moving stack reaches it or the sequence completes. The incoming target remains stationary during its beat and joins the lifted stack only on the following cascade beat.
 
@@ -199,7 +199,7 @@ Use:
 
 The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content. The Editor command opens the dedicated authoring window without entering Play Mode.
 
-Focused Edit Mode coverage verifies that all 22 selector entries produce their expected matching tunable beats, including the two-card Deal pass and the matching-pair plus repeated-cascade composite pass, plus source-event mapping, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
+Focused Edit Mode coverage verifies that all 18 selector/seat combinations produce their expected matching tunable beats, including the two-card Deal pass and the matching-pair plus repeated-cascade composite pass, plus source-event mapping, redundant-beat exclusion, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; parallel hand reflow; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
 
 The representative seed-2400 profile completed 129 accepted intent records, 585 source events, and 732 visible beats without a pooling, tweening, Timeline, Animator, or third-party sequencing layer. The pure transport/prefix replay used 6,879 deterministic `20 ms` ticks and about `9.98 ms` aggregate presentation CPU (`0.209 ms` peak tick). The headless integrated Play Mode replay deliberately ran at the editor's uncapped batch update rate: 955,791 updates, about `2,229.42 ms` aggregate presentation CPU, and a `4.260 ms` maximum sampled update over `31.5 s` wall time. Those batch-mode values establish allocation/framework evidence, not desktop frame-pacing acceptance; issue #28 owns built-player median and p95 frame-time evidence. The implementation retains direct transient view rebuilding because this profile does not justify a framework or pool before representative production assets exist.
 

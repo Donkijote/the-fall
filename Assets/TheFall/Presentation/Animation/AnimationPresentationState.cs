@@ -104,7 +104,10 @@ namespace TheFall.Presentation.Animation
             return _scores[teamId];
         }
 
-        public void Apply(ResolvedAnimationStep step, MatchState finalState)
+        public void Apply(
+            ResolvedAnimationStep step,
+            MatchState finalState,
+            bool deferHandReflow = false)
         {
             if (step == null)
             {
@@ -152,7 +155,10 @@ namespace TheFall.Presentation.Animation
                     DeckCount = Math.Max(0, DeckCount - 1);
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
-                    MovePlayedCardToTable(step.PlayerId, step.Cards[0]);
+                    MovePlayedCardToTable(
+                        step.PlayerId,
+                        step.Cards[0],
+                        !deferHandReflow);
                     break;
                 case ResolvedAnimationStepKind.HandReflow:
                     ReindexHand(step.PlayerId);
@@ -163,6 +169,8 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.NormalCapture:
                 case ResolvedAnimationStepKind.CascadeCapture:
                     MoveCapturedCards(step.PlayerId, step.Cards);
+                    break;
+                case ResolvedAnimationStepKind.CaptureCollection:
                     break;
                 case ResolvedAnimationStepKind.FallScore:
                 case ResolvedAnimationStepKind.CleanTableScore:
@@ -375,11 +383,18 @@ namespace TheFall.Presentation.Animation
             }
         }
 
-        private void MovePlayedCardToTable(PlayerId playerId, Card card)
+        private void MovePlayedCardToTable(
+            PlayerId playerId,
+            Card card,
+            bool reindexHand)
         {
             if (_hands.TryGetValue(playerId, out var hand))
             {
                 hand.Remove(card);
+                if (reindexHand)
+                {
+                    ReindexHand(playerId);
+                }
             }
 
             AddTableCard(card);

@@ -18,6 +18,7 @@ namespace TheFall.Tests.EditMode
             AssertCue(ResolvedAnimationStepKind.CardPlay, PrototypeAudioCueKind.Play);
             AssertCue(ResolvedAnimationStepKind.NormalCapture, PrototypeAudioCueKind.Capture);
             AssertCue(ResolvedAnimationStepKind.CascadeCapture, PrototypeAudioCueKind.Cascade);
+            AssertCue(ResolvedAnimationStepKind.CaptureCollection, PrototypeAudioCueKind.Capture);
             AssertCue(ResolvedAnimationStepKind.FallScore, PrototypeAudioCueKind.Fall);
             AssertCue(ResolvedAnimationStepKind.CleanTableScore, PrototypeAudioCueKind.CleanTable);
             AssertCue(ResolvedAnimationStepKind.Canto, PrototypeAudioCueKind.Canto);

@@ -29,6 +29,7 @@ namespace TheFall.Presentation.Animation
         MatchCompleted,
         HandReflow,
         SynchronizeFinalState,
+        CaptureCollection,
     }
 
     public sealed class ResolvedAnimationStep
@@ -139,12 +140,19 @@ namespace TheFall.Presentation.Animation
                         continue;
                     }
 
+                    var matched = false;
                     foreach (var step in mapped)
                     {
                         if (step.Kind == kind)
                         {
                             composed.Add(step);
+                            matched = true;
                         }
+                    }
+
+                    if (!matched && kind == ResolvedAnimationStepKind.HandReflow)
+                    {
+                        AddWorkbenchHandReflowSteps(composed, resolvedEvents);
                     }
                 }
             }
@@ -154,6 +162,24 @@ namespace TheFall.Presentation.Animation
                 null,
                 resolvedEvents.Count));
             return new ResolvedAnimationSequence(composed, resolvedEvents, finalState);
+        }
+
+        private static void AddWorkbenchHandReflowSteps(
+            ICollection<ResolvedAnimationStep> steps,
+            IReadOnlyList<DomainEvent> resolvedEvents)
+        {
+            for (var eventIndex = 0; eventIndex < resolvedEvents.Count; eventIndex++)
+            {
+                if (resolvedEvents[eventIndex] is CardPlayedEvent played)
+                {
+                    steps.Add(Step(
+                        ResolvedAnimationStepKind.HandReflow,
+                        played,
+                        eventIndex,
+                        playerId: played.PlayerId,
+                        cards: new[] { played.Card }));
+                }
+            }
         }
 
         private static List<ResolvedAnimationStep> MapEvents(IReadOnlyList<DomainEvent> resolvedEvents)
@@ -178,13 +204,14 @@ namespace TheFall.Presentation.Animation
                     case DealerSelectionTiedEvent _:
                     case DealerSelectedEvent _:
                     case DeckShuffledEvent _:
-                        steps.Add(Step(ResolvedAnimationStepKind.DealerSelection, resolvedEvent, eventIndex));
+                        // Synchronize semantic dealer outcomes without replaying the
+                        // spatial dealer-card selection treatment.
                         break;
                     case DealerChoiceMadeEvent _:
                         steps.Add(Step(ResolvedAnimationStepKind.DealerChoice, resolvedEvent, eventIndex));
                         break;
                     case DealStartedEvent _:
-                        steps.Add(Step(ResolvedAnimationStepKind.Deal, resolvedEvent, eventIndex));
+                        // Only an actual dealt card consumes the spatial Deal treatment.
                         break;
                     case CardDealtEvent dealt:
                         steps.Add(Step(
@@ -209,36 +236,24 @@ namespace TheFall.Presentation.Animation
                             cards: new[] { opening.Card }));
                         break;
                     case CardPlayedEvent played:
-                        var playedCards = new List<Card> { played.Card };
-                        if (eventIndex + 1 < resolvedEvents.Count &&
-                            resolvedEvents[eventIndex + 1] is CardsCapturedEvent pendingCapture &&
-                            pendingCapture.PlayerId == played.PlayerId &&
-                            pendingCapture.Cards.Count >= 2 &&
-                            pendingCapture.Cards[0] == played.Card)
+                        var isCapture = eventIndex + 1 < resolvedEvents.Count
+                            && resolvedEvents[eventIndex + 1] is CardsCapturedEvent pendingCapture
+                            && pendingCapture.PlayerId == played.PlayerId
+                            && pendingCapture.Cards.Count >= 2
+                            && pendingCapture.Cards[0] == played.Card;
+                        if (!isCapture)
                         {
-                            playedCards.Add(pendingCapture.Cards[1]);
+                            steps.Add(Step(
+                                ResolvedAnimationStepKind.CardPlay,
+                                played,
+                                eventIndex,
+                                playerId: played.PlayerId,
+                                cards: new[] { played.Card }));
                         }
 
-                        steps.Add(Step(
-                            ResolvedAnimationStepKind.CardPlay,
-                            played,
-                            eventIndex,
-                            playerId: played.PlayerId,
-                            cards: playedCards));
-                        steps.Add(Step(
-                            ResolvedAnimationStepKind.HandReflow,
-                            played,
-                            eventIndex,
-                            playerId: played.PlayerId,
-                            cards: new[] { played.Card }));
                         break;
-                    case CardPlacedOnTableEvent placed:
-                        steps.Add(Step(
-                            ResolvedAnimationStepKind.TablePlacement,
-                            placed,
-                            eventIndex,
-                            playerId: placed.PlayerId,
-                            cards: new[] { placed.Card }));
+                    case CardPlacedOnTableEvent _:
+                        // CardPlay already settles a non-capturing card in its table slot.
                         break;
                     case CardsCapturedEvent captured:
                         if (captured.Cards.Count < 2)
@@ -266,7 +281,7 @@ namespace TheFall.Presentation.Animation
                         if (captured.Cards.Count > 2)
                         {
                             steps.Add(Step(
-                                ResolvedAnimationStepKind.CascadeCapture,
+                                ResolvedAnimationStepKind.CaptureCollection,
                                 captured,
                                 eventIndex,
                                 playerId: captured.PlayerId,

@@ -280,7 +280,8 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            if (step.Kind == ResolvedAnimationStepKind.CascadeCapture &&
+            if ((step.Kind == ResolvedAnimationStepKind.CascadeCapture
+                    || step.Kind == ResolvedAnimationStepKind.CaptureCollection) &&
                 step.SourceEvent is CardsCapturedEvent &&
                 step.Cards.Count > 0)
             {
@@ -1482,6 +1483,9 @@ namespace TheFall.Presentation.Animation
                     break;
                 case ResolvedAnimationStepKind.CascadeCapture:
                     _eventCue.text = "CASCADE";
+                    break;
+                case ResolvedAnimationStepKind.CaptureCollection:
+                    _eventCue.text = "COLLECT CAPTURE";
                     break;
                 case ResolvedAnimationStepKind.FallScore:
                     _eventCue.text = $"FALL  +{step.PointsAwarded}";

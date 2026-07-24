@@ -16,6 +16,7 @@ classify cantos, award points, advance presentation time, or mutate `MatchState`
 | `CardPlay` | Play |
 | `NormalCapture` | Capture |
 | `CascadeCapture` | Cascade |
+| `CaptureCollection` | Capture |
 | `FallScore` | Fall |
 | `CleanTableScore` | Clean table |
 | `Canto` | Canto |
