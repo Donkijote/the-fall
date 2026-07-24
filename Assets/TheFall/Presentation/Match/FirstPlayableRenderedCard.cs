@@ -28,17 +28,21 @@ namespace TheFall.Presentation.Match
 
         public int InteractionIndex { get; private set; } = -1;
 
+        public int LayoutIndex { get; private set; } = -1;
+
         public void Configure(
             FirstPlayableCardZone zone,
             bool isFaceUp,
             Card? card = null,
-            int interactionIndex = -1)
+            int interactionIndex = -1,
+            int layoutIndex = -1)
         {
             Zone = zone;
             IsFaceUp = isFaceUp;
             Card = isFaceUp ? card : null;
             PresentationCard = card;
             InteractionIndex = interactionIndex;
+            LayoutIndex = layoutIndex;
         }
 
         internal void SetFaceUp(bool isFaceUp)

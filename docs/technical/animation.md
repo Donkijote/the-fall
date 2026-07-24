@@ -160,11 +160,20 @@ The isolated dealer-card selection begins with the complete forty-card spread fa
 The revealed card rests above every face-down row so its complete face remains readable. The workbench Animation button always performs a one-shot preview and leaves this resolved pose in place; pressing Animation again restarts the preview, while Reset explicitly returns to the initial spread.
 
 The integrated `Home` table applies the same treatment to each accepted dealer-card event. A human
-selection starts at the exact face-down slot that was activated; an automatic opponent selection uses
-a deterministic opaque slot because the hidden card-to-slot mapping is not presentation state. Both
-paths use the saved Dealer Selection duration, delay, easing, trajectory, fast-forward, and
-reduced-motion values. Revealed identities are public after the event, while every unselected card
-remains represented only by an anonymous count and card back.
+selection lifts and flips at the exact face-down slot that was activated and remains in that slot; an
+automatic opponent selection uses a deterministic opaque slot because the hidden card-to-slot
+mapping is not presentation state. Both paths use the saved Dealer Selection duration, delay, easing,
+trajectory, fast-forward, and reduced-motion values. Revealed identities are public after the event,
+while every unselected card remains represented only by an anonymous count and card back.
+
+Runtime transitions retain the outgoing card pose while the next resolved beat is delayed or begins.
+Rebuilding the authoritative prefix therefore cannot snap a card to its final zone between adjacent
+beats. Deal and opening-placement cards leave the deck back-up and reveal in flight; an opening
+rejection remains face-up until it turns back into the temporary deck gap. Normal captures first
+stack the played card on its match, cascade beats move the complete growing stack, and only the
+terminal collection turns that stack face down. Leftovers use the same face-up-to-collected
+treatment. Each path reads its duration, delay, easing, trajectory, fast-forward, and reduced-motion
+values from the active versioned preset.
 
 The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards retain fixed three-card slots throughout both motions, so only the incoming card moves and the opponent's identities remain opaque.
 

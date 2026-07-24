@@ -106,7 +106,9 @@ namespace TheFall.Tests.PlayMode
 
             Assert.That(table.TryGetActiveDealerSelectionMotion(out var dealerMotion), Is.True);
             Assert.That(Vector3.Distance(dealerMotion.StartWorld, expectedMotionStart), Is.LessThan(0.0001f));
-            Assert.That(Vector3.Distance(dealerMotion.StartWorld, dealerMotion.TargetWorld), Is.GreaterThan(0.01f));
+            Assert.That(dealerMotion.TargetWorld.x, Is.EqualTo(dealerMotion.StartWorld.x).Within(0.0001f));
+            Assert.That(dealerMotion.TargetWorld.z, Is.EqualTo(dealerMotion.StartWorld.z).Within(0.0001f));
+            Assert.That(dealerMotion.TargetWorld.y, Is.GreaterThan(dealerMotion.StartWorld.y));
             var revealedCard = table.RenderedCards
                 .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
             var earlyPosition = revealedCard.transform.position;

@@ -128,12 +128,8 @@ namespace TheFall.Presentation.Animation
                     Phase = MatchPhase.Active;
                     break;
                 case ResolvedAnimationStepKind.OpeningRejection:
-                    if (step.SourceEvent is OpeningCardRejectedEvent rejected)
-                    {
-                        RemoveTableCard(rejected.Card);
-                        DeckCount++;
-                    }
-
+                    // Drawing and reinserting a rejected opening card has no net state effect.
+                    // The presentation treatment owns its temporary face-up table pose and deck gap.
                     break;
                 case ResolvedAnimationStepKind.Deal:
                     if (step.SourceEvent is DealStartedEvent dealStarted)

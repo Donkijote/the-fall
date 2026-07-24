@@ -132,7 +132,16 @@ namespace TheFall.Tests.PlayMode
             var audio = table.AudioPresenter;
             table.SetFastForward(true);
             var startedAt = Time.realtimeSinceStartup;
-            yield return WaitForPresentation(table);
+            var observedSpatialBeats = new HashSet<ResolvedAnimationStepKind>();
+            var spatialFrameCounts = new Dictionary<ResolvedAnimationStepKind, int>();
+            var observedRevealFlip = false;
+            var observedCollectionFlip = false;
+            yield return ObservePresentation(
+                table,
+                observedSpatialBeats,
+                spatialFrameCounts,
+                value => observedRevealFlip |= value,
+                value => observedCollectionFlip |= value);
 
             var humanIntents = 0;
             while (controller.Flow.Stage == FirstPlayableFlowStage.Match && humanIntents++ < 5000)
@@ -141,7 +150,12 @@ namespace TheFall.Tests.PlayMode
                 Assert.That(
                     controller.SubmitHumanIntent(ChooseHumanIntent(controller.Flow.Match.State, legal)),
                     Is.True);
-                yield return WaitForPresentation(table);
+                yield return ObservePresentation(
+                    table,
+                    observedSpatialBeats,
+                    spatialFrameCounts,
+                    value => observedRevealFlip |= value,
+                    value => observedCollectionFlip |= value);
             }
 
             Assert.That(humanIntents, Is.LessThan(5000));
@@ -152,6 +166,26 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.CardPlay));
             Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.NormalCapture));
             Assert.That(table.AnimationPlayer.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.MatchCompleted));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.DealerSelection));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.Deal));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.OpeningPlacement));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.HandReflow));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.NormalCapture));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.CascadeCapture));
+            Assert.That(observedSpatialBeats, Does.Contain(ResolvedAnimationStepKind.Leftovers));
+            if (table.AnimationPlayer.PresentedSteps.Contains(
+                    ResolvedAnimationStepKind.OpeningRejection))
+            {
+                Assert.That(observedSpatialBeats,
+                    Does.Contain(ResolvedAnimationStepKind.OpeningRejection));
+            }
+
+            Assert.That(spatialFrameCounts[ResolvedAnimationStepKind.Deal], Is.GreaterThan(1));
+            Assert.That(spatialFrameCounts[ResolvedAnimationStepKind.OpeningPlacement], Is.GreaterThan(1));
+            Assert.That(spatialFrameCounts[ResolvedAnimationStepKind.NormalCapture], Is.GreaterThan(1));
+            Assert.That(observedRevealFlip, Is.True);
+            Assert.That(observedCollectionFlip, Is.True);
             var expectedAudio = table.AnimationPlayer.PresentedSteps
                 .Where(step => PrototypeAudioCueLibrary.TryResolve(step, out _))
                 .Select(step =>
@@ -208,6 +242,46 @@ namespace TheFall.Tests.PlayMode
             var deadline = Time.realtimeSinceStartup + 10f;
             while (table.IsPresentationBusy && Time.realtimeSinceStartup < deadline)
             {
+                yield return null;
+            }
+
+            Assert.That(table.IsPresentationBusy, Is.False);
+        }
+
+        private static IEnumerator ObservePresentation(
+            FirstPlayableTablePresentation table,
+            ISet<ResolvedAnimationStepKind> observedSpatialBeats,
+            IDictionary<ResolvedAnimationStepKind, int> spatialFrameCounts,
+            System.Action<bool> observeRevealFlip,
+            System.Action<bool> observeCollectionFlip)
+        {
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (table.IsPresentationBusy && Time.realtimeSinceStartup < deadline)
+            {
+                var step = table.AnimationPlayer.ActiveStep;
+                var progress = table.AnimationPlayer.ActiveStepProgress;
+                if (step != null
+                    && table.ActiveSpatialMotionKind == step.Kind
+                    && table.ActiveSpatialMotionCount > 0
+                    && progress > 0.05f
+                    && progress < 0.95f)
+                {
+                    observedSpatialBeats.Add(step.Kind);
+                    spatialFrameCounts.TryGetValue(step.Kind, out var count);
+                    spatialFrameCounts[step.Kind] = count + 1;
+                    observeRevealFlip(
+                        (step.Kind == ResolvedAnimationStepKind.Deal
+                            || step.Kind == ResolvedAnimationStepKind.OpeningPlacement)
+                        && table.ActiveCardFlipDegrees > 0f
+                        && table.ActiveCardFlipDegrees < 180f);
+                    observeCollectionFlip(
+                        (step.Kind == ResolvedAnimationStepKind.NormalCapture
+                            || step.Kind == ResolvedAnimationStepKind.CascadeCapture
+                            || step.Kind == ResolvedAnimationStepKind.Leftovers)
+                        && table.ActiveCardFlipDegrees > 180f
+                        && table.ActiveCardFlipDegrees < 360f);
+                }
+
                 yield return null;
             }
 

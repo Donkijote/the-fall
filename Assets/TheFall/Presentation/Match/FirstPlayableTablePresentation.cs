@@ -31,6 +31,8 @@ namespace TheFall.Presentation.Match
         private static readonly Color Brass = FromHex(0xB58B3E);
         private const float DealerFlipLift = 0.13f;
         private const float DealerSelectedRestHeight = 0.015f;
+        private const float CapturePlayEndProgress = 0.38f;
+        private const float CapturePickupStartProgress = 0.46f;
 
         [SerializeField] private Camera _gameplayCamera;
         [SerializeField] private GameObject _tablePrototypePrefab;
@@ -42,12 +44,19 @@ namespace TheFall.Presentation.Match
         private readonly List<FirstPlayableRenderedCard> _renderedCards = new List<FirstPlayableRenderedCard>();
         private readonly List<PrototypeCardView> _localHandViews = new List<PrototypeCardView>();
         private readonly List<CardMotion> _cardMotions = new List<CardMotion>();
+        private readonly List<CardFaceMotion> _cardFaceMotions = new List<CardFaceMotion>();
+        private readonly List<CaptureCardMotion> _captureCardMotions = new List<CaptureCardMotion>();
+        private readonly List<CascadeCardMotion> _cascadeCardMotions = new List<CascadeCardMotion>();
+        private readonly List<CollectionCardMotion> _collectionCardMotions = new List<CollectionCardMotion>();
+        private readonly List<DeckSplitMotion> _deckSplitMotions = new List<DeckSplitMotion>();
+        private readonly Dictionary<Card, int> _dealerSelectionSlots = new Dictionary<Card, int>();
         private DealerCardMotion _dealerCardMotion;
         private int? _pendingDealerSelectionInteractionIndex;
         private FirstPlayableFlowController _flowController;
         private FirstPlayableAnimationPlayer _animationPlayer;
         private FirstPlayableAudioPresenter _audioPresenter;
         private Transform _generatedRoot;
+        private Transform _tableCardsRuntimeAnchor;
         private Material _cardBackMaterial;
         private CardInteractionSession _interaction;
         private CardInteractionInputAdapter _inputAdapter;
@@ -108,6 +117,17 @@ namespace TheFall.Presentation.Match
         public int LayoutRevision { get; private set; }
 
         public float DealerCardFlipDegrees { get; private set; }
+
+        public float ActiveCardFlipDegrees { get; private set; }
+
+        public ResolvedAnimationStepKind? ActiveSpatialMotionKind { get; private set; }
+
+        public int ActiveSpatialMotionCount =>
+            _cardMotions.Count +
+            _captureCardMotions.Count +
+            _cascadeCardMotions.Count +
+            _collectionCardMotions.Count +
+            (_dealerCardMotion == null ? 0 : 1);
 
         public static Vector3 CameraPosition => FixedCameraPosition;
 
@@ -378,6 +398,7 @@ namespace TheFall.Presentation.Match
 
             if (flow.Stage == FirstPlayableFlowStage.Match && _boundSessionNumber != flow.SessionNumber)
             {
+                _dealerSelectionSlots.Clear();
                 _presentationCpuTicks = 0;
                 _presentationPeakUpdateTicks = 0;
                 Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.Trace.InitialState);
@@ -431,6 +452,7 @@ namespace TheFall.Presentation.Match
             Snapshot = FirstPlayableTableSnapshot.Create(
                 _animationPlayer.RenderedState,
                 _animationPlayer.RenderedReferenceState);
+            ResolveActiveDealerSelectionSlot(sourcePositions);
             _inputAdapter?.SetCards(Snapshot.LocalHand);
             Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
             _animationVisualRevision = _animationPlayer.VisualRevision;
@@ -442,6 +464,7 @@ namespace TheFall.Presentation.Match
         private void FinishPresentationBatch()
         {
             _cardMotions.Clear();
+            ClearSpecialCardMotions();
             _dealerCardMotion = null;
             _pendingDealerSelectionInteractionIndex = null;
             DealerCardFlipDegrees = 0f;
@@ -568,6 +591,10 @@ namespace TheFall.Presentation.Match
                 if (rendered.PresentationCard.HasValue)
                 {
                     snapshot.Cards[rendered.PresentationCard.Value] = rendered.transform.position;
+                    snapshot.CardPoses[rendered.PresentationCard.Value] = new CardPose(
+                        rendered.transform.position,
+                        rendered.transform.localRotation,
+                        rendered.IsFaceUp);
                 }
 
                 if (rendered.Zone == FirstPlayableCardZone.Deck)
@@ -582,21 +609,51 @@ namespace TheFall.Presentation.Match
                 else if (rendered.Zone == FirstPlayableCardZone.DealerSpread)
                 {
                     snapshot.DealerSpreadPositions[rendered.InteractionIndex] = rendered.transform.position;
+                    snapshot.DealerSpreadSlots[rendered.InteractionIndex] = rendered.LayoutIndex;
                 }
             }
 
             return snapshot;
         }
 
+        private void ResolveActiveDealerSelectionSlot(CardPositionSnapshot source)
+        {
+            var step = _animationPlayer?.ActiveStep;
+            if (source == null
+                || step == null
+                || step.Kind != ResolvedAnimationStepKind.DealerSelection
+                || step.Cards.Count == 0
+                || _dealerSelectionSlots.ContainsKey(step.Cards[0])
+                || source.DealerSpreadSlots.Count == 0)
+            {
+                return;
+            }
+
+            var interactionIndex = _pendingDealerSelectionInteractionIndex
+                ?? source.DealerSpreadSlots.Count / 2;
+            if (!source.DealerSpreadSlots.TryGetValue(interactionIndex, out var slot))
+            {
+                foreach (var entry in source.DealerSpreadSlots)
+                {
+                    slot = entry.Value;
+                    break;
+                }
+            }
+
+            _dealerSelectionSlots[step.Cards[0]] = slot;
+        }
+
         private void PrepareCardMotions(CardPositionSnapshot source)
         {
             _cardMotions.Clear();
+            ClearSpecialCardMotions();
             _dealerCardMotion = null;
             DealerCardFlipDegrees = 0f;
             var step = _animationPlayer?.ActiveStep;
             if (source == null || step == null || _animationPlayer.IsDelayingActiveStep
                 || _animationPlayer.ActiveStepProgress <= 0f)
             {
+                RestoreSourceCardPoses(source);
                 return;
             }
 
@@ -611,6 +668,8 @@ namespace TheFall.Presentation.Match
             {
                 trajectory = _generatedRoot.TransformVector(trajectory);
             }
+
+            PrepareOpeningRejection(source, step, beat, trajectory);
 
             if (step.Kind == ResolvedAnimationStepKind.DealerSelection
                 && step.Cards.Count > 0)
@@ -658,8 +717,33 @@ namespace TheFall.Presentation.Match
                     continue;
                 }
 
-                AddCardMotion(rendered.transform, start, rendered.transform.position, beat, trajectory);
+                if (step.Kind == ResolvedAnimationStepKind.HandReflow
+                    && rendered.Zone != FirstPlayableCardZone.LocalHand
+                    && rendered.Zone != FirstPlayableCardZone.OpponentHand)
+                {
+                    rendered.transform.position = start;
+                    continue;
+                }
+
+                var target = rendered.transform.position;
+                if (step.Kind == ResolvedAnimationStepKind.CardPlay
+                    && step.Cards.Count >= 2
+                    && rendered.PresentationCard.Value == step.Cards[0]
+                    && source.Cards.TryGetValue(step.Cards[1], out var matchingPosition))
+                {
+                    var lift = _generatedRoot == null
+                        ? Vector3.up * 0.012f
+                        : _generatedRoot.TransformVector(Vector3.up * 0.012f);
+                    target = matchingPosition + lift;
+                }
+
+                AddCardMotion(rendered.transform, start, target, beat, trajectory);
             }
+
+            PrepareOpponentCardPlay(source, step, beat, trajectory);
+            PrepareCaptureMotions(source, step, beat, trajectory);
+            PrepareCascadeMotions(source, step, beat, trajectory);
+            PrepareLeftoverMotions(source, step, beat, trajectory);
 
             if (step.Kind == ResolvedAnimationStepKind.HandReflow
                 && step.PlayerId == Snapshot.OpponentPlayerId)
@@ -684,6 +768,7 @@ namespace TheFall.Presentation.Match
 
             if (!source.HasDeckPosition || step.Cards.Count == 0)
             {
+                UpdateActiveSpatialMotionKind(step);
                 return;
             }
 
@@ -709,6 +794,10 @@ namespace TheFall.Presentation.Match
                 if (target != null && !HasMotion(target.transform))
                 {
                     AddCardMotion(target.transform, source.DeckPosition, target.transform.position, beat, trajectory);
+                    if (step.PlayerId == Snapshot.LocalPlayerId)
+                    {
+                        PrepareFaceMotion(target, step.Cards[0], true, true);
+                    }
                 }
             }
             else if (step.Kind == ResolvedAnimationStepKind.OpeningPlacement)
@@ -717,7 +806,331 @@ namespace TheFall.Presentation.Match
                 if (target != null && !HasMotion(target.transform))
                 {
                     AddCardMotion(target.transform, source.DeckPosition, target.transform.position, beat, trajectory);
+                    PrepareFaceMotion(target, step.Cards[0], true, true);
                 }
+            }
+
+            UpdateActiveSpatialMotionKind(step);
+        }
+
+        private void RestoreSourceCardPoses(CardPositionSnapshot source)
+        {
+            if (source == null)
+            {
+                return;
+            }
+
+            for (var index = 0; index < _renderedCards.Count; index++)
+            {
+                var rendered = _renderedCards[index];
+                if (!rendered.PresentationCard.HasValue
+                    || !source.CardPoses.TryGetValue(
+                        rendered.PresentationCard.Value,
+                        out var pose))
+                {
+                    continue;
+                }
+
+                rendered.transform.position = pose.Position;
+                rendered.transform.localRotation = pose.LocalRotation;
+                rendered.SetFaceUp(pose.FaceUp);
+                var renderer = rendered.GetComponent<Renderer>();
+                if (pose.FaceUp)
+                {
+                    CardVisualMaterialBinding.Apply(
+                        renderer,
+                        _cardCatalog,
+                        rendered.PresentationCard.Value);
+                }
+                else
+                {
+                    renderer.sharedMaterial = _cardBackMaterial;
+                }
+            }
+        }
+
+        private void UpdateActiveSpatialMotionKind(ResolvedAnimationStep step)
+        {
+            ActiveSpatialMotionKind = _cardMotions.Count > 0
+                || _captureCardMotions.Count > 0
+                || _cascadeCardMotions.Count > 0
+                || _collectionCardMotions.Count > 0
+                || _dealerCardMotion != null
+                    ? step.Kind
+                    : (ResolvedAnimationStepKind?)null;
+        }
+
+        private void ClearSpecialCardMotions()
+        {
+            _cardFaceMotions.Clear();
+            _captureCardMotions.Clear();
+            _cascadeCardMotions.Clear();
+            _collectionCardMotions.Clear();
+            _deckSplitMotions.Clear();
+            ActiveCardFlipDegrees = 0f;
+            ActiveSpatialMotionKind = null;
+        }
+
+        private void PrepareFaceMotion(
+            FirstPlayableRenderedCard rendered,
+            Card card,
+            bool revealFace,
+            bool animateFlip)
+        {
+            if (rendered == null)
+            {
+                return;
+            }
+
+            var renderer = rendered.GetComponent<Renderer>();
+            var startDegrees = revealFace ? 0f : 180f;
+            var targetDegrees = animateFlip
+                ? revealFace ? 180f : 360f
+                : startDegrees;
+            ApplyCardFace(rendered, renderer, card, !revealFace, startDegrees);
+            _cardFaceMotions.Add(new CardFaceMotion(
+                rendered,
+                renderer,
+                card,
+                revealFace,
+                startDegrees,
+                targetDegrees));
+        }
+
+        private void PrepareOpeningRejection(
+            CardPositionSnapshot source,
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            Vector3 trajectory)
+        {
+            if (step.Kind != ResolvedAnimationStepKind.OpeningRejection
+                || !(step.SourceEvent is OpeningCardRejectedEvent rejected)
+                || step.Cards.Count == 0)
+            {
+                return;
+            }
+
+            var hasExistingStart = source.Cards.TryGetValue(step.Cards[0], out var existingStart);
+            var start = hasExistingStart
+                ? existingStart
+                : ResolveTableCardWorldPosition(rejected.TablePosition);
+            var insertionIndex = Mathf.Clamp(rejected.ReinsertedDeckIndex, 0, Snapshot.DeckCount - 1);
+            FirstPlayableRenderedCard target = null;
+            for (var index = 0; index < _renderedCards.Count; index++)
+            {
+                var rendered = _renderedCards[index];
+                if (rendered.Zone != FirstPlayableCardZone.Deck)
+                {
+                    continue;
+                }
+
+                if (rendered.InteractionIndex == insertionIndex)
+                {
+                    target = rendered;
+                }
+                else if (rendered.InteractionIndex >= insertionIndex)
+                {
+                    _deckSplitMotions.Add(new DeckSplitMotion(
+                        rendered.transform,
+                        rendered.transform.position));
+                }
+            }
+
+            if (target == null)
+            {
+                return;
+            }
+
+            target.Configure(
+                FirstPlayableCardZone.Deck,
+                false,
+                step.Cards[0],
+                target.InteractionIndex,
+                target.LayoutIndex);
+            if (!hasExistingStart)
+            {
+                AddCardMotion(target.transform, start, target.transform.position, beat, trajectory);
+            }
+
+            PrepareFaceMotion(target, step.Cards[0], false, true);
+        }
+
+        private void PrepareCaptureMotions(
+            CardPositionSnapshot source,
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            Vector3 trajectory)
+        {
+            if (step.Kind != ResolvedAnimationStepKind.NormalCapture
+                || step.Cards.Count < 2
+                || !source.Cards.TryGetValue(step.Cards[0], out var playedStart)
+                || !source.Cards.TryGetValue(step.Cards[1], out var matchingStart))
+            {
+                return;
+            }
+
+            var continuesToCascade = step.SourceEvent is CardsCapturedEvent captured
+                && captured.Cards.Count > 2;
+            var lift = _generatedRoot == null
+                ? Vector3.up * 0.012f
+                : _generatedRoot.TransformVector(Vector3.up * 0.012f);
+            for (var index = 0; index < 2; index++)
+            {
+                var card = step.Cards[index];
+                var rendered = FindRenderedCard(card);
+                if (rendered == null)
+                {
+                    continue;
+                }
+
+                var stack = matchingStart + (index == 0 ? lift : Vector3.zero);
+                var target = continuesToCascade ? stack : rendered.transform.position;
+                var start = index == 0 ? playedStart : matchingStart;
+                ApplyCardFace(rendered, rendered.GetComponent<Renderer>(), card, true, 180f);
+                rendered.transform.position = start;
+                _captureCardMotions.Add(new CaptureCardMotion(
+                    rendered,
+                    rendered.GetComponent<Renderer>(),
+                    card,
+                    start,
+                    stack,
+                    target,
+                    index == 0,
+                    continuesToCascade,
+                    beat?.Easing ?? AnimationBeatEasing.EaseInOut,
+                    trajectory));
+            }
+        }
+
+        private void PrepareOpponentCardPlay(
+            CardPositionSnapshot source,
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            Vector3 trajectory)
+        {
+            if (step.Kind != ResolvedAnimationStepKind.CardPlay
+                || step.PlayerId != Snapshot.OpponentPlayerId
+                || step.Cards.Count == 0)
+            {
+                return;
+            }
+
+            var priorHand = Snapshot.AuthoritativeState
+                .GetPlayer(Snapshot.OpponentPlayerId)
+                .Hand;
+            var handIndex = IndexOf(priorHand, step.Cards[0]);
+            var target = FindRenderedCard(step.Cards[0]);
+            if (handIndex < 0
+                || target == null
+                || !source.OpponentHandPositions.TryGetValue(handIndex, out var start))
+            {
+                return;
+            }
+
+            var targetPosition = target.transform.position;
+            if (step.Cards.Count >= 2
+                && source.Cards.TryGetValue(step.Cards[1], out var matchingPosition))
+            {
+                var lift = _generatedRoot == null
+                    ? Vector3.up * 0.012f
+                    : _generatedRoot.TransformVector(Vector3.up * 0.012f);
+                targetPosition = matchingPosition + lift;
+            }
+
+            AddCardMotion(target.transform, start, targetPosition, beat, trajectory);
+            PrepareFaceMotion(target, step.Cards[0], true, true);
+        }
+
+        private void PrepareCascadeMotions(
+            CardPositionSnapshot source,
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            Vector3 trajectory)
+        {
+            if (step.Kind != ResolvedAnimationStepKind.CascadeCapture
+                || !(step.SourceEvent is CardsCapturedEvent captured)
+                || step.Cards.Count == 0)
+            {
+                return;
+            }
+
+            var completesCapture = step.Cards.Count > 1;
+            var currentIndex = completesCapture
+                ? captured.Cards.Count - 1
+                : IndexOf(captured.Cards, step.Cards[0]);
+            if (currentIndex < 2)
+            {
+                return;
+            }
+
+            var currentCard = captured.Cards[currentIndex];
+            if (!source.Cards.TryGetValue(currentCard, out var currentPosition))
+            {
+                return;
+            }
+
+            var lift = _generatedRoot == null
+                ? Vector3.up * 0.012f
+                : _generatedRoot.TransformVector(Vector3.up * 0.012f);
+            for (var index = 0; index <= currentIndex; index++)
+            {
+                var card = captured.Cards[index];
+                var rendered = FindRenderedCard(card);
+                if (rendered == null || !source.Cards.TryGetValue(card, out var start))
+                {
+                    continue;
+                }
+
+                var target = completesCapture
+                    ? rendered.transform.position
+                    : currentPosition + lift * (currentIndex - index);
+                var stationaryTarget = !completesCapture && index == currentIndex;
+                ApplyCardFace(rendered, rendered.GetComponent<Renderer>(), card, true, 180f);
+                rendered.transform.position = start;
+                _cascadeCardMotions.Add(new CascadeCardMotion(
+                    rendered,
+                    rendered.GetComponent<Renderer>(),
+                    card,
+                    start,
+                    target,
+                    stationaryTarget,
+                    completesCapture,
+                    beat?.Easing ?? AnimationBeatEasing.EaseInOut,
+                    trajectory));
+            }
+        }
+
+        private void PrepareLeftoverMotions(
+            CardPositionSnapshot source,
+            ResolvedAnimationStep step,
+            AnimationBeatConfiguration beat,
+            Vector3 trajectory)
+        {
+            if (step.Kind != ResolvedAnimationStepKind.Leftovers)
+            {
+                return;
+            }
+
+            for (var index = 0; index < step.Cards.Count; index++)
+            {
+                var card = step.Cards[index];
+                var rendered = FindRenderedCard(card);
+                if (rendered == null || !source.Cards.TryGetValue(card, out var start))
+                {
+                    continue;
+                }
+
+                var target = rendered.transform.position;
+                ApplyCardFace(rendered, rendered.GetComponent<Renderer>(), card, true, 180f);
+                rendered.transform.position = start;
+                _collectionCardMotions.Add(new CollectionCardMotion(
+                    rendered,
+                    rendered.GetComponent<Renderer>(),
+                    card,
+                    start,
+                    target,
+                    beat?.Easing ?? AnimationBeatEasing.EaseInOut,
+                    trajectory));
             }
         }
 
@@ -764,6 +1177,12 @@ namespace TheFall.Presentation.Match
                 }
             }
 
+            ApplyFaceMotions(progress);
+            ApplyOpeningRejectionSplit(progress);
+            ApplyCaptureMotions(progress);
+            ApplyCascadeMotions(progress);
+            ApplyCollectionMotions(progress);
+
             if (_dealerCardMotion == null || _dealerCardMotion.Card == null)
             {
                 return;
@@ -782,18 +1201,194 @@ namespace TheFall.Presentation.Match
                 DealerCardFlipDegrees * dealerMotion.FlipDirection,
                 Vector3.forward);
             var isFaceUp = progress >= 0.5f;
-            dealerMotion.Card.SetFaceUp(isFaceUp);
-            if (isFaceUp)
+            if (dealerMotion.Card.IsFaceUp != isFaceUp)
             {
-                CardVisualMaterialBinding.Apply(
-                    dealerMotion.Renderer,
-                    _cardCatalog,
-                    dealerMotion.SelectedCard);
+                dealerMotion.Card.SetFaceUp(isFaceUp);
+                if (isFaceUp)
+                {
+                    CardVisualMaterialBinding.Apply(
+                        dealerMotion.Renderer,
+                        _cardCatalog,
+                        dealerMotion.SelectedCard);
+                }
+                else
+                {
+                    dealerMotion.Renderer.sharedMaterial = _cardBackMaterial;
+                }
+            }
+        }
+
+        private void ApplyFaceMotions(float progress)
+        {
+            if (_cardFaceMotions.Count == 0 || _animationPlayer.ActiveStep == null)
+            {
+                return;
+            }
+
+            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(
+                progress,
+                _animationPreset.GetBeat(_animationPlayer.ActiveStep.Kind)?.Easing
+                    ?? AnimationBeatEasing.EaseInOut);
+            for (var index = 0; index < _cardFaceMotions.Count; index++)
+            {
+                var motion = _cardFaceMotions[index];
+                var degrees = Mathf.LerpUnclamped(motion.StartDegrees, motion.TargetDegrees, eased);
+                ActiveCardFlipDegrees = degrees;
+                var faceUp = motion.RevealFace ? progress >= 0.5f : progress < 0.5f;
+                ApplyCardFace(motion.Card, motion.Renderer, motion.CardValue, faceUp, degrees);
+            }
+        }
+
+        private void ApplyOpeningRejectionSplit(float progress)
+        {
+            if (_deckSplitMotions.Count == 0)
+            {
+                return;
+            }
+
+            var splitOffset = (_generatedRoot == null
+                    ? new Vector3(0.055f, 0.035f, 0f)
+                    : _generatedRoot.TransformVector(new Vector3(0.055f, 0.035f, 0f)))
+                * Mathf.Sin(Mathf.Clamp01(progress) * Mathf.PI);
+            for (var index = 0; index < _deckSplitMotions.Count; index++)
+            {
+                var motion = _deckSplitMotions[index];
+                if (motion.Card != null)
+                {
+                    motion.Card.position = motion.Start + splitOffset;
+                }
+            }
+        }
+
+        private void ApplyCaptureMotions(float progress)
+        {
+            if (_captureCardMotions.Count == 0)
+            {
+                return;
+            }
+
+            var playProgress = Mathf.InverseLerp(0f, CapturePlayEndProgress, progress);
+            var isCollecting = progress >= CapturePickupStartProgress;
+            var captureProgress = Mathf.InverseLerp(CapturePickupStartProgress, 1f, progress);
+            for (var index = 0; index < _captureCardMotions.Count; index++)
+            {
+                var motion = _captureCardMotions[index];
+                if (!isCollecting)
+                {
+                    motion.Card.transform.position = motion.IsPlayedCard
+                        ? AnimationBeatEvaluator.EvaluatePosition(
+                            motion.Start,
+                            motion.Stack,
+                            playProgress,
+                            motion.Easing,
+                            motion.Trajectory * 0.55f)
+                        : motion.Stack;
+                }
+                else
+                {
+                    motion.Card.transform.position = motion.ContinuesToCascade
+                        ? motion.Stack
+                        : AnimationBeatEvaluator.EvaluatePosition(
+                            motion.Stack,
+                            motion.Target,
+                            captureProgress,
+                            motion.Easing,
+                            motion.Trajectory);
+                }
+
+                var captureEased = AnimationBeatEvaluator.EvaluateEasedProgress(
+                    captureProgress,
+                    motion.Easing);
+                var degrees = motion.ContinuesToCascade ? 180f : 180f + captureEased * 180f;
+                ActiveCardFlipDegrees = degrees;
+                var faceUp = motion.ContinuesToCascade || !isCollecting || captureProgress < 0.5f;
+                ApplyCardFace(motion.Card, motion.Renderer, motion.CardValue, faceUp, degrees);
+            }
+        }
+
+        private void ApplyCascadeMotions(float progress)
+        {
+            for (var index = 0; index < _cascadeCardMotions.Count; index++)
+            {
+                var motion = _cascadeCardMotions[index];
+                motion.Card.transform.position = motion.StationaryTarget
+                    ? motion.Target
+                    : AnimationBeatEvaluator.EvaluatePosition(
+                        motion.Start,
+                        motion.Target,
+                        progress,
+                        motion.Easing,
+                        motion.Trajectory);
+                var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, motion.Easing);
+                var degrees = motion.CompletesCapture ? 180f + eased * 180f : 180f;
+                ActiveCardFlipDegrees = degrees;
+                ApplyCardFace(
+                    motion.Card,
+                    motion.Renderer,
+                    motion.CardValue,
+                    !motion.CompletesCapture || progress < 0.5f,
+                    degrees);
+            }
+        }
+
+        private void ApplyCollectionMotions(float progress)
+        {
+            for (var index = 0; index < _collectionCardMotions.Count; index++)
+            {
+                var motion = _collectionCardMotions[index];
+                motion.Card.transform.position = AnimationBeatEvaluator.EvaluatePosition(
+                    motion.Start,
+                    motion.Target,
+                    progress,
+                    motion.Easing,
+                    motion.Trajectory);
+                var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, motion.Easing);
+                var degrees = 180f + eased * 180f;
+                ActiveCardFlipDegrees = degrees;
+                ApplyCardFace(
+                    motion.Card,
+                    motion.Renderer,
+                    motion.CardValue,
+                    progress < 0.5f,
+                    degrees);
+            }
+        }
+
+        private void ApplyCardFace(
+            FirstPlayableRenderedCard rendered,
+            Renderer renderer,
+            Card card,
+            bool faceUp,
+            float flipDegrees)
+        {
+            rendered.transform.localRotation = Quaternion.AngleAxis(flipDegrees, Vector3.forward);
+            if (rendered.IsFaceUp == faceUp)
+            {
+                return;
+            }
+
+            rendered.SetFaceUp(faceUp);
+            if (faceUp)
+            {
+                CardVisualMaterialBinding.Apply(renderer, _cardCatalog, card);
             }
             else
             {
-                dealerMotion.Renderer.sharedMaterial = _cardBackMaterial;
+                renderer.sharedMaterial = _cardBackMaterial;
             }
+        }
+
+        private static int IndexOf(IReadOnlyList<Card> cards, Card expected)
+        {
+            for (var index = 0; index < cards.Count; index++)
+            {
+                if (cards[index] == expected)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
         }
 
         public bool TryGetActiveDealerSelectionMotion(out AnimationMotionPreview preview)
@@ -985,9 +1580,21 @@ namespace TheFall.Presentation.Match
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.DealerSpreadAnchor, "Dealer Spread Zone");
             var totalCount = hiddenCount + revealedCards.Count;
             var revealedSlots = new Dictionary<int, Card>();
+            var occupiedSlots = new HashSet<int>();
             for (var index = 0; index < revealedCards.Count; index++)
             {
-                revealedSlots[GetDealerSelectionSlot(totalCount, index)] = revealedCards[index];
+                var card = revealedCards[index];
+                var slot = _dealerSelectionSlots.TryGetValue(card, out var retainedSlot)
+                    ? retainedSlot
+                    : GetDealerSelectionSlot(totalCount, index);
+                while (occupiedSlots.Contains(slot) && slot + 1 < totalCount)
+                {
+                    slot++;
+                }
+
+                occupiedSlots.Add(slot);
+                _dealerSelectionSlots[card] = slot;
+                revealedSlots[slot] = card;
             }
 
             var interactionIndex = 0;
@@ -1008,6 +1615,8 @@ namespace TheFall.Presentation.Match
                         FirstPlayableCardZone.DealerSelection,
                         true,
                         revealedCard,
+                        slot,
+                        false,
                         slot);
                     continue;
                 }
@@ -1018,7 +1627,8 @@ namespace TheFall.Presentation.Match
                     false,
                     null,
                     interactionIndex++,
-                    true);
+                    true,
+                    slot);
             }
         }
 
@@ -1042,6 +1652,7 @@ namespace TheFall.Presentation.Match
         private void CreateTableCards(Transform parent, IReadOnlyList<Card> cards)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.TableCardsAnchor, "Table Cards Zone");
+            _tableCardsRuntimeAnchor = zoneParent;
             for (var index = 0; index < cards.Count; index++)
             {
                 var row = index / 5;
@@ -1050,6 +1661,19 @@ namespace TheFall.Presentation.Match
                     new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f),
                     FirstPlayableCardZone.Table, true, cards[index], index);
             }
+        }
+
+        private Vector3 ResolveTableCardWorldPosition(int index)
+        {
+            if (_tableCardsRuntimeAnchor == null)
+            {
+                return _generatedRoot == null ? Vector3.zero : _generatedRoot.position;
+            }
+
+            var row = index / 5;
+            var column = index % 5;
+            return _tableCardsRuntimeAnchor.TransformPoint(
+                new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f));
         }
 
         private void CreateLocalHand(
@@ -1088,7 +1712,12 @@ namespace TheFall.Presentation.Match
                 var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.25f;
                 CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
                     new Vector3(-x, 0f, 0f),
-                    FirstPlayableCardZone.OpponentHand, false, null, index);
+                    FirstPlayableCardZone.OpponentHand,
+                    false,
+                    null,
+                    index,
+                    false,
+                    layoutIndex);
             }
         }
 
@@ -1117,7 +1746,8 @@ namespace TheFall.Presentation.Match
             bool faceUp,
             Card? card,
             int handIndex = -1,
-            bool interactive = false)
+            bool interactive = false,
+            int layoutIndex = -1)
         {
             var cardObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cardObject.name = name;
@@ -1148,7 +1778,7 @@ namespace TheFall.Presentation.Match
             }
 
             var rendered = cardObject.AddComponent<FirstPlayableRenderedCard>();
-            rendered.Configure(zone, faceUp, card, handIndex);
+            rendered.Configure(zone, faceUp, card, handIndex, layoutIndex);
             _renderedCards.Add(rendered);
             return rendered;
         }
@@ -1478,6 +2108,7 @@ namespace TheFall.Presentation.Match
             _cardMotions.Clear();
             _renderedCards.Clear();
             _localHandViews.Clear();
+            _tableCardsRuntimeAnchor = null;
             if (_generatedRoot != null)
             {
                 DestroyGeneratedObject(_generatedRoot.gameObject);
@@ -1545,15 +2176,37 @@ namespace TheFall.Presentation.Match
         {
             public Dictionary<Card, Vector3> Cards { get; } = new Dictionary<Card, Vector3>();
 
+            public Dictionary<Card, CardPose> CardPoses { get; } =
+                new Dictionary<Card, CardPose>();
+
             public Dictionary<int, Vector3> OpponentHandPositions { get; } =
                 new Dictionary<int, Vector3>();
 
             public Dictionary<int, Vector3> DealerSpreadPositions { get; } =
                 new Dictionary<int, Vector3>();
 
+            public Dictionary<int, int> DealerSpreadSlots { get; } =
+                new Dictionary<int, int>();
+
             public bool HasDeckPosition { get; set; }
 
             public Vector3 DeckPosition { get; set; }
+        }
+
+        private readonly struct CardPose
+        {
+            public CardPose(Vector3 position, Quaternion localRotation, bool faceUp)
+            {
+                Position = position;
+                LocalRotation = localRotation;
+                FaceUp = faceUp;
+            }
+
+            public Vector3 Position { get; }
+
+            public Quaternion LocalRotation { get; }
+
+            public bool FaceUp { get; }
         }
 
         private readonly struct CardMotion
@@ -1620,6 +2273,175 @@ namespace TheFall.Presentation.Match
             public Vector3 Trajectory { get; }
 
             public float FlipDirection { get; }
+        }
+
+        private sealed class CardFaceMotion
+        {
+            public CardFaceMotion(
+                FirstPlayableRenderedCard card,
+                Renderer renderer,
+                Card cardValue,
+                bool revealFace,
+                float startDegrees,
+                float targetDegrees)
+            {
+                Card = card;
+                Renderer = renderer;
+                CardValue = cardValue;
+                RevealFace = revealFace;
+                StartDegrees = startDegrees;
+                TargetDegrees = targetDegrees;
+            }
+
+            public FirstPlayableRenderedCard Card { get; }
+
+            public Renderer Renderer { get; }
+
+            public Card CardValue { get; }
+
+            public bool RevealFace { get; }
+
+            public float StartDegrees { get; }
+
+            public float TargetDegrees { get; }
+        }
+
+        private sealed class CaptureCardMotion
+        {
+            public CaptureCardMotion(
+                FirstPlayableRenderedCard card,
+                Renderer renderer,
+                Card cardValue,
+                Vector3 start,
+                Vector3 stack,
+                Vector3 target,
+                bool isPlayedCard,
+                bool continuesToCascade,
+                AnimationBeatEasing easing,
+                Vector3 trajectory)
+            {
+                Card = card;
+                Renderer = renderer;
+                CardValue = cardValue;
+                Start = start;
+                Stack = stack;
+                Target = target;
+                IsPlayedCard = isPlayedCard;
+                ContinuesToCascade = continuesToCascade;
+                Easing = easing;
+                Trajectory = trajectory;
+            }
+
+            public FirstPlayableRenderedCard Card { get; }
+
+            public Renderer Renderer { get; }
+
+            public Card CardValue { get; }
+
+            public Vector3 Start { get; }
+
+            public Vector3 Stack { get; }
+
+            public Vector3 Target { get; }
+
+            public bool IsPlayedCard { get; }
+
+            public bool ContinuesToCascade { get; }
+
+            public AnimationBeatEasing Easing { get; }
+
+            public Vector3 Trajectory { get; }
+        }
+
+        private sealed class CascadeCardMotion
+        {
+            public CascadeCardMotion(
+                FirstPlayableRenderedCard card,
+                Renderer renderer,
+                Card cardValue,
+                Vector3 start,
+                Vector3 target,
+                bool stationaryTarget,
+                bool completesCapture,
+                AnimationBeatEasing easing,
+                Vector3 trajectory)
+            {
+                Card = card;
+                Renderer = renderer;
+                CardValue = cardValue;
+                Start = start;
+                Target = target;
+                StationaryTarget = stationaryTarget;
+                CompletesCapture = completesCapture;
+                Easing = easing;
+                Trajectory = trajectory;
+            }
+
+            public FirstPlayableRenderedCard Card { get; }
+
+            public Renderer Renderer { get; }
+
+            public Card CardValue { get; }
+
+            public Vector3 Start { get; }
+
+            public Vector3 Target { get; }
+
+            public bool StationaryTarget { get; }
+
+            public bool CompletesCapture { get; }
+
+            public AnimationBeatEasing Easing { get; }
+
+            public Vector3 Trajectory { get; }
+        }
+
+        private sealed class CollectionCardMotion
+        {
+            public CollectionCardMotion(
+                FirstPlayableRenderedCard card,
+                Renderer renderer,
+                Card cardValue,
+                Vector3 start,
+                Vector3 target,
+                AnimationBeatEasing easing,
+                Vector3 trajectory)
+            {
+                Card = card;
+                Renderer = renderer;
+                CardValue = cardValue;
+                Start = start;
+                Target = target;
+                Easing = easing;
+                Trajectory = trajectory;
+            }
+
+            public FirstPlayableRenderedCard Card { get; }
+
+            public Renderer Renderer { get; }
+
+            public Card CardValue { get; }
+
+            public Vector3 Start { get; }
+
+            public Vector3 Target { get; }
+
+            public AnimationBeatEasing Easing { get; }
+
+            public Vector3 Trajectory { get; }
+        }
+
+        private readonly struct DeckSplitMotion
+        {
+            public DeckSplitMotion(Transform card, Vector3 start)
+            {
+                Card = card;
+                Start = start;
+            }
+
+            public Transform Card { get; }
+
+            public Vector3 Start { get; }
         }
     }
 }
