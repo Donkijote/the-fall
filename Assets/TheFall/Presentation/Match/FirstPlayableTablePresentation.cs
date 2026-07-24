@@ -29,6 +29,8 @@ namespace TheFall.Presentation.Match
 
         private static readonly Color Lampblack = FromHex(0x241A14);
         private static readonly Color Brass = FromHex(0xB58B3E);
+        private const float DealerFlipLift = 0.13f;
+        private const float DealerSelectedRestHeight = 0.015f;
 
         [SerializeField] private Camera _gameplayCamera;
         [SerializeField] private GameObject _tablePrototypePrefab;
@@ -40,6 +42,8 @@ namespace TheFall.Presentation.Match
         private readonly List<FirstPlayableRenderedCard> _renderedCards = new List<FirstPlayableRenderedCard>();
         private readonly List<PrototypeCardView> _localHandViews = new List<PrototypeCardView>();
         private readonly List<CardMotion> _cardMotions = new List<CardMotion>();
+        private DealerCardMotion _dealerCardMotion;
+        private int? _pendingDealerSelectionInteractionIndex;
         private FirstPlayableFlowController _flowController;
         private FirstPlayableAnimationPlayer _animationPlayer;
         private FirstPlayableAudioPresenter _audioPresenter;
@@ -102,6 +106,8 @@ namespace TheFall.Presentation.Match
         public TableCompositionProfile CurrentProfile { get; private set; }
 
         public int LayoutRevision { get; private set; }
+
+        public float DealerCardFlipDegrees { get; private set; }
 
         public static Vector3 CameraPosition => FixedCameraPosition;
 
@@ -319,7 +325,14 @@ namespace TheFall.Presentation.Match
 
                 if (dealerCardIndex++ == interactionIndex)
                 {
-                    return _flowController.SubmitHumanIntent(dealerCard);
+                    _pendingDealerSelectionInteractionIndex = interactionIndex;
+                    var accepted = _flowController.SubmitHumanIntent(dealerCard);
+                    if (!accepted)
+                    {
+                        _pendingDealerSelectionInteractionIndex = null;
+                    }
+
+                    return accepted;
                 }
             }
 
@@ -429,6 +442,9 @@ namespace TheFall.Presentation.Match
         private void FinishPresentationBatch()
         {
             _cardMotions.Clear();
+            _dealerCardMotion = null;
+            _pendingDealerSelectionInteractionIndex = null;
+            DealerCardFlipDegrees = 0f;
             _presentedStep = null;
             var flow = _flowController?.Flow;
             if (flow?.Match != null)
@@ -563,6 +579,10 @@ namespace TheFall.Presentation.Match
                 {
                     snapshot.OpponentHandPositions[rendered.InteractionIndex] = rendered.transform.position;
                 }
+                else if (rendered.Zone == FirstPlayableCardZone.DealerSpread)
+                {
+                    snapshot.DealerSpreadPositions[rendered.InteractionIndex] = rendered.transform.position;
+                }
             }
 
             return snapshot;
@@ -571,6 +591,8 @@ namespace TheFall.Presentation.Match
         private void PrepareCardMotions(CardPositionSnapshot source)
         {
             _cardMotions.Clear();
+            _dealerCardMotion = null;
+            DealerCardFlipDegrees = 0f;
             var step = _animationPlayer?.ActiveStep;
             if (source == null || step == null || _animationPlayer.IsDelayingActiveStep
                 || _animationPlayer.ActiveStepProgress <= 0f)
@@ -588,6 +610,36 @@ namespace TheFall.Presentation.Match
             if (_generatedRoot != null)
             {
                 trajectory = _generatedRoot.TransformVector(trajectory);
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.DealerSelection
+                && step.Cards.Count > 0)
+            {
+                var target = FindRenderedCard(step.Cards[0]);
+                if (target != null
+                    && TryResolveDealerSelectionStart(source, out var dealerStart))
+                {
+                    var liftScale = _animationPlayer.ReducedMotion
+                        ? _animationPreset.ReducedMotionTrajectoryScale
+                        : 1f;
+                    var lift = _generatedRoot == null
+                        ? Vector3.up * DealerFlipLift * liftScale
+                        : _generatedRoot.TransformVector(Vector3.up * DealerFlipLift * liftScale);
+                    _dealerCardMotion = new DealerCardMotion(
+                        target,
+                        target.GetComponent<Renderer>(),
+                        step.Cards[0],
+                        dealerStart,
+                        target.transform.position,
+                        beat?.Easing ?? AnimationBeatEasing.EaseInOut,
+                        trajectory + lift,
+                        step.PlayerId == Snapshot.LocalPlayerId ? 1f : -1f);
+                    target.transform.position = dealerStart;
+                    target.transform.localRotation = Quaternion.identity;
+                    target.SetFaceUp(false);
+                    target.GetComponent<Renderer>().sharedMaterial = _cardBackMaterial;
+                    _pendingDealerSelectionInteractionIndex = null;
+                }
             }
 
             for (var index = 0; index < _renderedCards.Count; index++)
@@ -692,7 +744,7 @@ namespace TheFall.Presentation.Match
 
         private void ApplyCardMotions()
         {
-            if (_animationPlayer == null || _cardMotions.Count == 0)
+            if (_animationPlayer == null)
             {
                 return;
             }
@@ -711,6 +763,86 @@ namespace TheFall.Presentation.Match
                         motion.Trajectory);
                 }
             }
+
+            if (_dealerCardMotion == null || _dealerCardMotion.Card == null)
+            {
+                return;
+            }
+
+            var dealerMotion = _dealerCardMotion;
+            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(progress, dealerMotion.Easing);
+            DealerCardFlipDegrees = eased * 180f;
+            dealerMotion.Card.transform.position = AnimationBeatEvaluator.EvaluatePosition(
+                dealerMotion.Start,
+                dealerMotion.Target,
+                progress,
+                dealerMotion.Easing,
+                dealerMotion.Trajectory);
+            dealerMotion.Card.transform.localRotation = Quaternion.AngleAxis(
+                DealerCardFlipDegrees * dealerMotion.FlipDirection,
+                Vector3.forward);
+            var isFaceUp = progress >= 0.5f;
+            dealerMotion.Card.SetFaceUp(isFaceUp);
+            if (isFaceUp)
+            {
+                CardVisualMaterialBinding.Apply(
+                    dealerMotion.Renderer,
+                    _cardCatalog,
+                    dealerMotion.SelectedCard);
+            }
+            else
+            {
+                dealerMotion.Renderer.sharedMaterial = _cardBackMaterial;
+            }
+        }
+
+        public bool TryGetActiveDealerSelectionMotion(out AnimationMotionPreview preview)
+        {
+            if (_dealerCardMotion == null || _generatedRoot == null)
+            {
+                preview = default;
+                return false;
+            }
+
+            preview = new AnimationMotionPreview(
+                _dealerCardMotion.Start,
+                _dealerCardMotion.Target,
+                _generatedRoot);
+            return true;
+        }
+
+        private bool TryResolveDealerSelectionStart(
+            CardPositionSnapshot source,
+            out Vector3 position)
+        {
+            if (_pendingDealerSelectionInteractionIndex.HasValue
+                && source.DealerSpreadPositions.TryGetValue(
+                    _pendingDealerSelectionInteractionIndex.Value,
+                    out position))
+            {
+                return true;
+            }
+
+            if (source.DealerSpreadPositions.Count == 0)
+            {
+                position = default;
+                return false;
+            }
+
+            var fallbackIndex = source.DealerSpreadPositions.Count / 2;
+            if (source.DealerSpreadPositions.TryGetValue(fallbackIndex, out position))
+            {
+                return true;
+            }
+
+            foreach (var entry in source.DealerSpreadPositions)
+            {
+                position = entry.Value;
+                return true;
+            }
+
+            position = default;
+            return false;
         }
 
         private FirstPlayableRenderedCard FindRenderedCard(Card card)
@@ -820,7 +952,10 @@ namespace TheFall.Presentation.Match
         {
             if (Snapshot.Phase == MatchPhase.DealerSelection)
             {
-                CreateDealerSpread(parent, Snapshot.DealerSpreadCount);
+                CreateDealerSpread(
+                    parent,
+                    Snapshot.DealerSpreadCount,
+                    Snapshot.DealerSelectionCards);
             }
             else
             {
@@ -842,17 +977,55 @@ namespace TheFall.Presentation.Match
             CreateCapturedPile(parent, Snapshot.OpponentCapturedCards, FirstPlayableCardZone.OpponentCaptured);
         }
 
-        private void CreateDealerSpread(Transform parent, int count)
+        private void CreateDealerSpread(
+            Transform parent,
+            int hiddenCount,
+            IReadOnlyList<Card> revealedCards)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.DealerSpreadAnchor, "Dealer Spread Zone");
-            for (var index = 0; index < count; index++)
+            var totalCount = hiddenCount + revealedCards.Count;
+            var revealedSlots = new Dictionary<int, Card>();
+            for (var index = 0; index < revealedCards.Count; index++)
             {
-                var row = index / 8;
-                var column = index % 8;
-                CreateCard(zoneParent, $"Face-down Dealer Card {index + 1}",
-                    new Vector3((column - 3.5f) * 0.17f, row * 0.002f, (row - 2f) * 0.21f),
-                    FirstPlayableCardZone.DealerSpread, false, null, index, true);
+                revealedSlots[GetDealerSelectionSlot(totalCount, index)] = revealedCards[index];
             }
+
+            var interactionIndex = 0;
+            for (var slot = 0; slot < totalCount; slot++)
+            {
+                var row = slot / 8;
+                var column = slot % 8;
+                var position = new Vector3(
+                    (column - 3.5f) * 0.17f,
+                    row * 0.002f,
+                    (row - 2f) * 0.21f);
+                if (revealedSlots.TryGetValue(slot, out var revealedCard))
+                {
+                    CreateCard(
+                        zoneParent,
+                        $"Revealed Dealer Card {revealedCard}",
+                        position + Vector3.up * DealerSelectedRestHeight,
+                        FirstPlayableCardZone.DealerSelection,
+                        true,
+                        revealedCard,
+                        slot);
+                    continue;
+                }
+
+                CreateCard(zoneParent, $"Face-down Dealer Card {slot + 1}",
+                    position,
+                    FirstPlayableCardZone.DealerSpread,
+                    false,
+                    null,
+                    interactionIndex++,
+                    true);
+            }
+        }
+
+        private static int GetDealerSelectionSlot(int totalCount, int selectionIndex)
+        {
+            var firstSlot = Math.Max(0, (totalCount - 1) / 2);
+            return Mathf.Clamp(firstSlot + selectionIndex, 0, Math.Max(0, totalCount - 1));
         }
 
         private void CreateDeck(Transform parent, int count)
@@ -952,7 +1125,9 @@ namespace TheFall.Presentation.Match
             cardObject.transform.SetParent(parent, false);
             cardObject.transform.localPosition = position;
             cardObject.transform.localRotation = faceUp
-                ? Quaternion.Euler(0f, 180f, 0f)
+                ? zone == FirstPlayableCardZone.DealerSelection
+                    ? Quaternion.AngleAxis(180f, Vector3.forward)
+                    : Quaternion.Euler(0f, 180f, 0f)
                 : Quaternion.identity;
             cardObject.transform.localScale = _authoredLayout.CardScale;
 
@@ -1373,6 +1548,9 @@ namespace TheFall.Presentation.Match
             public Dictionary<int, Vector3> OpponentHandPositions { get; } =
                 new Dictionary<int, Vector3>();
 
+            public Dictionary<int, Vector3> DealerSpreadPositions { get; } =
+                new Dictionary<int, Vector3>();
+
             public bool HasDeckPosition { get; set; }
 
             public Vector3 DeckPosition { get; set; }
@@ -1403,6 +1581,45 @@ namespace TheFall.Presentation.Match
             public AnimationBeatEasing Easing { get; }
 
             public Vector3 Trajectory { get; }
+        }
+
+        private sealed class DealerCardMotion
+        {
+            public DealerCardMotion(
+                FirstPlayableRenderedCard card,
+                Renderer renderer,
+                Card selectedCard,
+                Vector3 start,
+                Vector3 target,
+                AnimationBeatEasing easing,
+                Vector3 trajectory,
+                float flipDirection)
+            {
+                Card = card;
+                Renderer = renderer;
+                SelectedCard = selectedCard;
+                Start = start;
+                Target = target;
+                Easing = easing;
+                Trajectory = trajectory;
+                FlipDirection = flipDirection;
+            }
+
+            public FirstPlayableRenderedCard Card { get; }
+
+            public Renderer Renderer { get; }
+
+            public Card SelectedCard { get; }
+
+            public Vector3 Start { get; }
+
+            public Vector3 Target { get; }
+
+            public AnimationBeatEasing Easing { get; }
+
+            public Vector3 Trajectory { get; }
+
+            public float FlipDirection { get; }
         }
     }
 }

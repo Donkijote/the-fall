@@ -58,6 +58,26 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void DealerSelectionSnapshotExposesOnlyRevealedCardsAndTheOpaqueRemainderCount()
+        {
+            var match = CreateMatch(2527);
+            var selected = match.GetHumanLegalIntents().OfType<SelectDealerCardIntent>().Skip(3).First();
+
+            var result = match.SubmitHumanIntent(selected);
+            var snapshot = FirstPlayableTableSnapshot.Create(result.HumanResult.State);
+
+            Assert.That(result.HumanResult.IsAccepted, Is.True);
+            Assert.That(snapshot.DealerSelectionCards, Is.EqualTo(result.HumanResult.State.DealerSelectionCards));
+            Assert.That(snapshot.DealerSelectionCards, Does.Contain(selected.Card));
+            Assert.That(snapshot.DealerSpreadCount,
+                Is.EqualTo(result.HumanResult.State.Phase == MatchPhase.DealerSelection
+                    ? result.HumanResult.State.Deck.Count
+                    : 0));
+            Assert.That(snapshot.DealerSelectionCards.Count + result.HumanResult.State.Deck.Count,
+                Is.EqualTo(40));
+        }
+
+        [Test]
         public void CompleteMatchSnapshotsAlwaysReferenceTheResultingAuthoritativeState()
         {
             var match = CreateMatch(2526);

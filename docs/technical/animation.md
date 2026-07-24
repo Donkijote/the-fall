@@ -115,7 +115,7 @@ Every first-playable event has either spatial motion or an explicit semantic tre
 
 | Resolved outcome | Runtime treatment |
 | --- | --- |
-| match start; dealer card selection, tie, dealer result, and shuffle | dealer-spread state change plus localized plain-text event |
+| match start; dealer card selection, tie, dealer result, and shuffle | selected dealer card lifts from its opaque spread slot, flips face up along the configured path, and remains revealed; tie/result/shuffle also retain localized plain-text events |
 | dealer choice and deal start | localized plain text plus round/deal metadata update |
 | card dealt | configured deck-to-hand motion, including face-down opponent cards |
 | opening rejection | configured semantic rejection cue; rejected card remains in the deck prefix |
@@ -158,6 +158,13 @@ Trajectory and easing affect transient card movement only. Emphasis affects the 
 
 The isolated dealer-card selection begins with the complete forty-card spread face down. The selected position uses separate back and face surfaces, lifts from the table, rotates 180 degrees around its long edge, and remains face up among the other anonymous cards. Previously selected dealer cards remain revealed through tie rounds while the unselected spread stays opaque.
 The revealed card rests above every face-down row so its complete face remains readable. The workbench Animation button always performs a one-shot preview and leaves this resolved pose in place; pressing Animation again restarts the preview, while Reset explicitly returns to the initial spread.
+
+The integrated `Home` table applies the same treatment to each accepted dealer-card event. A human
+selection starts at the exact face-down slot that was activated; an automatic opponent selection uses
+a deterministic opaque slot because the hidden card-to-slot mapping is not presentation state. Both
+paths use the saved Dealer Selection duration, delay, easing, trajectory, fast-forward, and
+reduced-motion values. Revealed identities are public after the event, while every unselected card
+remains represented only by an anonymous count and card back.
 
 The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards retain fixed three-card slots throughout both motions, so only the incoming card moves and the opponent's identities remain opaque.
 

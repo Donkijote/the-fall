@@ -92,8 +92,40 @@ namespace TheFall.Tests.PlayMode
             Assert.That(dealerCards.All(card => card.GetComponent<Collider>() != null), Is.True);
 
             var expectedDealerCard = dealerIntents[3].Card;
+            var expectedMotionStart = dealerCards[3].transform.position;
             Assert.That(table.ActivateDealerCard(3), Is.True);
             Assert.That(table.IsPresentationBusy, Is.True);
+            var deadline = Time.realtimeSinceStartup + 5f;
+            while ((!table.TryGetActiveDealerSelectionMotion(out _)
+                    || table.AnimationPlayer.ActiveStepProgress < 0.1f)
+                && table.IsPresentationBusy
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(table.TryGetActiveDealerSelectionMotion(out var dealerMotion), Is.True);
+            Assert.That(Vector3.Distance(dealerMotion.StartWorld, expectedMotionStart), Is.LessThan(0.0001f));
+            Assert.That(Vector3.Distance(dealerMotion.StartWorld, dealerMotion.TargetWorld), Is.GreaterThan(0.01f));
+            var revealedCard = table.RenderedCards
+                .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
+            var earlyPosition = revealedCard.transform.position;
+            var earlyFlip = table.DealerCardFlipDegrees;
+            Assert.That(earlyFlip, Is.GreaterThan(0f).And.LessThan(90f));
+            Assert.That(revealedCard.IsFaceUp, Is.False);
+            Assert.That(revealedCard.Card, Is.Null);
+
+            while (table.AnimationPlayer.ActiveStepProgress < 0.65f
+                && table.IsPresentationBusy
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(table.DealerCardFlipDegrees, Is.GreaterThan(90f).And.LessThan(180f));
+            Assert.That(Vector3.Distance(revealedCard.transform.position, earlyPosition), Is.GreaterThan(0.005f));
+            Assert.That(revealedCard.IsFaceUp, Is.True);
+            Assert.That(revealedCard.Card, Is.EqualTo(expectedDealerCard));
             table.SkipPresentation();
             Assert.That(controller.Flow.Match.Trace.IntentHistory
                 .Last(record => record.Actor == IntentActor.Human).Intent,
@@ -252,6 +284,12 @@ namespace TheFall.Tests.PlayMode
             Assert.That(opponentCaptured.All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.DealerSpread),
                 Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0));
+            Assert.That(table.RenderedCards
+                    .Where(card => card.Zone == FirstPlayableCardZone.DealerSelection)
+                    .Select(card => card.Card.Value),
+                Is.EqualTo(state.Phase == MatchPhase.DealerSelection
+                    ? state.DealerSelectionCards
+                    : System.Array.Empty<Card>()));
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.Deck),
                 Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? 0 : state.Deck.Count));
             Assert.That(table.Snapshot.Cantos.Count, Is.EqualTo(state.CantoAnnouncements.Count));

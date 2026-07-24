@@ -6,6 +6,7 @@ namespace TheFall.Presentation.Match
     public enum FirstPlayableCardZone
     {
         DealerSpread,
+        DealerSelection,
         Deck,
         Table,
         LocalHand,
@@ -38,6 +39,12 @@ namespace TheFall.Presentation.Match
             Card = isFaceUp ? card : null;
             PresentationCard = card;
             InteractionIndex = interactionIndex;
+        }
+
+        internal void SetFaceUp(bool isFaceUp)
+        {
+            IsFaceUp = isFaceUp;
+            Card = isFaceUp ? PresentationCard : null;
         }
     }
 }

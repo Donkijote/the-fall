@@ -30,6 +30,7 @@ namespace TheFall.Presentation.Match
         private readonly IReadOnlyList<Card> _tableCards;
         private readonly IReadOnlyList<Card> _localCapturedCards;
         private readonly IReadOnlyList<Card> _opponentCapturedCards;
+        private readonly IReadOnlyList<Card> _dealerSelectionCards;
         private readonly IReadOnlyList<FirstPlayableCantoView> _cantos;
 
         private FirstPlayableTableSnapshot(MatchState state)
@@ -51,6 +52,7 @@ namespace TheFall.Presentation.Match
             _tableCards = Copy(state.Table);
             _localCapturedCards = Copy(local.CapturedCards);
             _opponentCapturedCards = Copy(opponent.CapturedCards);
+            _dealerSelectionCards = Copy(state.DealerSelectionCards);
             DealerSpreadCount = state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0;
             DeckCount = state.Deck.Count;
             DealerSeat = state.DealerSeat;
@@ -114,6 +116,7 @@ namespace TheFall.Presentation.Match
             _tableCards = Copy(state.Table);
             _localCapturedCards = Copy(state.GetCaptured(local.Id));
             _opponentCapturedCards = Copy(state.GetCaptured(opponent.Id));
+            _dealerSelectionCards = Copy(state.DealerSelectionCards);
             DealerSpreadCount = state.DealerSpreadCount;
             DeckCount = state.DeckCount;
             DealerSeat = state.DealerSeat;
@@ -164,6 +167,8 @@ namespace TheFall.Presentation.Match
         public IReadOnlyList<Card> LocalCapturedCards => _localCapturedCards;
 
         public IReadOnlyList<Card> OpponentCapturedCards => _opponentCapturedCards;
+
+        public IReadOnlyList<Card> DealerSelectionCards => _dealerSelectionCards;
 
         public int DealerSpreadCount { get; }
 
