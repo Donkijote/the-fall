@@ -119,7 +119,11 @@ namespace TheFall.Tests.EditMode
 
             Assert.That(before.TableLayoutIndices, Is.EqualTo(new[] { 0, 1, 2 }));
             Assert.That(afterCapture.TableLayoutIndices, Is.EqualTo(new[] { 0, 2 }));
-            Assert.That(afterPlacement.TableLayoutIndices, Is.EqualTo(new[] { 0, 2, 3 }));
+            Assert.That(afterPlacement.TableLayoutIndices, Is.EqualTo(new[] { 0, 2, 1 }));
+            Assert.That(
+                afterPlacement.TableLayoutIndices,
+                Has.All.InRange(0, FirstPlayableTableSnapshot.TableLayoutCapacity - 1));
+            Assert.That(afterPlacement.ResolveAvailableTableLayoutIndex(), Is.EqualTo(3));
         }
 
         [Test]

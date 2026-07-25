@@ -137,6 +137,9 @@ namespace TheFall.Presentation.Animation
 
         public bool ActiveDealCardIsFaceUp => _view?.ActiveDealCardIsFaceUp ?? false;
 
+        public bool ActiveDealCardFaceSurfaceVisible =>
+            _view?.ActiveDealCardFaceSurfaceVisible ?? false;
+
         public float DealCardFlipDegrees => _view?.DealCardFlipDegrees ?? 0f;
 
         public bool ActiveDeckCardIsFaceUp => _view?.ActiveDeckCardIsFaceUp ?? false;
@@ -178,6 +181,9 @@ namespace TheFall.Presentation.Animation
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;
 
         public float DealerCardFlipDegrees => _view?.DealerCardFlipDegrees ?? 0f;
+
+        public bool ActiveDealerCardFaceSurfaceVisible =>
+            _view?.ActiveDealerCardFaceSurfaceVisible ?? false;
 
         public Transform PreviewRoot => _view?.GeneratedRoot;
 

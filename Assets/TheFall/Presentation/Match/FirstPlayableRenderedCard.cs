@@ -30,12 +30,15 @@ namespace TheFall.Presentation.Match
 
         public int LayoutIndex { get; private set; } = -1;
 
+        internal float RestingYawDegrees { get; private set; }
+
         public void Configure(
             FirstPlayableCardZone zone,
             bool isFaceUp,
             Card? card = null,
             int interactionIndex = -1,
-            int layoutIndex = -1)
+            int layoutIndex = -1,
+            float restingYawDegrees = 0f)
         {
             Zone = zone;
             IsFaceUp = isFaceUp;
@@ -43,12 +46,18 @@ namespace TheFall.Presentation.Match
             PresentationCard = card;
             InteractionIndex = interactionIndex;
             LayoutIndex = layoutIndex;
+            RestingYawDegrees = restingYawDegrees;
         }
 
         internal void SetFaceUp(bool isFaceUp)
         {
             IsFaceUp = isFaceUp;
             Card = isFaceUp ? PresentationCard : null;
+        }
+
+        internal void SetRestingYawDegrees(float restingYawDegrees)
+        {
+            RestingYawDegrees = restingYawDegrees;
         }
     }
 }

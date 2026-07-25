@@ -163,6 +163,8 @@ automatic opponent selection uses a deterministic opaque slot because the hidden
 mapping is not presentation state. Both paths use the saved Dealer Selection duration, delay, easing,
 trajectory, fast-forward, and reduced-motion values. Revealed identities are public after the event,
 while every unselected card remains represented only by an anonymous count and card back.
+The card-face surface remains disabled until the shared reveal treatment reaches its edge-on
+midpoint, so the public identity becoming available cannot flash the face before the visible flip.
 
 Runtime transitions retain the outgoing card pose while the next resolved beat is delayed or begins.
 Rebuilding the authoritative prefix therefore cannot snap a card to its final zone between adjacent
@@ -196,7 +198,10 @@ the next resolved prefix instead of deriving a new slot from the compacted domai
 Removing the matching card or a reached cascade card never compacts the untouched cards into newly
 empty slots: every future cascade target and every unrelated table card remains planted until the
 moving stack reaches it or the sequence completes. The incoming target remains stationary during
-its beat and joins the lifted stack only on the following cascade beat.
+its beat and joins the lifted stack only on the following cascade beat. The layout is a bounded
+ten-slot pool, matching the accepted one-card-per-rank table maximum. Later plays reuse empty slots;
+deterministic per-card jitter and angle variation avoid a rigid grid without sacrificing replay
+stability or allowing rows to grow toward either player.
 
 The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top.
 

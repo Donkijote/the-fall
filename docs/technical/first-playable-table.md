@@ -54,6 +54,9 @@ resetting manual changes.
 - captured cards remain face down in separate owner piles
 - public table cards retain their presentation slots when another card is captured; capture and
   cascade removal never compact or rearrange the surviving table
+- table placement uses a bounded ten-slot, two-row pool matching the ten game ranks; newly played
+  cards reuse empty slots, with small deterministic position and angle variation that stays inside
+  the central table field
 - compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker

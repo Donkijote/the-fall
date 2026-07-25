@@ -103,6 +103,9 @@ namespace TheFall.Presentation.Animation
 
         public bool ActiveDealCardIsFaceUp => _activeDealCard != null && _activeDealFaceUp;
 
+        public bool ActiveDealCardFaceSurfaceVisible =>
+            _activeDealCard != null && _activeDealCard.FaceRenderer.gameObject.activeSelf;
+
         public float DealCardFlipDegrees => _dealFlipDegrees;
 
         public bool ActiveDeckCardIsFaceUp => ActiveDealCardIsFaceUp;
@@ -186,6 +189,9 @@ namespace TheFall.Presentation.Animation
         }
 
         public float DealerCardFlipDegrees => _dealerFlipDegrees;
+
+        public bool ActiveDealerCardFaceSurfaceVisible =>
+            _activeDealerCard != null && _activeDealerCard.FaceRenderer.gameObject.activeSelf;
 
         public Transform GeneratedRoot => _generatedRoot;
 
@@ -748,7 +754,7 @@ namespace TheFall.Presentation.Animation
             _dealFlipDirection = recipientSeat == Seat.First ? 1f : -1f;
             _dealFlipDegrees = 0f;
             _activeDealCard.Transform.localRotation = Quaternion.identity;
-            _activeDealCard.FaceRenderer.gameObject.SetActive(_dealRevealsFace);
+            _activeDealCard.FaceRenderer.gameObject.SetActive(false);
             if (_dealRevealsFace)
             {
                 CardVisualMaterialBinding.Apply(
@@ -778,6 +784,7 @@ namespace TheFall.Presentation.Animation
                 _dealFlipDegrees * _dealFlipDirection,
                 Vector3.forward);
             _activeDealFaceUp = pose.FaceUp;
+            _activeDealCard.FaceRenderer.gameObject.SetActive(pose.FaceUp);
         }
 
         private void PrepareOpeningRejection(ResolvedAnimationStep step)
@@ -836,6 +843,7 @@ namespace TheFall.Presentation.Animation
                 _rejectionFlipDegrees,
                 Vector3.forward);
             _activeRejectedCardFaceDown = !pose.FaceUp;
+            _activeRejectedCard.FaceRenderer.gameObject.SetActive(pose.FaceUp);
 
             _rejectionDeckGap = Mathf.Sin(progress * Mathf.PI);
             var splitOffset = new Vector3(0.055f, 0.035f, 0f) * _rejectionDeckGap;
@@ -912,6 +920,7 @@ namespace TheFall.Presentation.Animation
                     _capturePairFlipDegrees,
                     Vector3.forward);
                 _capturePairFaceDown = !pose.FaceUp;
+                motion.View.FaceRenderer.gameObject.SetActive(pose.FaceUp);
             }
         }
 
@@ -1011,6 +1020,7 @@ namespace TheFall.Presentation.Animation
                     _cascadeStackFlipDegrees,
                     Vector3.forward);
                 _cascadeStackFaceDown = !pose.FaceUp;
+                motion.View.FaceRenderer.gameObject.SetActive(pose.FaceUp);
             }
         }
 
@@ -1073,6 +1083,7 @@ namespace TheFall.Presentation.Animation
                     _leftoverFlipDegrees,
                     Vector3.forward);
                 _leftoversFaceDown = !pose.FaceUp;
+                motion.View.FaceRenderer.gameObject.SetActive(pose.FaceUp);
             }
         }
 
@@ -1090,7 +1101,7 @@ namespace TheFall.Presentation.Animation
             }
 
             _activeDealerCard.Transform.gameObject.name = $"Selected Dealer Card {step.Cards[0]}";
-            _activeDealerCard.FaceRenderer.gameObject.SetActive(true);
+            _activeDealerCard.FaceRenderer.gameObject.SetActive(false);
             CardVisualMaterialBinding.Apply(_activeDealerCard.FaceRenderer, _cardCatalog, step.Cards[0]);
             _activeDealerCard.IsFaceUp = false;
             _activeDealerCardStart = ResolveDealerSpreadPosition(selectedSlot);
@@ -1120,6 +1131,7 @@ namespace TheFall.Presentation.Animation
                 Quaternion.AngleAxis(_dealerFlipDegrees * _dealerFlipDirection, Vector3.forward);
             _activeDealerCard.Transform.localPosition = pose.Position;
             _activeDealerCard.IsFaceUp = pose.FaceUp;
+            _activeDealerCard.FaceRenderer.gameObject.SetActive(pose.FaceUp);
         }
 
         private DealerSpreadCardView FindDealerSpreadView(int slot)

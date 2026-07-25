@@ -358,6 +358,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.RevealedDealerCardViewCount, Is.Zero);
             Assert.That(controller.DealerCardFlipDegrees, Is.Zero);
 
+            controller.SeekToStep(0, 0.25f);
+            Assert.That(controller.ActiveDealerCardFaceSurfaceVisible, Is.False);
+
             controller.SeekToStep(0, 0.5f);
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
             Assert.That(controller.DealerCardFlipDegrees, Is.EqualTo(90f).Within(0.1f));
@@ -366,6 +369,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
             Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
             Assert.That(controller.DealerCardFlipDegrees, Is.GreaterThan(90f));
+            Assert.That(controller.ActiveDealerCardFaceSurfaceVisible, Is.True);
 
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
@@ -388,6 +392,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.DeckViewCount, Is.EqualTo(36));
             Assert.That(controller.OpponentHandViewCount, Is.EqualTo(2));
             Assert.That(controller.ActiveDealCardIsFaceUp, Is.False);
+            Assert.That(controller.ActiveDealCardFaceSurfaceVisible, Is.False);
             Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
             var handOne = controller.PreviewRoot
                 .GetComponentsInChildren<Transform>(true)
@@ -408,6 +413,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(Vector3.Distance(handOne.localPosition, handOneStart), Is.LessThan(0.0001f));
             Assert.That(Vector3.Distance(handTwo.localPosition, handTwoStart), Is.LessThan(0.0001f));
             Assert.That(controller.ActiveDealCardIsFaceUp, Is.True);
+            Assert.That(controller.ActiveDealCardFaceSurfaceVisible, Is.True);
             Assert.That(controller.DealCardFlipDegrees, Is.GreaterThan(90f));
 
             controller.SeekToStep(1, 0.75f);

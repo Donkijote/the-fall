@@ -968,7 +968,9 @@ namespace TheFall.Presentation.Match
             var hasExistingStart = source.Cards.TryGetValue(step.Cards[0], out var existingStart);
             var start = hasExistingStart
                 ? existingStart
-                : ResolveTableCardWorldPosition(Snapshot.TableLayoutSlotCount);
+                : ResolveTableCardWorldPosition(
+                    Snapshot.ResolveAvailableTableLayoutIndex(),
+                    step.Cards[0]);
             var insertionIndex = Mathf.Clamp(rejected.ReinsertedDeckIndex, 0, Snapshot.DeckCount - 1);
             FirstPlayableRenderedCard target = null;
             for (var index = 0; index < _renderedCards.Count; index++)
@@ -1002,6 +1004,7 @@ namespace TheFall.Presentation.Match
                 step.Cards[0],
                 target.InteractionIndex,
                 target.LayoutIndex);
+            target.SetRestingYawDegrees(ResolveTableCardYaw(step.Cards[0]));
             if (!hasExistingStart)
             {
                 AddCardMotion(target.transform, start, target.transform.position, beat, trajectory);
@@ -1059,6 +1062,11 @@ namespace TheFall.Presentation.Match
                 var target = continuesToCascade ? stack : rendered.transform.position;
                 var start = index == 0 ? playedStart : matchingStart;
                 var revealsFace = index == 0 && revealsPlayedCard;
+                if (index > 0)
+                {
+                    rendered.SetRestingYawDegrees(ResolveTableCardYaw(card));
+                }
+
                 ApplyCardFace(
                     rendered,
                     rendered.GetComponent<Renderer>(),
@@ -1165,6 +1173,11 @@ namespace TheFall.Presentation.Match
                     ? rendered.transform.position
                     : currentPosition + lift * (currentIndex - index);
                 var stationaryTarget = !completesCapture && index == currentIndex;
+                if (index > 0)
+                {
+                    rendered.SetRestingYawDegrees(ResolveTableCardYaw(card));
+                }
+
                 ApplyCardFace(rendered, rendered.GetComponent<Renderer>(), card, true, 180f);
                 rendered.transform.position = start;
                 _cascadeCardMotions.Add(new CascadeCardMotion(
@@ -1201,6 +1214,7 @@ namespace TheFall.Presentation.Match
                 }
 
                 var target = rendered.transform.position;
+                rendered.SetRestingYawDegrees(ResolveTableCardYaw(card));
                 ApplyCardFace(rendered, rendered.GetComponent<Renderer>(), card, true, 180f);
                 rendered.transform.position = start;
                 _collectionCardMotions.Add(new CollectionCardMotion(
@@ -1547,7 +1561,9 @@ namespace TheFall.Presentation.Match
             bool faceUp,
             float flipDegrees)
         {
-            rendered.transform.localRotation = Quaternion.AngleAxis(flipDegrees, Vector3.forward);
+            rendered.transform.localRotation = ResolveCardRotation(
+                flipDegrees,
+                rendered.RestingYawDegrees);
             if (rendered.IsFaceUp == faceUp)
             {
                 return;
@@ -1842,30 +1858,70 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < cards.Count; index++)
             {
                 var layoutIndex = Snapshot.TableLayoutIndices[index];
-                var row = layoutIndex / 5;
-                var column = layoutIndex % 5;
+                var yawDegrees = ResolveTableCardYaw(cards[index]);
                 CreateCard(zoneParent, $"Table {cards[index]}",
-                    new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f),
+                    ResolveTableCardLocalPosition(layoutIndex, cards[index]),
                     FirstPlayableCardZone.Table,
                     true,
                     cards[index],
                     index,
                     false,
-                    layoutIndex);
+                    layoutIndex,
+                    yawDegrees);
             }
         }
 
-        private Vector3 ResolveTableCardWorldPosition(int index)
+        private Vector3 ResolveTableCardWorldPosition(int index, Card card)
         {
             if (_tableCardsRuntimeAnchor == null)
             {
                 return _generatedRoot == null ? Vector3.zero : _generatedRoot.position;
             }
 
-            var row = index / 5;
-            var column = index % 5;
             return _tableCardsRuntimeAnchor.TransformPoint(
-                new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f));
+                ResolveTableCardLocalPosition(index, card));
+        }
+
+        private static Vector3 ResolveTableCardLocalPosition(int layoutIndex, Card card)
+        {
+            if (layoutIndex < 0 || layoutIndex >= FirstPlayableTableSnapshot.TableLayoutCapacity)
+            {
+                throw new ArgumentOutOfRangeException(nameof(layoutIndex));
+            }
+
+            var row = layoutIndex / 5;
+            var column = layoutIndex % 5;
+            var seed = ResolveTableCardSeed(card);
+            var jitterX = ResolveSignedVariation(seed) * 0.018f;
+            var jitterZ = ResolveSignedVariation(seed * 31 + 17) * 0.014f;
+            return new Vector3(
+                (column - 2f) * 0.225f + jitterX,
+                layoutIndex * 0.0015f,
+                (row - 0.5f) * 0.27f + jitterZ);
+        }
+
+        private static float ResolveTableCardYaw(Card card)
+        {
+            return ResolveSignedVariation(ResolveTableCardSeed(card) * 47 + 23) * 6f;
+        }
+
+        private static int ResolveTableCardSeed(Card card)
+        {
+            return ((int)card.Suit + 1) * 397 ^ ((int)card.Rank + 1) * 97;
+        }
+
+        private static float ResolveSignedVariation(int seed)
+        {
+            unchecked
+            {
+                var value = (uint)seed;
+                value ^= value >> 16;
+                value *= 0x7FEB352Du;
+                value ^= value >> 15;
+                value *= 0x846CA68Bu;
+                value ^= value >> 16;
+                return (value & 0xFFFFu) / 32767.5f - 1f;
+            }
         }
 
         private void CreateLocalHand(
@@ -1939,16 +1995,18 @@ namespace TheFall.Presentation.Match
             Card? card,
             int handIndex = -1,
             bool interactive = false,
-            int layoutIndex = -1)
+            int layoutIndex = -1,
+            float restingYawDegrees = 0f)
         {
+            var renderedFaceUp = ResolveInitialRenderedFaceUp(faceUp, card);
             var cardObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cardObject.name = name;
             cardObject.hideFlags = HideFlags.DontSave;
             cardObject.transform.SetParent(parent, false);
             cardObject.transform.localPosition = position;
-            cardObject.transform.localRotation = faceUp
-                ? Quaternion.AngleAxis(180f, Vector3.forward)
-                : Quaternion.identity;
+            cardObject.transform.localRotation = ResolveCardRotation(
+                renderedFaceUp ? 180f : 0f,
+                restingYawDegrees);
             cardObject.transform.localScale = _authoredLayout.CardScale;
 
             var collider = cardObject.GetComponent<Collider>();
@@ -1958,7 +2016,7 @@ namespace TheFall.Presentation.Match
             }
 
             var renderer = cardObject.GetComponent<Renderer>();
-            if (faceUp && card.HasValue)
+            if (renderedFaceUp && card.HasValue)
             {
                 CardVisualMaterialBinding.Apply(renderer, _cardCatalog, card.Value);
             }
@@ -1968,9 +2026,56 @@ namespace TheFall.Presentation.Match
             }
 
             var rendered = cardObject.AddComponent<FirstPlayableRenderedCard>();
-            rendered.Configure(zone, faceUp, card, handIndex, layoutIndex);
+            rendered.Configure(
+                zone,
+                renderedFaceUp,
+                card,
+                handIndex,
+                layoutIndex,
+                restingYawDegrees);
             _renderedCards.Add(rendered);
             return rendered;
+        }
+
+        private bool ResolveInitialRenderedFaceUp(bool authoritativeFaceUp, Card? card)
+        {
+            if (!authoritativeFaceUp
+                || !card.HasValue
+                || _animationPlayer?.ActiveStep == null
+                || !Contains(_animationPlayer.ActiveStep.Cards, card.Value))
+            {
+                return authoritativeFaceUp;
+            }
+
+            var step = _animationPlayer.ActiveStep;
+            var isRevealTreatment =
+                step.Kind == ResolvedAnimationStepKind.DealerSelection
+                || step.Kind == ResolvedAnimationStepKind.OpeningPlacement
+                || (step.Kind == ResolvedAnimationStepKind.Deal
+                    && step.PlayerId == Snapshot.LocalPlayerId)
+                || (step.Kind == ResolvedAnimationStepKind.CardPlay
+                    && step.PlayerId == Snapshot.OpponentPlayerId);
+            if (!isRevealTreatment)
+            {
+                return authoritativeFaceUp;
+            }
+
+            return AnimationCardTreatmentEvaluator.EvaluateRevealMove(
+                Vector3.zero,
+                Vector3.zero,
+                _animationPlayer.ActiveStepProgress,
+                _animationPreset.GetBeat(step.Kind)?.Easing
+                    ?? AnimationBeatEasing.EaseInOut,
+                Vector3.zero,
+                true).FaceUp;
+        }
+
+        private static Quaternion ResolveCardRotation(
+            float flipDegrees,
+            float restingYawDegrees)
+        {
+            return Quaternion.AngleAxis(restingYawDegrees, Vector3.up)
+                * Quaternion.AngleAxis(flipDegrees, Vector3.forward);
         }
 
         private void ApplyInteractionState()
