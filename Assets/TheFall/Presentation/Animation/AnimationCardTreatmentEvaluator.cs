@@ -183,21 +183,24 @@ namespace TheFall.Presentation.Animation
 
         private static readonly Vector2[] Anchors =
         {
-            new Vector2(-0.34f, -0.37f),
-            new Vector2(0.01f, -0.34f),
-            new Vector2(0.36f, -0.38f),
-            new Vector2(-0.46f, -0.01f),
-            new Vector2(-0.15f, 0.02f),
-            new Vector2(0.16f, -0.02f),
-            new Vector2(0.47f, 0.01f),
-            new Vector2(-0.36f, 0.37f),
-            new Vector2(0f, 0.34f),
-            new Vector2(0.35f, 0.38f),
+            new Vector2(-0.13f, -0.15f),
+            new Vector2(0.13f, -0.15f),
+            new Vector2(-0.13f, 0.15f),
+            new Vector2(0.13f, 0.15f),
+            new Vector2(-0.47f, -0.30f),
+            new Vector2(-0.44f, 0.01f),
+            new Vector2(-0.47f, 0.31f),
+            new Vector2(0.47f, -0.31f),
+            new Vector2(0.44f, -0.01f),
+            new Vector2(0.47f, 0.30f),
         };
 
         private static readonly int[] ProbeStrides = { 1, 3, 7, 9 };
 
-        public static int ResolveAvailableIndex(Card card, IEnumerable<int> occupiedIndices)
+        public static int ResolveAvailableIndex(
+            Card card,
+            IEnumerable<int> occupiedIndices,
+            bool preferOpeningGrid = false)
         {
             var occupied = new bool[Capacity];
             foreach (var index in occupiedIndices)
@@ -211,11 +214,25 @@ namespace TheFall.Presentation.Animation
             var seed = ResolveCardSeed(card);
             var start = (int)((uint)seed % Capacity);
             var stride = ProbeStrides[(int)(((uint)seed >> 8) % ProbeStrides.Length)];
+            if (preferOpeningGrid)
+            {
+                for (var openingIndex = 0; openingIndex < 4; openingIndex++)
+                {
+                    if (!occupied[openingIndex])
+                    {
+                        return openingIndex;
+                    }
+                }
+            }
+
             var bestCandidate = -1;
             var bestClearance = float.NegativeInfinity;
-            for (var offset = 0; offset < Capacity; offset++)
+            var firstCandidate = preferOpeningGrid ? 0 : 4;
+            var candidateCount = preferOpeningGrid ? Capacity : Capacity - firstCandidate;
+            for (var offset = 0; offset < candidateCount; offset++)
             {
-                var candidate = (start + offset * stride) % Capacity;
+                var candidate = firstCandidate
+                    + (start + offset) % candidateCount;
                 if (occupied[candidate])
                 {
                     continue;
@@ -247,6 +264,18 @@ namespace TheFall.Presentation.Animation
                 return bestCandidate;
             }
 
+            if (!preferOpeningGrid)
+            {
+                for (var offset = 0; offset < 4; offset++)
+                {
+                    var candidate = (start + offset * stride) % 4;
+                    if (!occupied[candidate])
+                    {
+                        return candidate;
+                    }
+                }
+            }
+
             throw new InvalidOperationException(
                 $"The table cannot contain more than {Capacity} rank slots.");
         }
@@ -261,8 +290,13 @@ namespace TheFall.Presentation.Animation
                 throw new ArgumentOutOfRangeException(nameof(layoutIndex));
             }
 
-            var seed = ResolveCardSeed(card);
             var position = ResolveAnchorPosition(layoutIndex, baseHeight);
+            if (layoutIndex < 4)
+            {
+                return position;
+            }
+
+            var seed = ResolveCardSeed(card);
             position.x += ResolveSignedVariation(seed) * 0.010f;
             position.z += ResolveSignedVariation(seed * 31 + 17) * 0.008f;
             return position;
@@ -284,8 +318,13 @@ namespace TheFall.Presentation.Animation
                 anchor.y);
         }
 
-        public static float ResolveYaw(Card card)
+        public static float ResolveYaw(Card card, int layoutIndex = -1)
         {
+            if (layoutIndex >= 0 && layoutIndex < 4)
+            {
+                return 0f;
+            }
+
             return ResolveSignedVariation(ResolveCardSeed(card) * 47 + 23) * 7f;
         }
 

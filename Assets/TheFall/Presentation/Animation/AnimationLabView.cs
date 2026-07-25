@@ -326,7 +326,9 @@ namespace TheFall.Presentation.Animation
 
                 if (Contains(state.Table, entry.Key))
                 {
-                    entry.Value.localRotation = ResolveTableCardRotation(entry.Key);
+                    entry.Value.localRotation = ResolveTableCardRotation(
+                        entry.Key,
+                        state.GetTableLayoutIndex(entry.Key));
                 }
 
                 _motions.Add(new CardMotion(
@@ -454,7 +456,9 @@ namespace TheFall.Presentation.Animation
             {
                 entry.Value.localPosition = ResolveCardPosition(state, entry.Key);
                 entry.Value.localRotation = Contains(state.Table, entry.Key)
-                    ? ResolveTableCardRotation(entry.Key)
+                    ? ResolveTableCardRotation(
+                        entry.Key,
+                        state.GetTableLayoutIndex(entry.Key))
                     : Quaternion.Euler(90f, 0f, 0f);
             }
 
@@ -1417,10 +1421,10 @@ namespace TheFall.Presentation.Animation
                 0.82f);
         }
 
-        private static Quaternion ResolveTableCardRotation(Card card)
+        private static Quaternion ResolveTableCardRotation(Card card, int layoutIndex)
         {
             return Quaternion.AngleAxis(
-                    AnimationTableCardLayoutEvaluator.ResolveYaw(card),
+                    AnimationTableCardLayoutEvaluator.ResolveYaw(card, layoutIndex),
                     Vector3.up)
                 * Quaternion.Euler(90f, 0f, 0f);
         }

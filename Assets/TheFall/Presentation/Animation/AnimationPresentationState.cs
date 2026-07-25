@@ -151,7 +151,7 @@ namespace TheFall.Presentation.Animation
 
                     break;
                 case ResolvedAnimationStepKind.OpeningPlacement:
-                    AddTableCard(step.Cards[0]);
+                    AddTableCard(step.Cards[0], true);
                     DeckCount = Math.Max(0, DeckCount - 1);
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
@@ -164,7 +164,7 @@ namespace TheFall.Presentation.Animation
                     ReindexHand(step.PlayerId);
                     break;
                 case ResolvedAnimationStepKind.TablePlacement:
-                    AddTableCard(step.Cards[0]);
+                    AddTableCard(step.Cards[0], false);
                     break;
                 case ResolvedAnimationStepKind.NormalCapture:
                 case ResolvedAnimationStepKind.CascadeCapture:
@@ -270,7 +270,8 @@ namespace TheFall.Presentation.Animation
                 _tableLayoutIndices[card] =
                     AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
                         card,
-                        _tableLayoutIndices.Values);
+                        _tableLayoutIndices.Values,
+                        _table.Count <= 4);
             }
             _dealerSelectionCards.Clear();
             _dealerSelectionCards.AddRange(state.DealerSelectionCards);
@@ -398,7 +399,7 @@ namespace TheFall.Presentation.Animation
                 }
             }
 
-            AddTableCard(card);
+            AddTableCard(card, false);
         }
 
         private void ReindexHand(PlayerId playerId)
@@ -437,7 +438,7 @@ namespace TheFall.Presentation.Animation
             }
         }
 
-        private void AddTableCard(Card card)
+        private void AddTableCard(Card card, bool preferOpeningGrid)
         {
             if (_table.Contains(card))
             {
@@ -460,7 +461,8 @@ namespace TheFall.Presentation.Animation
                 _tableLayoutIndices[card] =
                     AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
                         card,
-                        occupiedIndices);
+                        occupiedIndices,
+                        preferOpeningGrid);
             }
         }
 

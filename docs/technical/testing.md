@@ -80,7 +80,9 @@ Issue #27 adds Edit Mode coverage for the complete semantic cue vocabulary, dist
 definitions, and the safe Home effects source. Integrated Play Mode compares the complete emitted cue
 history one-for-one with mapped resolved animation beats, proves master/effects muting, exercises the
 source-free music control, and checks skip, interruption, cancellation, replay, return-to-Home, and teardown
-for stale playback. See [first-playable functional audio](audio.md).
+for stale playback. The Play Mode assembly fixture sets `AudioListener.volume` to zero for the duration
+of automated execution and restores the previous host value afterward; cue history, source state, and
+mute-control assertions still run without audible test output. See [first-playable functional audio](audio.md).
 
 ## CI and remaining decisions
 

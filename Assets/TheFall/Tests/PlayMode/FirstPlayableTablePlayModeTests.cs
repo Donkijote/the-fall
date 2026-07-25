@@ -158,6 +158,10 @@ namespace TheFall.Tests.PlayMode
 
             var localHandCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.LocalHand);
             var publicTableCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Table);
+            var openingTableCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.Table)
+                .OrderBy(card => card.LayoutIndex)
+                .ToArray();
             var opponentCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.OpponentHand);
             var deckCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Deck);
             var expectedScale = localHandCard.transform.localScale;
@@ -168,6 +172,20 @@ namespace TheFall.Tests.PlayMode
             Assert.That(localHandCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
             Assert.That(publicTableCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
             Assert.That(deckCard.transform.localEulerAngles.z, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(openingTableCards, Has.Length.EqualTo(4));
+            Assert.That(
+                openingTableCards.Select(card => card.LayoutIndex),
+                Is.EqualTo(new[] { 0, 1, 2, 3 }));
+            Assert.That(
+                openingTableCards.Select(card => card.transform.localPosition.x).Distinct().Count(),
+                Is.EqualTo(2));
+            Assert.That(
+                openingTableCards.Select(card => card.transform.localPosition.z).Distinct().Count(),
+                Is.EqualTo(2));
+            Assert.That(
+                openingTableCards.All(card =>
+                    Mathf.Abs(Mathf.DeltaAngle(card.transform.localEulerAngles.y, 0f)) < 0.001f),
+                Is.True);
 
             var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
             Assert.That(cantoIntents, Is.Not.Empty);

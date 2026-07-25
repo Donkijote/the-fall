@@ -201,9 +201,16 @@ namespace TheFall.Presentation.Match
             if (_animationPlayer?.IsBusy == true)
             {
                 var animationUpdateStartedAt = System.Diagnostics.Stopwatch.GetTimestamp();
+                var activeStepBeforeTick = _animationPlayer.ActiveStep;
                 _animationPlayer.Tick(Time.unscaledDeltaTime);
                 if (_animationVisualRevision != _animationPlayer.VisualRevision)
                 {
+                    if (activeStepBeforeTick != null
+                        && !ReferenceEquals(activeStepBeforeTick, _animationPlayer.ActiveStep))
+                    {
+                        ApplyCardMotions(1f);
+                    }
+
                     RefreshFromAnimation(true);
                 }
 
@@ -501,7 +508,13 @@ namespace TheFall.Presentation.Match
             var flow = _flowController?.Flow;
             if (flow?.Match != null)
             {
-                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State, Snapshot);
+                Snapshot = _animationPlayer?.RenderedState != null
+                    && _animationPlayer.RenderedState.IsSynchronizedWith(flow.Match.State)
+                        ? FirstPlayableTableSnapshot.Create(
+                            _animationPlayer.RenderedState,
+                            flow.Match.State,
+                            Snapshot)
+                        : FirstPlayableTableSnapshot.Create(flow.Match.State, Snapshot);
                 _inputAdapter?.SetCards(Snapshot.LocalHand);
                 Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
             }
@@ -969,7 +982,7 @@ namespace TheFall.Presentation.Match
             var start = hasExistingStart
                 ? existingStart
                 : ResolveTableCardWorldPosition(
-                    Snapshot.ResolveAvailableTableLayoutIndex(step.Cards[0]),
+                    Snapshot.ResolveAvailableTableLayoutIndex(step.Cards[0], true),
                     step.Cards[0]);
             var insertionIndex = Mathf.Clamp(rejected.ReinsertedDeckIndex, 0, Snapshot.DeckCount - 1);
             FirstPlayableRenderedCard target = null;
@@ -1354,12 +1367,17 @@ namespace TheFall.Presentation.Match
 
         private void ApplyCardMotions()
         {
+            ApplyCardMotions(_animationPlayer?.ActiveStepProgress ?? 0f);
+        }
+
+        private void ApplyCardMotions(float progress)
+        {
             if (_animationPlayer == null)
             {
                 return;
             }
 
-            var progress = _animationPlayer.ActiveStepProgress;
+            progress = Mathf.Clamp01(progress);
             for (var index = 0; index < _cardMotions.Count; index++)
             {
                 var motion = _cardMotions[index];
@@ -1858,7 +1876,9 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < cards.Count; index++)
             {
                 var layoutIndex = Snapshot.TableLayoutIndices[index];
-                var yawDegrees = AnimationTableCardLayoutEvaluator.ResolveYaw(cards[index]);
+                var yawDegrees = AnimationTableCardLayoutEvaluator.ResolveYaw(
+                    cards[index],
+                    layoutIndex);
                 CreateCard(zoneParent, $"Table {cards[index]}",
                     AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
                         layoutIndex,

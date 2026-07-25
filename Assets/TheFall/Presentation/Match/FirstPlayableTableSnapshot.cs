@@ -55,7 +55,7 @@ namespace TheFall.Presentation.Match
             _opponentHandLayoutIndices = SequentialIndices(opponent.Hand.Count);
             OpponentHandLayoutSlotCount = opponent.Hand.Count;
             _tableCards = Copy(state.Table);
-            _tableLayoutIndices = ResolveTableLayoutIndices(_tableCards, previous);
+            _tableLayoutIndices = ResolveTableLayoutIndices(_tableCards, previous, null);
             TableLayoutSlotCount = ResolveLayoutSlotCount(_tableLayoutIndices);
             _localCapturedCards = Copy(local.CapturedCards);
             _opponentCapturedCards = Copy(opponent.CapturedCards);
@@ -122,7 +122,10 @@ namespace TheFall.Presentation.Match
             _opponentHandLayoutIndices = Array.AsReadOnly(opponentLayoutIndices);
             OpponentHandLayoutSlotCount = state.GetHandLayoutSlotCount(opponent.Id);
             _tableCards = Copy(state.Table);
-            _tableLayoutIndices = ResolveTableLayoutIndices(_tableCards, previous);
+            _tableLayoutIndices = ResolveTableLayoutIndices(
+                _tableCards,
+                previous,
+                state.GetTableLayoutIndex);
             TableLayoutSlotCount = ResolveLayoutSlotCount(_tableLayoutIndices);
             _localCapturedCards = Copy(state.GetCaptured(local.Id));
             _opponentCapturedCards = Copy(state.GetCaptured(opponent.Id));
@@ -237,16 +240,20 @@ namespace TheFall.Presentation.Match
             return new FirstPlayableTableSnapshot(state, referenceState, previous);
         }
 
-        public int ResolveAvailableTableLayoutIndex(Card card)
+        public int ResolveAvailableTableLayoutIndex(
+            Card card,
+            bool preferOpeningGrid = false)
         {
             return AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
                 card,
-                _tableLayoutIndices);
+                _tableLayoutIndices,
+                preferOpeningGrid);
         }
 
         private static IReadOnlyList<int> ResolveTableLayoutIndices(
             IReadOnlyList<Card> cards,
-            FirstPlayableTableSnapshot previous)
+            FirstPlayableTableSnapshot previous,
+            Func<Card, int> resolvePreferredIndex)
         {
             var previousIndices = new Dictionary<Card, int>();
             if (previous != null)
@@ -259,10 +266,35 @@ namespace TheFall.Presentation.Match
             }
 
             var resolved = new int[cards.Count];
+            var assigned = new bool[cards.Count];
             var occupied = new bool[TableLayoutCapacity];
             var occupiedIndices = new List<int>(TableLayoutCapacity);
+            if (resolvePreferredIndex != null)
+            {
+                for (var index = 0; index < cards.Count; index++)
+                {
+                    var preferredIndex = resolvePreferredIndex(cards[index]);
+                    if (preferredIndex < 0
+                        || preferredIndex >= TableLayoutCapacity
+                        || occupied[preferredIndex])
+                    {
+                        continue;
+                    }
+
+                    resolved[index] = preferredIndex;
+                    assigned[index] = true;
+                    occupied[preferredIndex] = true;
+                    occupiedIndices.Add(preferredIndex);
+                }
+            }
+
             for (var index = 0; index < cards.Count; index++)
             {
+                if (assigned[index])
+                {
+                    continue;
+                }
+
                 if (!previousIndices.TryGetValue(cards[index], out var retainedIndex)
                     || retainedIndex < 0
                     || retainedIndex >= TableLayoutCapacity
@@ -272,25 +304,25 @@ namespace TheFall.Presentation.Match
                 }
 
                 resolved[index] = retainedIndex;
+                assigned[index] = true;
                 occupied[retainedIndex] = true;
                 occupiedIndices.Add(retainedIndex);
             }
 
             for (var index = 0; index < cards.Count; index++)
             {
-                if (previousIndices.TryGetValue(cards[index], out var retainedIndex)
-                    && retainedIndex >= 0
-                    && retainedIndex < TableLayoutCapacity
-                    && resolved[index] == retainedIndex
-                    && occupied[retainedIndex])
+                if (assigned[index])
                 {
                     continue;
                 }
 
                 var availableIndex = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
                     cards[index],
-                    occupiedIndices);
+                    occupiedIndices,
+                    previous == null && cards.Count <= 4);
+
                 resolved[index] = availableIndex;
+                assigned[index] = true;
                 occupied[availableIndex] = true;
                 occupiedIndices.Add(availableIndex);
             }

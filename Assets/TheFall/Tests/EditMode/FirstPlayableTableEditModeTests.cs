@@ -120,7 +120,7 @@ namespace TheFall.Tests.EditMode
                 afterPlacementState,
                 afterPlacement);
 
-            Assert.That(before.TableLayoutIndices, Is.Not.EqualTo(new[] { 0, 1, 2 }));
+            Assert.That(before.TableLayoutIndices, Is.EqualTo(new[] { 0, 1, 2 }));
             Assert.That(
                 afterCapture.TableLayoutIndices,
                 Is.EqualTo(new[]

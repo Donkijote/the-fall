@@ -177,6 +177,9 @@ stack the played card on its match, cascade beats move the complete growing stac
 treatment. Collection flips complete before the final settling portion of the trip, so every card
 is visibly back-up before it reaches the pile. Each path reads its duration, delay, easing,
 trajectory, fast-forward, and reduced-motion values from the active versioned preset.
+Before transport advances to the next semantic beat, the integrated table commits the outgoing
+beat's exact terminal pose. A following status beat therefore cannot preserve a near-final face-up
+capture pose and later snap it down during synchronization.
 
 An active viewport or safe-area recomposition is atomic: the table captures the current presentation
 pose, rebuilds transient views, prepares the same shared treatment, and applies its current progress
@@ -185,7 +188,7 @@ authoritative face-up destination before returning to its face-down animation st
 
 The isolated deal preview starts with a complete face-down deck and two cards already held at each seat. The top card follows the configured deck-to-hand path to the current player while rotating once from its back to its authoritative face. The next top card follows the same reusable Deal beat to the opponent and remains face down. Existing hand cards close into their new slots concurrently using the Hand Reflow tuning without inheriting the Deal trajectory; opponent identities remain opaque.
 
-The isolated opening-placement preview starts with the already accepted table cards and the complete remaining deck face down. Its top card is reused as the moving card instead of creating a duplicate beside the stack: it leaves the deck back-up, follows the configured deck-to-table path, rotates to reveal its authoritative face, and settles in the next table slot. Existing table cards remain stationary.
+The isolated opening-placement preview starts with the already accepted table cards and the complete remaining deck face down. Its top card is reused as the moving card instead of creating a duplicate beside the stack: it leaves the deck back-up, follows the configured deck-to-table path, rotates to reveal its authoritative face, and settles in the next table slot. The dealer's four accepted opening cards occupy a centered, square two-by-two layout with no jitter or angle variation. Existing table cards remain stationary.
 
 The isolated opening-rejection preview reverses that treatment. It begins with the rejected card face up beside the accepted table card and the remaining deck face down. The rejected card leaves its table slot, rotates back-down on the way to its authoritative reinsertion index, and enters a temporary middle-deck gap. The upper half of the deck lifts and shifts aside during insertion, then closes over the card; accepted table cards remain stationary and the final rendered state contains the reinserted card in the deck.
 
@@ -200,12 +203,13 @@ Removing the matching card or a reached cascade card never compacts the untouche
 empty slots: every future cascade target and every unrelated table card remains planted until the
 moving stack reaches it or the sequence completes. The incoming target remains stationary during
 its beat and joins the lifted stack only on the following cascade beat. The layout is a bounded
-ten-anchor pool, matching the accepted one-card-per-rank table maximum. The anchors form an
-irregular scatter rather than rows, and each later play uses a card-seeded probe through the empty
-anchors. The probe prefers the free anchor with the most clearance from occupied anchors before
-using the card seed as its stable tie breaker. Deterministic per-card jitter and angle variation
-preserve replay stability without moving survivors, overlapping cards, or allowing the occupied
-area to grow toward either player.
+ten-anchor pool, matching the accepted one-card-per-rank table maximum. Four inner anchors form the
+organized opening grid. Player-played cards prefer six irregular outer anchors that remain inside
+the central table field and away from both seats; if all six are occupied, captured opening anchors
+may be reused. The probe prefers the free anchor with the most clearance from occupied anchors
+before using the card seed as its stable tie breaker. Deterministic per-card jitter and angle
+variation apply only to played-card anchors and preserve replay stability without moving survivors,
+overlapping cards, or allowing the occupied area to grow toward either player.
 
 The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top.
 

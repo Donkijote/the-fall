@@ -191,5 +191,50 @@ namespace TheFall.Tests.EditMode
                 }
             }
         }
+
+        [Test]
+        public void TableLayout_UsesCenteredTwoByTwoGridOnlyForOpeningCards()
+        {
+            var openingSlots = new List<int>();
+            var openingPositions = new List<Vector3>();
+            foreach (var rank in new[]
+            {
+                CardRank.One,
+                CardRank.Two,
+                CardRank.Three,
+                CardRank.Four,
+            })
+            {
+                var card = new Card(CardSuit.Coins, rank);
+                var slot = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    card,
+                    openingSlots,
+                    true);
+                openingSlots.Add(slot);
+                openingPositions.Add(
+                    AnimationTableCardLayoutEvaluator.ResolveLocalPosition(slot, card));
+                Assert.That(
+                    AnimationTableCardLayoutEvaluator.ResolveYaw(card, slot),
+                    Is.Zero);
+            }
+
+            Assert.That(openingSlots, Is.EqualTo(new[] { 0, 1, 2, 3 }));
+            Assert.That(
+                openingPositions.Select(position => position.x).Distinct().Count(),
+                Is.EqualTo(2));
+            Assert.That(
+                openingPositions.Select(position => position.z).Distinct().Count(),
+                Is.EqualTo(2));
+
+            var playedCard = new Card(CardSuit.Cups, CardRank.Five);
+            var playedSlot = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                playedCard,
+                openingSlots);
+            var playedPosition = AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
+                playedSlot,
+                playedCard);
+            Assert.That(playedSlot, Is.InRange(4, 9));
+            Assert.That(Mathf.Abs(playedPosition.z), Is.LessThan(0.33f));
+        }
     }
 }

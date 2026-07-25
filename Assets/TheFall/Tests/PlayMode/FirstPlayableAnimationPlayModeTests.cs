@@ -16,6 +16,25 @@ using UnityEngine.UIElements;
 
 namespace TheFall.Tests.PlayMode
 {
+    [SetUpFixture]
+    public sealed class PlayModeAudioMuteFixture
+    {
+        private float _previousVolume;
+
+        [OneTimeSetUp]
+        public void MuteAudio()
+        {
+            _previousVolume = AudioListener.volume;
+            AudioListener.volume = 0f;
+        }
+
+        [OneTimeTearDown]
+        public void RestoreAudio()
+        {
+            AudioListener.volume = _previousVolume;
+        }
+    }
+
     public sealed class FirstPlayableAnimationPlayModeTests
     {
         [UnityTest]
@@ -366,6 +385,18 @@ namespace TheFall.Tests.PlayMode
                 var progress = table.AnimationPlayer.ActiveStepProgress;
                 if (!ReferenceEquals(step, trackedCaptureStep))
                 {
+                    if (CompletesCollection(trackedCaptureStep))
+                    {
+                        Assert.That(
+                            table.RenderedCards
+                                .Where(card =>
+                                    card.Zone == FirstPlayableCardZone.LocalCaptured
+                                    || card.Zone == FirstPlayableCardZone.OpponentCaptured)
+                                .All(card => !card.IsFaceUp && !card.Card.HasValue),
+                            Is.True,
+                            $"{trackedCaptureStep.Kind} left a captured card face-up at its step boundary.");
+                    }
+
                     trackedCaptureStep = step;
                     stableTablePositions.Clear();
                 }
@@ -441,6 +472,24 @@ namespace TheFall.Tests.PlayMode
             return kind == ResolvedAnimationStepKind.NormalCapture
                 || kind == ResolvedAnimationStepKind.CascadeCapture
                 || kind == ResolvedAnimationStepKind.CaptureCollection;
+        }
+
+        private static bool CompletesCollection(ResolvedAnimationStep step)
+        {
+            if (step == null)
+            {
+                return false;
+            }
+
+            if (step.Kind == ResolvedAnimationStepKind.CaptureCollection
+                || step.Kind == ResolvedAnimationStepKind.Leftovers)
+            {
+                return true;
+            }
+
+            return step.Kind == ResolvedAnimationStepKind.NormalCapture
+                && step.SourceEvent is CardsCapturedEvent captured
+                && captured.Cards.Count <= 2;
         }
 
         private static IEnumerator LoadMatchWithoutSettlingPresentation()
