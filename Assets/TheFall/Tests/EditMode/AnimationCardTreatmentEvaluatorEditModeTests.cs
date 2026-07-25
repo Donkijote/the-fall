@@ -74,6 +74,17 @@ namespace TheFall.Tests.EditMode
                 true,
                 false,
                 false);
+            var settlingFaceDown = AnimationCardTreatmentEvaluator.EvaluateNormalCapture(
+                start,
+                stack,
+                target,
+                AnimationCardTreatmentEvaluator.CapturePickupStartProgress
+                    + (1f - AnimationCardTreatmentEvaluator.CapturePickupStartProgress) * 0.75f,
+                AnimationBeatEasing.EaseInOut,
+                Vector3.up,
+                true,
+                false,
+                false);
             var cascadeLeadIn = AnimationCardTreatmentEvaluator.EvaluateNormalCapture(
                 start,
                 stack,
@@ -90,6 +101,9 @@ namespace TheFall.Tests.EditMode
             Assert.That(Vector3.Distance(collected.Position, target), Is.LessThan(0.0001f));
             Assert.That(collected.FaceUp, Is.False);
             Assert.That(collected.FlipDegrees, Is.EqualTo(360f).Within(0.001f));
+            Assert.That(settlingFaceDown.FaceUp, Is.False);
+            Assert.That(settlingFaceDown.FlipDegrees, Is.EqualTo(360f).Within(0.001f));
+            Assert.That(Vector3.Distance(settlingFaceDown.Position, target), Is.GreaterThan(0.0001f));
             Assert.That(Vector3.Distance(cascadeLeadIn.Position, stack), Is.LessThan(0.0001f));
             Assert.That(cascadeLeadIn.FaceUp, Is.True);
             Assert.That(cascadeLeadIn.FlipDegrees, Is.EqualTo(180f).Within(0.001f));
@@ -118,7 +132,8 @@ namespace TheFall.Tests.EditMode
             Assert.That(accumulation.FaceUp, Is.True);
             Assert.That(accumulation.FlipDegrees, Is.EqualTo(180f));
             Assert.That(collection.FaceUp, Is.False);
-            Assert.That(collection.FlipDegrees, Is.GreaterThan(180f));
+            Assert.That(collection.FlipDegrees, Is.EqualTo(360f).Within(0.001f));
+            Assert.That(Vector3.Distance(collection.Position, Vector3.one), Is.GreaterThan(0.0001f));
         }
 
         [Test]
@@ -161,8 +176,20 @@ namespace TheFall.Tests.EditMode
             Assert.That(firstRun, Is.Not.EqualTo(Enumerable.Range(0, ranks.Length)));
             Assert.That(positions.Select(position => position.z).Distinct().Count(), Is.GreaterThan(2));
             Assert.That(positions, Has.All.Matches<Vector3>(
-                position => Mathf.Abs(position.x) < 0.43f
-                    && Mathf.Abs(position.z) < 0.30f));
+                position => Mathf.Abs(position.x) < 0.49f
+                    && Mathf.Abs(position.z) < 0.40f));
+            for (var first = 0; first < positions.Count; first++)
+            {
+                for (var second = first + 1; second < positions.Count; second++)
+                {
+                    var delta = positions[first] - positions[second];
+                    Assert.That(
+                        Mathf.Abs(delta.x) >= 0.21f
+                            || Mathf.Abs(delta.z) >= 0.28f,
+                        Is.True,
+                        $"Table anchors {first} and {second} do not leave card clearance.");
+                }
+            }
         }
     }
 }

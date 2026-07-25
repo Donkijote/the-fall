@@ -116,6 +116,9 @@ namespace TheFall.Tests.EditMode
             var afterPlacement = FirstPlayableTableSnapshot.Create(
                 afterPlacementState,
                 afterCapture);
+            var afterSynchronization = FirstPlayableTableSnapshot.Create(
+                afterPlacementState,
+                afterPlacement);
 
             Assert.That(before.TableLayoutIndices, Is.Not.EqualTo(new[] { 0, 1, 2 }));
             Assert.That(
@@ -142,6 +145,10 @@ namespace TheFall.Tests.EditMode
                     afterPlacement.ResolveAvailableTableLayoutIndex(
                         new Card(CardSuit.Coins, CardRank.Six))),
                 Is.False);
+            Assert.That(
+                afterSynchronization.TableLayoutIndices,
+                Is.EqualTo(afterPlacement.TableLayoutIndices),
+                "Final synchronization must not relocate the newly placed card.");
         }
 
         [Test]

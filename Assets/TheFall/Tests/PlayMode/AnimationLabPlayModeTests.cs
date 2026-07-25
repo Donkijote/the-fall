@@ -134,6 +134,10 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.FaceDownCapturePairViewCount, Is.EqualTo(2));
             Assert.That(controller.CapturePairFlipDegrees, Is.GreaterThan(270f));
 
+            controller.SeekToStep(0, 0.9f);
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.EqualTo(2));
+            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(360f).Within(0.1f));
+
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.CapturePairViewCount, Is.Zero);
             Assert.That(controller.CapturedPileViewCount, Is.EqualTo(2));
@@ -269,7 +273,7 @@ namespace TheFall.Tests.PlayMode
             controller.SeekToStep(4, 0.75f);
             Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
             Assert.That(controller.FaceDownCascadeStackViewCount, Is.EqualTo(5));
-            Assert.That(controller.CascadeStackFlipDegrees, Is.GreaterThan(270f));
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(360f).Within(0.1f));
 
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.CascadeStackViewCount, Is.Zero);
@@ -307,7 +311,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CapturedPileViewCount, Is.EqualTo(1));
             Assert.That(controller.LeftoverCollectionViewCount, Is.EqualTo(2));
             Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.Zero);
-            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(180f).Within(0.2f));
             Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
 
             var existingPileCard = controller.PreviewRoot
@@ -316,7 +320,7 @@ namespace TheFall.Tests.PlayMode
 
             controller.SeekToStep(0, 0.75f);
             Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.EqualTo(2));
-            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.GreaterThan(270f));
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(360f).Within(0.1f));
 
             controller.SeekToStep(0, 0.99f);
             var matchingLeftover = controller.PreviewRoot

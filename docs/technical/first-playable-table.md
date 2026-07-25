@@ -55,8 +55,8 @@ resetting manual changes.
 - public table cards retain their presentation slots when another card is captured; capture and
   cascade removal never compact or rearrange the surviving table
 - table placement uses a bounded pool of ten irregular anchors matching the ten game ranks; each
-  new card deterministically chooses among empty anchors without insertion-order row filling, while
-  small position and angle variation stays inside the central table field
+  new card deterministically chooses the clearest empty anchor without insertion-order row filling,
+  while small position and angle variation stays inside the central table field
 - compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker

@@ -33,6 +33,7 @@ namespace TheFall.Presentation.Animation
     {
         public const float CapturePlayEndProgress = 0.38f;
         public const float CapturePickupStartProgress = 0.46f;
+        public const float CollectionFlipEndProgress = 0.68f;
 
         public static Vector3 EvaluateTranslation(
             Vector3 start,
@@ -124,19 +125,21 @@ namespace TheFall.Presentation.Animation
             var playEased = AnimationBeatEvaluator.EvaluateEasedProgress(
                 playProgress,
                 easing);
-            var collectionEased = AnimationBeatEvaluator.EvaluateEasedProgress(
-                collectionProgress,
+            var collectionFlipProgress = Mathf.Clamp01(
+                collectionProgress / CollectionFlipEndProgress);
+            var collectionFlipEased = AnimationBeatEvaluator.EvaluateEasedProgress(
+                collectionFlipProgress,
                 easing);
             var flipDegrees = revealsPlayedCard && !isCollecting
                 ? playEased * 180f
                 : continuesToCascade
                     ? 180f
-                    : 180f + collectionEased * 180f;
+                    : 180f + collectionFlipEased * 180f;
             var faceUp = revealsPlayedCard && !isCollecting
                 ? playProgress >= 0.5f
                 : continuesToCascade
                     || !isCollecting
-                    || collectionProgress < 0.5f;
+                    || collectionFlipProgress < 0.5f;
             return new AnimationCardTreatmentPose(
                 position,
                 flipDegrees,
@@ -153,13 +156,20 @@ namespace TheFall.Presentation.Animation
             bool completesCapture)
         {
             var clamped = Mathf.Clamp01(progress);
-            var eased = AnimationBeatEvaluator.EvaluateEasedProgress(clamped, easing);
+            var collectionFlipProgress = completesCapture
+                ? Mathf.Clamp01(clamped / CollectionFlipEndProgress)
+                : 0f;
+            var collectionFlipEased = completesCapture
+                ? AnimationBeatEvaluator.EvaluateEasedProgress(
+                    collectionFlipProgress,
+                    easing)
+                : 0f;
             return new AnimationCardTreatmentPose(
                 stationaryTarget
                     ? target
                     : EvaluateTranslation(start, target, clamped, easing, trajectory),
-                completesCapture ? 180f + eased * 180f : 180f,
-                !completesCapture || clamped < 0.5f);
+                completesCapture ? 180f + collectionFlipEased * 180f : 180f,
+                !completesCapture || collectionFlipProgress < 0.5f);
         }
     }
 
@@ -173,16 +183,16 @@ namespace TheFall.Presentation.Animation
 
         private static readonly Vector2[] Anchors =
         {
-            new Vector2(-0.36f, -0.18f),
-            new Vector2(0.03f, 0.23f),
-            new Vector2(0.34f, -0.10f),
-            new Vector2(-0.09f, -0.27f),
-            new Vector2(-0.39f, 0.12f),
-            new Vector2(0.27f, 0.24f),
-            new Vector2(0.02f, -0.05f),
-            new Vector2(0.40f, 0.07f),
-            new Vector2(-0.23f, 0.25f),
-            new Vector2(0.22f, -0.26f),
+            new Vector2(-0.34f, -0.37f),
+            new Vector2(0.01f, -0.34f),
+            new Vector2(0.36f, -0.38f),
+            new Vector2(-0.46f, -0.01f),
+            new Vector2(-0.15f, 0.02f),
+            new Vector2(0.16f, -0.02f),
+            new Vector2(0.47f, 0.01f),
+            new Vector2(-0.36f, 0.37f),
+            new Vector2(0f, 0.34f),
+            new Vector2(0.35f, 0.38f),
         };
 
         private static readonly int[] ProbeStrides = { 1, 3, 7, 9 };
@@ -201,13 +211,40 @@ namespace TheFall.Presentation.Animation
             var seed = ResolveCardSeed(card);
             var start = (int)((uint)seed % Capacity);
             var stride = ProbeStrides[(int)(((uint)seed >> 8) % ProbeStrides.Length)];
+            var bestCandidate = -1;
+            var bestClearance = float.NegativeInfinity;
             for (var offset = 0; offset < Capacity; offset++)
             {
                 var candidate = (start + offset * stride) % Capacity;
-                if (!occupied[candidate])
+                if (occupied[candidate])
                 {
-                    return candidate;
+                    continue;
                 }
+
+                var clearance = float.PositiveInfinity;
+                for (var occupiedIndex = 0; occupiedIndex < Capacity; occupiedIndex++)
+                {
+                    if (!occupied[occupiedIndex])
+                    {
+                        continue;
+                    }
+
+                    clearance = Mathf.Min(
+                        clearance,
+                        Vector2.SqrMagnitude(
+                            Anchors[candidate] - Anchors[occupiedIndex]));
+                }
+
+                if (clearance > bestClearance)
+                {
+                    bestClearance = clearance;
+                    bestCandidate = candidate;
+                }
+            }
+
+            if (bestCandidate >= 0)
+            {
+                return bestCandidate;
             }
 
             throw new InvalidOperationException(
@@ -226,8 +263,8 @@ namespace TheFall.Presentation.Animation
 
             var seed = ResolveCardSeed(card);
             var position = ResolveAnchorPosition(layoutIndex, baseHeight);
-            position.x += ResolveSignedVariation(seed) * 0.016f;
-            position.z += ResolveSignedVariation(seed * 31 + 17) * 0.012f;
+            position.x += ResolveSignedVariation(seed) * 0.010f;
+            position.z += ResolveSignedVariation(seed * 31 + 17) * 0.008f;
             return position;
         }
 

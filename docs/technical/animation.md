@@ -174,8 +174,9 @@ concurrent zero-trajectory reflow, so they do not inherit the incoming card's ar
 rejection remains face-up until it turns back into the temporary deck gap. Normal captures first
 stack the played card on its match, cascade beats move the complete growing stack, and only the
 `CaptureCollection` treatment turns that stack face down. Leftovers use the same face-up-to-collected
-treatment. Each path reads its duration, delay, easing, trajectory, fast-forward, and reduced-motion
-values from the active versioned preset.
+treatment. Collection flips complete before the final settling portion of the trip, so every card
+is visibly back-up before it reaches the pile. Each path reads its duration, delay, easing,
+trajectory, fast-forward, and reduced-motion values from the active versioned preset.
 
 An active viewport or safe-area recomposition is atomic: the table captures the current presentation
 pose, rebuilds transient views, prepares the same shared treatment, and applies its current progress
@@ -201,8 +202,10 @@ moving stack reaches it or the sequence completes. The incoming target remains s
 its beat and joins the lifted stack only on the following cascade beat. The layout is a bounded
 ten-anchor pool, matching the accepted one-card-per-rank table maximum. The anchors form an
 irregular scatter rather than rows, and each later play uses a card-seeded probe through the empty
-anchors. Deterministic per-card jitter and angle variation preserve replay stability without moving
-survivors or allowing the occupied area to grow toward either player.
+anchors. The probe prefers the free anchor with the most clearance from occupied anchors before
+using the card seed as its stable tie breaker. Deterministic per-card jitter and angle variation
+preserve replay stability without moving survivors, overlapping cards, or allowing the occupied
+area to grow toward either player.
 
 The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top.
 
