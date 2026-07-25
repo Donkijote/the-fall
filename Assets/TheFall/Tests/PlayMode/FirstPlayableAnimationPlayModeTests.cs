@@ -358,10 +358,50 @@ namespace TheFall.Tests.PlayMode
             System.Action<bool> observeCollectionFlip)
         {
             var deadline = Time.realtimeSinceStartup + 10f;
+            ResolvedAnimationStep trackedCaptureStep = null;
+            var stableTablePositions = new Dictionary<Card, Vector3>();
             while (table.IsPresentationBusy && Time.realtimeSinceStartup < deadline)
             {
                 var step = table.AnimationPlayer.ActiveStep;
                 var progress = table.AnimationPlayer.ActiveStepProgress;
+                if (!ReferenceEquals(step, trackedCaptureStep))
+                {
+                    trackedCaptureStep = step;
+                    stableTablePositions.Clear();
+                }
+
+                if (step != null
+                    && IsCaptureTreatment(step.Kind)
+                    && step.SourceEvent is CardsCapturedEvent captured)
+                {
+                    foreach (var rendered in table.RenderedCards)
+                    {
+                        if (rendered.Zone != FirstPlayableCardZone.Table
+                            || !rendered.Card.HasValue
+                            || captured.Cards.Contains(rendered.Card.Value))
+                        {
+                            continue;
+                        }
+
+                        if (stableTablePositions.TryGetValue(
+                                rendered.Card.Value,
+                                out var stablePosition))
+                        {
+                            Assert.That(
+                                Vector3.Distance(
+                                    rendered.transform.position,
+                                    stablePosition),
+                                Is.LessThan(0.0001f),
+                                $"{rendered.Card.Value} moved during {step.Kind}.");
+                        }
+                        else
+                        {
+                            stableTablePositions[rendered.Card.Value] =
+                                rendered.transform.position;
+                        }
+                    }
+                }
+
                 if (step != null
                     && table.ActiveSpatialMotionKind == step.Kind
                     && table.ActiveSpatialMotionCount > 0
@@ -394,6 +434,13 @@ namespace TheFall.Tests.PlayMode
             }
 
             Assert.That(table.IsPresentationBusy, Is.False);
+        }
+
+        private static bool IsCaptureTreatment(ResolvedAnimationStepKind kind)
+        {
+            return kind == ResolvedAnimationStepKind.NormalCapture
+                || kind == ResolvedAnimationStepKind.CascadeCapture
+                || kind == ResolvedAnimationStepKind.CaptureCollection;
         }
 
         private static IEnumerator LoadMatchWithoutSettlingPresentation()

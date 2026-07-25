@@ -52,6 +52,8 @@ resetting manual changes.
 - every visible face uses the forty-card `CardVisualCatalog` and shared atlas material
 - opponent hands and dealer-selection cards use the direction-neutral back
 - captured cards remain face down in separate owner piles
+- public table cards retain their presentation slots when another card is captured; capture and
+  cascade removal never compact or rearrange the surviving table
 - compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker

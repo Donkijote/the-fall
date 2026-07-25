@@ -432,7 +432,7 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
-            Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State);
+            Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State, Snapshot);
             if (_inputAdapter != null)
             {
                 _inputAdapter.SetCards(Snapshot.LocalHand);
@@ -478,7 +478,8 @@ namespace TheFall.Presentation.Match
             var sourcePositions = animateChangedCards ? CapturePresentationCardPositions() : null;
             Snapshot = FirstPlayableTableSnapshot.Create(
                 _animationPlayer.RenderedState,
-                _animationPlayer.RenderedReferenceState);
+                _animationPlayer.RenderedReferenceState,
+                Snapshot);
             ResolveActiveDealerSelectionSlot(sourcePositions);
             _inputAdapter?.SetCards(Snapshot.LocalHand);
             Rebuild(viewport, safeArea);
@@ -500,7 +501,7 @@ namespace TheFall.Presentation.Match
             var flow = _flowController?.Flow;
             if (flow?.Match != null)
             {
-                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State);
+                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State, Snapshot);
                 _inputAdapter?.SetCards(Snapshot.LocalHand);
                 Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
             }
@@ -561,7 +562,7 @@ namespace TheFall.Presentation.Match
             var flow = _flowController.Flow;
             if (flow.Match != null)
             {
-                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State);
+                Snapshot = FirstPlayableTableSnapshot.Create(flow.Match.State, Snapshot);
                 _inputAdapter?.SetCards(Snapshot.LocalHand);
             }
 
@@ -740,6 +741,13 @@ namespace TheFall.Presentation.Match
 
                 if (IsOwnedBySpecialMotion(step, rendered.PresentationCard.Value))
                 {
+                    continue;
+                }
+
+                if (IsCaptureTreatment(step.Kind)
+                    && rendered.Zone == FirstPlayableCardZone.Table)
+                {
+                    rendered.transform.position = start;
                     continue;
                 }
 
@@ -960,7 +968,7 @@ namespace TheFall.Presentation.Match
             var hasExistingStart = source.Cards.TryGetValue(step.Cards[0], out var existingStart);
             var start = hasExistingStart
                 ? existingStart
-                : ResolveTableCardWorldPosition(rejected.TablePosition);
+                : ResolveTableCardWorldPosition(Snapshot.TableLayoutSlotCount);
             var insertionIndex = Mathf.Clamp(rejected.ReinsertedDeckIndex, 0, Snapshot.DeckCount - 1);
             FirstPlayableRenderedCard target = null;
             for (var index = 0; index < _renderedCards.Count; index++)
@@ -1282,6 +1290,13 @@ namespace TheFall.Presentation.Match
             return kind == ResolvedAnimationStepKind.Deal
                 || kind == ResolvedAnimationStepKind.CardPlay
                 || kind == ResolvedAnimationStepKind.NormalCapture;
+        }
+
+        private static bool IsCaptureTreatment(ResolvedAnimationStepKind kind)
+        {
+            return kind == ResolvedAnimationStepKind.NormalCapture
+                || kind == ResolvedAnimationStepKind.CascadeCapture
+                || kind == ResolvedAnimationStepKind.CaptureCollection;
         }
 
         private float GetParallelMotionDurationFraction(ResolvedAnimationStepKind primaryKind)
@@ -1826,11 +1841,17 @@ namespace TheFall.Presentation.Match
             _tableCardsRuntimeAnchor = zoneParent;
             for (var index = 0; index < cards.Count; index++)
             {
-                var row = index / 5;
-                var column = index % 5;
+                var layoutIndex = Snapshot.TableLayoutIndices[index];
+                var row = layoutIndex / 5;
+                var column = layoutIndex % 5;
                 CreateCard(zoneParent, $"Table {cards[index]}",
                     new Vector3((column - 2f) * 0.23f, row * 0.002f, row * 0.31f),
-                    FirstPlayableCardZone.Table, true, cards[index], index);
+                    FirstPlayableCardZone.Table,
+                    true,
+                    cards[index],
+                    index,
+                    false,
+                    layoutIndex);
             }
         }
 

@@ -78,6 +78,51 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void SnapshotPreservesSurvivingTableSlotsAcrossCaptureAndLaterPlacement()
+        {
+            var match = CreateMatch(2528);
+            var baseline = match.State;
+            var first = new Card(CardSuit.Coins, CardRank.Two);
+            var captured = new Card(CardSuit.Cups, CardRank.Three);
+            var survivor = new Card(CardSuit.Clubs, CardRank.Four);
+            var later = new Card(CardSuit.Swords, CardRank.Five);
+            var beforeState = MatchState.CreateOneVersusOne(
+                baseline.GetPlayerAt(Seat.First),
+                baseline.GetPlayerAt(Seat.Second),
+                baseline.DealerSeat,
+                baseline.CurrentSeat,
+                new[] { first, captured, survivor },
+                baseline.Deck,
+                baseline.Rules);
+            var afterCaptureState = MatchState.CreateOneVersusOne(
+                baseline.GetPlayerAt(Seat.First),
+                baseline.GetPlayerAt(Seat.Second),
+                baseline.DealerSeat,
+                baseline.CurrentSeat,
+                new[] { first, survivor },
+                baseline.Deck,
+                baseline.Rules);
+            var afterPlacementState = MatchState.CreateOneVersusOne(
+                baseline.GetPlayerAt(Seat.First),
+                baseline.GetPlayerAt(Seat.Second),
+                baseline.DealerSeat,
+                baseline.CurrentSeat,
+                new[] { first, survivor, later },
+                baseline.Deck,
+                baseline.Rules);
+
+            var before = FirstPlayableTableSnapshot.Create(beforeState);
+            var afterCapture = FirstPlayableTableSnapshot.Create(afterCaptureState, before);
+            var afterPlacement = FirstPlayableTableSnapshot.Create(
+                afterPlacementState,
+                afterCapture);
+
+            Assert.That(before.TableLayoutIndices, Is.EqualTo(new[] { 0, 1, 2 }));
+            Assert.That(afterCapture.TableLayoutIndices, Is.EqualTo(new[] { 0, 2 }));
+            Assert.That(afterPlacement.TableLayoutIndices, Is.EqualTo(new[] { 0, 2, 3 }));
+        }
+
+        [Test]
         public void CompleteMatchSnapshotsAlwaysReferenceTheResultingAuthoritativeState()
         {
             var match = CreateMatch(2526);
