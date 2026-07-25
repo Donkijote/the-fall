@@ -199,9 +199,10 @@ Removing the matching card or a reached cascade card never compacts the untouche
 empty slots: every future cascade target and every unrelated table card remains planted until the
 moving stack reaches it or the sequence completes. The incoming target remains stationary during
 its beat and joins the lifted stack only on the following cascade beat. The layout is a bounded
-ten-slot pool, matching the accepted one-card-per-rank table maximum. Later plays reuse empty slots;
-deterministic per-card jitter and angle variation avoid a rigid grid without sacrificing replay
-stability or allowing rows to grow toward either player.
+ten-anchor pool, matching the accepted one-card-per-rank table maximum. The anchors form an
+irregular scatter rather than rows, and each later play uses a card-seeded probe through the empty
+anchors. Deterministic per-card jitter and angle variation preserve replay stability without moving
+survivors or allowing the occupied area to grow toward either player.
 
 The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top.
 

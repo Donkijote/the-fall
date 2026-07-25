@@ -24,7 +24,7 @@ namespace TheFall.Presentation.Match
     /// </summary>
     public sealed class FirstPlayableTableSnapshot
     {
-        public const int TableLayoutCapacity = 10;
+        public const int TableLayoutCapacity = AnimationTableCardLayoutEvaluator.Capacity;
 
         private readonly IReadOnlyList<Card> _localHand;
         private readonly IReadOnlyList<int> _localHandLayoutIndices;
@@ -237,15 +237,11 @@ namespace TheFall.Presentation.Match
             return new FirstPlayableTableSnapshot(state, referenceState, previous);
         }
 
-        public int ResolveAvailableTableLayoutIndex()
+        public int ResolveAvailableTableLayoutIndex(Card card)
         {
-            var occupied = new bool[TableLayoutCapacity];
-            for (var index = 0; index < _tableLayoutIndices.Count; index++)
-            {
-                occupied[_tableLayoutIndices[index]] = true;
-            }
-
-            return FindFirstAvailableTableLayoutIndex(occupied);
+            return AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                card,
+                _tableLayoutIndices);
         }
 
         private static IReadOnlyList<int> ResolveTableLayoutIndices(
@@ -264,6 +260,7 @@ namespace TheFall.Presentation.Match
 
             var resolved = new int[cards.Count];
             var occupied = new bool[TableLayoutCapacity];
+            var occupiedIndices = new List<int>(TableLayoutCapacity);
             for (var index = 0; index < cards.Count; index++)
             {
                 if (!previousIndices.TryGetValue(cards[index], out var retainedIndex)
@@ -276,6 +273,7 @@ namespace TheFall.Presentation.Match
 
                 resolved[index] = retainedIndex;
                 occupied[retainedIndex] = true;
+                occupiedIndices.Add(retainedIndex);
             }
 
             for (var index = 0; index < cards.Count; index++)
@@ -289,26 +287,15 @@ namespace TheFall.Presentation.Match
                     continue;
                 }
 
-                var availableIndex = FindFirstAvailableTableLayoutIndex(occupied);
+                var availableIndex = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    cards[index],
+                    occupiedIndices);
                 resolved[index] = availableIndex;
                 occupied[availableIndex] = true;
+                occupiedIndices.Add(availableIndex);
             }
 
             return Array.AsReadOnly(resolved);
-        }
-
-        private static int FindFirstAvailableTableLayoutIndex(bool[] occupied)
-        {
-            for (var index = 0; index < occupied.Length; index++)
-            {
-                if (!occupied[index])
-                {
-                    return index;
-                }
-            }
-
-            throw new InvalidOperationException(
-                $"The table cannot contain more than {TableLayoutCapacity} rank slots.");
         }
 
         private static int ResolveLayoutSlotCount(IReadOnlyList<int> indices)

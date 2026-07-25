@@ -324,6 +324,11 @@ namespace TheFall.Presentation.Animation
                     target = entry.Value.localPosition;
                 }
 
+                if (Contains(state.Table, entry.Key))
+                {
+                    entry.Value.localRotation = ResolveTableCardRotation(entry.Key);
+                }
+
                 _motions.Add(new CardMotion(
                     entry.Value,
                     entry.Value.localPosition,
@@ -448,6 +453,9 @@ namespace TheFall.Presentation.Animation
             foreach (var entry in _cardViews)
             {
                 entry.Value.localPosition = ResolveCardPosition(state, entry.Key);
+                entry.Value.localRotation = Contains(state.Table, entry.Key)
+                    ? ResolveTableCardRotation(entry.Key)
+                    : Quaternion.Euler(90f, 0f, 0f);
             }
 
             RefreshLabels(state);
@@ -961,11 +969,17 @@ namespace TheFall.Presentation.Animation
             var existingCapturedCount = Math.Max(
                 0,
                 state.GetCaptured(player.Id).Count - capturedEvent.Cards.Count);
+            var sourceTableCard = isCollectionStep
+                ? capturedEvent.Cards[currentIndex]
+                : capturedEvent.Cards[currentIndex - 1];
             var sourceBase = ResolveTablePosition(
-                isCollectionStep ? capturedEvent.Cards.Count - 2 : currentIndex - 2);
+                state.GetTableLayoutIndex(sourceTableCard),
+                sourceTableCard);
             var targetBase = isCollectionStep
                 ? Vector3.zero
-                : ResolveTablePosition(currentIndex - 1);
+                : ResolveTablePosition(
+                    state.GetTableLayoutIndex(capturedEvent.Cards[currentIndex]),
+                    capturedEvent.Cards[currentIndex]);
             for (var cardIndex = 0; cardIndex <= currentIndex; cardIndex++)
             {
                 var card = capturedEvent.Cards[cardIndex];
@@ -1311,12 +1325,13 @@ namespace TheFall.Presentation.Animation
                     if (state.Table[index].Rank == card.Rank)
                     {
                         return ResolveTablePosition(
-                            state.GetTableLayoutIndex(state.Table[index])) +
+                            state.GetTableLayoutIndex(state.Table[index]),
+                            state.Table[index]) +
                             Vector3.up * 0.012f;
                     }
                 }
 
-                return ResolveTablePosition(state.GetTableLayoutIndex(card));
+                return ResolveTablePosition(state.GetTableLayoutIndex(card), card);
             }
 
             foreach (var player in state.Players)
@@ -1394,17 +1409,20 @@ namespace TheFall.Presentation.Animation
             return ResolveCardPosition(state, card);
         }
 
-        private static Vector3 ResolveTablePosition(int index)
+        private static Vector3 ResolveTablePosition(int index, Card card)
         {
-            var tablePositions = new[]
-            {
-                new Vector3(-0.23f, 0.82f, 0.08f),
-                new Vector3(0f, 0.825f, 0.12f),
-                new Vector3(0.23f, 0.83f, 0.08f),
-                new Vector3(-0.12f, 0.835f, -0.16f),
-                new Vector3(0.12f, 0.84f, -0.16f),
-            };
-            return tablePositions[Mathf.Min(index, tablePositions.Length - 1)];
+            return AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
+                index,
+                card,
+                0.82f);
+        }
+
+        private static Quaternion ResolveTableCardRotation(Card card)
+        {
+            return Quaternion.AngleAxis(
+                    AnimationTableCardLayoutEvaluator.ResolveYaw(card),
+                    Vector3.up)
+                * Quaternion.Euler(90f, 0f, 0f);
         }
 
         private void RefreshLabels(AnimationPresentationState state)

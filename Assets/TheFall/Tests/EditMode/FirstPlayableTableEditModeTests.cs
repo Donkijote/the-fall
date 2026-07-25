@@ -117,13 +117,31 @@ namespace TheFall.Tests.EditMode
                 afterPlacementState,
                 afterCapture);
 
-            Assert.That(before.TableLayoutIndices, Is.EqualTo(new[] { 0, 1, 2 }));
-            Assert.That(afterCapture.TableLayoutIndices, Is.EqualTo(new[] { 0, 2 }));
-            Assert.That(afterPlacement.TableLayoutIndices, Is.EqualTo(new[] { 0, 2, 1 }));
+            Assert.That(before.TableLayoutIndices, Is.Not.EqualTo(new[] { 0, 1, 2 }));
+            Assert.That(
+                afterCapture.TableLayoutIndices,
+                Is.EqualTo(new[]
+                {
+                    before.TableLayoutIndices[0],
+                    before.TableLayoutIndices[2],
+                }));
+            Assert.That(
+                afterPlacement.TableLayoutIndices[0],
+                Is.EqualTo(afterCapture.TableLayoutIndices[0]));
+            Assert.That(
+                afterPlacement.TableLayoutIndices[1],
+                Is.EqualTo(afterCapture.TableLayoutIndices[1]));
+            Assert.That(
+                afterPlacement.TableLayoutIndices.Distinct().Count(),
+                Is.EqualTo(afterPlacement.TableLayoutIndices.Count));
             Assert.That(
                 afterPlacement.TableLayoutIndices,
                 Has.All.InRange(0, FirstPlayableTableSnapshot.TableLayoutCapacity - 1));
-            Assert.That(afterPlacement.ResolveAvailableTableLayoutIndex(), Is.EqualTo(3));
+            Assert.That(
+                afterPlacement.TableLayoutIndices.Contains(
+                    afterPlacement.ResolveAvailableTableLayoutIndex(
+                        new Card(CardSuit.Coins, CardRank.Six))),
+                Is.False);
         }
 
         [Test]

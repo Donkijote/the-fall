@@ -248,15 +248,18 @@ namespace TheFall.Presentation.Animation
             _table.Clear();
             _table.AddRange(state.Table);
             _tableLayoutIndices.Clear();
+            var retainedTableLayoutIndices = new HashSet<int>();
             foreach (var card in _table)
             {
-                if (previousTableLayoutIndices.TryGetValue(card, out var previousIndex))
+                if (previousTableLayoutIndices.TryGetValue(card, out var previousIndex)
+                    && previousIndex >= 0
+                    && previousIndex < AnimationTableCardLayoutEvaluator.Capacity
+                    && retainedTableLayoutIndices.Add(previousIndex))
                 {
                     _tableLayoutIndices[card] = previousIndex;
                 }
             }
 
-            var nextTableLayoutIndex = 0;
             foreach (var card in _table)
             {
                 if (_tableLayoutIndices.ContainsKey(card))
@@ -264,12 +267,10 @@ namespace TheFall.Presentation.Animation
                     continue;
                 }
 
-                while (_tableLayoutIndices.ContainsValue(nextTableLayoutIndex))
-                {
-                    nextTableLayoutIndex++;
-                }
-
-                _tableLayoutIndices[card] = nextTableLayoutIndex++;
+                _tableLayoutIndices[card] =
+                    AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                        card,
+                        _tableLayoutIndices.Values);
             }
             _dealerSelectionCards.Clear();
             _dealerSelectionCards.AddRange(state.DealerSelectionCards);
@@ -443,22 +444,29 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            _table.Add(card);
-            var nextIndex = 0;
-            foreach (var index in _tableLayoutIndices.Values)
+            var occupiedIndices = new List<int>();
+            foreach (var tableCard in _table)
             {
-                nextIndex = Math.Max(nextIndex, index + 1);
+                if (_tableLayoutIndices.TryGetValue(tableCard, out var occupiedIndex))
+                {
+                    occupiedIndices.Add(occupiedIndex);
+                }
             }
 
-            _tableLayoutIndices[card] = nextIndex;
+            _table.Add(card);
+            if (!_tableLayoutIndices.TryGetValue(card, out var retainedIndex)
+                || occupiedIndices.Contains(retainedIndex))
+            {
+                _tableLayoutIndices[card] =
+                    AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                        card,
+                        occupiedIndices);
+            }
         }
 
         private void RemoveTableCard(Card card)
         {
-            if (_table.Remove(card))
-            {
-                _tableLayoutIndices.Remove(card);
-            }
+            _table.Remove(card);
         }
     }
 }

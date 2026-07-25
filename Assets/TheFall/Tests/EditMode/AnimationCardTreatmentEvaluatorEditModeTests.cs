@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
+using TheFall.Domain;
 using TheFall.Presentation.Animation;
 using UnityEngine;
 
@@ -116,6 +119,50 @@ namespace TheFall.Tests.EditMode
             Assert.That(accumulation.FlipDegrees, Is.EqualTo(180f));
             Assert.That(collection.FaceUp, Is.False);
             Assert.That(collection.FlipDegrees, Is.GreaterThan(180f));
+        }
+
+        [Test]
+        public void TableLayout_UsesDeterministicScatteredSlotsWithinTheBoundedField()
+        {
+            var ranks = new[]
+            {
+                CardRank.One,
+                CardRank.Two,
+                CardRank.Three,
+                CardRank.Four,
+                CardRank.Five,
+                CardRank.Six,
+                CardRank.Seven,
+                CardRank.Ten,
+                CardRank.Eleven,
+                CardRank.Twelve,
+            };
+            var firstRun = new List<int>();
+            var secondRun = new List<int>();
+            var positions = new List<Vector3>();
+            foreach (var rank in ranks)
+            {
+                var card = new Card(CardSuit.Coins, rank);
+                var firstSlot = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    card,
+                    firstRun);
+                var secondSlot = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    card,
+                    secondRun);
+                firstRun.Add(firstSlot);
+                secondRun.Add(secondSlot);
+                positions.Add(AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
+                    firstSlot,
+                    card));
+            }
+
+            Assert.That(firstRun, Is.EqualTo(secondRun));
+            Assert.That(firstRun.Distinct().Count(), Is.EqualTo(ranks.Length));
+            Assert.That(firstRun, Is.Not.EqualTo(Enumerable.Range(0, ranks.Length)));
+            Assert.That(positions.Select(position => position.z).Distinct().Count(), Is.GreaterThan(2));
+            Assert.That(positions, Has.All.Matches<Vector3>(
+                position => Mathf.Abs(position.x) < 0.43f
+                    && Mathf.Abs(position.z) < 0.30f));
         }
     }
 }
