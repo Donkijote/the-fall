@@ -58,6 +58,8 @@ resetting manual changes.
 - later player-played cards prefer six bounded outer anchors away from both seats, choosing the
   clearest empty anchor with deterministic position and angle variation; captured opening anchors
   become fallback capacity without moving survivors
+- table slot and resting-angle assignments survive animation steps, batch boundaries, completion,
+  skip, interruption, and cancellation; capture stacks inherit their source table angles
 - compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker

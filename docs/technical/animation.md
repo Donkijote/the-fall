@@ -202,7 +202,11 @@ the next resolved prefix instead of deriving a new slot from the compacted domai
 Removing the matching card or a reached cascade card never compacts the untouched cards into newly
 empty slots: every future cascade target and every unrelated table card remains planted until the
 moving stack reaches it or the sequence completes. The incoming target remains stationary during
-its beat and joins the lifted stack only on the following cascade beat. The layout is a bounded
+its beat and joins the lifted stack only on the following cascade beat. Cards entering the capture
+stack retain the exact resting angle they had on the table; joining a normal or cascade capture does
+not assign a new card-seeded angle. Table-slot assignments persist across animation transitions,
+normal completion, and early synchronization, so neither a newly played card nor any survivor can
+fall back into the opening grid or trigger a fresh scatter. The layout is a bounded
 ten-anchor pool, matching the accepted one-card-per-rank table maximum. Four inner anchors form the
 organized opening grid. Player-played cards prefer six irregular outer anchors that remain inside
 the central table field and away from both seats; if all six are occupied, captured opening anchors

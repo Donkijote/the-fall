@@ -636,7 +636,8 @@ namespace TheFall.Presentation.Match
                     snapshot.CardPoses[rendered.PresentationCard.Value] = new CardPose(
                         rendered.transform.position,
                         rendered.transform.localRotation,
-                        rendered.IsFaceUp);
+                        rendered.IsFaceUp,
+                        rendered.RestingYawDegrees);
                 }
 
                 if (rendered.Zone == FirstPlayableCardZone.Deck)
@@ -1075,9 +1076,9 @@ namespace TheFall.Presentation.Match
                 var target = continuesToCascade ? stack : rendered.transform.position;
                 var start = index == 0 ? playedStart : matchingStart;
                 var revealsFace = index == 0 && revealsPlayedCard;
-                if (index > 0)
+                if (source.CardPoses.TryGetValue(card, out var sourcePose))
                 {
-                    rendered.SetRestingYawDegrees(ResolveTableCardYaw(card));
+                    rendered.SetRestingYawDegrees(sourcePose.RestingYawDegrees);
                 }
 
                 ApplyCardFace(
@@ -1186,9 +1187,9 @@ namespace TheFall.Presentation.Match
                     ? rendered.transform.position
                     : currentPosition + lift * (currentIndex - index);
                 var stationaryTarget = !completesCapture && index == currentIndex;
-                if (index > 0)
+                if (source.CardPoses.TryGetValue(card, out var sourcePose))
                 {
-                    rendered.SetRestingYawDegrees(ResolveTableCardYaw(card));
+                    rendered.SetRestingYawDegrees(sourcePose.RestingYawDegrees);
                 }
 
                 ApplyCardFace(rendered, rendered.GetComponent<Renderer>(), card, true, 180f);
@@ -2475,11 +2476,16 @@ namespace TheFall.Presentation.Match
 
         private readonly struct CardPose
         {
-            public CardPose(Vector3 position, Quaternion localRotation, bool faceUp)
+            public CardPose(
+                Vector3 position,
+                Quaternion localRotation,
+                bool faceUp,
+                float restingYawDegrees)
             {
                 Position = position;
                 LocalRotation = localRotation;
                 FaceUp = faceUp;
+                RestingYawDegrees = restingYawDegrees;
             }
 
             public Vector3 Position { get; }
@@ -2487,6 +2493,8 @@ namespace TheFall.Presentation.Match
             public Quaternion LocalRotation { get; }
 
             public bool FaceUp { get; }
+
+            public float RestingYawDegrees { get; }
         }
 
         private readonly struct CardMotion

@@ -40,6 +40,21 @@ namespace TheFall.Presentation.Animation
             Synchronize(state);
         }
 
+        public AnimationPresentationState(
+            MatchState state,
+            AnimationPresentationState previous)
+        {
+            if (previous != null)
+            {
+                foreach (var entry in previous._tableLayoutIndices)
+                {
+                    _tableLayoutIndices[entry.Key] = entry.Value;
+                }
+            }
+
+            Synchronize(state);
+        }
+
         public IReadOnlyList<Player> Players => _players;
 
         public IReadOnlyList<Card> Table => _table;

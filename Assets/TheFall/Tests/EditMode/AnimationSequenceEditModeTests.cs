@@ -557,17 +557,93 @@ namespace TheFall.Tests.EditMode
             player.PlayInitialTrace(match.Trace);
             Drain(player);
             var safety = 0;
+            var observedPlayedCardRetainingAssignedSlot = false;
             while (match.State.Phase != MatchPhase.Completed && safety++ < 5000)
             {
+                var priorTableSlots = player.RenderedState.Table.ToDictionary(
+                    card => card,
+                    player.RenderedState.GetTableLayoutIndex);
                 var legal = match.GetHumanLegalIntents();
                 var advance = match.SubmitHumanIntent(ChooseHumanIntent(match.State, legal));
                 player.PlayAdvance(advance);
-                Drain(player);
+                var playedSlots = new System.Collections.Generic.Dictionary<Card, int>();
+                var drainSafety = 0;
+                while (player.IsBusy && drainSafety++ < 100000)
+                {
+                    player.Tick(0.02f);
+                    var step = player.ActiveStep;
+                    if (step == null
+                        || step.Kind != ResolvedAnimationStepKind.CardPlay
+                        || step.Cards.Count == 0
+                        || !player.RenderedState.Table.Contains(step.Cards[0]))
+                    {
+                        continue;
+                    }
+
+                    var card = step.Cards[0];
+                    var slot = player.RenderedState.GetTableLayoutIndex(card);
+                    if (playedSlots.TryGetValue(card, out var assignedSlot))
+                    {
+                        Assert.That(
+                            slot,
+                            Is.EqualTo(assignedSlot),
+                            $"{card} changed slots during its card-play animation.");
+                    }
+                    else
+                    {
+                        playedSlots[card] = slot;
+                    }
+                }
+
+                Assert.That(drainSafety, Is.LessThan(100000));
                 Assert.That(player.IsRenderedStateSynchronized, Is.True);
                 Assert.That(player.RenderedState.IsSynchronizedWith(match.State), Is.True);
+                var removedTableCards = advance.Resolutions
+                    .SelectMany(record => record.Events)
+                    .SelectMany(resolvedEvent =>
+                    {
+                        if (resolvedEvent is CardsCapturedEvent captured)
+                        {
+                            return captured.Cards;
+                        }
+
+                        if (resolvedEvent is LeftoversCollectedEvent leftovers)
+                        {
+                            return leftovers.Cards;
+                        }
+
+                        return System.Array.Empty<Card>();
+                    })
+                    .ToArray();
+                foreach (var card in player.RenderedState.Table)
+                {
+                    if (priorTableSlots.TryGetValue(card, out var priorSlot)
+                        && !removedTableCards.Contains(card))
+                    {
+                        Assert.That(
+                            player.RenderedState.GetTableLayoutIndex(card),
+                            Is.EqualTo(priorSlot),
+                            $"{card} moved after an animation batch completed.");
+                    }
+                }
+
+                foreach (var entry in playedSlots)
+                {
+                    if (!player.RenderedState.Table.Contains(entry.Key))
+                    {
+                        continue;
+                    }
+
+                    Assert.That(
+                        player.RenderedState.GetTableLayoutIndex(entry.Key),
+                        Is.EqualTo(entry.Value),
+                        $"{entry.Key} moved after its card-play animation completed.");
+                    observedPlayedCardRetainingAssignedSlot = true;
+                }
             }
 
             Assert.That(safety, Is.LessThan(5000));
+            Assert.That(observedPlayedCardRetainingAssignedSlot, Is.True);
             Assert.That(match.State.Phase, Is.EqualTo(MatchPhase.Completed));
             Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.DealerSelection));
             Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.Deal));

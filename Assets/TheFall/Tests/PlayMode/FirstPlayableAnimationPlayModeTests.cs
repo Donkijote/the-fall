@@ -237,6 +237,7 @@ namespace TheFall.Tests.PlayMode
             var observedSpatialBeats = new HashSet<ResolvedAnimationStepKind>();
             var spatialFrameCounts = new Dictionary<ResolvedAnimationStepKind, int>();
             var observedParallelReflowBeats = new HashSet<ResolvedAnimationStepKind>();
+            var stableTableSlots = new Dictionary<Card, int>();
             var observedRevealFlip = false;
             var observedCollectionFlip = false;
             yield return ObservePresentation(
@@ -244,6 +245,7 @@ namespace TheFall.Tests.PlayMode
                 observedSpatialBeats,
                 spatialFrameCounts,
                 observedParallelReflowBeats,
+                stableTableSlots,
                 value => observedRevealFlip |= value,
                 value => observedCollectionFlip |= value);
 
@@ -259,6 +261,7 @@ namespace TheFall.Tests.PlayMode
                     observedSpatialBeats,
                     spatialFrameCounts,
                     observedParallelReflowBeats,
+                    stableTableSlots,
                     value => observedRevealFlip |= value,
                     value => observedCollectionFlip |= value);
             }
@@ -373,16 +376,51 @@ namespace TheFall.Tests.PlayMode
             ISet<ResolvedAnimationStepKind> observedSpatialBeats,
             IDictionary<ResolvedAnimationStepKind, int> spatialFrameCounts,
             ISet<ResolvedAnimationStepKind> observedParallelReflowBeats,
+            IDictionary<Card, int> stableTableSlots,
             System.Action<bool> observeRevealFlip,
             System.Action<bool> observeCollectionFlip)
         {
             var deadline = Time.realtimeSinceStartup + 10f;
             ResolvedAnimationStep trackedCaptureStep = null;
             var stableTablePositions = new Dictionary<Card, Vector3>();
+            var sourceTableRotations = new Dictionary<Card, Quaternion>();
+            var previousRenderedTableCards = new HashSet<Card>();
             while (table.IsPresentationBusy && Time.realtimeSinceStartup < deadline)
             {
                 var step = table.AnimationPlayer.ActiveStep;
                 var progress = table.AnimationPlayer.ActiveStepProgress;
+                AssertStableTableSlots(table, stableTableSlots);
+                var currentRenderedTableCards = table.RenderedCards
+                    .Where(rendered =>
+                        rendered.Zone == FirstPlayableCardZone.Table
+                        && rendered.Card.HasValue)
+                    .Select(rendered => rendered.Card.Value)
+                    .ToArray();
+                foreach (var card in stableTablePositions.Keys
+                             .Where(card => !currentRenderedTableCards.Contains(card))
+                             .ToArray())
+                {
+                    stableTablePositions.Remove(card);
+                }
+
+                foreach (var rendered in table.RenderedCards)
+                {
+                    if (rendered.Zone != FirstPlayableCardZone.Table
+                        || !rendered.Card.HasValue
+                        || step != null
+                        && (step.Kind == ResolvedAnimationStepKind.CardPlay
+                            || step.Kind == ResolvedAnimationStepKind.OpeningPlacement)
+                        && step.Cards.Contains(rendered.Card.Value)
+                        || previousRenderedTableCards.Contains(rendered.Card.Value)
+                        && sourceTableRotations.ContainsKey(rendered.Card.Value))
+                    {
+                        continue;
+                    }
+
+                    sourceTableRotations[rendered.Card.Value] =
+                        rendered.transform.localRotation;
+                }
+
                 if (!ReferenceEquals(step, trackedCaptureStep))
                 {
                     if (CompletesCollection(trackedCaptureStep))
@@ -398,7 +436,6 @@ namespace TheFall.Tests.PlayMode
                     }
 
                     trackedCaptureStep = step;
-                    stableTablePositions.Clear();
                 }
 
                 if (step != null
@@ -429,6 +466,35 @@ namespace TheFall.Tests.PlayMode
                         {
                             stableTablePositions[rendered.Card.Value] =
                                 rendered.transform.position;
+                        }
+                    }
+
+                    var preservesRestingRotation =
+                        step.Kind == ResolvedAnimationStepKind.CascadeCapture
+                        || step.Kind == ResolvedAnimationStepKind.NormalCapture
+                        && (captured.Cards.Count > 2
+                            || progress
+                            < AnimationCardTreatmentEvaluator.CapturePickupStartProgress);
+                    if (preservesRestingRotation)
+                    {
+                        foreach (var rendered in table.RenderedCards)
+                        {
+                            if (!rendered.Card.HasValue
+                                || !rendered.IsFaceUp
+                                || !captured.Cards.Contains(rendered.Card.Value)
+                                || !sourceTableRotations.TryGetValue(
+                                    rendered.Card.Value,
+                                    out var sourceRotation))
+                            {
+                                continue;
+                            }
+
+                            Assert.That(
+                                Quaternion.Angle(
+                                    rendered.transform.localRotation,
+                                    sourceRotation),
+                                Is.LessThan(0.01f),
+                                $"{rendered.Card.Value} changed angle during {step.Kind}.");
                         }
                     }
                 }
@@ -462,9 +528,78 @@ namespace TheFall.Tests.PlayMode
                 }
 
                 yield return null;
+                previousRenderedTableCards.Clear();
+                foreach (var card in currentRenderedTableCards)
+                {
+                    previousRenderedTableCards.Add(card);
+                }
             }
 
             Assert.That(table.IsPresentationBusy, Is.False);
+            AssertStableTableSlots(table, stableTableSlots);
+            foreach (var rendered in table.RenderedCards)
+            {
+                if (rendered.Zone == FirstPlayableCardZone.Table
+                    && rendered.Card.HasValue
+                    && stableTablePositions.TryGetValue(
+                        rendered.Card.Value,
+                        out var stablePosition))
+                {
+                    Assert.That(
+                        Vector3.Distance(rendered.transform.position, stablePosition),
+                        Is.LessThan(0.0001f),
+                        $"{rendered.Card.Value} moved when capture presentation completed.");
+                }
+            }
+
+            var currentTableCards = table.RenderedCards
+                .Where(rendered =>
+                    rendered.Zone == FirstPlayableCardZone.Table
+                    && rendered.Card.HasValue)
+                .Select(rendered => rendered.Card.Value)
+                .ToArray();
+            foreach (var card in stableTableSlots.Keys
+                         .Where(card => !currentTableCards.Contains(card))
+                         .ToArray())
+            {
+                stableTableSlots.Remove(card);
+            }
+        }
+
+        private static void AssertStableTableSlots(
+            FirstPlayableTablePresentation table,
+            IDictionary<Card, int> stableTableSlots)
+        {
+            var currentTableCards = new HashSet<Card>();
+            foreach (var rendered in table.RenderedCards)
+            {
+                if (rendered.Zone != FirstPlayableCardZone.Table
+                    || !rendered.Card.HasValue)
+                {
+                    continue;
+                }
+
+                var card = rendered.Card.Value;
+                currentTableCards.Add(card);
+                if (stableTableSlots.TryGetValue(card, out var stableSlot))
+                {
+                    Assert.That(
+                        rendered.LayoutIndex,
+                        Is.EqualTo(stableSlot),
+                        $"{card} moved from table slot {stableSlot} to {rendered.LayoutIndex}.");
+                }
+                else
+                {
+                    stableTableSlots[card] = rendered.LayoutIndex;
+                }
+            }
+
+            foreach (var card in stableTableSlots.Keys
+                         .Where(card => !currentTableCards.Contains(card))
+                         .ToArray())
+            {
+                stableTableSlots.Remove(card);
+            }
         }
 
         private static bool IsCaptureTreatment(ResolvedAnimationStepKind kind)
