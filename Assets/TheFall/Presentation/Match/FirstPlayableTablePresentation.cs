@@ -1583,11 +1583,6 @@ namespace TheFall.Presentation.Match
             rendered.transform.localRotation = ResolveCardRotation(
                 flipDegrees,
                 rendered.RestingYawDegrees);
-            if (rendered.IsFaceUp == faceUp)
-            {
-                return;
-            }
-
             rendered.SetFaceUp(faceUp);
             if (faceUp)
             {

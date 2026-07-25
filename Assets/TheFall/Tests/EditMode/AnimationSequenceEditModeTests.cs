@@ -101,6 +101,102 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void NonCapturingPlay_AvoidsSlotsVacatedByThePreviousCapture()
+        {
+            var firstId = new PlayerId("vacancy-first");
+            var secondId = new PlayerId("vacancy-second");
+            var capturingCard = new Card(CardSuit.Coins, CardRank.Two);
+            var matchingCard = new Card(CardSuit.Cups, CardRank.Two);
+            var initialTable = new[]
+            {
+                matchingCard,
+                new Card(CardSuit.Clubs, CardRank.Seven),
+                new Card(CardSuit.Coins, CardRank.Ten),
+                new Card(CardSuit.Swords, CardRank.Eleven),
+                new Card(CardSuit.Cups, CardRank.Twelve),
+            };
+            var allCards = (
+                from CardSuit suit in Enum.GetValues(typeof(CardSuit))
+                from CardRank rank in Enum.GetValues(typeof(CardRank))
+                select new Card(suit, rank))
+                .ToArray();
+            var probeState = MatchState.CreateOneVersusOne(
+                new PlayerState(
+                    new Player(firstId, "First", Seat.First, TeamId.One, PlayerControl.Human),
+                    new[] { capturingCard }),
+                new PlayerState(
+                    new Player(secondId, "Second", Seat.Second, TeamId.Two, PlayerControl.Human),
+                    new[] { new Card(CardSuit.Swords, CardRank.Five) }),
+                Seat.Second,
+                Seat.First,
+                initialTable,
+                new Deck(Array.Empty<Card>()));
+            var probe = new AnimationPresentationState(probeState);
+            var vacatedSlot = probe.GetTableLayoutIndex(matchingCard);
+            var occupiedAfterCapture = initialTable
+                .Where(card => card != matchingCard)
+                .Select(probe.GetTableLayoutIndex)
+                .ToArray();
+            var playedCard = allCards.First(card =>
+                card != capturingCard
+                && !initialTable.Contains(card)
+                && initialTable.All(tableCard => tableCard.Rank != card.Rank)
+                && AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    card,
+                    occupiedAfterCapture) == vacatedSlot);
+            var unusedCards = allCards
+                .Where(card =>
+                    card != capturingCard
+                    && card != playedCard
+                    && !initialTable.Contains(card))
+                .Take(3)
+                .ToArray();
+            var state = MatchState.CreateOneVersusOne(
+                new PlayerState(
+                    probeState.GetPlayer(firstId).Player,
+                    new[] { capturingCard, unusedCards[0] }),
+                new PlayerState(
+                    probeState.GetPlayer(secondId).Player,
+                    new[] { playedCard, unusedCards[1] }),
+                Seat.Second,
+                Seat.First,
+                initialTable,
+                new Deck(new[] { unusedCards[2] }));
+            var session = new MatchSession(state);
+            var rendered = new AnimationPresentationState(state);
+
+            var capture = session.Submit(new PlayCardIntent(firstId, capturingCard));
+            Assert.That(capture.IsAccepted, Is.True);
+            var captureSequence = ResolvedAnimationSequence.Create(
+                capture.Events,
+                capture.State);
+            foreach (var step in captureSequence.Steps)
+            {
+                rendered.Apply(step, captureSequence.FinalState);
+            }
+
+            var play = session.Submit(new PlayCardIntent(secondId, playedCard));
+            Assert.That(play.IsAccepted, Is.True);
+            var playSequence = ResolvedAnimationSequence.Create(
+                play.Events,
+                play.State);
+            foreach (var step in playSequence.Steps)
+            {
+                rendered.Apply(step, playSequence.FinalState);
+            }
+
+            Assert.That(play.Events, Has.None.InstanceOf<CardsCapturedEvent>());
+            Assert.That(
+                rendered.GetTableLayoutIndex(playedCard),
+                Is.Not.EqualTo(vacatedSlot));
+            Assert.That(
+                Mathf.Abs(AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
+                    rendered.GetTableLayoutIndex(playedCard),
+                    playedCard).z),
+                Is.LessThan(0.29f));
+        }
+
+        [Test]
         public void DealerAndInitialDeal_OnlyAnimatePhysicalCardOutcomes()
         {
             var playerId = new PlayerId("dealer-flow");

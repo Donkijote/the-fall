@@ -187,12 +187,12 @@ namespace TheFall.Presentation.Animation
             new Vector2(0.13f, -0.15f),
             new Vector2(-0.13f, 0.15f),
             new Vector2(0.13f, 0.15f),
-            new Vector2(-0.47f, -0.30f),
+            new Vector2(-0.47f, -0.27f),
             new Vector2(-0.44f, 0.01f),
-            new Vector2(-0.47f, 0.31f),
-            new Vector2(0.47f, -0.31f),
+            new Vector2(-0.47f, 0.27f),
+            new Vector2(0.47f, -0.27f),
             new Vector2(0.44f, -0.01f),
-            new Vector2(0.47f, 0.30f),
+            new Vector2(0.47f, 0.27f),
         };
 
         private static readonly int[] ProbeStrides = { 1, 3, 7, 9 };

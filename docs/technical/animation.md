@@ -209,13 +209,15 @@ normal completion, and early synchronization, so neither a newly played card nor
 fall back into the opening grid or trigger a fresh scatter. The layout is a bounded
 ten-anchor pool, matching the accepted one-card-per-rank table maximum. Four inner anchors form the
 organized opening grid. Player-played cards prefer six irregular outer anchors that remain inside
-the central table field and away from both seats; if all six are occupied, captured opening anchors
-may be reused. The probe prefers the free anchor with the most clearance from occupied anchors
-before using the card seed as its stable tie breaker. Deterministic per-card jitter and angle
-variation apply only to played-card anchors and preserve replay stability without moving survivors,
-overlapping cards, or allowing the occupied area to grow toward either player.
+the tightened central table field and away from both seats; if all six are occupied, captured opening
+anchors may be reused. Slots emptied by a capture remain reserved through the next non-capturing play,
+so that card chooses another available position instead of retracing the capture location. The probe
+prefers the free anchor with the most clearance from occupied and temporarily reserved anchors before
+using the card seed as its stable tie breaker. Deterministic per-card jitter and angle variation apply
+only to played-card anchors and preserve replay stability without moving survivors, overlapping cards,
+or allowing the occupied area to grow toward either player.
 
-The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top.
+The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top. Integrated collection enforces the back rotation, logical hidden identity, and shared back material together on every late-travel and landing frame; synchronization never supplies the first face-down frame.
 
 ## Generation and validation
 

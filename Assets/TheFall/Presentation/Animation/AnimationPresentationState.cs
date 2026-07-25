@@ -32,6 +32,7 @@ namespace TheFall.Presentation.Animation
         private readonly Dictionary<TeamId, Score> _scores = new Dictionary<TeamId, Score>();
         private readonly List<Card> _table = new List<Card>();
         private readonly Dictionary<Card, int> _tableLayoutIndices = new Dictionary<Card, int>();
+        private readonly HashSet<int> _recentlyVacatedTableLayoutIndices = new HashSet<int>();
         private readonly List<Card> _dealerSelectionCards = new List<Card>();
         private readonly List<AnimationCantoState> _cantos = new List<AnimationCantoState>();
 
@@ -50,6 +51,9 @@ namespace TheFall.Presentation.Animation
                 {
                     _tableLayoutIndices[entry.Key] = entry.Value;
                 }
+
+                _recentlyVacatedTableLayoutIndices.UnionWith(
+                    previous._recentlyVacatedTableLayoutIndices);
             }
 
             Synchronize(state);
@@ -389,6 +393,7 @@ namespace TheFall.Presentation.Animation
                     }
 
                     _table.Clear();
+                    _recentlyVacatedTableLayoutIndices.Clear();
                     _cantos.Clear();
                     DealNumber = 0;
                     IsFinalDeal = false;
@@ -469,21 +474,41 @@ namespace TheFall.Presentation.Animation
                 }
             }
 
+            var blockedIndices = new HashSet<int>(occupiedIndices);
+            if (!preferOpeningGrid)
+            {
+                blockedIndices.UnionWith(_recentlyVacatedTableLayoutIndices);
+                if (blockedIndices.Count >= AnimationTableCardLayoutEvaluator.Capacity)
+                {
+                    blockedIndices.Clear();
+                    blockedIndices.UnionWith(occupiedIndices);
+                }
+            }
+
             _table.Add(card);
             if (!_tableLayoutIndices.TryGetValue(card, out var retainedIndex)
-                || occupiedIndices.Contains(retainedIndex))
+                || blockedIndices.Contains(retainedIndex))
             {
                 _tableLayoutIndices[card] =
                     AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
                         card,
-                        occupiedIndices,
+                        blockedIndices,
                         preferOpeningGrid);
+            }
+
+            if (!preferOpeningGrid)
+            {
+                _recentlyVacatedTableLayoutIndices.Clear();
             }
         }
 
         private void RemoveTableCard(Card card)
         {
-            _table.Remove(card);
+            if (_table.Remove(card)
+                && _tableLayoutIndices.TryGetValue(card, out var vacatedIndex))
+            {
+                _recentlyVacatedTableLayoutIndices.Add(vacatedIndex);
+            }
         }
     }
 }

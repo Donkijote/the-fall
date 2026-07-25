@@ -497,6 +497,27 @@ namespace TheFall.Tests.PlayMode
                                 $"{rendered.Card.Value} changed angle during {step.Kind}.");
                         }
                     }
+
+                    var normalCollectionFaceDownProgress =
+                        AnimationCardTreatmentEvaluator.CapturePickupStartProgress
+                        + (1f - AnimationCardTreatmentEvaluator.CapturePickupStartProgress)
+                        * AnimationCardTreatmentEvaluator.CollectionFlipEndProgress;
+                    if (step.Kind == ResolvedAnimationStepKind.CaptureCollection
+                            && progress
+                            >= AnimationCardTreatmentEvaluator.CollectionFlipEndProgress
+                        || step.Kind == ResolvedAnimationStepKind.NormalCapture
+                            && captured.Cards.Count <= 2
+                            && progress >= normalCollectionFaceDownProgress)
+                    {
+                        AssertCapturedPileIsVisiblyFaceDown(table, step.Kind);
+                    }
+                }
+
+                if (step != null
+                    && step.Kind == ResolvedAnimationStepKind.Leftovers
+                    && progress >= AnimationCardTreatmentEvaluator.CollectionFlipEndProgress)
+                {
+                    AssertCapturedPileIsVisiblyFaceDown(table, step.Kind);
                 }
 
                 if (step != null
@@ -600,6 +621,35 @@ namespace TheFall.Tests.PlayMode
             {
                 stableTableSlots.Remove(card);
             }
+        }
+
+        private static void AssertCapturedPileIsVisiblyFaceDown(
+            FirstPlayableTablePresentation table,
+            ResolvedAnimationStepKind stepKind)
+        {
+            var capturedCards = table.RenderedCards
+                .Where(rendered =>
+                    rendered.Zone == FirstPlayableCardZone.LocalCaptured
+                    || rendered.Zone == FirstPlayableCardZone.OpponentCaptured)
+                .ToArray();
+            Assert.That(capturedCards, Is.Not.Empty);
+            Assert.That(
+                capturedCards.All(rendered =>
+                    !rendered.IsFaceUp
+                    && !rendered.Card.HasValue),
+                Is.True,
+                $"{stepKind} reached the pile with a logically face-up card.");
+            var backMaterial = capturedCards[0]
+                .GetComponent<Renderer>()
+                .sharedMaterial;
+            Assert.That(backMaterial, Is.Not.Null);
+            Assert.That(
+                capturedCards.All(rendered =>
+                    ReferenceEquals(
+                        rendered.GetComponent<Renderer>().sharedMaterial,
+                        backMaterial)),
+                Is.True,
+                $"{stepKind} reached the pile without the shared back material.");
         }
 
         private static bool IsCaptureTreatment(ResolvedAnimationStepKind kind)

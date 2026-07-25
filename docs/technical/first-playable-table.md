@@ -58,6 +58,8 @@ resetting manual changes.
 - later player-played cards prefer six bounded outer anchors away from both seats, choosing the
   clearest empty anchor with deterministic position and angle variation; captured opening anchors
   become fallback capacity without moving survivors
+- slots vacated by the latest capture are reserved until the next non-capturing card is placed, so
+  that play uses another available central slot instead of repeating the capture location
 - table slot and resting-angle assignments survive animation steps, batch boundaries, completion,
   skip, interruption, and cancellation; capture stacks inherit their source table angles
 - compact generated head-and-shoulder placeholders preserve identity and active/dealer cues without competing with the table

@@ -185,7 +185,7 @@ namespace TheFall.Tests.EditMode
                     var delta = positions[first] - positions[second];
                     Assert.That(
                         Mathf.Abs(delta.x) >= 0.21f
-                            || Mathf.Abs(delta.z) >= 0.28f,
+                            || Mathf.Abs(delta.z) >= 0.25f,
                         Is.True,
                         $"Table anchors {first} and {second} do not leave card clearance.");
                 }
@@ -234,7 +234,7 @@ namespace TheFall.Tests.EditMode
                 playedSlot,
                 playedCard);
             Assert.That(playedSlot, Is.InRange(4, 9));
-            Assert.That(Mathf.Abs(playedPosition.z), Is.LessThan(0.33f));
+            Assert.That(Mathf.Abs(playedPosition.z), Is.LessThan(0.29f));
         }
     }
 }
