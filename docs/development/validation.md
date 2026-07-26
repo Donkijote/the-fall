@@ -118,6 +118,46 @@ All tiers must preserve the existing readability comparisons: card identity at 4
 
 Loading is measured from launching a fully closed app until Home accepts input, and from requesting the match until its first intended interaction is accepted. The current prototype scenes remain measurement evidence. The pass/fail budgets apply to the integrated macOS candidate defined by the [first playable milestone](../planning/first-playable-milestone.md), not to the isolated V0 scenes.
 
+### First-playable development-player probe
+
+Issue #28 adds an opt-in probe to the macOS development player so the acceptance measurements are
+repeatable without adding a production analytics or telemetry system. The probe is inert during normal
+launches and is attached only when both conditions are true:
+
+- the player is a development build
+- the command line includes `--first-playable-acceptance`
+
+The readiness mode records process-start-to-usable-Home and Home-to-first-accepted-interaction timings,
+then exits:
+
+```sh
+"Build/Smoke/macOS/TheFall.app/Contents/MacOS/The Fall" \
+  --first-playable-acceptance \
+  --acceptance-readiness-only \
+  --acceptance-commit "$(git rev-parse HEAD)" \
+  --acceptance-output "$(pwd)/Logs/Acceptance-readiness-1.json"
+```
+
+Run readiness mode three times from a fully closed player and use a different ignored output path for
+each run. The endurance mode drives the same integrated Home flow, application orchestrator, table,
+animation, and audio presentation for a five-minute warm-up plus a 15-minute measured sample at
+`1920 x 1080`:
+
+```sh
+"Build/Smoke/macOS/TheFall.app/Contents/MacOS/The Fall" \
+  --first-playable-acceptance \
+  --acceptance-warmup-seconds 300 \
+  --acceptance-measure-seconds 900 \
+  --acceptance-commit "$(git rev-parse HEAD)" \
+  --acceptance-output "$(pwd)/Logs/Acceptance-endurance.json"
+```
+
+The fixed-memory histogram reports wall-clock, CPU, and GPU frame-time median/p95 values, frames over
+`100 ms`, peak process working set, peak Unity allocation, completed-match/event coverage, and any
+rendered-versus-authoritative mismatch. Reports remain outside version control under `Logs/`. The probe
+is supporting repeatable evidence; it does not replace mouse/keyboard exploratory play, resolution
+readability review, or the automated rule and synchronization suites.
+
 ## Manual exploratory procedure
 
 For each required matrix row:

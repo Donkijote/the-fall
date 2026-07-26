@@ -1,6 +1,7 @@
 using TheFall.Application;
 using TheFall.Domain;
 using TheFall.Infrastructure;
+using TheFall.Presentation.Diagnostics;
 using TheFall.Presentation.Input;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -66,6 +67,7 @@ namespace TheFall.Presentation.Bootstrap
 
             GetComponent<InputIntentSource>().ValidateConfiguration();
             FirstPlayableFlow = new FirstPlayableFlow(CreateFirstPlayableMatch);
+            FirstPlayableAcceptanceProbe.AttachWhenRequested(gameObject);
             IsComposed = true;
         }
 
