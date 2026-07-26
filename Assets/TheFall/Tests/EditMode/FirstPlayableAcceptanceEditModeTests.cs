@@ -35,6 +35,19 @@ namespace TheFall.Tests.EditMode
             Assert.That(histogram.OverOneHundredMillisecondsCount, Is.EqualTo(1));
         }
 
+        [TestCase(AcceptancePlatformMetrics.ThermalStateUnavailable, "unavailable")]
+        [TestCase(AcceptancePlatformMetrics.ThermalStateNominal, "nominal")]
+        [TestCase(AcceptancePlatformMetrics.ThermalStateFair, "fair")]
+        [TestCase(AcceptancePlatformMetrics.ThermalStateSerious, "serious")]
+        [TestCase(AcceptancePlatformMetrics.ThermalStateCritical, "critical")]
+        [TestCase(99, "unavailable")]
+        public void PlatformMetrics_MapsThermalStateWithoutInventingUnavailableEvidence(
+            int state,
+            string expected)
+        {
+            Assert.That(AcceptancePlatformMetrics.ThermalStateName(state), Is.EqualTo(expected));
+        }
+
         [Test]
         public void SeededAcceptanceMatrix_CoversDealerOptionsCantosRepeatedRoundsAndTieExtension()
         {

@@ -16,13 +16,12 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Profiling;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
-using Process = System.Diagnostics.Process;
 
 namespace TheFall.Presentation.Diagnostics
 {
     /// <summary>
-    /// Opt-in development-player probe for issue #28. It observes the real integrated flow,
-    /// records fixed-memory frame and process metrics, and can drive deterministic matches
+    /// Opt-in development-player probe for issues #28 and #31. It observes the real integrated
+    /// flow, records fixed-memory frame and process metrics, and can drive deterministic matches
     /// through the existing application/presentation boundary. It is inert unless the
     /// --first-playable-acceptance command-line flag is present.
     /// </summary>
@@ -53,6 +52,8 @@ namespace TheFall.Presentation.Diagnostics
         private readonly HashSet<string> _observedDealerSeats = new HashSet<string>();
         private readonly HashSet<string> _observedCompletionReasons = new HashSet<string>();
         private readonly HashSet<string> _observedResolutions = new HashSet<string>();
+        private readonly HashSet<string> _observedOrientations = new HashSet<string>();
+        private readonly HashSet<string> _observedThermalStates = new HashSet<string>();
         private readonly HashSet<DomainEventKind> _observedEventKinds = new HashSet<DomainEventKind>();
 
         private Stopwatch _runtime;
@@ -77,6 +78,7 @@ namespace TheFall.Presentation.Diagnostics
         private int _submittedHumanIntents;
         private int _matchIndex;
         private int _resolutionIndex;
+        private int _worstThermalState = AcceptancePlatformMetrics.ThermalStateUnavailable;
         private bool _readinessOnly;
         private bool _pendingSkip;
         private bool _pendingInterrupt;
@@ -110,8 +112,11 @@ namespace TheFall.Presentation.Diagnostics
             _runtime = Stopwatch.StartNew();
 
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_outputPath)) ?? ".");
-            UnityEngine.Application.targetFrameRate = -1;
-            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            UnityEngine.Application.targetFrameRate = UnityEngine.Application.isMobilePlatform ? 60 : -1;
+            if (!UnityEngine.Application.isMobilePlatform)
+            {
+                Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            }
         }
 
         private IEnumerator Start()
@@ -140,8 +145,11 @@ namespace TheFall.Presentation.Diagnostics
                 yield return null;
             }
 
-            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
-            _observedResolutions.Add("1920x1080");
+            if (!UnityEngine.Application.isMobilePlatform)
+            {
+                Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+                _observedResolutions.Add("1920x1080");
+            }
             while (_runtime.Elapsed.TotalSeconds < finishAt)
             {
                 DriveRepresentativeLoop();
@@ -159,6 +167,7 @@ namespace TheFall.Presentation.Diagnostics
             }
 
             var elapsed = _runtime.Elapsed.TotalSeconds;
+            ObserveDisplay();
             SampleMemory(elapsed);
             FrameTimingManager.CaptureFrameTimings();
 
@@ -374,6 +383,12 @@ namespace TheFall.Presentation.Diagnostics
 
         private void ApplyNextResolution()
         {
+            if (UnityEngine.Application.isMobilePlatform)
+            {
+                ObserveDisplay();
+                return;
+            }
+
             var resolution = RequiredResolutions[_resolutionIndex % RequiredResolutions.Length];
             _resolutionIndex++;
             Screen.SetResolution(
@@ -415,20 +430,23 @@ namespace TheFall.Presentation.Diagnostics
             }
 
             _lastMemorySampleAt = elapsed;
-            try
-            {
-                _peakWorkingSetBytes = Math.Max(
-                    _peakWorkingSetBytes,
-                    Process.GetCurrentProcess().WorkingSet64);
-            }
-            catch (Exception error)
-            {
-                Debug.LogWarning($"Acceptance probe could not sample process memory: {error.Message}");
-            }
+            _peakWorkingSetBytes = Math.Max(
+                _peakWorkingSetBytes,
+                AcceptancePlatformMetrics.AppMemoryBytes());
 
             _peakUnityAllocatedBytes = Math.Max(
                 _peakUnityAllocatedBytes,
                 Profiler.GetTotalAllocatedMemoryLong());
+
+            var thermalState = AcceptancePlatformMetrics.ThermalState();
+            _worstThermalState = Math.Max(_worstThermalState, thermalState);
+            _observedThermalStates.Add(AcceptancePlatformMetrics.ThermalStateName(thermalState));
+        }
+
+        private void ObserveDisplay()
+        {
+            _observedResolutions.Add($"{Screen.width}x{Screen.height}");
+            _observedOrientations.Add(Screen.orientation.ToString());
         }
 
         private void QuitSuccessfully(string status)
@@ -464,6 +482,10 @@ namespace TheFall.Presentation.Diagnostics
             AppendJson(report, "graphicsDevice", SystemInfo.graphicsDeviceName, true);
             AppendJson(report, "graphicsMemoryMiB", SystemInfo.graphicsMemorySize, true);
             AppendJson(report, "displayRefreshRateHz", Screen.currentResolution.refreshRateRatio.value, true);
+            AppendJson(report, "targetFrameRate", UnityEngine.Application.targetFrameRate, true);
+            AppendJson(report, "screenWidth", Screen.width, true);
+            AppendJson(report, "screenHeight", Screen.height, true);
+            AppendJson(report, "screenOrientation", Screen.orientation.ToString(), true);
             AppendJson(report, "homeReadySeconds", _homeReadySeconds, true);
             AppendJson(report, "homeToUsableMatchSeconds", _homeToMatchSeconds, true);
             AppendJson(report, "warmupSeconds", _warmupSeconds, true);
@@ -481,7 +503,13 @@ namespace TheFall.Presentation.Diagnostics
             AppendJson(report, "gpuFrameMedianMilliseconds", _gpuFrameTimes.Percentile(0.5d), true);
             AppendJson(report, "gpuFrameP95Milliseconds", _gpuFrameTimes.Percentile(0.95d), true);
             AppendJson(report, "peakWorkingSetBytes", _peakWorkingSetBytes, true);
+            AppendJson(report, "peakAppMemoryBytes", _peakWorkingSetBytes, true);
             AppendJson(report, "peakUnityAllocatedBytes", _peakUnityAllocatedBytes, true);
+            AppendJson(
+                report,
+                "worstThermalState",
+                AcceptancePlatformMetrics.ThermalStateName(_worstThermalState),
+                true);
             AppendJson(report, "completedMatches", _completedMatches, true);
             AppendJson(report, "maximumRound", _maximumRound, true);
             AppendJson(report, "cantoEventCount", _cantoEventCount, true);
@@ -492,6 +520,8 @@ namespace TheFall.Presentation.Diagnostics
             AppendJsonArray(report, "dealerSeats", _observedDealerSeats, true);
             AppendJsonArray(report, "completionReasons", _observedCompletionReasons, true);
             AppendJsonArray(report, "resolutions", _observedResolutions, true);
+            AppendJsonArray(report, "orientations", _observedOrientations, true);
+            AppendJsonArray(report, "thermalStates", _observedThermalStates, true);
             AppendJsonArray(
                 report,
                 "eventKinds",
@@ -548,14 +578,7 @@ namespace TheFall.Presentation.Diagnostics
 
         private static double SecondsSinceProcessStart()
         {
-            try
-            {
-                return (DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalSeconds;
-            }
-            catch
-            {
-                return -1d;
-            }
+            return AcceptancePlatformMetrics.ProcessUptimeSeconds();
         }
 
         private static void AppendJson(
