@@ -179,3 +179,34 @@ Validated on 2026-07-26 with the recorded toolchain and physical iPhone:
 - arm64 iOS 26.5 simulator native build, install, launch, and touch check: passed
 
 The physical checks were completed with the project owner present. Signing assets, account details, device identifiers, generated Xcode projects, screenshots, logs, and Derived Data remained local and ignored.
+
+## Issue #31 first-playable checkpoint
+
+Validated on 2026-07-26 from candidate code commit
+`aae863a74c7392af80b1a41207b809d611e6b791` on the recorded physical iPhone:
+
+- the complete touch-only flow from Home through configuration, match completion, replay, and return
+  to Home passed without editor intervention
+- inspection, selection, confirmation, cancellation, rejection, and temporary input blocking passed
+- portrait and landscape safe areas, card and character readability, hidden-hand privacy, and active
+  rotation during card selection and animation passed
+- normal, fast-forward, reduced-motion, skip, interruption, cancellation, and final-state
+  synchronization passed
+- three cold launches reached usable Home in `3.438 s`, `3.308 s`, and `3.352 s`
+- three Home-to-match samples reached the first accepted interaction in `0.069 s`, `0.067 s`,
+  and `0.069 s`
+- a five-minute warm-up and 15-minute measured representative loop completed 48 matches with
+  52,359 measured frames, zero frames over `100 ms`, zero authoritative/rendered mismatches,
+  nominal thermal state, and peak app memory of `378,946,816` bytes (about `361.4 MiB`)
+- wall-clock frame time measured `16.7 ms` median and `17.25 ms` p95; CPU frame time measured
+  `16.7 ms` median and `17.3 ms` p95; GPU frame time measured `3.15 ms` median and `4.4 ms` p95
+- both configurable rule values, both dealer seats, all required completion paths, 368 canto events,
+  and 1,792 submitted human intents were exercised by the automated loop
+
+This flagship-class 120 Hz phone is recorded as a **High** tier device. It provides useful physical
+iOS evidence but does not substitute for the unresolved Reference or Constrained mobile rows. Its
+memory, loading, thermal, state-agreement, and hitch checks passed. Its wall-clock and CPU p95 values
+missed the stricter Reference-mobile `16.7 ms` frame-time gate by `0.55 ms` and `0.6 ms`
+respectively; issue [#42](https://github.com/Donkijote/the-fall/issues/42) owns that focused
+frame-pacing follow-up. No minimum iOS version, broad device support, distribution signing, or App
+Store readiness is claimed.

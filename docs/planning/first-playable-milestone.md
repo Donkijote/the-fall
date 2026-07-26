@@ -1,6 +1,6 @@
 # First Playable Milestone
 
-Status: Confirmed
+Status: Completed with tracked device follow-up
 
 ## Player-visible outcome
 
@@ -169,12 +169,30 @@ Every implementation issue is assigned to `Donkijote`, has exactly one normal-wo
 
 These iOS issues add early physical-device evidence. They do not replace #28, change the macOS milestone gate, select a production iOS support floor, or claim App Store readiness.
 
+## Completion checkpoint
+
+The V0 foundation exited with #11. The ordered first-playable implementation issues #22–#28 and the
+AnimationLab workbench issue #29 are complete, and issue #30 established the local physical-iPhone
+development path. Issue #31 completes the final planned first-playable follow-up with a passing manual
+device checklist plus loading, memory, thermal, and state-agreement evidence.
+
+The recorded iPhone is a High-tier device, not the unresolved Reference or Constrained tier. Its
+wall-clock and CPU p95 frame times narrowly missed the stricter Reference-mobile `16.7 ms` gate, so
+focused issue [#42](https://github.com/Donkijote/the-fall/issues/42) remains in the project backlog.
+That follow-up does not reopen the completed V0 foundation or the accepted macOS first-playable
+milestone. Android, Windows, representative mobile tiers, production support floors, Story Mode,
+additional match modes, online play, and release readiness remain future scoped work rather than
+unchecked items in this plan.
+
 ## V0 foundation exit decision
 
 **Confirmed:** V0 exits when issue #11 is merged.
 
 The foundation has removed the blocking uncertainties it was created to answer: rules are authoritative, the Unity bootstrap is project-owned, deterministic resolution is proven, composition and interaction are viable, representative assets complete a traceable intake, animation consumes resolved events, validation is repeatable, and the next milestone is an ordered project plan.
 
-The open work above is first-playable implementation work, not missing V0 discovery. Mobile device evidence, production content, Story Mode, additional modes, and online systems remain visible future decisions and do not block the bounded macOS first playable.
+The planned work above was first-playable implementation work, not missing V0 discovery. The remaining
+mobile-tier evidence, production content, Story Mode, additional modes, and online systems are visible
+future decisions and do not reopen the completed V0 foundation or block the bounded macOS first
+playable.
 
 Related: [V0 foundation plan](v0-foundation-plan.md), [V0 scope](../product/v0-scope.md), [game modes](../game/modes.md), [validation baseline](../development/validation.md), and [ADR 0002](../decisions/0002-first-playable-milestone.md).
