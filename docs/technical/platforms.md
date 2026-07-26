@@ -17,7 +17,7 @@ Controller support is not currently required.
 
 **Confirmed:** Accept the first playable as a macOS universal development player on the project-owned Apple silicon reference Mac with mouse and keyboard. Required resizable layouts are `1280 x 720`, `1440 x 900`, `1920 x 1080`, and `2560 x 1440`; fullscreen is not an acceptance gate.
 
-Android, iOS, and Windows remain confirmed product targets. Existing simulated touch, portrait, landscape, safe-area, and orientation coverage must keep passing, but the first playable makes no broad physical-device, signing, store, or production-support claim for those platforms. Issue #30 establishes local development deployment to Manuel's iPhone and #31 records a follow-up physical-device checkpoint without changing the macOS gate. See the [first playable milestone](../planning/first-playable-milestone.md).
+Android, iOS, and Windows remain confirmed product targets. Existing simulated touch, portrait, landscape, safe-area, and orientation coverage must keep passing, but the first playable makes no broad physical-device, signing, store, or production-support claim for those platforms. Issue #30 establishes local development deployment to Manuel's iPhone, and #31 records a passing manual first-playable checkpoint plus loading, memory, thermal, and state-agreement evidence on that High-tier phone without changing the macOS gate. The measured wall-clock and CPU p95 values narrowly miss the stricter Reference-mobile frame-time gate; focused follow-up #42 owns that work. Reference and Constrained iOS rows remain open. See the [first playable milestone](../planning/first-playable-milestone.md).
 
 ## Shared requirements
 

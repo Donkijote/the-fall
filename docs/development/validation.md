@@ -212,7 +212,7 @@ No workflow, Unity activation secret, third-party CI action, or self-hosted runn
 | Gap | Current disposition | Owner or recommended follow-up |
 | --- | --- | --- |
 | Unity suites and player builds in CI | deliberately deferred for V0 | project owner decides when project seriousness justifies a CI issue |
-| physical Android and iOS input, safe area, thermal, memory, and frame pacing | unvalidated | #30 establishes Manuel's iPhone deployment path and #31 records first-playable iPhone evidence; Android remains a later device issue |
+| physical mobile input, safe area, thermal, memory, and frame pacing | one High-tier physical iPhone row recorded by #31; Android and the Reference/Constrained iOS rows remain unvalidated | #42 owns the recorded iPhone frame-pacing miss; create bounded device issues when representative Android and iOS hardware/support floors are selected |
 | Windows build and launch | unvalidated | create a Windows smoke issue when a Windows host or runner is available |
 | signed iOS launch and store toolchain | local development signing belongs to #30; distribution remains out of scope | future App Store Connect, TestFlight, and release-signing issue after store direction is selected |
 | minimum OS versions, desktop fullscreen, and minimum window size | first playable accepts the current project-owned macOS environment and four resizable layouts without setting production minimums or fullscreen behavior | revisit before a release or wider desktop-support milestone |
@@ -311,5 +311,46 @@ Validated locally on 2026-07-24 with Unity `6000.5.4f1`:
 - macOS universal development-player smoke build: succeeded
 - all retained cue sources are project-owned runtime-generated waveforms with provenance, ownership/license status, intended use, parameters, and prototype replacement status recorded in `docs/assets/prototype-audio.md`
 - no recording, external sample, music, ambience, voice, spatial mix, haptics, production sound design, or mastering was retained or claimed
+
+## Issue #28 validation checkpoint
+
+Validated locally on 2026-07-24 from candidate commit
+`c2bd7e0d076f687dade824684574b3c22090bd34` with Unity `6000.5.4f1`:
+
+- foundation validation, 94/94 Edit Mode tests, 30/30 Play Mode tests, and the macOS universal
+  development-player smoke build passed
+- the universal player launched and the complete mouse/keyboard flow passed at `1280 x 720`,
+  `1440 x 900`, `1920 x 1080`, and `2560 x 1440`
+- three cold launches reached usable Home in `8.042 s`, `3.605 s`, and `3.613 s`; three
+  Home-to-match samples reached the first accepted interaction in `0.072 s`, `0.062 s`, and
+  `0.056 s`
+- the five-minute warm-up and 15-minute measured loop recorded 2,188,635 frames with
+  wall-clock/CPU/GPU p95 values of `0.60 ms`, `0.60 ms`, and `0.65 ms`, peak app memory of about
+  `420.7 MiB`, 52 completed matches, and zero authoritative/rendered mismatches
+- all first-playable acceptance gates passed; skipped platforms and production-fidelity gaps remained
+  outside the bounded macOS milestone
+
+## Issue #31 validation checkpoint
+
+Validated on 2026-07-26 from candidate code commit
+`aae863a74c7392af80b1a41207b809d611e6b791` with Unity `6000.5.4f1` and the physical iPhone
+recorded in [iOS development builds](ios-development-builds.md):
+
+- foundation validation, 106/106 Edit Mode tests, 30/30 Play Mode tests, the Unity iOS export, signed
+  native Xcode build, install, and launch passed
+- the project owner passed the complete touch-only match, replay, return, interaction-state,
+  safe-area, readability, privacy, portrait/landscape, active-rotation, animation-control, and
+  authoritative-state checklist
+- cold-launch samples were `3.438 s`, `3.308 s`, and `3.352 s`; Home-to-match samples were
+  `0.069 s`, `0.067 s`, and `0.069 s`
+- after a five-minute warm-up, the 15-minute sample completed 48 matches and measured 52,359 frames,
+  zero frames over `100 ms`, zero authoritative/rendered mismatches, nominal thermal state, and
+  `378,946,816` bytes (about `361.4 MiB`) peak app memory
+- wall-clock/CPU/GPU median values were `16.7 ms`, `16.7 ms`, and `3.15 ms`; p95 values were
+  `17.25 ms`, `17.3 ms`, and `4.4 ms`
+- the recorded device is High tier, so it does not close the Reference or Constrained iOS rows; its
+  wall-clock and CPU p95 values also miss the stricter Reference-mobile `16.7 ms` gate
+- focused issue [#42](https://github.com/Donkijote/the-fall/issues/42) owns the frame-pacing follow-up;
+  Android, representative iOS tiers, production support floors, and distribution remain unclaimed
 
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).
