@@ -33,6 +33,7 @@ namespace TheFall.Presentation.Animation
     {
         public const float CapturePlayEndProgress = 0.38f;
         public const float CapturePickupStartProgress = 0.46f;
+        public const float CascadeLeadInEndProgress = 0.90f;
         public const float CollectionFlipEndProgress = 0.68f;
 
         public static Vector3 EvaluateTranslation(
@@ -96,32 +97,52 @@ namespace TheFall.Presentation.Animation
             bool continuesToCascade)
         {
             var clamped = Mathf.Clamp01(progress);
+            var playEndProgress = continuesToCascade
+                ? CascadeLeadInEndProgress
+                : CapturePlayEndProgress;
             var playProgress = Mathf.InverseLerp(
                 0f,
-                CapturePlayEndProgress,
+                playEndProgress,
                 clamped);
-            var isCollecting = clamped >= CapturePickupStartProgress;
+            var isCollecting = !continuesToCascade
+                && clamped >= CapturePickupStartProgress;
             var collectionProgress = Mathf.InverseLerp(
                 CapturePickupStartProgress,
                 1f,
                 clamped);
-            var position = !isCollecting
-                ? isPlayedCard
+            Vector3 position;
+            if (continuesToCascade)
+            {
+                position = isPlayedCard
                     ? EvaluateTranslation(
                         start,
                         stack,
                         playProgress,
                         easing,
                         trajectory * 0.55f)
-                    : stack
-                : continuesToCascade
-                    ? stack
-                    : EvaluateTranslation(
+                    : stack;
+            }
+            else if (!isCollecting)
+            {
+                position = isPlayedCard
+                    ? EvaluateTranslation(
+                        start,
                         stack,
-                        target,
-                        collectionProgress,
+                        playProgress,
                         easing,
-                        trajectory);
+                        trajectory * 0.55f)
+                    : stack;
+            }
+            else
+            {
+                position = EvaluateTranslation(
+                    stack,
+                    target,
+                    collectionProgress,
+                    easing,
+                    trajectory);
+            }
+
             var playEased = AnimationBeatEvaluator.EvaluateEasedProgress(
                 playProgress,
                 easing);

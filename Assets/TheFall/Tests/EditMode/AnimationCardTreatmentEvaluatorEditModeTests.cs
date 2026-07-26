@@ -95,6 +95,26 @@ namespace TheFall.Tests.EditMode
                 true,
                 false,
                 true);
+            var cascadeBeforeSettle = AnimationCardTreatmentEvaluator.EvaluateNormalCapture(
+                start,
+                stack,
+                target,
+                AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress - 0.10f,
+                AnimationBeatEasing.EaseInOut,
+                Vector3.up,
+                true,
+                false,
+                true);
+            var cascadeAtSettle = AnimationCardTreatmentEvaluator.EvaluateNormalCapture(
+                start,
+                stack,
+                target,
+                AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress,
+                AnimationBeatEasing.EaseInOut,
+                Vector3.up,
+                true,
+                false,
+                true);
 
             Assert.That(Vector3.Distance(atContact.Position, stack), Is.LessThan(0.0001f));
             Assert.That(atContact.FaceUp, Is.True);
@@ -107,6 +127,17 @@ namespace TheFall.Tests.EditMode
             Assert.That(Vector3.Distance(cascadeLeadIn.Position, stack), Is.LessThan(0.0001f));
             Assert.That(cascadeLeadIn.FaceUp, Is.True);
             Assert.That(cascadeLeadIn.FlipDegrees, Is.EqualTo(180f).Within(0.001f));
+            Assert.That(
+                Vector3.Distance(cascadeBeforeSettle.Position, stack),
+                Is.GreaterThan(0.0001f),
+                "A cascading lead-in must keep travelling through most of its beat.");
+            Assert.That(
+                Vector3.Distance(cascadeAtSettle.Position, stack),
+                Is.LessThan(0.0001f));
+            Assert.That(
+                AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress,
+                Is.GreaterThanOrEqualTo(0.90f),
+                "The first cascade step must follow after only a brief contact settle.");
         }
 
         [Test]
