@@ -11,7 +11,7 @@ task_unity_editor="${UNITY_THE_FALL:-$task_default_unity_editor}"
 export THE_FALL_BUILD_ROOT="${THE_FALL_BUILD_ROOT:-$task_project_root/Build/Smoke}"
 
 usage() {
-  echo "Usage: scripts/validate-unity.sh [tests|smoke|all] [macos|windows|android|ios]"
+  echo "Usage: scripts/validate-unity.sh [tests|smoke|all] [macos|windows|android|ios|ios-simulator]"
 }
 
 if [[ ! -x "$task_unity_editor" ]]; then
@@ -81,6 +81,10 @@ run_smoke_build() {
     ios)
       task_build_target="iOS"
       task_build_method="TheFall.Editor.PlatformBuildSmoke.BuildIOS"
+      ;;
+    ios-simulator)
+      task_build_target="iOS"
+      task_build_method="TheFall.Editor.PlatformBuildSmoke.BuildIOSSimulator"
       ;;
     *)
       echo "Unsupported platform: $task_platform" >&2

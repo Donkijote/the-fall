@@ -36,6 +36,21 @@ namespace TheFall.Editor
             Build(BuildTarget.iOS, "iOS");
         }
 
+        [MenuItem("The Fall/Validation/Build Smoke/iOS Simulator")]
+        public static void BuildIOSSimulator()
+        {
+            var previousSdkVersion = PlayerSettings.iOS.sdkVersion;
+            try
+            {
+                PlayerSettings.iOS.sdkVersion = iOSSdkVersion.SimulatorSDK;
+                Build(BuildTarget.iOS, "iOSSimulator");
+            }
+            finally
+            {
+                PlayerSettings.iOS.sdkVersion = previousSdkVersion;
+            }
+        }
+
         private static void Build(BuildTarget target, string relativeOutputPath)
         {
             var targetGroup = BuildPipeline.GetBuildTargetGroup(target);

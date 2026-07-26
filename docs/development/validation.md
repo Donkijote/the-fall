@@ -40,7 +40,7 @@ scripts/validate-unity.sh all macos
 - `Logs/BuildSmoke-<platform>.log`
 - `Build/Smoke/<platform>/`
 
-Supported smoke arguments are `macos`, `windows`, `android`, and `ios`. Each requires the matching Unity Hub module and native toolchain. The editor alternatives are **Window > General > Test Runner** for test suites and **The Fall > Validation > Build Smoke** for development builds.
+Supported smoke arguments are `macos`, `windows`, `android`, `ios`, and the supplemental `ios-simulator`. Each requires the matching Unity Hub module and native toolchain. The editor alternatives are **Window > General > Test Runner** for test suites and **The Fall > Validation > Build Smoke** for development builds.
 
 ### Focused failure replay
 
@@ -73,9 +73,12 @@ Run the same focused replay twice before classifying a seeded failure as nondete
 | `macos` | `StandaloneOSX` | `Build/Smoke/macOS/TheFall.app` | Available and validated on the project-owned editor |
 | `windows` | `StandaloneWindows64` | `Build/Smoke/Windows/TheFall.exe` | Path implemented; Windows module and Windows-host launch remain unavailable |
 | `android` | `Android` | `Build/Smoke/Android/TheFall.apk` | Path implemented; Android module, SDK/NDK/JDK, and physical launch remain unavailable |
-| `ios` | `iOS` | `Build/Smoke/iOS/` Xcode project | Path implemented; iOS module, Xcode build/signing, and physical launch remain unavailable |
+| `ios` | `iOS` device SDK | `Build/Smoke/iOS/` Xcode project | Export and unsigned native Xcode build validated; local signed physical-device evidence belongs to issue #30 |
+| `ios-simulator` | `iOS` simulator SDK | `Build/Smoke/iOSSimulator/` Xcode project | Supplemental compile/launch path; never substitutes for physical-device evidence |
 
 A successful Android APK or iOS Xcode export is not a signed-device pass. A successful cross-built Windows player is not a launch pass. Record build and launch evidence separately.
+
+The repeatable local signing, deployment, retained-scene launch, simulator, and iPhone diagnosis procedure is documented in [iOS development builds](ios-development-builds.md).
 
 ## Initial platform matrix
 

@@ -76,6 +76,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Project guidelines](development/guidelines.md): Unity, C#, asset, scene, prefab, and naming guidance.
 - [Bootstrap and validation](development/bootstrap-validation.md): implemented Unity foundation, scene roles, commands, and platform checkpoint.
 - [Testing and platform validation baseline](development/validation.md): repeatable suites and smoke builds, manual matrix, initial V0 budgets, failure diagnosis, CI decision, and coverage ownership.
+- [iOS development builds](development/ios-development-builds.md): repository-safe Unity export, local Xcode signing, physical-iPhone deployment, retained-scene checks, simulator support, and failure diagnosis.
 - [Decision log](decisions/README.md): durable record of important choices and their rationale.
 
 ## Maintenance rule

@@ -1,3 +1,4 @@
+using System;
 using TheFall.Application;
 using TheFall.Domain;
 using TheFall.Infrastructure;
@@ -17,8 +18,16 @@ namespace TheFall.Presentation.Bootstrap
     [RequireComponent(typeof(InputIntentSource))]
     public sealed class CompositionRoot : MonoBehaviour
     {
+        public const string DevelopmentSceneArgument = "--the-fall-scene";
+
         private static readonly PlayerId HumanId = new PlayerId("human");
         private static readonly PlayerId BotId = new PlayerId("baseline-bot");
+        private static readonly string[] DevelopmentScenes =
+        {
+            "Home",
+            "MatchPrototype",
+            "AnimationLab",
+        };
 
         private bool _loadHomeOnStart;
 
@@ -46,7 +55,10 @@ namespace TheFall.Presentation.Bootstrap
         {
             if (_loadHomeOnStart)
             {
-                SceneManager.LoadSceneAsync("Home", LoadSceneMode.Single);
+                var sceneOverride = ResolveDevelopmentSceneOverride(
+                    Environment.GetCommandLineArgs(),
+                    Debug.isDebugBuild);
+                SceneManager.LoadSceneAsync(sceneOverride ?? "Home", LoadSceneMode.Single);
             }
         }
 
@@ -80,6 +92,37 @@ namespace TheFall.Presentation.Bootstrap
                 new Player(HumanId, "Local Player", Seat.First, TeamId.One, PlayerControl.Human),
                 new Player(BotId, "Baseline Bot", Seat.Second, TeamId.Two, PlayerControl.Bot),
                 rules);
+        }
+
+        public static string ResolveDevelopmentSceneOverride(
+            string[] arguments,
+            bool isDevelopmentBuild)
+        {
+            if (!isDevelopmentBuild || arguments == null)
+            {
+                return null;
+            }
+
+            for (var index = 0; index < arguments.Length; index++)
+            {
+                if (arguments[index] != DevelopmentSceneArgument || index + 1 >= arguments.Length)
+                {
+                    continue;
+                }
+
+                var requestedScene = arguments[index + 1];
+                foreach (var scene in DevelopmentScenes)
+                {
+                    if (requestedScene == scene)
+                    {
+                        return scene;
+                    }
+                }
+
+                return null;
+            }
+
+            return null;
         }
     }
 }
