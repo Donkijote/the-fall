@@ -78,10 +78,13 @@ export UNITY_THE_FALL="/Applications/Unity/Hub/Editor/6000.5.4f1/Unity.app/Conte
 
 scripts/validate-unity.sh tests
 scripts/validate-unity.sh smoke macos
+scripts/validate-unity.sh smoke ios
+scripts/validate-unity.sh smoke ios-simulator
 scripts/validate-unity.sh all macos
 ```
 
 See [testing and platform validation baseline](validation.md) for focused failure replay, all platform smoke arguments, result locations, the manual matrix, and evidence requirements.
+See [iOS development builds](ios-development-builds.md) for the local Xcode signing boundary, physical-iPhone procedure, simulator path, retained-scene launch arguments, and device-specific diagnosis.
 
 The editor menu `The Fall > Foundation > Generate` creates missing foundation assets and applies project settings without replacing scenes or UI prefabs that already exist. `The Fall > Foundation > Validate` performs the non-test structural checks.
 
@@ -94,7 +97,7 @@ Validated on 2026-07-19 with Unity `6000.5.4f1`:
 - project Play Mode tests: 1 passed
 - macOS universal player smoke build: succeeded
 
-The installed editor currently includes macOS Standalone and WebGL support. Android, iOS, and Windows player modules are not installed on this machine, so their build-smoke validation is deferred until those modules and any required platform toolchains are available. Their product identifiers, shared input foundation, and mobile orientation settings are configured, but this checkpoint does not claim device, signing, or store validation.
+The issue #3 checkpoint included only macOS Standalone and WebGL support. Issue #30 later installed and verified the matching iOS module and Xcode toolchain without changing the provisional iOS `15.0` target or committing local signing data. See [iOS development builds](ios-development-builds.md) for the current iOS checkpoint. Android and Windows modules/toolchains remain unavailable and are not claimed.
 
 ## Git LFS audit
 

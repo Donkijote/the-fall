@@ -2,6 +2,7 @@ using System.Linq;
 using NUnit.Framework;
 using TheFall.Application.Input;
 using TheFall.Domain;
+using TheFall.Presentation.Bootstrap;
 using UnityEngine.InputSystem;
 
 namespace TheFall.Tests.EditMode
@@ -51,6 +52,44 @@ namespace TheFall.Tests.EditMode
             Assert.That(select.bindings.Any(binding => binding.path == "<Keyboard>/e"), Is.True);
             Assert.That(confirm.bindings.Any(binding => binding.path == "<Keyboard>/enter"), Is.True);
             Assert.That(cancel.bindings.Any(binding => binding.path == "<Keyboard>/escape"), Is.True);
+        }
+
+        [TestCase("Home")]
+        [TestCase("MatchPrototype")]
+        [TestCase("AnimationLab")]
+        public void DevelopmentSceneOverride_AcceptsRetainedLaunchScenes(string scene)
+        {
+            var resolved = CompositionRoot.ResolveDevelopmentSceneOverride(
+                new[] { "TheFall", CompositionRoot.DevelopmentSceneArgument, scene },
+                true);
+
+            Assert.That(resolved, Is.EqualTo(scene));
+        }
+
+        [Test]
+        public void DevelopmentSceneOverride_IsIgnoredOutsideDevelopmentBuilds()
+        {
+            var resolved = CompositionRoot.ResolveDevelopmentSceneOverride(
+                new[]
+                {
+                    "TheFall",
+                    CompositionRoot.DevelopmentSceneArgument,
+                    "MatchPrototype",
+                },
+                false);
+
+            Assert.That(resolved, Is.Null);
+        }
+
+        [TestCase("AssetReview")]
+        [TestCase("MissingScene")]
+        public void DevelopmentSceneOverride_RejectsScenesOutsideTheDeviceChecklist(string scene)
+        {
+            var resolved = CompositionRoot.ResolveDevelopmentSceneOverride(
+                new[] { "TheFall", CompositionRoot.DevelopmentSceneArgument, scene },
+                true);
+
+            Assert.That(resolved, Is.Null);
         }
     }
 }
