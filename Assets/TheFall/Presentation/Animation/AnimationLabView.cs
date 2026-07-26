@@ -53,6 +53,7 @@ namespace TheFall.Presentation.Animation
         private Vector3 _activeRejectionTarget;
         private float _dealerFlipDirection = 1f;
         private float _dealFlipDirection = 1f;
+        private float _activeDealRestingYawDegrees;
         private float _dealerFlipLift;
         private float _dealerFlipDegrees;
         private float _dealFlipDegrees;
@@ -313,6 +314,7 @@ namespace TheFall.Presentation.Animation
 
             foreach (var entry in _cardViews)
             {
+                var startRotation = entry.Value.localRotation;
                 if (!existingCards.Contains(entry.Key) && Contains(step.Cards, entry.Key))
                 {
                     entry.Value.localPosition = ResolveSyntheticSource(step, state, entry.Key);
@@ -324,17 +326,14 @@ namespace TheFall.Presentation.Animation
                     target = entry.Value.localPosition;
                 }
 
-                if (Contains(state.Table, entry.Key))
-                {
-                    entry.Value.localRotation = ResolveTableCardRotation(
-                        entry.Key,
-                        state.GetTableLayoutIndex(entry.Key));
-                }
+                var targetRotation = ResolveCardRotation(state, entry.Key);
 
                 _motions.Add(new CardMotion(
                     entry.Value,
                     entry.Value.localPosition,
-                    target));
+                    target,
+                    startRotation,
+                    targetRotation));
             }
             RefreshLabels(state);
             SetEventCue(step);
@@ -352,6 +351,12 @@ namespace TheFall.Presentation.Animation
                         clamped,
                         _easing,
                         _trajectoryOffset);
+                motion.Transform.localRotation = Quaternion.Slerp(
+                    motion.StartRotation,
+                    motion.TargetRotation,
+                    AnimationBeatEvaluator.EvaluateEasedProgress(
+                        clamped,
+                        _easing));
             }
 
             ApplyDealerCardFlip(clamped);
@@ -455,11 +460,7 @@ namespace TheFall.Presentation.Animation
             foreach (var entry in _cardViews)
             {
                 entry.Value.localPosition = ResolveCardPosition(state, entry.Key);
-                entry.Value.localRotation = Contains(state.Table, entry.Key)
-                    ? ResolveTableCardRotation(
-                        entry.Key,
-                        state.GetTableLayoutIndex(entry.Key))
-                    : Quaternion.Euler(90f, 0f, 0f);
+                entry.Value.localRotation = ResolveCardRotation(state, entry.Key);
             }
 
             RefreshLabels(state);
@@ -660,15 +661,20 @@ namespace TheFall.Presentation.Animation
                 var slots = Math.Max(3, state.GetHandLayoutSlotCount(player.Id));
                 for (var index = 0; index < hand.Count; index++)
                 {
-                    _opponentHandViews.Add(CreateHiddenCard(
+                    var layoutIndex = state.GetHandLayoutIndex(player.Id, hand[index]);
+                    var hiddenCard = CreateHiddenCard(
                         $"Face-down {player.DisplayName} Hand Card {index + 1}",
-                        GetSeatCardPosition(
+                        GetSeatHandCardPosition(
                             player.Seat,
                             1.02f,
-                            state.GetHandLayoutIndex(player.Id, hand[index]),
+                            layoutIndex,
                             slots,
-                            0.19f,
-                            0.84f)));
+                            0.84f));
+                    hiddenCard.Transform.localRotation = ResolveHandCardYaw(
+                        player.Seat,
+                        layoutIndex,
+                        slots);
+                    _opponentHandViews.Add(hiddenCard);
                 }
             }
         }
@@ -719,18 +725,22 @@ namespace TheFall.Presentation.Animation
         {
             var recipient = FindPlayer(state, step.PlayerId);
             var handIndex = state.GetHandLayoutIndex(step.PlayerId, step.Cards[0]);
+            var handSlots = Math.Max(3, state.GetHandLayoutSlotCount(step.PlayerId));
             PrepareDeckCardMotion(
                 step.Cards[0],
-                GetSeatCardPosition(
+                GetSeatHandCardPosition(
                     recipient.Seat,
                     1.02f,
                     handIndex,
-                    Math.Max(3, state.GetHandLayoutSlotCount(step.PlayerId)),
-                    0.19f,
+                    handSlots,
                     0.84f),
                 step.PlayerId == _actingPlayerId,
                 recipient.Seat,
-                $"Dealt Card to {step.PlayerId}");
+                $"Dealt Card to {step.PlayerId}",
+                ResolveHandCardYaw(
+                    recipient.Seat,
+                    handIndex,
+                    handSlots).eulerAngles.y);
         }
 
         private void PrepareOpeningCard(
@@ -742,7 +752,8 @@ namespace TheFall.Presentation.Animation
                 ResolveCardPosition(state, step.Cards[0]),
                 true,
                 FindPlayer(state, _actingPlayerId).Seat,
-                $"Opening Card {step.Cards[0]}");
+                $"Opening Card {step.Cards[0]}",
+                0f);
         }
 
         private void PrepareDeckCardMotion(
@@ -750,7 +761,8 @@ namespace TheFall.Presentation.Animation
             Vector3 target,
             bool revealFace,
             Seat recipientSeat,
-            string name)
+            string name,
+            float restingYawDegrees)
         {
             if (_deckViews.Count == 0)
             {
@@ -764,6 +776,7 @@ namespace TheFall.Presentation.Animation
             _dealRevealsFace = revealFace;
             _activeDealFaceUp = false;
             _dealFlipDirection = recipientSeat == Seat.First ? 1f : -1f;
+            _activeDealRestingYawDegrees = restingYawDegrees;
             _dealFlipDegrees = 0f;
             _activeDealCard.Transform.localRotation = Quaternion.identity;
             _activeDealCard.FaceRenderer.gameObject.SetActive(false);
@@ -792,9 +805,11 @@ namespace TheFall.Presentation.Animation
                 _dealRevealsFace);
             _activeDealCard.Transform.localPosition = pose.Position;
             _dealFlipDegrees = pose.FlipDegrees;
-            _activeDealCard.Transform.localRotation = Quaternion.AngleAxis(
-                _dealFlipDegrees * _dealFlipDirection,
-                Vector3.forward);
+            _activeDealCard.Transform.localRotation =
+                Quaternion.AngleAxis(_activeDealRestingYawDegrees, Vector3.up)
+                * Quaternion.AngleAxis(
+                    _dealFlipDegrees * _dealFlipDirection,
+                    Vector3.forward);
             _activeDealFaceUp = pose.FaceUp;
             _activeDealCard.FaceRenderer.gameObject.SetActive(pose.FaceUp);
         }
@@ -1343,12 +1358,11 @@ namespace TheFall.Presentation.Animation
                 var handIndex = IndexOf(state.GetHand(player.Id), card);
                 if (player.Id == _actingPlayerId && handIndex >= 0)
                 {
-                    return GetSeatCardPosition(
+                    return GetSeatHandCardPosition(
                         player.Seat,
                         1.02f,
                         state.GetHandLayoutIndex(player.Id, card),
                         Math.Max(3, state.GetHandLayoutSlotCount(player.Id)),
-                        0.19f,
                         0.84f);
                 }
 
@@ -1366,6 +1380,35 @@ namespace TheFall.Presentation.Animation
             }
 
             return new Vector3(0f, -5f, 0f);
+        }
+
+        private Quaternion ResolveCardRotation(
+            AnimationPresentationState state,
+            Card card)
+        {
+            if (Contains(state.Table, card))
+            {
+                return ResolveTableCardRotation(
+                    card,
+                    state.GetTableLayoutIndex(card));
+            }
+
+            foreach (var player in state.Players)
+            {
+                var hand = state.GetHand(player.Id);
+                if (player.Id != _actingPlayerId || IndexOf(hand, card) < 0)
+                {
+                    continue;
+                }
+
+                return ResolveHandCardYaw(
+                        player.Seat,
+                        state.GetHandLayoutIndex(player.Id, card),
+                        Math.Max(3, state.GetHandLayoutSlotCount(player.Id)))
+                    * Quaternion.Euler(90f, 0f, 0f);
+            }
+
+            return Quaternion.Euler(90f, 0f, 0f);
         }
 
         private Vector3 ResolveSyntheticSource(
@@ -1576,6 +1619,37 @@ namespace TheFall.Presentation.Animation
             return basePosition + tangent * ((index - (count - 1) * 0.5f) * spacing);
         }
 
+        private Vector3 GetSeatHandCardPosition(
+            Seat seat,
+            float radius,
+            int index,
+            int count,
+            float height)
+        {
+            var angle = GetSeatAngle(seat);
+            var radians = angle * Mathf.Deg2Rad;
+            var basePosition = TableCompositionLayout.PositionAt(angle, radius, height);
+            var tangent = new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians));
+            var outward = new Vector3(basePosition.x, 0f, basePosition.z).normalized;
+            var layout = AnimationHandCardLayoutEvaluator.Resolve(index, count);
+            return basePosition
+                + tangent * layout.LateralOffset
+                + outward * layout.OutwardOffset
+                + Vector3.up * layout.HeightOffset;
+        }
+
+        private static Quaternion ResolveHandCardYaw(
+            Seat seat,
+            int index,
+            int count)
+        {
+            var layout = AnimationHandCardLayoutEvaluator.Resolve(index, count);
+            var yaw = seat == Seat.First
+                ? layout.FanYawDegrees
+                : -layout.FanYawDegrees;
+            return Quaternion.AngleAxis(yaw, Vector3.up);
+        }
+
         private static Player FindPlayer(AnimationPresentationState state, PlayerId playerId)
         {
             foreach (var player in state.Players)
@@ -1665,11 +1739,18 @@ namespace TheFall.Presentation.Animation
 
         private readonly struct CardMotion
         {
-            public CardMotion(Transform transform, Vector3 start, Vector3 target)
+            public CardMotion(
+                Transform transform,
+                Vector3 start,
+                Vector3 target,
+                Quaternion startRotation,
+                Quaternion targetRotation)
             {
                 Transform = transform;
                 Start = start;
                 Target = target;
+                StartRotation = startRotation;
+                TargetRotation = targetRotation;
             }
 
             public Transform Transform { get; }
@@ -1677,6 +1758,10 @@ namespace TheFall.Presentation.Animation
             public Vector3 Start { get; }
 
             public Vector3 Target { get; }
+
+            public Quaternion StartRotation { get; }
+
+            public Quaternion TargetRotation { get; }
         }
 
         private readonly struct DeckSplitMotion

@@ -5,6 +5,7 @@ using NUnit.Framework;
 using TheFall.Application;
 using TheFall.Application.Interaction;
 using TheFall.Domain;
+using TheFall.Presentation.Animation;
 using TheFall.Presentation.Bootstrap;
 using TheFall.Presentation.Interaction;
 using TheFall.Presentation.Match;
@@ -156,20 +157,29 @@ namespace TheFall.Tests.PlayMode
             var authoredTableScale = table.AuthoredLayout.Table.transform.localScale;
             Assert.That(renderedTables.All(item => item.localScale == authoredTableScale), Is.True);
 
-            var localHandCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.LocalHand);
+            var localHandCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.LocalHand)
+                .OrderBy(card => card.LayoutIndex)
+                .ToArray();
+            var localHandCard = localHandCards[0];
             var publicTableCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Table);
             var openingTableCards = table.RenderedCards
                 .Where(card => card.Zone == FirstPlayableCardZone.Table)
                 .OrderBy(card => card.LayoutIndex)
                 .ToArray();
-            var opponentCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.OpponentHand);
+            var opponentHandCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.OpponentHand)
+                .OrderBy(card => card.LayoutIndex)
+                .ToArray();
+            var opponentCard = opponentHandCards[0];
             var deckCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Deck);
             var expectedScale = localHandCard.transform.localScale;
             Assert.That(publicTableCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(opponentCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(deckCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(expectedScale.x / expectedScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
-            Assert.That(localHandCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
+            AssertHandFan(localHandCards, true);
+            AssertHandFan(opponentHandCards, false);
             Assert.That(publicTableCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
             Assert.That(deckCard.transform.localEulerAngles.z, Is.EqualTo(0f).Within(0.001f));
             Assert.That(openingTableCards, Has.Length.EqualTo(4));
@@ -338,6 +348,32 @@ namespace TheFall.Tests.PlayMode
             }
 
             Assert.That(controller.Flow.Match.GetHumanLegalIntents().OfType<PlayCardIntent>().Any(), Is.True);
+        }
+
+        private static void AssertHandFan(
+            IReadOnlyList<FirstPlayableRenderedCard> cards,
+            bool local)
+        {
+            Assert.That(cards.Count, Is.EqualTo(3));
+            for (var index = 0; index < cards.Count; index++)
+            {
+                var layout = AnimationHandCardLayoutEvaluator.Resolve(index, cards.Count);
+                var expectedPosition = new Vector3(
+                    local ? layout.LateralOffset : -layout.LateralOffset,
+                    layout.HeightOffset,
+                    local ? -layout.OutwardOffset : layout.OutwardOffset);
+                var expectedRotation =
+                    Quaternion.AngleAxis(
+                        local ? layout.FanYawDegrees : -layout.FanYawDegrees,
+                        Vector3.up)
+                    * Quaternion.AngleAxis(local ? 180f : 0f, Vector3.forward);
+                Assert.That(
+                    Vector3.Distance(cards[index].transform.localPosition, expectedPosition),
+                    Is.LessThan(0.0001f));
+                Assert.That(
+                    Quaternion.Angle(cards[index].transform.localRotation, expectedRotation),
+                    Is.LessThan(0.01f));
+            }
         }
 
         private static IEnumerator LoadMatch()

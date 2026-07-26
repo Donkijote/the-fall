@@ -170,7 +170,10 @@ Runtime transitions retain the outgoing card pose while the next resolved beat i
 Rebuilding the authoritative prefix therefore cannot snap a card to its final zone between adjacent
 beats. Local Deal and opening-placement cards leave the deck back-up and reveal once in flight;
 opponent Deal cards stay face down for the complete deck-to-hand path. Existing hand cards use a
-concurrent zero-trajectory reflow, so they do not inherit the incoming card's arc. An opening
+concurrent zero-trajectory reflow, so they do not inherit the incoming card's arc. Hand positions
+and resting angles both interpolate into the shared shallow three-card fan used by the workbench
+and integrated table; the center stays upright and forward while the outer cards rotate away from
+it. An opening
 rejection remains face-up until it turns back into the temporary deck gap. Normal captures first
 stack the played card on its match, cascade beats move the complete growing stack, and only the
 `CaptureCollection` treatment turns that stack face down. Leftovers use the same face-up-to-collected

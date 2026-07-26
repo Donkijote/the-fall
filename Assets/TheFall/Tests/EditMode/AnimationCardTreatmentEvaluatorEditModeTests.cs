@@ -137,6 +137,26 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void HandLayout_UsesAThreeCardFanWithAnUprightForwardCenter()
+        {
+            var left = AnimationHandCardLayoutEvaluator.Resolve(0, 3);
+            var center = AnimationHandCardLayoutEvaluator.Resolve(1, 3);
+            var right = AnimationHandCardLayoutEvaluator.Resolve(2, 3);
+
+            Assert.That(left.LateralOffset, Is.EqualTo(-0.235f).Within(0.0001f));
+            Assert.That(center.LateralOffset, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(right.LateralOffset, Is.EqualTo(0.235f).Within(0.0001f));
+            Assert.That(left.OutwardOffset, Is.EqualTo(0.04f).Within(0.0001f));
+            Assert.That(center.OutwardOffset, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(right.OutwardOffset, Is.EqualTo(0.04f).Within(0.0001f));
+            Assert.That(left.FanYawDegrees, Is.EqualTo(-10f).Within(0.0001f));
+            Assert.That(center.FanYawDegrees, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(right.FanYawDegrees, Is.EqualTo(10f).Within(0.0001f));
+            Assert.That(left.HeightOffset, Is.LessThan(center.HeightOffset));
+            Assert.That(center.HeightOffset, Is.LessThan(right.HeightOffset));
+        }
+
+        [Test]
         public void TableLayout_UsesDeterministicScatteredSlotsWithinTheBoundedField()
         {
             var ranks = new[]

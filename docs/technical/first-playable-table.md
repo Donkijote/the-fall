@@ -51,6 +51,9 @@ resetting manual changes.
 - `RoundCardTable` is the table asset, widened uniformly across its surface to a `2.10 m` gameplay diameter while retaining its authored height
 - every visible face uses the forty-card `CardVisualCatalog` and shared atlas material
 - opponent hands and dealer-selection cards use the direction-neutral back
+- both three-card hands use the shared shallow fan: the center card remains upright and slightly
+  forward toward the table, while the outer cards overlap, arc toward their owner, and rotate
+  outward symmetrically; the opponent layout mirrors the local layout
 - captured cards remain face down in separate owner piles
 - public table cards retain their presentation slots when another card is captured; capture and
   cascade removal never compact or rearrange the surviving table

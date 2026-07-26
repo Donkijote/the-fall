@@ -648,6 +648,8 @@ namespace TheFall.Presentation.Match
                 else if (rendered.Zone == FirstPlayableCardZone.OpponentHand)
                 {
                     snapshot.OpponentHandPositions[rendered.InteractionIndex] = rendered.transform.position;
+                    snapshot.OpponentHandRotations[rendered.InteractionIndex] =
+                        rendered.transform.localRotation;
                 }
                 else if (rendered.Zone == FirstPlayableCardZone.DealerSpread)
                 {
@@ -807,7 +809,12 @@ namespace TheFall.Presentation.Match
                     isParallelHandReflow ? Vector3.zero : trajectory,
                     isParallelHandReflow
                         ? GetParallelMotionDurationFraction(step.Kind)
-                        : 1f)
+                        : 1f,
+                    source.CardPoses.TryGetValue(
+                        rendered.PresentationCard.Value,
+                        out var sourcePose)
+                            ? sourcePose.LocalRotation
+                            : (Quaternion?)null)
                     && isParallelHandReflow)
                 {
                     ActiveParallelHandReflowMotionCount++;
@@ -836,7 +843,13 @@ namespace TheFall.Presentation.Match
                             opponentStart,
                             rendered.transform.position,
                             beat,
-                            trajectory);
+                            trajectory,
+                            1f,
+                            source.OpponentHandRotations.TryGetValue(
+                                rendered.InteractionIndex,
+                                out var opponentStartRotation)
+                                    ? opponentStartRotation
+                                    : (Quaternion?)null);
                     }
                 }
             }
@@ -1285,7 +1298,12 @@ namespace TheFall.Presentation.Match
                     rendered.transform.position,
                     _animationPreset.GetBeat(ResolvedAnimationStepKind.HandReflow),
                     Vector3.zero,
-                    GetParallelMotionDurationFraction(step.Kind)))
+                    GetParallelMotionDurationFraction(step.Kind),
+                    source.OpponentHandRotations.TryGetValue(
+                        oldIndex,
+                        out var startRotation)
+                            ? startRotation
+                            : (Quaternion?)null))
                 {
                     ActiveParallelHandReflowMotionCount++;
                 }
@@ -1348,18 +1366,37 @@ namespace TheFall.Presentation.Match
             Vector3 target,
             AnimationBeatConfiguration beat,
             Vector3 trajectory,
-            float normalizedDuration = 1f)
+            float normalizedDuration = 1f,
+            Quaternion? startLocalRotation = null)
         {
-            if (card == null || Vector3.SqrMagnitude(target - start) <= 0.000001f)
+            if (card == null)
+            {
+                return false;
+            }
+
+            var targetLocalRotation = card.localRotation;
+            var resolvedStartLocalRotation =
+                startLocalRotation ?? targetLocalRotation;
+            var animatesPosition =
+                Vector3.SqrMagnitude(target - start) > 0.000001f;
+            var animatesRotation =
+                Quaternion.Angle(
+                    resolvedStartLocalRotation,
+                    targetLocalRotation) > 0.01f;
+            if (!animatesPosition && !animatesRotation)
             {
                 return false;
             }
 
             card.position = start;
+            card.localRotation = resolvedStartLocalRotation;
             _cardMotions.Add(new CardMotion(
                 card,
                 start,
                 target,
+                resolvedStartLocalRotation,
+                targetLocalRotation,
+                animatesRotation,
                 beat?.Easing ?? AnimationBeatEasing.EaseInOut,
                 trajectory,
                 normalizedDuration));
@@ -1392,6 +1429,15 @@ namespace TheFall.Presentation.Match
                         motionProgress,
                         motion.Easing,
                         motion.Trajectory);
+                    if (motion.AnimatesRotation)
+                    {
+                        motion.Card.localRotation = Quaternion.Slerp(
+                            motion.StartLocalRotation,
+                            motion.TargetLocalRotation,
+                            AnimationBeatEvaluator.EvaluateEasedProgress(
+                                motionProgress,
+                                motion.Easing));
+                    }
                 }
             }
 
@@ -1915,13 +1961,21 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < cards.Count; index++)
             {
                 var layoutIndex = layoutIndices[index];
-                var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.29f;
+                var layout = AnimationHandCardLayoutEvaluator.Resolve(
+                    layoutIndex,
+                    layoutSlotCount);
                 var rendered = CreateCard(zoneParent, $"Local Hand {cards[index]}",
                     new Vector3(
-                        x,
-                        0f,
-                        Mathf.Abs(layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.025f),
-                    FirstPlayableCardZone.LocalHand, true, cards[index], index, true);
+                        layout.LateralOffset,
+                        layout.HeightOffset,
+                        -layout.OutwardOffset),
+                    FirstPlayableCardZone.LocalHand,
+                    true,
+                    cards[index],
+                    index,
+                    true,
+                    layoutIndex,
+                    layout.FanYawDegrees);
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
                 _localHandViews.Add(view);
@@ -1938,15 +1992,21 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < count; index++)
             {
                 var layoutIndex = layoutIndices[index];
-                var x = (layoutIndex - (layoutSlotCount - 1) * 0.5f) * 0.25f;
+                var layout = AnimationHandCardLayoutEvaluator.Resolve(
+                    layoutIndex,
+                    layoutSlotCount);
                 CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
-                    new Vector3(-x, 0f, 0f),
+                    new Vector3(
+                        -layout.LateralOffset,
+                        layout.HeightOffset,
+                        layout.OutwardOffset),
                     FirstPlayableCardZone.OpponentHand,
                     false,
                     null,
                     index,
                     false,
-                    layoutIndex);
+                    layoutIndex,
+                    -layout.FanYawDegrees);
             }
         }
 
@@ -2464,6 +2524,9 @@ namespace TheFall.Presentation.Match
             public Dictionary<int, Vector3> OpponentHandPositions { get; } =
                 new Dictionary<int, Vector3>();
 
+            public Dictionary<int, Quaternion> OpponentHandRotations { get; } =
+                new Dictionary<int, Quaternion>();
+
             public Dictionary<int, Vector3> DealerSpreadPositions { get; } =
                 new Dictionary<int, Vector3>();
 
@@ -2504,6 +2567,9 @@ namespace TheFall.Presentation.Match
                 Transform card,
                 Vector3 start,
                 Vector3 target,
+                Quaternion startLocalRotation,
+                Quaternion targetLocalRotation,
+                bool animatesRotation,
                 AnimationBeatEasing easing,
                 Vector3 trajectory,
                 float normalizedDuration)
@@ -2511,6 +2577,9 @@ namespace TheFall.Presentation.Match
                 Card = card;
                 Start = start;
                 Target = target;
+                StartLocalRotation = startLocalRotation;
+                TargetLocalRotation = targetLocalRotation;
+                AnimatesRotation = animatesRotation;
                 Easing = easing;
                 Trajectory = trajectory;
                 NormalizedDuration = Mathf.Clamp(normalizedDuration, 0.0001f, 1f);
@@ -2521,6 +2590,12 @@ namespace TheFall.Presentation.Match
             public Vector3 Start { get; }
 
             public Vector3 Target { get; }
+
+            public Quaternion StartLocalRotation { get; }
+
+            public Quaternion TargetLocalRotation { get; }
+
+            public bool AnimatesRotation { get; }
 
             public AnimationBeatEasing Easing { get; }
 

@@ -173,6 +173,64 @@ namespace TheFall.Presentation.Animation
         }
     }
 
+    public readonly struct AnimationHandCardLayout
+    {
+        public AnimationHandCardLayout(
+            float lateralOffset,
+            float outwardOffset,
+            float heightOffset,
+            float fanYawDegrees)
+        {
+            LateralOffset = lateralOffset;
+            OutwardOffset = outwardOffset;
+            HeightOffset = heightOffset;
+            FanYawDegrees = fanYawDegrees;
+        }
+
+        public float LateralOffset { get; }
+
+        public float OutwardOffset { get; }
+
+        public float HeightOffset { get; }
+
+        public float FanYawDegrees { get; }
+    }
+
+    /// <summary>
+    /// Shared three-card hand fan used by the workbench and integrated table.
+    /// Offsets are expressed in seat-relative axes: lateral across the hand and outward from table.
+    /// </summary>
+    public static class AnimationHandCardLayoutEvaluator
+    {
+        public const float CardSpacing = 0.235f;
+        public const float ArcDepth = 0.04f;
+        public const float FanYawStepDegrees = 10f;
+        public const float LayerStep = 0.0025f;
+
+        public static AnimationHandCardLayout Resolve(
+            int layoutIndex,
+            int layoutSlotCount)
+        {
+            if (layoutIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(layoutIndex));
+            }
+
+            var slotCount = Math.Max(1, layoutSlotCount);
+            if (layoutIndex >= slotCount)
+            {
+                throw new ArgumentOutOfRangeException(nameof(layoutIndex));
+            }
+
+            var centeredIndex = layoutIndex - (slotCount - 1) * 0.5f;
+            return new AnimationHandCardLayout(
+                centeredIndex * CardSpacing,
+                centeredIndex * centeredIndex * ArcDepth,
+                layoutIndex * LayerStep,
+                centeredIndex * FanYawStepDegrees);
+        }
+    }
+
     /// <summary>
     /// Shared bounded table-card placement used by the workbench and integrated game.
     /// Slot selection is deterministic for replay, but deliberately avoids insertion-order rows.
