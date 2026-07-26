@@ -264,7 +264,10 @@ namespace TheFall.Presentation.UI
             }
 
             UpdatePresentationAvailability();
-            if (!isBusy && _root != null && Flow != null)
+            if (!isBusy
+                && _root != null
+                && Flow != null
+                && LocalizationSettings.SelectedLocale != null)
             {
                 Render();
             }
