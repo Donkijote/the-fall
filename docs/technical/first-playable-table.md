@@ -53,7 +53,8 @@ resetting manual changes.
 - opponent hands and dealer-selection cards use the direction-neutral back
 - both three-card hands use the shared shallow fan: the center card remains upright and slightly
   forward toward the table, while the outer cards overlap, arc toward their owner, and rotate
-  outward symmetrically; the opponent layout mirrors the local layout
+  outward symmetrically; the opponent layout reflects across the table axis without reversing its
+  screen-left/right slot order
 - the live draw deck follows the current dealer, sitting close to that seat on the dealer's own
   right; the position mirrors between local and opponent dealers
 - captured cards remain face down in separate owner piles

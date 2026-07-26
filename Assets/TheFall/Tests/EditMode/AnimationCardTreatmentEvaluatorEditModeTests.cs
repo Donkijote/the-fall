@@ -154,6 +154,26 @@ namespace TheFall.Tests.EditMode
             Assert.That(right.FanYawDegrees, Is.EqualTo(10f).Within(0.0001f));
             Assert.That(left.HeightOffset, Is.LessThan(center.HeightOffset));
             Assert.That(center.HeightOffset, Is.LessThan(right.HeightOffset));
+
+            var localLeft = AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                0,
+                3,
+                Seat.First);
+            var opponentLeft = AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                0,
+                3,
+                Seat.Second);
+            Assert.That(opponentLeft.x, Is.EqualTo(localLeft.x).Within(0.0001f));
+            Assert.That(opponentLeft.z, Is.EqualTo(-localLeft.z).Within(0.0001f));
+            Assert.That(
+                AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                    0,
+                    3,
+                    Seat.Second),
+                Is.EqualTo(-AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                    0,
+                    3,
+                    Seat.First)).Within(0.0001f));
         }
 
         [Test]

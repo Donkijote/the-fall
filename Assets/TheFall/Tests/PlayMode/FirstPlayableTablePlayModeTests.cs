@@ -362,14 +362,18 @@ namespace TheFall.Tests.PlayMode
             Assert.That(cards.Count, Is.EqualTo(3));
             for (var index = 0; index < cards.Count; index++)
             {
-                var layout = AnimationHandCardLayoutEvaluator.Resolve(index, cards.Count);
-                var expectedPosition = new Vector3(
-                    local ? layout.LateralOffset : -layout.LateralOffset,
-                    layout.HeightOffset,
-                    local ? -layout.OutwardOffset : layout.OutwardOffset);
+                var seat = local ? Seat.First : Seat.Second;
+                var expectedPosition =
+                    AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                        index,
+                        cards.Count,
+                        seat);
                 var expectedRotation =
                     Quaternion.AngleAxis(
-                        local ? layout.FanYawDegrees : -layout.FanYawDegrees,
+                        AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                            index,
+                            cards.Count,
+                            seat),
                         Vector3.up)
                     * Quaternion.AngleAxis(local ? 180f : 0f, Vector3.forward);
                 Assert.That(

@@ -229,6 +229,52 @@ namespace TheFall.Presentation.Animation
                 layoutIndex * LayerStep,
                 centeredIndex * FanYawStepDegrees);
         }
+
+        public static Vector3 ResolveLocalPosition(
+            int layoutIndex,
+            int layoutSlotCount,
+            Seat seat)
+        {
+            var layout = Resolve(layoutIndex, layoutSlotCount);
+            switch (seat)
+            {
+                case Seat.First:
+                    return new Vector3(
+                        layout.LateralOffset,
+                        layout.HeightOffset,
+                        -layout.OutwardOffset);
+                case Seat.Second:
+                    return new Vector3(
+                        layout.LateralOffset,
+                        layout.HeightOffset,
+                        layout.OutwardOffset);
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(seat),
+                        seat,
+                        "The first-playable hand supports the two 1v1 seats.");
+            }
+        }
+
+        public static float ResolveRestingYawDegrees(
+            int layoutIndex,
+            int layoutSlotCount,
+            Seat seat)
+        {
+            var yaw = Resolve(layoutIndex, layoutSlotCount).FanYawDegrees;
+            switch (seat)
+            {
+                case Seat.First:
+                    return yaw;
+                case Seat.Second:
+                    return -yaw;
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(seat),
+                        seat,
+                        "The first-playable hand supports the two 1v1 seats.");
+            }
+        }
     }
 
     /// <summary>

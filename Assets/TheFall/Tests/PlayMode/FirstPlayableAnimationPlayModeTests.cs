@@ -226,6 +226,55 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator OpponentDeal_ReflowsContinuouslyThroughTheMirroredFan()
+        {
+            yield return LoadMatchWithoutSettlingPresentation();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            table.SkipPresentation();
+
+            var deadline = Time.realtimeSinceStartup + 20f;
+            ResolvedAnimationStep dealStep = null;
+            while (Time.realtimeSinceStartup < deadline)
+            {
+                var active = table.AnimationPlayer.ActiveStep;
+                if (active?.Kind == ResolvedAnimationStepKind.Deal
+                    && active.PlayerId == table.Snapshot.OpponentPlayerId
+                    && table.Snapshot.OpponentHandCount >= 2
+                    && table.ActiveParallelHandReflowMotionCount > 0)
+                {
+                    dealStep = active;
+                    break;
+                }
+
+                if (!table.IsPresentationBusy)
+                {
+                    var legal = controller.Flow.Match.GetHumanLegalIntents();
+                    Assert.That(
+                        controller.SubmitHumanIntent(
+                            ChooseHumanIntent(controller.Flow.Match.State, legal)),
+                        Is.True);
+                }
+
+                yield return null;
+            }
+
+            Assert.That(dealStep, Is.Not.Null);
+            var observedFrames = 0;
+            while (ReferenceEquals(table.AnimationPlayer.ActiveStep, dealStep)
+                && table.IsPresentationBusy
+                && Time.realtimeSinceStartup < deadline)
+            {
+                AssertOpponentDealReflowPose(table);
+                observedFrames++;
+                yield return null;
+            }
+
+            Assert.That(observedFrames, Is.GreaterThan(1));
+            table.SkipPresentation();
+        }
+
+        [UnityTest]
         public IEnumerator FastForwardCompleteMatch_ProfilesIntegratedRenderingWithoutPooling()
         {
             yield return LoadMatchWithoutSettlingPresentation();
@@ -659,6 +708,91 @@ namespace TheFall.Tests.PlayMode
                     propertyBlock.isEmpty,
                     Is.True,
                     $"{stepKind} reached the pile with a stale face-atlas property override.");
+            }
+        }
+
+        private static void AssertOpponentDealReflowPose(
+            FirstPlayableTablePresentation table)
+        {
+            var count = table.Snapshot.OpponentHandCount;
+            var primaryDuration = table.AnimationPreset.GetDuration(
+                ResolvedAnimationStepKind.Deal,
+                table.AnimationPlayer.FastForward,
+                table.AnimationPlayer.ReducedMotion);
+            var reflowDuration = table.AnimationPreset.GetDuration(
+                ResolvedAnimationStepKind.HandReflow,
+                table.AnimationPlayer.FastForward,
+                table.AnimationPlayer.ReducedMotion);
+            var durationFraction = primaryDuration <= 0.0001f
+                ? 1f
+                : Mathf.Clamp(reflowDuration / primaryDuration, 0.0001f, 1f);
+            var motionProgress = Mathf.Clamp01(
+                table.AnimationPlayer.ActiveStepProgress / durationFraction);
+            var easing = table.AnimationPreset
+                .GetBeat(ResolvedAnimationStepKind.HandReflow)
+                .Easing;
+            var easedProgress = AnimationBeatEvaluator.EvaluateEasedProgress(
+                motionProgress,
+                easing);
+            var opponentDebug = string.Join(
+                "; ",
+                table.RenderedCards
+                    .Where(rendered =>
+                        rendered.Zone == FirstPlayableCardZone.OpponentHand)
+                    .Select(rendered =>
+                        $"{rendered.name}[{rendered.InteractionIndex}]=" +
+                        $"{rendered.transform.localPosition}"));
+
+            foreach (var card in table.RenderedCards.Where(rendered =>
+                         rendered.Zone == FirstPlayableCardZone.OpponentHand
+                         && rendered.InteractionIndex < count - 1))
+            {
+                var sourcePosition =
+                    AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                        card.InteractionIndex,
+                        count - 1,
+                        Seat.Second);
+                var targetPosition =
+                    AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                        card.InteractionIndex,
+                        count,
+                        Seat.Second);
+                var expectedPosition =
+                    AnimationCardTreatmentEvaluator.EvaluateTranslation(
+                        sourcePosition,
+                        targetPosition,
+                        motionProgress,
+                        easing,
+                        Vector3.zero);
+                var sourceRotation = Quaternion.AngleAxis(
+                    AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                        card.InteractionIndex,
+                        count - 1,
+                        Seat.Second),
+                    Vector3.up);
+                var targetRotation = Quaternion.AngleAxis(
+                    AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                        card.InteractionIndex,
+                        count,
+                        Seat.Second),
+                    Vector3.up);
+                var expectedRotation = Quaternion.Slerp(
+                    sourceRotation,
+                    targetRotation,
+                    easedProgress);
+
+                Assert.That(
+                    Vector3.Distance(card.transform.localPosition, expectedPosition),
+                    Is.LessThan(0.0001f),
+                    $"Opponent hand card {card.InteractionIndex} popped during Deal. " +
+                    $"Actual {card.transform.localPosition}; expected {expectedPosition}; " +
+                    $"source {sourcePosition}; target {targetPosition}; " +
+                    $"step {table.AnimationPlayer.ActiveStepProgress:F3}; " +
+                    $"motion {motionProgress:F3}; cards {opponentDebug}.");
+                Assert.That(
+                    Quaternion.Angle(card.transform.localRotation, expectedRotation),
+                    Is.LessThan(0.01f),
+                    $"Opponent hand card {card.InteractionIndex} snapped its fan angle during Deal.");
             }
         }
 

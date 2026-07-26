@@ -1627,13 +1627,11 @@ namespace TheFall.Presentation.Animation
             float height)
         {
             var angle = GetSeatAngle(seat);
-            var radians = angle * Mathf.Deg2Rad;
             var basePosition = TableCompositionLayout.PositionAt(angle, radius, height);
-            var tangent = new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians));
             var outward = new Vector3(basePosition.x, 0f, basePosition.z).normalized;
             var layout = AnimationHandCardLayoutEvaluator.Resolve(index, count);
             return basePosition
-                + tangent * layout.LateralOffset
+                + Vector3.right * layout.LateralOffset
                 + outward * layout.OutwardOffset
                 + Vector3.up * layout.HeightOffset;
         }
@@ -1643,11 +1641,12 @@ namespace TheFall.Presentation.Animation
             int index,
             int count)
         {
-            var layout = AnimationHandCardLayoutEvaluator.Resolve(index, count);
-            var yaw = seat == Seat.First
-                ? layout.FanYawDegrees
-                : -layout.FanYawDegrees;
-            return Quaternion.AngleAxis(yaw, Vector3.up);
+            return Quaternion.AngleAxis(
+                AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                    index,
+                    count,
+                    seat),
+                Vector3.up);
         }
 
         private static Player FindPlayer(AnimationPresentationState state, PlayerId playerId)

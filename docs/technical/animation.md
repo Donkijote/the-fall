@@ -175,7 +175,8 @@ rather than from a fixed table edge. Existing hand cards use a
 concurrent zero-trajectory reflow, so they do not inherit the incoming card's arc. Hand positions
 and resting angles both interpolate into the shared shallow three-card fan used by the workbench
 and integrated table; the center stays upright and forward while the outer cards rotate away from
-it. An opening
+it. The opponent hand is a reflection across the table axis, preserving screen-left/right deal
+order while reversing depth and fan angle. An opening
 rejection remains face-up until it turns back into the temporary deck gap. Normal captures first
 stack the played card on its match, cascade beats move the complete growing stack, and only the
 `CaptureCollection` treatment turns that stack face down. Leftovers use the same face-up-to-collected

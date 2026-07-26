@@ -55,6 +55,7 @@ namespace TheFall.Presentation.Match
         private FirstPlayableAudioPresenter _audioPresenter;
         private Transform _generatedRoot;
         private Transform _tableCardsRuntimeAnchor;
+        private Transform _opponentHandRuntimeAnchor;
         private Material _cardBackMaterial;
         private CardInteractionSession _interaction;
         private CardInteractionInputAdapter _inputAdapter;
@@ -825,7 +826,7 @@ namespace TheFall.Presentation.Match
             PrepareCaptureMotions(source, step, beat, trajectory);
             PrepareCascadeMotions(source, step, beat, trajectory);
             PrepareLeftoverMotions(source, step, beat, trajectory);
-            PrepareOpponentHandReflow(source, step);
+            PrepareOpponentHandReflow(step);
 
             if (step.Kind == ResolvedAnimationStepKind.HandReflow
                 && step.PlayerId == Snapshot.OpponentPlayerId)
@@ -1061,8 +1062,9 @@ namespace TheFall.Presentation.Match
                     .Hand;
                 var playedHandIndex = IndexOf(priorHand, step.Cards[0]);
                 if (playedHandIndex < 0
-                    || !source.OpponentHandPositions.TryGetValue(
+                    || !TryResolveOpponentHandWorldPosition(
                         playedHandIndex,
+                        priorHand.Count,
                         out playedStart))
                 {
                     return;
@@ -1136,7 +1138,10 @@ namespace TheFall.Presentation.Match
             var target = FindRenderedCard(step.Cards[0]);
             if (handIndex < 0
                 || target == null
-                || !source.OpponentHandPositions.TryGetValue(handIndex, out var start))
+                || !TryResolveOpponentHandWorldPosition(
+                    handIndex,
+                    priorHand.Count,
+                    out var start))
             {
                 return;
             }
@@ -1255,9 +1260,7 @@ namespace TheFall.Presentation.Match
             }
         }
 
-        private void PrepareOpponentHandReflow(
-            CardPositionSnapshot source,
-            ResolvedAnimationStep step)
+        private void PrepareOpponentHandReflow(ResolvedAnimationStep step)
         {
             if (step.PlayerId != Snapshot.OpponentPlayerId
                 || (step.Kind != ResolvedAnimationStepKind.Deal
@@ -1267,13 +1270,20 @@ namespace TheFall.Presentation.Match
                 return;
             }
 
+            var previousSlotCount = Snapshot.OpponentHandCount;
             var removedIndex = -1;
+            if (step.Kind == ResolvedAnimationStepKind.Deal)
+            {
+                previousSlotCount = Math.Max(0, Snapshot.OpponentHandCount - 1);
+            }
             if (step.Kind == ResolvedAnimationStepKind.CardPlay
                 || step.Kind == ResolvedAnimationStepKind.NormalCapture)
             {
-                removedIndex = IndexOf(
-                    Snapshot.AuthoritativeState.GetPlayer(step.PlayerId).Hand,
-                    step.Cards[0]);
+                var priorHand = Snapshot.AuthoritativeState
+                    .GetPlayer(step.PlayerId)
+                    .Hand;
+                previousSlotCount = priorHand.Count;
+                removedIndex = IndexOf(priorHand, step.Cards[0]);
             }
 
             for (var index = 0; index < _renderedCards.Count; index++)
@@ -1287,7 +1297,12 @@ namespace TheFall.Presentation.Match
                 var oldIndex = removedIndex >= 0 && rendered.InteractionIndex >= removedIndex
                     ? rendered.InteractionIndex + 1
                     : rendered.InteractionIndex;
-                if (!source.OpponentHandPositions.TryGetValue(oldIndex, out var start))
+                if (oldIndex < 0
+                    || oldIndex >= previousSlotCount
+                    || !TryResolveOpponentHandWorldPosition(
+                        oldIndex,
+                        previousSlotCount,
+                        out var start))
                 {
                     continue;
                 }
@@ -1299,15 +1314,38 @@ namespace TheFall.Presentation.Match
                     _animationPreset.GetBeat(ResolvedAnimationStepKind.HandReflow),
                     Vector3.zero,
                     GetParallelMotionDurationFraction(step.Kind),
-                    source.OpponentHandRotations.TryGetValue(
-                        oldIndex,
-                        out var startRotation)
-                            ? startRotation
-                            : (Quaternion?)null))
+                    Quaternion.AngleAxis(
+                        AnimationHandCardLayoutEvaluator
+                            .ResolveRestingYawDegrees(
+                                oldIndex,
+                                previousSlotCount,
+                                Seat.Second),
+                        Vector3.up)))
                 {
                     ActiveParallelHandReflowMotionCount++;
                 }
             }
+        }
+
+        private bool TryResolveOpponentHandWorldPosition(
+            int layoutIndex,
+            int layoutSlotCount,
+            out Vector3 position)
+        {
+            if (_opponentHandRuntimeAnchor == null
+                || layoutIndex < 0
+                || layoutIndex >= layoutSlotCount)
+            {
+                position = default;
+                return false;
+            }
+
+            position = _opponentHandRuntimeAnchor.TransformPoint(
+                AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                    layoutIndex,
+                    layoutSlotCount,
+                    Seat.Second));
+            return true;
         }
 
         private bool IsOwnedBySpecialMotion(ResolvedAnimationStep step, Card card)
@@ -1964,21 +2002,22 @@ namespace TheFall.Presentation.Match
             for (var index = 0; index < cards.Count; index++)
             {
                 var layoutIndex = layoutIndices[index];
-                var layout = AnimationHandCardLayoutEvaluator.Resolve(
+                var position = AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
                     layoutIndex,
-                    layoutSlotCount);
+                    layoutSlotCount,
+                    Seat.First);
                 var rendered = CreateCard(zoneParent, $"Local Hand {cards[index]}",
-                    new Vector3(
-                        layout.LateralOffset,
-                        layout.HeightOffset,
-                        -layout.OutwardOffset),
+                    position,
                     FirstPlayableCardZone.LocalHand,
                     true,
                     cards[index],
                     index,
                     true,
                     layoutIndex,
-                    layout.FanYawDegrees);
+                    AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                        layoutIndex,
+                        layoutSlotCount,
+                        Seat.First));
                 var view = rendered.gameObject.AddComponent<PrototypeCardView>();
                 view.Configure(index);
                 _localHandViews.Add(view);
@@ -1992,24 +2031,26 @@ namespace TheFall.Presentation.Match
             int layoutSlotCount)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.OpponentHandAnchor, "Opponent Hand Zone");
+            _opponentHandRuntimeAnchor = zoneParent;
             for (var index = 0; index < count; index++)
             {
                 var layoutIndex = layoutIndices[index];
-                var layout = AnimationHandCardLayoutEvaluator.Resolve(
+                var position = AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
                     layoutIndex,
-                    layoutSlotCount);
+                    layoutSlotCount,
+                    Seat.Second);
                 CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
-                    new Vector3(
-                        -layout.LateralOffset,
-                        layout.HeightOffset,
-                        layout.OutwardOffset),
+                    position,
                     FirstPlayableCardZone.OpponentHand,
                     false,
                     null,
                     index,
                     false,
                     layoutIndex,
-                    -layout.FanYawDegrees);
+                    AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                        layoutIndex,
+                        layoutSlotCount,
+                        Seat.Second));
             }
         }
 
@@ -2454,6 +2495,7 @@ namespace TheFall.Presentation.Match
             _renderedCards.Clear();
             _localHandViews.Clear();
             _tableCardsRuntimeAnchor = null;
+            _opponentHandRuntimeAnchor = null;
             if (_generatedRoot != null)
             {
                 DestroyGeneratedObject(_generatedRoot.gameObject);
