@@ -5,6 +5,7 @@ using NUnit.Framework;
 using TheFall.Application;
 using TheFall.Application.Interaction;
 using TheFall.Domain;
+using TheFall.Presentation.Animation;
 using TheFall.Presentation.Bootstrap;
 using TheFall.Presentation.Interaction;
 using TheFall.Presentation.Match;
@@ -92,8 +93,54 @@ namespace TheFall.Tests.PlayMode
             Assert.That(dealerCards.All(card => card.GetComponent<Collider>() != null), Is.True);
 
             var expectedDealerCard = dealerIntents[3].Card;
+            var expectedMotionStart = dealerCards[3].transform.position;
             Assert.That(table.ActivateDealerCard(3), Is.True);
             Assert.That(table.IsPresentationBusy, Is.True);
+            var deadline = Time.realtimeSinceStartup + 5f;
+            while ((!table.TryGetActiveDealerSelectionMotion(out _)
+                    || table.AnimationPlayer.ActiveStepProgress < 0.1f)
+                && table.IsPresentationBusy
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(table.TryGetActiveDealerSelectionMotion(out var dealerMotion), Is.True);
+            Assert.That(Vector3.Distance(dealerMotion.StartWorld, expectedMotionStart), Is.LessThan(0.0001f));
+            Assert.That(dealerMotion.TargetWorld.x, Is.EqualTo(dealerMotion.StartWorld.x).Within(0.0001f));
+            Assert.That(dealerMotion.TargetWorld.z, Is.EqualTo(dealerMotion.StartWorld.z).Within(0.0001f));
+            Assert.That(dealerMotion.TargetWorld.y, Is.GreaterThan(dealerMotion.StartWorld.y));
+            var revealedCard = table.RenderedCards
+                .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
+            var earlyFlip = table.DealerCardFlipDegrees;
+            Assert.That(earlyFlip, Is.GreaterThan(0f).And.LessThan(90f));
+            Assert.That(revealedCard.IsFaceUp, Is.False);
+            Assert.That(revealedCard.Card, Is.Null);
+
+            table.ApplyViewportForTests(
+                new Vector2Int(1440, 900),
+                new Rect(0f, 0f, 1440f, 900f));
+            revealedCard = table.RenderedCards
+                .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
+            Assert.That(table.DealerCardFlipDegrees, Is.GreaterThan(0f).And.LessThan(90f));
+            Assert.That(revealedCard.IsFaceUp, Is.False);
+            Assert.That(revealedCard.Card, Is.Null);
+
+            while (table.AnimationPlayer.ActiveStepProgress < 0.65f
+                && table.IsPresentationBusy
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            revealedCard = table.RenderedCards
+                .Single(card => card.Zone == FirstPlayableCardZone.DealerSelection);
+            Assert.That(table.DealerCardFlipDegrees, Is.GreaterThan(90f).And.LessThan(180f));
+            Assert.That(
+                Vector3.Distance(revealedCard.transform.position, dealerMotion.StartWorld),
+                Is.GreaterThan(0.005f));
+            Assert.That(revealedCard.IsFaceUp, Is.True);
+            Assert.That(revealedCard.Card, Is.EqualTo(expectedDealerCard));
             table.SkipPresentation();
             Assert.That(controller.Flow.Match.Trace.IntentHistory
                 .Last(record => record.Actor == IntentActor.Human).Intent,
@@ -110,18 +157,50 @@ namespace TheFall.Tests.PlayMode
             var authoredTableScale = table.AuthoredLayout.Table.transform.localScale;
             Assert.That(renderedTables.All(item => item.localScale == authoredTableScale), Is.True);
 
-            var localHandCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.LocalHand);
+            var localHandCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.LocalHand)
+                .OrderBy(card => card.LayoutIndex)
+                .ToArray();
+            var localHandCard = localHandCards[0];
             var publicTableCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Table);
-            var opponentCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.OpponentHand);
+            var openingTableCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.Table)
+                .OrderBy(card => card.LayoutIndex)
+                .ToArray();
+            var opponentHandCards = table.RenderedCards
+                .Where(card => card.Zone == FirstPlayableCardZone.OpponentHand)
+                .OrderBy(card => card.LayoutIndex)
+                .ToArray();
+            var opponentCard = opponentHandCards[0];
             var deckCard = table.RenderedCards.First(card => card.Zone == FirstPlayableCardZone.Deck);
             var expectedScale = localHandCard.transform.localScale;
             Assert.That(publicTableCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(opponentCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(deckCard.transform.localScale, Is.EqualTo(expectedScale));
             Assert.That(expectedScale.x / expectedScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
-            Assert.That(localHandCard.transform.localEulerAngles.y, Is.EqualTo(180f).Within(0.001f));
-            Assert.That(publicTableCard.transform.localEulerAngles.y, Is.EqualTo(180f).Within(0.001f));
-            Assert.That(deckCard.transform.localEulerAngles.y, Is.EqualTo(0f).Within(0.001f));
+            AssertHandFan(localHandCards, true);
+            AssertHandFan(opponentHandCards, false);
+            Assert.That(
+                deckCard.transform.parent.localPosition,
+                Is.EqualTo(AnimationDealerDeckLayoutEvaluator.Resolve(
+                    table.Snapshot.DealerSeat,
+                    table.AuthoredLayout.DeckAnchor.localPosition.y)));
+            Assert.That(publicTableCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
+            Assert.That(deckCard.transform.localEulerAngles.z, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(openingTableCards, Has.Length.EqualTo(4));
+            Assert.That(
+                openingTableCards.Select(card => card.LayoutIndex),
+                Is.EqualTo(new[] { 0, 1, 2, 3 }));
+            Assert.That(
+                openingTableCards.Select(card => card.transform.localPosition.x).Distinct().Count(),
+                Is.EqualTo(2));
+            Assert.That(
+                openingTableCards.Select(card => card.transform.localPosition.z).Distinct().Count(),
+                Is.EqualTo(2));
+            Assert.That(
+                openingTableCards.All(card =>
+                    Mathf.Abs(Mathf.DeltaAngle(card.transform.localEulerAngles.y, 0f)) < 0.001f),
+                Is.True);
 
             var cantoIntents = controller.Flow.Match.GetHumanLegalIntents().OfType<AnnounceCantoIntent>().ToArray();
             Assert.That(cantoIntents, Is.Not.Empty);
@@ -252,6 +331,12 @@ namespace TheFall.Tests.PlayMode
             Assert.That(opponentCaptured.All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.DealerSpread),
                 Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0));
+            Assert.That(table.RenderedCards
+                    .Where(card => card.Zone == FirstPlayableCardZone.DealerSelection)
+                    .Select(card => card.Card.Value),
+                Is.EqualTo(state.Phase == MatchPhase.DealerSelection
+                    ? state.DealerSelectionCards
+                    : System.Array.Empty<Card>()));
             Assert.That(table.RenderedCards.Count(card => card.Zone == FirstPlayableCardZone.Deck),
                 Is.EqualTo(state.Phase == MatchPhase.DealerSelection ? 0 : state.Deck.Count));
             Assert.That(table.Snapshot.Cantos.Count, Is.EqualTo(state.CantoAnnouncements.Count));
@@ -268,6 +353,36 @@ namespace TheFall.Tests.PlayMode
             }
 
             Assert.That(controller.Flow.Match.GetHumanLegalIntents().OfType<PlayCardIntent>().Any(), Is.True);
+        }
+
+        private static void AssertHandFan(
+            IReadOnlyList<FirstPlayableRenderedCard> cards,
+            bool local)
+        {
+            Assert.That(cards.Count, Is.EqualTo(3));
+            for (var index = 0; index < cards.Count; index++)
+            {
+                var seat = local ? Seat.First : Seat.Second;
+                var expectedPosition =
+                    AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                        index,
+                        cards.Count,
+                        seat);
+                var expectedRotation =
+                    Quaternion.AngleAxis(
+                        AnimationHandCardLayoutEvaluator.ResolveRestingYawDegrees(
+                            index,
+                            cards.Count,
+                            seat),
+                        Vector3.up)
+                    * Quaternion.AngleAxis(local ? 180f : 0f, Vector3.forward);
+                Assert.That(
+                    Vector3.Distance(cards[index].transform.localPosition, expectedPosition),
+                    Is.LessThan(0.0001f));
+                Assert.That(
+                    Quaternion.Angle(cards[index].transform.localRotation, expectedRotation),
+                    Is.LessThan(0.01f));
+            }
         }
 
         private static IEnumerator LoadMatch()

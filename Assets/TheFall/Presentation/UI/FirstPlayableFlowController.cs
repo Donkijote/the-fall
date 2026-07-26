@@ -93,6 +93,9 @@ namespace TheFall.Presentation.UI
         private Toggle _animationFastToggle;
         private Toggle _animationReducedToggle;
         private Button _animationSkipButton;
+        private Toggle _audioMasterToggle;
+        private Toggle _audioEffectsToggle;
+        private Toggle _audioMusicToggle;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
         private bool _isDealerMenuOpen;
@@ -111,7 +114,19 @@ namespace TheFall.Presentation.UI
 
         public event Action AnimationSkipRequested;
 
+        public event Action<bool> AudioMasterChanged;
+
+        public event Action<bool> AudioEffectsChanged;
+
+        public event Action<bool> AudioMusicChanged;
+
         public bool IsPresentationBusy { get; private set; }
+
+        public bool AudioMasterEnabled => _audioMasterToggle?.value ?? true;
+
+        public bool AudioEffectsEnabled => _audioEffectsToggle?.value ?? true;
+
+        public bool AudioMusicEnabled => _audioMusicToggle?.value ?? false;
 
         private void OnEnable()
         {
@@ -324,6 +339,9 @@ namespace TheFall.Presentation.UI
             _animationFastToggle = Require<Toggle>("animation-fast-toggle");
             _animationReducedToggle = Require<Toggle>("animation-reduced-toggle");
             _animationSkipButton = Require<Button>("animation-skip-button");
+            _audioMasterToggle = Require<Toggle>("audio-master-toggle");
+            _audioEffectsToggle = Require<Toggle>("audio-effects-toggle");
+            _audioMusicToggle = Require<Toggle>("audio-music-toggle");
 
             Require<Button>("home-start-button").clicked += () => OpenSetup();
             Require<Button>("setup-start-button").clicked += () => StartMatch();
@@ -336,6 +354,12 @@ namespace TheFall.Presentation.UI
             _animationReducedToggle.RegisterValueChangedCallback(change =>
                 AnimationReducedMotionChanged?.Invoke(change.newValue));
             _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
+            _audioMasterToggle.RegisterValueChangedCallback(change =>
+                AudioMasterChanged?.Invoke(change.newValue));
+            _audioEffectsToggle.RegisterValueChangedCallback(change =>
+                AudioEffectsChanged?.Invoke(change.newValue));
+            _audioMusicToggle.RegisterValueChangedCallback(change =>
+                AudioMusicChanged?.Invoke(change.newValue));
             Require<Button>("result-replay-button").clicked += () => Replay();
             Require<Button>("result-home-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
@@ -686,6 +710,13 @@ namespace TheFall.Presentation.UI
             {
                 _animationFastToggle.text = Localize("flow.animation.fast-forward");
                 _animationReducedToggle.text = Localize("flow.animation.reduced-motion");
+            }
+
+            if (_audioMasterToggle != null)
+            {
+                _audioMasterToggle.text = Localize("flow.audio.master");
+                _audioEffectsToggle.text = Localize("flow.audio.effects");
+                _audioMusicToggle.text = Localize("flow.audio.music");
             }
         }
 

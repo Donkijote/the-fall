@@ -24,15 +24,21 @@ namespace TheFall.Presentation.Match
     /// </summary>
     public sealed class FirstPlayableTableSnapshot
     {
+        public const int TableLayoutCapacity = AnimationTableCardLayoutEvaluator.Capacity;
+
         private readonly IReadOnlyList<Card> _localHand;
         private readonly IReadOnlyList<int> _localHandLayoutIndices;
         private readonly IReadOnlyList<int> _opponentHandLayoutIndices;
         private readonly IReadOnlyList<Card> _tableCards;
+        private readonly IReadOnlyList<int> _tableLayoutIndices;
         private readonly IReadOnlyList<Card> _localCapturedCards;
         private readonly IReadOnlyList<Card> _opponentCapturedCards;
+        private readonly IReadOnlyList<Card> _dealerSelectionCards;
         private readonly IReadOnlyList<FirstPlayableCantoView> _cantos;
 
-        private FirstPlayableTableSnapshot(MatchState state)
+        private FirstPlayableTableSnapshot(
+            MatchState state,
+            FirstPlayableTableSnapshot previous)
         {
             AuthoritativeState = state ?? throw new ArgumentNullException(nameof(state));
             var local = state.GetPlayerAt(Seat.First);
@@ -49,8 +55,11 @@ namespace TheFall.Presentation.Match
             _opponentHandLayoutIndices = SequentialIndices(opponent.Hand.Count);
             OpponentHandLayoutSlotCount = opponent.Hand.Count;
             _tableCards = Copy(state.Table);
+            _tableLayoutIndices = ResolveTableLayoutIndices(_tableCards, previous, null);
+            TableLayoutSlotCount = ResolveLayoutSlotCount(_tableLayoutIndices);
             _localCapturedCards = Copy(local.CapturedCards);
             _opponentCapturedCards = Copy(opponent.CapturedCards);
+            _dealerSelectionCards = Copy(state.DealerSelectionCards);
             DealerSpreadCount = state.Phase == MatchPhase.DealerSelection ? state.Deck.Count : 0;
             DeckCount = state.Deck.Count;
             DealerSeat = state.DealerSeat;
@@ -76,7 +85,8 @@ namespace TheFall.Presentation.Match
 
         private FirstPlayableTableSnapshot(
             AnimationPresentationState state,
-            MatchState referenceState)
+            MatchState referenceState,
+            FirstPlayableTableSnapshot previous)
         {
             if (state == null)
             {
@@ -112,8 +122,14 @@ namespace TheFall.Presentation.Match
             _opponentHandLayoutIndices = Array.AsReadOnly(opponentLayoutIndices);
             OpponentHandLayoutSlotCount = state.GetHandLayoutSlotCount(opponent.Id);
             _tableCards = Copy(state.Table);
+            _tableLayoutIndices = ResolveTableLayoutIndices(
+                _tableCards,
+                previous,
+                state.GetTableLayoutIndex);
+            TableLayoutSlotCount = ResolveLayoutSlotCount(_tableLayoutIndices);
             _localCapturedCards = Copy(state.GetCaptured(local.Id));
             _opponentCapturedCards = Copy(state.GetCaptured(opponent.Id));
+            _dealerSelectionCards = Copy(state.DealerSelectionCards);
             DealerSpreadCount = state.DealerSpreadCount;
             DeckCount = state.DeckCount;
             DealerSeat = state.DealerSeat;
@@ -161,9 +177,15 @@ namespace TheFall.Presentation.Match
 
         public IReadOnlyList<Card> TableCards => _tableCards;
 
+        public IReadOnlyList<int> TableLayoutIndices => _tableLayoutIndices;
+
+        public int TableLayoutSlotCount { get; }
+
         public IReadOnlyList<Card> LocalCapturedCards => _localCapturedCards;
 
         public IReadOnlyList<Card> OpponentCapturedCards => _opponentCapturedCards;
+
+        public IReadOnlyList<Card> DealerSelectionCards => _dealerSelectionCards;
 
         public int DealerSpreadCount { get; }
 
@@ -193,14 +215,130 @@ namespace TheFall.Presentation.Match
 
         public static FirstPlayableTableSnapshot Create(MatchState state)
         {
-            return new FirstPlayableTableSnapshot(state);
+            return new FirstPlayableTableSnapshot(state, null);
+        }
+
+        public static FirstPlayableTableSnapshot Create(
+            MatchState state,
+            FirstPlayableTableSnapshot previous)
+        {
+            return new FirstPlayableTableSnapshot(state, previous);
         }
 
         public static FirstPlayableTableSnapshot Create(
             AnimationPresentationState state,
             MatchState referenceState)
         {
-            return new FirstPlayableTableSnapshot(state, referenceState);
+            return new FirstPlayableTableSnapshot(state, referenceState, null);
+        }
+
+        public static FirstPlayableTableSnapshot Create(
+            AnimationPresentationState state,
+            MatchState referenceState,
+            FirstPlayableTableSnapshot previous)
+        {
+            return new FirstPlayableTableSnapshot(state, referenceState, previous);
+        }
+
+        public int ResolveAvailableTableLayoutIndex(
+            Card card,
+            bool preferOpeningGrid = false)
+        {
+            return AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                card,
+                _tableLayoutIndices,
+                preferOpeningGrid);
+        }
+
+        private static IReadOnlyList<int> ResolveTableLayoutIndices(
+            IReadOnlyList<Card> cards,
+            FirstPlayableTableSnapshot previous,
+            Func<Card, int> resolvePreferredIndex)
+        {
+            var previousIndices = new Dictionary<Card, int>();
+            if (previous != null)
+            {
+                for (var index = 0; index < previous.TableCards.Count; index++)
+                {
+                    previousIndices[previous.TableCards[index]] =
+                        previous.TableLayoutIndices[index];
+                }
+            }
+
+            var resolved = new int[cards.Count];
+            var assigned = new bool[cards.Count];
+            var occupied = new bool[TableLayoutCapacity];
+            var occupiedIndices = new List<int>(TableLayoutCapacity);
+            if (resolvePreferredIndex != null)
+            {
+                for (var index = 0; index < cards.Count; index++)
+                {
+                    var preferredIndex = resolvePreferredIndex(cards[index]);
+                    if (preferredIndex < 0
+                        || preferredIndex >= TableLayoutCapacity
+                        || occupied[preferredIndex])
+                    {
+                        continue;
+                    }
+
+                    resolved[index] = preferredIndex;
+                    assigned[index] = true;
+                    occupied[preferredIndex] = true;
+                    occupiedIndices.Add(preferredIndex);
+                }
+            }
+
+            for (var index = 0; index < cards.Count; index++)
+            {
+                if (assigned[index])
+                {
+                    continue;
+                }
+
+                if (!previousIndices.TryGetValue(cards[index], out var retainedIndex)
+                    || retainedIndex < 0
+                    || retainedIndex >= TableLayoutCapacity
+                    || occupied[retainedIndex])
+                {
+                    continue;
+                }
+
+                resolved[index] = retainedIndex;
+                assigned[index] = true;
+                occupied[retainedIndex] = true;
+                occupiedIndices.Add(retainedIndex);
+            }
+
+            for (var index = 0; index < cards.Count; index++)
+            {
+                if (assigned[index])
+                {
+                    continue;
+                }
+
+                var availableIndex = AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    cards[index],
+                    occupiedIndices,
+                    previous == null && cards.Count <= 4);
+
+                resolved[index] = availableIndex;
+                assigned[index] = true;
+                occupied[availableIndex] = true;
+                occupiedIndices.Add(availableIndex);
+            }
+
+            return Array.AsReadOnly(resolved);
+        }
+
+        private static int ResolveLayoutSlotCount(IReadOnlyList<int> indices)
+        {
+            var count = 0;
+            for (var index = 0; index < indices.Count; index++)
+            {
+                count = Math.Max(count, indices[index] + 1);
+            }
+
+            return count;
         }
 
         private static IReadOnlyList<Card> Copy(IReadOnlyList<Card> cards)

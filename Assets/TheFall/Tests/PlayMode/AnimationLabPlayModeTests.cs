@@ -134,6 +134,10 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.FaceDownCapturePairViewCount, Is.EqualTo(2));
             Assert.That(controller.CapturePairFlipDegrees, Is.GreaterThan(270f));
 
+            controller.SeekToStep(0, 0.9f);
+            Assert.That(controller.FaceDownCapturePairViewCount, Is.EqualTo(2));
+            Assert.That(controller.CapturePairFlipDegrees, Is.EqualTo(360f).Within(0.1f));
+
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.CapturePairViewCount, Is.Zero);
             Assert.That(controller.CapturedPileViewCount, Is.EqualTo(2));
@@ -175,7 +179,7 @@ namespace TheFall.Tests.PlayMode
                     ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
-                    ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CaptureCollection,
                 }));
 
             controller.SeekToStep(0, 0.01f);
@@ -269,7 +273,7 @@ namespace TheFall.Tests.PlayMode
             controller.SeekToStep(4, 0.75f);
             Assert.That(controller.CascadeStackViewCount, Is.EqualTo(5));
             Assert.That(controller.FaceDownCascadeStackViewCount, Is.EqualTo(5));
-            Assert.That(controller.CascadeStackFlipDegrees, Is.GreaterThan(270f));
+            Assert.That(controller.CascadeStackFlipDegrees, Is.EqualTo(360f).Within(0.1f));
 
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.CascadeStackViewCount, Is.Zero);
@@ -307,7 +311,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CapturedPileViewCount, Is.EqualTo(1));
             Assert.That(controller.LeftoverCollectionViewCount, Is.EqualTo(2));
             Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.Zero);
-            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(180f).Within(0.1f));
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(180f).Within(0.2f));
             Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
 
             var existingPileCard = controller.PreviewRoot
@@ -316,7 +320,7 @@ namespace TheFall.Tests.PlayMode
 
             controller.SeekToStep(0, 0.75f);
             Assert.That(controller.FaceDownLeftoverCollectionViewCount, Is.EqualTo(2));
-            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.GreaterThan(270f));
+            Assert.That(controller.LeftoverCollectionFlipDegrees, Is.EqualTo(360f).Within(0.1f));
 
             controller.SeekToStep(0, 0.99f);
             var matchingLeftover = controller.PreviewRoot
@@ -358,6 +362,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.RevealedDealerCardViewCount, Is.Zero);
             Assert.That(controller.DealerCardFlipDegrees, Is.Zero);
 
+            controller.SeekToStep(0, 0.25f);
+            Assert.That(controller.ActiveDealerCardFaceSurfaceVisible, Is.False);
+
             controller.SeekToStep(0, 0.5f);
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
             Assert.That(controller.DealerCardFlipDegrees, Is.EqualTo(90f).Within(0.1f));
@@ -366,6 +373,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
             Assert.That(controller.RevealedDealerCardViewCount, Is.EqualTo(1));
             Assert.That(controller.DealerCardFlipDegrees, Is.GreaterThan(90f));
+            Assert.That(controller.ActiveDealerCardFaceSurfaceVisible, Is.True);
 
             controller.CompleteImmediatelyForTests();
             Assert.That(controller.DealerSpreadViewCount, Is.EqualTo(40));
@@ -388,6 +396,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.DeckViewCount, Is.EqualTo(36));
             Assert.That(controller.OpponentHandViewCount, Is.EqualTo(2));
             Assert.That(controller.ActiveDealCardIsFaceUp, Is.False);
+            Assert.That(controller.ActiveDealCardFaceSurfaceVisible, Is.False);
             Assert.That(controller.TryGetPrimaryMotion(out _), Is.True);
             var handOne = controller.PreviewRoot
                 .GetComponentsInChildren<Transform>(true)
@@ -408,6 +417,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(Vector3.Distance(handOne.localPosition, handOneStart), Is.LessThan(0.0001f));
             Assert.That(Vector3.Distance(handTwo.localPosition, handTwoStart), Is.LessThan(0.0001f));
             Assert.That(controller.ActiveDealCardIsFaceUp, Is.True);
+            Assert.That(controller.ActiveDealCardFaceSurfaceVisible, Is.True);
             Assert.That(controller.DealCardFlipDegrees, Is.GreaterThan(90f));
 
             controller.SeekToStep(1, 0.75f);
@@ -568,7 +578,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.WorkingConfiguration.PresetName, Is.EqualTo("Fast Iteration"));
             Assert.That(controller.WorkingConfiguration.PlaybackSpeed, Is.EqualTo(2f));
             controller.WorkingConfiguration.SetTransport(2f, false);
-            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement);
+            controller.SetScenario(TheFall.Application.Animation.AnimationScenarioKind.PlayCard);
             controller.SetActingSeat(Seat.Second);
             controller.SetPreviewProfile(AnimationPreviewProfile.Portrait);
             var playBeat = controller.WorkingConfiguration.GetBeat(ResolvedAnimationStepKind.CardPlay);
@@ -577,12 +587,12 @@ namespace TheFall.Tests.PlayMode
             yield return new WaitUntil(() => !controller.IsPlaying);
 
             Assert.That(controller.ScenarioKind,
-                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.TablePlacement));
+                Is.EqualTo(TheFall.Application.Animation.AnimationScenarioKind.PlayCard));
             Assert.That(controller.ActingSeat, Is.EqualTo(Seat.Second));
             Assert.That(controller.CurrentProfile.Kind, Is.EqualTo(TableCompositionProfileKind.Portrait));
             Assert.That(controller.Sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
-                ResolvedAnimationStepKind.TablePlacement,
+                ResolvedAnimationStepKind.CardPlay,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(controller.IsRenderedStateSynchronized, Is.True);

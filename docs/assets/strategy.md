@@ -22,6 +22,11 @@ The [generated concept package](generated-concept-package.md) records the retain
 
 Cards follow a separate confirmed 2D production path. Unity composes project-owned rank, suit, base, back, and court-art components into the complete forty-card face atlas at editor time. The full concept-card renders remain art-direction references rather than per-card production textures. See the [modular card visual pipeline](card-visual-pipeline.md) and [ADR 0001](../decisions/0001-modular-card-visual-pipeline.md).
 
+The first playable uses a separate project-owned procedural audio path. Ten short functional cue
+waveforms are generated in memory from committed numeric definitions, so no recording or external sample
+enters the repository. Their provenance, ownership/license status, intended use, and replacement boundary
+are recorded in [functional prototype audio sources](prototype-audio.md).
+
 ## Working budget
 
 **Confirmed:** The current monthly tool budget is approximately EUR 40:

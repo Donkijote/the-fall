@@ -12,7 +12,6 @@ namespace TheFall.Application.Animation
         OpeningPlacement,
         PlayCard,
         HandReflow,
-        TablePlacement,
         NormalCapture,
         CascadeCapture,
         CollectLeftovers,
@@ -42,6 +41,7 @@ namespace TheFall.Application.Animation
         TurnChanged,
         MatchCompleted,
         HandReflow,
+        CaptureCollection = 23,
     }
 
     /// <summary>
@@ -120,8 +120,6 @@ namespace TheFall.Application.Animation
                         "Reflow remaining hand",
                         AnimationRecordingBeat.HandReflow,
                         AnimationRecordingBeat.CardPlay);
-                case AnimationScenarioKind.TablePlacement:
-                    return CreateTablePlacement(context);
                 case AnimationScenarioKind.NormalCapture:
                     return CreateNormalCapture(context);
                 case AnimationScenarioKind.CascadeCapture:
@@ -245,24 +243,6 @@ namespace TheFall.Application.Animation
                 new DomainEvent[] { new CardPlayedEvent(context.Actor.Id, context.PlayedCard) }, warmup);
         }
 
-        private static AnimationScenarioRecording CreateTablePlacement(ScenarioContext context)
-        {
-            var initial = context.State(
-                actorHand: new[] { context.PlayedCard, context.HandOne, context.HandTwo },
-                table: new[] { context.TableCard });
-            var final = context.State(
-                actorHand: new[] { context.HandOne, context.HandTwo },
-                table: new[] { context.TableCard, context.PlayedCard });
-            return Recording(context, AnimationScenarioKind.TablePlacement, "Confirm table placement",
-                AnimationRecordingBeat.TablePlacement, initial, final,
-                new DomainEvent[]
-                {
-                    new CardPlayedEvent(context.Actor.Id, context.PlayedCard),
-                    new CardPlacedOnTableEvent(context.Actor.Id, context.PlayedCard),
-                },
-                new[] { AnimationRecordingBeat.CardPlay, AnimationRecordingBeat.HandReflow });
-        }
-
         private static AnimationScenarioRecording CreateNormalCapture(ScenarioContext context)
         {
             var initial = context.State(
@@ -327,6 +307,7 @@ namespace TheFall.Application.Animation
                 {
                     AnimationRecordingBeat.NormalCapture,
                     AnimationRecordingBeat.CascadeCapture,
+                    AnimationRecordingBeat.CaptureCollection,
                 });
         }
 

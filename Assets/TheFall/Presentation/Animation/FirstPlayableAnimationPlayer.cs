@@ -44,6 +44,7 @@ namespace TheFall.Presentation.Animation
         private bool _currentStepApplied;
         private int _lastRegisteredStep = -1;
         private MatchState _acceptedFinalState;
+        private AnimationPresentationState _transitionInitialRenderedState;
         private long _cpuTicks;
         private long _peakTickTicks;
 
@@ -232,7 +233,9 @@ namespace TheFall.Presentation.Animation
             CompletionReason = AnimationSequenceCompletionReason.None;
             if (_pending.Count == 0)
             {
-                RenderedState = new AnimationPresentationState(_acceptedFinalState);
+                RenderedState = new AnimationPresentationState(
+                    _acceptedFinalState,
+                    RenderedState);
                 RenderedReferenceState = _acceptedFinalState;
                 CompletionReason = AnimationSequenceCompletionReason.Completed;
                 VisualRevision++;
@@ -248,7 +251,10 @@ namespace TheFall.Presentation.Animation
             _current = transition;
             _sequence = ResolvedAnimationSequence.Create(transition.Events, transition.FinalState);
             ComposeTransport();
-            RenderedState = new AnimationPresentationState(transition.InitialState);
+            _transitionInitialRenderedState = new AnimationPresentationState(
+                transition.InitialState,
+                RenderedState);
+            RenderedState = _transitionInitialRenderedState;
             RenderedReferenceState = transition.InitialState;
             _transport.Play();
             _lastRegisteredStep = -1;
@@ -264,7 +270,10 @@ namespace TheFall.Presentation.Animation
                 var step = _sequence.Steps[index];
                 timings.Add(new AnimationBeatTiming(
                     _configuration.GetDelay(step.Kind, FastForward),
-                    _configuration.GetDuration(step.Kind, FastForward, ReducedMotion)));
+                    _configuration.GetStepDuration(
+                        step,
+                        FastForward,
+                        ReducedMotion)));
             }
 
             _transport = new AnimationSequenceTransport(timings)
@@ -290,7 +299,9 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            var rendered = new AnimationPresentationState(_current.InitialState);
+            var rendered = new AnimationPresentationState(
+                _current.InitialState,
+                _transitionInitialRenderedState);
             var animatableCount = _sequence.Steps.Count - 1;
             var completedCount = Math.Min(position.StepIndex, animatableCount);
             for (var index = 0; index < completedCount; index++)
@@ -322,7 +333,9 @@ namespace TheFall.Presentation.Animation
 
         private void FinishCurrentTransition()
         {
-            RenderedState = new AnimationPresentationState(_current.FinalState);
+            RenderedState = new AnimationPresentationState(
+                _current.FinalState,
+                RenderedState);
             RenderedReferenceState = _current.FinalState;
             VisualRevision++;
             _pendingIndex++;
@@ -346,16 +359,50 @@ namespace TheFall.Presentation.Animation
                 return;
             }
 
-            RenderedState = new AnimationPresentationState(_acceptedFinalState);
+            RenderedState = ResolveAcceptedRenderedState();
             RenderedReferenceState = _acceptedFinalState;
             IsBusy = false;
             CompletionReason = reason;
             _transport = null;
             _sequence = null;
             _current = null;
+            _transitionInitialRenderedState = null;
             _pending.Clear();
             _pendingIndex = 0;
             VisualRevision++;
+        }
+
+        private AnimationPresentationState ResolveAcceptedRenderedState()
+        {
+            if (_current == null)
+            {
+                return new AnimationPresentationState(
+                    _acceptedFinalState,
+                    RenderedState);
+            }
+
+            var rendered = new AnimationPresentationState(
+                _current.InitialState,
+                _transitionInitialRenderedState ?? RenderedState);
+            for (var transitionIndex = _pendingIndex;
+                 transitionIndex < _pending.Count;
+                 transitionIndex++)
+            {
+                var transition = _pending[transitionIndex];
+                var sequence = ResolvedAnimationSequence.Create(
+                    transition.Events,
+                    transition.FinalState);
+                for (var stepIndex = 0; stepIndex < sequence.Steps.Count; stepIndex++)
+                {
+                    rendered.Apply(
+                        sequence.Steps[stepIndex],
+                        transition.FinalState);
+                }
+            }
+
+            return new AnimationPresentationState(
+                _acceptedFinalState,
+                rendered);
         }
 
         private void RecomposeActiveTransport()

@@ -309,6 +309,11 @@ Button {
     white-space: normal;
 }
 
+.audio-toggle {
+    color: rgb(181, 139, 62);
+    font-size: 12px;
+}
+
 .presentation-skip {
     min-width: 90px;
     margin-right: 10px;

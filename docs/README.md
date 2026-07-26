@@ -54,11 +54,13 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Generated concept package](assets/generated-concept-package.md): retained character, table, and card visual anchors, review sheets, prompt provenance, artistic-cohesion evidence, and the deferred manual Meshy handoff.
 - [Generated 3D asset intake](assets/generated-3d-intake.md): repeatable Meshy-to-Unity procedure, retained table provenance, import settings, exceptions, and validation results.
 - [Modular card visual pipeline](assets/card-visual-pipeline.md): reusable card components, deterministic forty-card atlas generation, runtime binding, and replacement workflow.
+- [Functional prototype audio sources](assets/prototype-audio.md): project-owned procedural cue provenance, parameters, license status, intended use, and replacement boundary.
 
 ### Technical
 
 - [Architecture](technical/architecture.md): deterministic C# domain and Unity presentation boundaries.
 - [Animation](technical/animation.md): real-time sequence workbench and integrated first-playable runtime, reusable presentation beats, presets, transport, diagnosis, and authoritative synchronization.
+- [Audio](technical/audio.md): resolved-beat semantic cues, controls, lifecycle cleanup, procedural sources, and validation.
 - [Testing](technical/testing.md): domain, Unity, integration, and platform validation.
 - [Deterministic domain foundation](technical/domain-foundation.md): implemented 1v1 state, intent, result, and event vocabulary.
 - [First-playable match orchestration](technical/match-orchestration.md): human-facing session, deterministic baseline bot, information boundary, seeded replay, and failure diagnosis contract.

@@ -58,6 +58,100 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void DealerSelectionSnapshotExposesOnlyRevealedCardsAndTheOpaqueRemainderCount()
+        {
+            var match = CreateMatch(2527);
+            var selected = match.GetHumanLegalIntents().OfType<SelectDealerCardIntent>().Skip(3).First();
+
+            var result = match.SubmitHumanIntent(selected);
+            var snapshot = FirstPlayableTableSnapshot.Create(result.HumanResult.State);
+
+            Assert.That(result.HumanResult.IsAccepted, Is.True);
+            Assert.That(snapshot.DealerSelectionCards, Is.EqualTo(result.HumanResult.State.DealerSelectionCards));
+            Assert.That(snapshot.DealerSelectionCards, Does.Contain(selected.Card));
+            Assert.That(snapshot.DealerSpreadCount,
+                Is.EqualTo(result.HumanResult.State.Phase == MatchPhase.DealerSelection
+                    ? result.HumanResult.State.Deck.Count
+                    : 0));
+            Assert.That(snapshot.DealerSelectionCards.Count + result.HumanResult.State.Deck.Count,
+                Is.EqualTo(40));
+        }
+
+        [Test]
+        public void SnapshotPreservesSurvivingTableSlotsAcrossCaptureAndLaterPlacement()
+        {
+            var match = CreateMatch(2528);
+            var baseline = match.State;
+            var first = new Card(CardSuit.Coins, CardRank.Two);
+            var captured = new Card(CardSuit.Cups, CardRank.Three);
+            var survivor = new Card(CardSuit.Clubs, CardRank.Four);
+            var later = new Card(CardSuit.Swords, CardRank.Five);
+            var beforeState = MatchState.CreateOneVersusOne(
+                baseline.GetPlayerAt(Seat.First),
+                baseline.GetPlayerAt(Seat.Second),
+                baseline.DealerSeat,
+                baseline.CurrentSeat,
+                new[] { first, captured, survivor },
+                baseline.Deck,
+                baseline.Rules);
+            var afterCaptureState = MatchState.CreateOneVersusOne(
+                baseline.GetPlayerAt(Seat.First),
+                baseline.GetPlayerAt(Seat.Second),
+                baseline.DealerSeat,
+                baseline.CurrentSeat,
+                new[] { first, survivor },
+                baseline.Deck,
+                baseline.Rules);
+            var afterPlacementState = MatchState.CreateOneVersusOne(
+                baseline.GetPlayerAt(Seat.First),
+                baseline.GetPlayerAt(Seat.Second),
+                baseline.DealerSeat,
+                baseline.CurrentSeat,
+                new[] { first, survivor, later },
+                baseline.Deck,
+                baseline.Rules);
+
+            var before = FirstPlayableTableSnapshot.Create(beforeState);
+            var afterCapture = FirstPlayableTableSnapshot.Create(afterCaptureState, before);
+            var afterPlacement = FirstPlayableTableSnapshot.Create(
+                afterPlacementState,
+                afterCapture);
+            var afterSynchronization = FirstPlayableTableSnapshot.Create(
+                afterPlacementState,
+                afterPlacement);
+
+            Assert.That(before.TableLayoutIndices, Is.EqualTo(new[] { 0, 1, 2 }));
+            Assert.That(
+                afterCapture.TableLayoutIndices,
+                Is.EqualTo(new[]
+                {
+                    before.TableLayoutIndices[0],
+                    before.TableLayoutIndices[2],
+                }));
+            Assert.That(
+                afterPlacement.TableLayoutIndices[0],
+                Is.EqualTo(afterCapture.TableLayoutIndices[0]));
+            Assert.That(
+                afterPlacement.TableLayoutIndices[1],
+                Is.EqualTo(afterCapture.TableLayoutIndices[1]));
+            Assert.That(
+                afterPlacement.TableLayoutIndices.Distinct().Count(),
+                Is.EqualTo(afterPlacement.TableLayoutIndices.Count));
+            Assert.That(
+                afterPlacement.TableLayoutIndices,
+                Has.All.InRange(0, FirstPlayableTableSnapshot.TableLayoutCapacity - 1));
+            Assert.That(
+                afterPlacement.TableLayoutIndices.Contains(
+                    afterPlacement.ResolveAvailableTableLayoutIndex(
+                        new Card(CardSuit.Coins, CardRank.Six))),
+                Is.False);
+            Assert.That(
+                afterSynchronization.TableLayoutIndices,
+                Is.EqualTo(afterPlacement.TableLayoutIndices),
+                "Final synchronization must not relocate the newly placed card.");
+        }
+
+        [Test]
         public void CompleteMatchSnapshotsAlwaysReferenceTheResultingAuthoritativeState()
         {
             var match = CreateMatch(2526);

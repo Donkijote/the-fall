@@ -258,4 +258,15 @@ Validated locally on 2026-07-22 with Unity `6000.5.4f1`:
 - seed-2400 integrated headless replay: 955,791 uncapped editor updates, `2,229.42 ms` aggregate presentation CPU, `4.260 ms` peak sampled update, and about `31.5 s` wall time; these are framework/pooling evidence rather than built-player frame-pacing acceptance
 - no pooling, Animator, Timeline, tweening framework, or third-party sequencer was promoted; built-player median/p95 frame pacing, physical devices, production VFX/audio/character acting, and endurance remain outside this issue
 
+## Issue #27 validation checkpoint
+
+Validated locally on 2026-07-24 with Unity `6000.5.4f1`:
+
+- first-playable table/audio generation and structural foundation validation: passed with one non-looping, non-spatial effects source and localized master/effects/music controls
+- complete Edit Mode suite: 81/81 passed, including the required semantic cue vocabulary, distinct procedural waveform fingerprints, and scene-source safety
+- complete Play Mode suite: 28/28 passed, including one-for-one complete-match cue/beat agreement, master and effects muting, the source-free music control, fast-forward, skip, interruption, cancellation, replay, return-to-Home, and teardown cleanup
+- macOS universal development-player smoke build: succeeded
+- all retained cue sources are project-owned runtime-generated waveforms with provenance, ownership/license status, intended use, parameters, and prototype replacement status recorded in `docs/assets/prototype-audio.md`
+- no recording, external sample, music, ambience, voice, spatial mix, haptics, production sound design, or mastering was retained or claimed
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

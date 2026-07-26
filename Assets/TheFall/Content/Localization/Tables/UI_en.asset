@@ -473,6 +473,18 @@ MonoBehaviour:
     m_Localized: Skip
     m_Metadata:
       m_Items: []
+  - m_Id: 1679833145794560
+    m_Localized: Master audio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1679833284206592
+    m_Localized: Effects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1679833284206593
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

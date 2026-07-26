@@ -76,6 +76,14 @@ Issue #25 adds privacy-safe table-snapshot tests plus complete-match Play Mode a
 
 Issue #26 adds complete-vocabulary source-order mapping and a seed-2400 complete-match runtime replay in Edit Mode. The runtime player must converge after every accepted human-plus-bot batch, and skipped, interrupted, and cancelled exits must copy the accepted state. Integrated Play Mode starts with normal playback, exercises fast-forward plus reduced motion, blocks a duplicate submission without changing trace history, covers skip/interruption/cancellation/teardown, recomposes at all four desktop resolutions, verifies events from both acting seats, and profiles an entire match without introducing pooling or a sequencing framework. See [gameplay animation workbench](animation.md).
 
+Issue #27 adds Edit Mode coverage for the complete semantic cue vocabulary, distinct procedural waveform
+definitions, and the safe Home effects source. Integrated Play Mode compares the complete emitted cue
+history one-for-one with mapped resolved animation beats, proves master/effects muting, exercises the
+source-free music control, and checks skip, interruption, cancellation, replay, return-to-Home, and teardown
+for stale playback. The Play Mode assembly fixture sets `AudioListener.volume` to zero for the duration
+of automated execution and restores the previous host value afterward; cue history, source state, and
+mute-control assertions still run without audible test output. See [first-playable functional audio](audio.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.

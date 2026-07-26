@@ -137,6 +137,9 @@ namespace TheFall.Presentation.Animation
 
         public bool ActiveDealCardIsFaceUp => _view?.ActiveDealCardIsFaceUp ?? false;
 
+        public bool ActiveDealCardFaceSurfaceVisible =>
+            _view?.ActiveDealCardFaceSurfaceVisible ?? false;
+
         public float DealCardFlipDegrees => _view?.DealCardFlipDegrees ?? 0f;
 
         public bool ActiveDeckCardIsFaceUp => _view?.ActiveDeckCardIsFaceUp ?? false;
@@ -178,6 +181,9 @@ namespace TheFall.Presentation.Animation
         public float RevealedDealerCardClearance => _view?.RevealedDealerCardClearance ?? 0f;
 
         public float DealerCardFlipDegrees => _view?.DealerCardFlipDegrees ?? 0f;
+
+        public bool ActiveDealerCardFaceSurfaceVisible =>
+            _view?.ActiveDealerCardFaceSurfaceVisible ?? false;
 
         public Transform PreviewRoot => _view?.GeneratedRoot;
 
@@ -767,7 +773,10 @@ namespace TheFall.Presentation.Animation
 
                 timings.Add(new AnimationBeatTiming(
                     _workingConfiguration.GetDelay(step.Kind, _fastForward),
-                    _workingConfiguration.GetDuration(step.Kind, _fastForward, _reducedMotion)));
+                    _workingConfiguration.GetStepDuration(
+                        step,
+                        _fastForward,
+                        _reducedMotion)));
             }
 
             _transport = new AnimationSequenceTransport(timings)
@@ -856,7 +865,12 @@ namespace TheFall.Presentation.Animation
                     var step = complete.Steps[stepIndex];
                     if (step.Kind == expected)
                     {
-                        state.Apply(step, complete.FinalState);
+                        state.Apply(
+                            step,
+                            complete.FinalState,
+                            deferHandReflow:
+                                expected == ResolvedAnimationStepKind.CardPlay
+                                && _recording.BeatKind == AnimationRecordingBeat.HandReflow);
                         break;
                     }
                 }

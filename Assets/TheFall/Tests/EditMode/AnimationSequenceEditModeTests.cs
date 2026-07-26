@@ -47,28 +47,25 @@ namespace TheFall.Tests.EditMode
 
             Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
-                ResolvedAnimationStepKind.CardPlay,
-                ResolvedAnimationStepKind.HandReflow,
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
-                ResolvedAnimationStepKind.CascadeCapture,
+                ResolvedAnimationStepKind.CaptureCollection,
                 ResolvedAnimationStepKind.FallScore,
                 ResolvedAnimationStepKind.CleanTableScore,
                 ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
-            Assert.That(
-                sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.CardPlay).Cards,
-                Has.Count.EqualTo(2));
             Assert.That(sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture).Cards, Has.Count.EqualTo(2));
             Assert.That(
-                sequence.Steps.Last(step => step.Kind == ResolvedAnimationStepKind.CascadeCapture).Cards,
+                sequence.Steps.Single(step => step.Kind == ResolvedAnimationStepKind.CaptureCollection).Cards,
                 Has.Count.EqualTo(4));
+            Assert.That(sequence.Steps.Select(step => step.Kind), Has.None.EqualTo(ResolvedAnimationStepKind.CardPlay));
+            Assert.That(sequence.Steps.Select(step => step.Kind), Has.None.EqualTo(ResolvedAnimationStepKind.HandReflow));
         }
 
         [Test]
-        public void NonCapturingPlay_MapsCardPlayAndTablePlacementWithoutPresentationRules()
+        public void NonCapturingPlay_UsesOneCardPlayBeatWithParallelHandReflow()
         {
             var firstId = new PlayerId("placement-first");
             var secondId = new PlayerId("placement-second");
@@ -96,13 +93,135 @@ namespace TheFall.Tests.EditMode
             Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
             {
                 ResolvedAnimationStepKind.CardPlay,
-                ResolvedAnimationStepKind.HandReflow,
-                ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.TurnChanged,
                 ResolvedAnimationStepKind.SynchronizeFinalState,
             }));
             Assert.That(renderedState.IsSynchronizedWith(result.State), Is.True);
             Assert.That(renderedState.Table, Does.Contain(playedCard));
+        }
+
+        [Test]
+        public void NonCapturingPlay_AvoidsSlotsVacatedByThePreviousCapture()
+        {
+            var firstId = new PlayerId("vacancy-first");
+            var secondId = new PlayerId("vacancy-second");
+            var capturingCard = new Card(CardSuit.Coins, CardRank.Two);
+            var matchingCard = new Card(CardSuit.Cups, CardRank.Two);
+            var initialTable = new[]
+            {
+                new Card(CardSuit.Clubs, CardRank.Seven),
+                matchingCard,
+                new Card(CardSuit.Coins, CardRank.Ten),
+                new Card(CardSuit.Swords, CardRank.Eleven),
+                new Card(CardSuit.Cups, CardRank.Twelve),
+            };
+            var allCards = (
+                from CardSuit suit in Enum.GetValues(typeof(CardSuit))
+                from CardRank rank in Enum.GetValues(typeof(CardRank))
+                select new Card(suit, rank))
+                .ToArray();
+            var probeState = MatchState.CreateOneVersusOne(
+                new PlayerState(
+                    new Player(firstId, "First", Seat.First, TeamId.One, PlayerControl.Human),
+                    new[] { capturingCard }),
+                new PlayerState(
+                    new Player(secondId, "Second", Seat.Second, TeamId.Two, PlayerControl.Human),
+                    new[] { new Card(CardSuit.Swords, CardRank.Five) }),
+                Seat.Second,
+                Seat.First,
+                initialTable,
+                new Deck(Array.Empty<Card>()));
+            var probe = new AnimationPresentationState(probeState);
+            var vacatedSlot = probe.GetTableLayoutIndex(matchingCard);
+            var occupiedAfterCapture = initialTable
+                .Where(card => card != matchingCard)
+                .Select(probe.GetTableLayoutIndex)
+                .ToArray();
+            var playedCard = allCards.First(card =>
+                card != capturingCard
+                && !initialTable.Contains(card)
+                && initialTable.All(tableCard => tableCard.Rank != card.Rank)
+                && AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                    card,
+                    occupiedAfterCapture) == vacatedSlot);
+            var unusedCards = allCards
+                .Where(card =>
+                    card != capturingCard
+                    && card != playedCard
+                    && !initialTable.Contains(card))
+                .Take(3)
+                .ToArray();
+            var state = MatchState.CreateOneVersusOne(
+                new PlayerState(
+                    probeState.GetPlayer(firstId).Player,
+                    new[] { capturingCard, unusedCards[0] }),
+                new PlayerState(
+                    probeState.GetPlayer(secondId).Player,
+                    new[] { playedCard, unusedCards[1] }),
+                Seat.Second,
+                Seat.First,
+                initialTable,
+                new Deck(new[] { unusedCards[2] }));
+            var session = new MatchSession(state);
+            var rendered = new AnimationPresentationState(state);
+
+            var capture = session.Submit(new PlayCardIntent(firstId, capturingCard));
+            Assert.That(capture.IsAccepted, Is.True);
+            var captureSequence = ResolvedAnimationSequence.Create(
+                capture.Events,
+                capture.State);
+            foreach (var step in captureSequence.Steps)
+            {
+                rendered.Apply(step, captureSequence.FinalState);
+            }
+
+            var play = session.Submit(new PlayCardIntent(secondId, playedCard));
+            Assert.That(play.IsAccepted, Is.True);
+            var playSequence = ResolvedAnimationSequence.Create(
+                play.Events,
+                play.State);
+            foreach (var step in playSequence.Steps)
+            {
+                rendered.Apply(step, playSequence.FinalState);
+            }
+
+            Assert.That(play.Events, Has.None.InstanceOf<CardsCapturedEvent>());
+            Assert.That(
+                rendered.GetTableLayoutIndex(playedCard),
+                Is.Not.EqualTo(vacatedSlot));
+            Assert.That(
+                Mathf.Abs(AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
+                    rendered.GetTableLayoutIndex(playedCard),
+                    playedCard).z),
+                Is.LessThan(0.29f));
+        }
+
+        [Test]
+        public void DealerAndInitialDeal_OnlyAnimatePhysicalCardOutcomes()
+        {
+            var playerId = new PlayerId("dealer-flow");
+            var selectedCard = new Card(CardSuit.Coins, CardRank.Five);
+            var dealtCard = new Card(CardSuit.Cups, CardRank.Six);
+            var events = new DomainEvent[]
+            {
+                new DealerCardSelectedEvent(playerId, selectedCard),
+                new DealerSelectionTiedEvent(CardRank.Five),
+                new DealerSelectedEvent(playerId, Seat.First),
+                new DeckShuffledEvent(1, 40),
+                new DealStartedEvent(1, 1, false),
+                new CardDealtEvent(playerId, dealtCard, 0),
+            };
+            var sequence = ResolvedAnimationSequence.Create(
+                events,
+                RepresentativeAnimationTurn.Create(Seat.First).Result.State);
+
+            Assert.That(sequence.Steps.Select(step => step.Kind), Is.EqualTo(new[]
+            {
+                ResolvedAnimationStepKind.DealerSelection,
+                ResolvedAnimationStepKind.Deal,
+                ResolvedAnimationStepKind.SynchronizeFinalState,
+            }));
+            Assert.That(sequence.SourceEvents, Is.EqualTo(events));
         }
 
         [TestCase(Seat.First)]
@@ -145,10 +264,43 @@ namespace TheFall.Tests.EditMode
                     ResolvedAnimationStepKind.NormalCapture,
                     false,
                     true);
+                var normalRecording = AnimationScenarioRecording.Create(
+                    AnimationScenarioKind.NormalCapture,
+                    Seat.First);
+                var normalStep = ResolvedAnimationSequence.Create(
+                        normalRecording.Result.Events,
+                        normalRecording.Result.State)
+                    .Steps
+                    .Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture);
+                var cascadeRecording = AnimationScenarioRecording.Create(
+                    AnimationScenarioKind.CascadeCapture,
+                    Seat.First);
+                var cascadeLeadInStep = ResolvedAnimationSequence.Create(
+                        cascadeRecording.Result.Events,
+                        cascadeRecording.Result.State)
+                    .Steps
+                    .Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture);
+                var normalStepDuration = configuration.GetStepDuration(
+                    normalStep,
+                    false,
+                    false);
+                var cascadeLeadInDuration = configuration.GetStepDuration(
+                    cascadeLeadInStep,
+                    false,
+                    false);
 
                 Assert.That(normal, Is.EqualTo(configuration.NormalCaptureSeconds));
                 Assert.That(fast, Is.LessThan(normal));
                 Assert.That(reduced, Is.LessThanOrEqualTo(normal));
+                Assert.That(normalStepDuration, Is.EqualTo(normal));
+                Assert.That(cascadeLeadInDuration, Is.LessThan(normalStepDuration));
+                Assert.That(
+                    cascadeLeadInDuration
+                        * AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress,
+                    Is.EqualTo(
+                            normalStepDuration
+                            * AnimationCardTreatmentEvaluator.CapturePlayEndProgress)
+                        .Within(0.0001f));
             }
             finally
             {
@@ -184,6 +336,7 @@ namespace TheFall.Tests.EditMode
                     ResolvedAnimationStepKind.CardPlay,
                     ResolvedAnimationStepKind.NormalCapture,
                     ResolvedAnimationStepKind.CascadeCapture,
+                    ResolvedAnimationStepKind.CaptureCollection,
                     ResolvedAnimationStepKind.CleanTableScore,
                     ResolvedAnimationStepKind.TurnChanged,
                 });
@@ -197,8 +350,8 @@ namespace TheFall.Tests.EditMode
             Assert.That(sequence.Steps.Take(3).Select(step => step.Kind), Is.EqualTo(new[]
             {
                 ResolvedAnimationStepKind.FallScore,
-                ResolvedAnimationStepKind.CardPlay,
                 ResolvedAnimationStepKind.NormalCapture,
+                ResolvedAnimationStepKind.CascadeCapture,
             }));
             Assert.That(sequence.SourceEvents, Is.EqualTo(recording.Result.Events));
             Assert.That(rendered.IsSynchronizedWith(recording.Result.State), Is.True);
@@ -379,7 +532,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
-        public void CompleteDomainEventVocabulary_HasAReusablePresentationBeatInSourceOrder()
+        public void CompleteDomainEventVocabulary_RetainsFactsWithoutRedundantSpatialBeats()
         {
             var playerId = new PlayerId("event-player");
             var card = new Card(CardSuit.Coins, CardRank.Two);
@@ -418,20 +571,14 @@ namespace TheFall.Tests.EditMode
             {
                 ResolvedAnimationStepKind.MatchStarted,
                 ResolvedAnimationStepKind.DealerSelection,
-                ResolvedAnimationStepKind.DealerSelection,
-                ResolvedAnimationStepKind.DealerSelection,
-                ResolvedAnimationStepKind.DealerSelection,
                 ResolvedAnimationStepKind.DealerChoice,
-                ResolvedAnimationStepKind.Deal,
                 ResolvedAnimationStepKind.Deal,
                 ResolvedAnimationStepKind.OpeningRejection,
                 ResolvedAnimationStepKind.OpeningPlacement,
                 ResolvedAnimationStepKind.CardPlay,
-                ResolvedAnimationStepKind.HandReflow,
-                ResolvedAnimationStepKind.TablePlacement,
                 ResolvedAnimationStepKind.NormalCapture,
                 ResolvedAnimationStepKind.CascadeCapture,
-                ResolvedAnimationStepKind.CascadeCapture,
+                ResolvedAnimationStepKind.CaptureCollection,
                 ResolvedAnimationStepKind.Canto,
                 ResolvedAnimationStepKind.Canto,
                 ResolvedAnimationStepKind.Score,
@@ -459,7 +606,6 @@ namespace TheFall.Tests.EditMode
                 AnimationScenarioKind.OpeningPlacement,
                 AnimationScenarioKind.PlayCard,
                 AnimationScenarioKind.HandReflow,
-                AnimationScenarioKind.TablePlacement,
                 AnimationScenarioKind.NormalCapture,
                 AnimationScenarioKind.CascadeCapture,
                 AnimationScenarioKind.CollectLeftovers,
@@ -540,17 +686,93 @@ namespace TheFall.Tests.EditMode
             player.PlayInitialTrace(match.Trace);
             Drain(player);
             var safety = 0;
+            var observedPlayedCardRetainingAssignedSlot = false;
             while (match.State.Phase != MatchPhase.Completed && safety++ < 5000)
             {
+                var priorTableSlots = player.RenderedState.Table.ToDictionary(
+                    card => card,
+                    player.RenderedState.GetTableLayoutIndex);
                 var legal = match.GetHumanLegalIntents();
                 var advance = match.SubmitHumanIntent(ChooseHumanIntent(match.State, legal));
                 player.PlayAdvance(advance);
-                Drain(player);
+                var playedSlots = new System.Collections.Generic.Dictionary<Card, int>();
+                var drainSafety = 0;
+                while (player.IsBusy && drainSafety++ < 100000)
+                {
+                    player.Tick(0.02f);
+                    var step = player.ActiveStep;
+                    if (step == null
+                        || step.Kind != ResolvedAnimationStepKind.CardPlay
+                        || step.Cards.Count == 0
+                        || !player.RenderedState.Table.Contains(step.Cards[0]))
+                    {
+                        continue;
+                    }
+
+                    var card = step.Cards[0];
+                    var slot = player.RenderedState.GetTableLayoutIndex(card);
+                    if (playedSlots.TryGetValue(card, out var assignedSlot))
+                    {
+                        Assert.That(
+                            slot,
+                            Is.EqualTo(assignedSlot),
+                            $"{card} changed slots during its card-play animation.");
+                    }
+                    else
+                    {
+                        playedSlots[card] = slot;
+                    }
+                }
+
+                Assert.That(drainSafety, Is.LessThan(100000));
                 Assert.That(player.IsRenderedStateSynchronized, Is.True);
                 Assert.That(player.RenderedState.IsSynchronizedWith(match.State), Is.True);
+                var removedTableCards = advance.Resolutions
+                    .SelectMany(record => record.Events)
+                    .SelectMany(resolvedEvent =>
+                    {
+                        if (resolvedEvent is CardsCapturedEvent captured)
+                        {
+                            return captured.Cards;
+                        }
+
+                        if (resolvedEvent is LeftoversCollectedEvent leftovers)
+                        {
+                            return leftovers.Cards;
+                        }
+
+                        return System.Array.Empty<Card>();
+                    })
+                    .ToArray();
+                foreach (var card in player.RenderedState.Table)
+                {
+                    if (priorTableSlots.TryGetValue(card, out var priorSlot)
+                        && !removedTableCards.Contains(card))
+                    {
+                        Assert.That(
+                            player.RenderedState.GetTableLayoutIndex(card),
+                            Is.EqualTo(priorSlot),
+                            $"{card} moved after an animation batch completed.");
+                    }
+                }
+
+                foreach (var entry in playedSlots)
+                {
+                    if (!player.RenderedState.Table.Contains(entry.Key))
+                    {
+                        continue;
+                    }
+
+                    Assert.That(
+                        player.RenderedState.GetTableLayoutIndex(entry.Key),
+                        Is.EqualTo(entry.Value),
+                        $"{entry.Key} moved after its card-play animation completed.");
+                    observedPlayedCardRetainingAssignedSlot = true;
+                }
             }
 
             Assert.That(safety, Is.LessThan(5000));
+            Assert.That(observedPlayedCardRetainingAssignedSlot, Is.True);
             Assert.That(match.State.Phase, Is.EqualTo(MatchPhase.Completed));
             Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.DealerSelection));
             Assert.That(player.PresentedSteps, Does.Contain(ResolvedAnimationStepKind.Deal));

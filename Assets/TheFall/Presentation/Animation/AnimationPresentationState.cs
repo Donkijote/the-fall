@@ -32,11 +32,30 @@ namespace TheFall.Presentation.Animation
         private readonly Dictionary<TeamId, Score> _scores = new Dictionary<TeamId, Score>();
         private readonly List<Card> _table = new List<Card>();
         private readonly Dictionary<Card, int> _tableLayoutIndices = new Dictionary<Card, int>();
+        private readonly HashSet<int> _recentlyVacatedTableLayoutIndices = new HashSet<int>();
         private readonly List<Card> _dealerSelectionCards = new List<Card>();
         private readonly List<AnimationCantoState> _cantos = new List<AnimationCantoState>();
 
         public AnimationPresentationState(MatchState state)
         {
+            Synchronize(state);
+        }
+
+        public AnimationPresentationState(
+            MatchState state,
+            AnimationPresentationState previous)
+        {
+            if (previous != null)
+            {
+                foreach (var entry in previous._tableLayoutIndices)
+                {
+                    _tableLayoutIndices[entry.Key] = entry.Value;
+                }
+
+                _recentlyVacatedTableLayoutIndices.UnionWith(
+                    previous._recentlyVacatedTableLayoutIndices);
+            }
+
             Synchronize(state);
         }
 
@@ -104,7 +123,10 @@ namespace TheFall.Presentation.Animation
             return _scores[teamId];
         }
 
-        public void Apply(ResolvedAnimationStep step, MatchState finalState)
+        public void Apply(
+            ResolvedAnimationStep step,
+            MatchState finalState,
+            bool deferHandReflow = false)
         {
             if (step == null)
             {
@@ -128,12 +150,8 @@ namespace TheFall.Presentation.Animation
                     Phase = MatchPhase.Active;
                     break;
                 case ResolvedAnimationStepKind.OpeningRejection:
-                    if (step.SourceEvent is OpeningCardRejectedEvent rejected)
-                    {
-                        RemoveTableCard(rejected.Card);
-                        DeckCount++;
-                    }
-
+                    // Drawing and reinserting a rejected opening card has no net state effect.
+                    // The presentation treatment owns its temporary face-up table pose and deck gap.
                     break;
                 case ResolvedAnimationStepKind.Deal:
                     if (step.SourceEvent is DealStartedEvent dealStarted)
@@ -152,21 +170,26 @@ namespace TheFall.Presentation.Animation
 
                     break;
                 case ResolvedAnimationStepKind.OpeningPlacement:
-                    AddTableCard(step.Cards[0]);
+                    AddTableCard(step.Cards[0], true);
                     DeckCount = Math.Max(0, DeckCount - 1);
                     break;
                 case ResolvedAnimationStepKind.CardPlay:
-                    MovePlayedCardToTable(step.PlayerId, step.Cards[0]);
+                    MovePlayedCardToTable(
+                        step.PlayerId,
+                        step.Cards[0],
+                        !deferHandReflow);
                     break;
                 case ResolvedAnimationStepKind.HandReflow:
                     ReindexHand(step.PlayerId);
                     break;
                 case ResolvedAnimationStepKind.TablePlacement:
-                    AddTableCard(step.Cards[0]);
+                    AddTableCard(step.Cards[0], false);
                     break;
                 case ResolvedAnimationStepKind.NormalCapture:
                 case ResolvedAnimationStepKind.CascadeCapture:
                     MoveCapturedCards(step.PlayerId, step.Cards);
+                    break;
+                case ResolvedAnimationStepKind.CaptureCollection:
                     break;
                 case ResolvedAnimationStepKind.FallScore:
                 case ResolvedAnimationStepKind.CleanTableScore:
@@ -244,15 +267,18 @@ namespace TheFall.Presentation.Animation
             _table.Clear();
             _table.AddRange(state.Table);
             _tableLayoutIndices.Clear();
+            var retainedTableLayoutIndices = new HashSet<int>();
             foreach (var card in _table)
             {
-                if (previousTableLayoutIndices.TryGetValue(card, out var previousIndex))
+                if (previousTableLayoutIndices.TryGetValue(card, out var previousIndex)
+                    && previousIndex >= 0
+                    && previousIndex < AnimationTableCardLayoutEvaluator.Capacity
+                    && retainedTableLayoutIndices.Add(previousIndex))
                 {
                     _tableLayoutIndices[card] = previousIndex;
                 }
             }
 
-            var nextTableLayoutIndex = 0;
             foreach (var card in _table)
             {
                 if (_tableLayoutIndices.ContainsKey(card))
@@ -260,12 +286,11 @@ namespace TheFall.Presentation.Animation
                     continue;
                 }
 
-                while (_tableLayoutIndices.ContainsValue(nextTableLayoutIndex))
-                {
-                    nextTableLayoutIndex++;
-                }
-
-                _tableLayoutIndices[card] = nextTableLayoutIndex++;
+                _tableLayoutIndices[card] =
+                    AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                        card,
+                        _tableLayoutIndices.Values,
+                        _table.Count <= 4);
             }
             _dealerSelectionCards.Clear();
             _dealerSelectionCards.AddRange(state.DealerSelectionCards);
@@ -368,6 +393,7 @@ namespace TheFall.Presentation.Animation
                     }
 
                     _table.Clear();
+                    _recentlyVacatedTableLayoutIndices.Clear();
                     _cantos.Clear();
                     DealNumber = 0;
                     IsFinalDeal = false;
@@ -379,14 +405,21 @@ namespace TheFall.Presentation.Animation
             }
         }
 
-        private void MovePlayedCardToTable(PlayerId playerId, Card card)
+        private void MovePlayedCardToTable(
+            PlayerId playerId,
+            Card card,
+            bool reindexHand)
         {
             if (_hands.TryGetValue(playerId, out var hand))
             {
                 hand.Remove(card);
+                if (reindexHand)
+                {
+                    ReindexHand(playerId);
+                }
             }
 
-            AddTableCard(card);
+            AddTableCard(card, false);
         }
 
         private void ReindexHand(PlayerId playerId)
@@ -425,28 +458,56 @@ namespace TheFall.Presentation.Animation
             }
         }
 
-        private void AddTableCard(Card card)
+        private void AddTableCard(Card card, bool preferOpeningGrid)
         {
             if (_table.Contains(card))
             {
                 return;
             }
 
-            _table.Add(card);
-            var nextIndex = 0;
-            foreach (var index in _tableLayoutIndices.Values)
+            var occupiedIndices = new List<int>();
+            foreach (var tableCard in _table)
             {
-                nextIndex = Math.Max(nextIndex, index + 1);
+                if (_tableLayoutIndices.TryGetValue(tableCard, out var occupiedIndex))
+                {
+                    occupiedIndices.Add(occupiedIndex);
+                }
             }
 
-            _tableLayoutIndices[card] = nextIndex;
+            var blockedIndices = new HashSet<int>(occupiedIndices);
+            if (!preferOpeningGrid)
+            {
+                blockedIndices.UnionWith(_recentlyVacatedTableLayoutIndices);
+                if (blockedIndices.Count >= AnimationTableCardLayoutEvaluator.Capacity)
+                {
+                    blockedIndices.Clear();
+                    blockedIndices.UnionWith(occupiedIndices);
+                }
+            }
+
+            _table.Add(card);
+            if (!_tableLayoutIndices.TryGetValue(card, out var retainedIndex)
+                || blockedIndices.Contains(retainedIndex))
+            {
+                _tableLayoutIndices[card] =
+                    AnimationTableCardLayoutEvaluator.ResolveAvailableIndex(
+                        card,
+                        blockedIndices,
+                        preferOpeningGrid);
+            }
+
+            if (!preferOpeningGrid)
+            {
+                _recentlyVacatedTableLayoutIndices.Clear();
+            }
         }
 
         private void RemoveTableCard(Card card)
         {
-            if (_table.Remove(card))
+            if (_table.Remove(card)
+                && _tableLayoutIndices.TryGetValue(card, out var vacatedIndex))
             {
-                _tableLayoutIndices.Remove(card);
+                _recentlyVacatedTableLayoutIndices.Add(vacatedIndex);
             }
         }
     }

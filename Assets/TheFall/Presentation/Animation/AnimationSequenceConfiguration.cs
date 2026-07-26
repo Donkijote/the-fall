@@ -254,6 +254,26 @@ namespace TheFall.Presentation.Animation
             return Mathf.Max(0f, duration);
         }
 
+        public float GetStepDuration(
+            ResolvedAnimationStep step,
+            bool fastForward,
+            bool reducedMotion)
+        {
+            if (step == null)
+            {
+                throw new ArgumentNullException(nameof(step));
+            }
+
+            var duration = GetDuration(step.Kind, fastForward, reducedMotion);
+            var continuesToCascade =
+                step.Kind == ResolvedAnimationStepKind.NormalCapture
+                && step.SourceEvent is TheFall.Domain.CardsCapturedEvent captured
+                && captured.Cards.Count > 2;
+            return continuesToCascade
+                ? duration * AnimationCardTreatmentEvaluator.CascadeLeadInDurationScale
+                : duration;
+        }
+
         public float GetDelay(ResolvedAnimationStepKind stepKind, bool fastForward)
         {
             var delay = GetBeat(stepKind)?.DelaySeconds ?? 0f;
@@ -316,6 +336,7 @@ namespace TheFall.Presentation.Animation
                 case ResolvedAnimationStepKind.NormalCapture:
                     return _normalCaptureSeconds;
                 case ResolvedAnimationStepKind.CascadeCapture:
+                case ResolvedAnimationStepKind.CaptureCollection:
                     return _cascadeStepSeconds;
                 case ResolvedAnimationStepKind.FallScore:
                 case ResolvedAnimationStepKind.CleanTableScore:
@@ -343,9 +364,9 @@ namespace TheFall.Presentation.Animation
                 Beat(ResolvedAnimationStepKind.OpeningPlacement, _cardPlaySeconds, new Vector3(0f, 0.1f, 0f)),
                 Beat(ResolvedAnimationStepKind.CardPlay, _cardPlaySeconds, new Vector3(0f, 0.14f, 0.03f)),
                 Beat(ResolvedAnimationStepKind.HandReflow, 0.16f),
-                Beat(ResolvedAnimationStepKind.TablePlacement, _cardPlaySeconds, new Vector3(0f, 0.08f, 0f)),
                 Beat(ResolvedAnimationStepKind.NormalCapture, _normalCaptureSeconds, new Vector3(0f, 0.18f, 0f), 1.15f),
                 Beat(ResolvedAnimationStepKind.CascadeCapture, _cascadeStepSeconds, new Vector3(0f, 0.13f, 0f), 1.1f),
+                Beat(ResolvedAnimationStepKind.CaptureCollection, _cascadeStepSeconds, new Vector3(0f, 0.13f, 0f), 1.1f),
                 Beat(ResolvedAnimationStepKind.FallScore, _scoreBeatSeconds, default, 1.5f),
                 Beat(ResolvedAnimationStepKind.CleanTableScore, _scoreBeatSeconds, default, 1.4f),
                 Beat(ResolvedAnimationStepKind.Canto, 0.24f, default, 1.3f),

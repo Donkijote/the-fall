@@ -33,6 +33,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
             table.SkipPresentation();
+            Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
 
             var humanIntentCount = 0;
             while (controller.Flow.Stage == FirstPlayableFlowStage.Match && humanIntentCount < 5000)
@@ -42,6 +43,7 @@ namespace TheFall.Tests.PlayMode
                 Assert.That(controller.SubmitHumanIntent(intent), Is.True);
                 Assert.That(table.IsPresentationBusy, Is.True);
                 table.SkipPresentation();
+                Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
                 humanIntentCount++;
             }
 
@@ -51,11 +53,13 @@ namespace TheFall.Tests.PlayMode
 
             Assert.That(controller.Replay(), Is.True);
             Assert.That(controller.Flow.Match, Is.Not.SameAs(completedMatch));
+            Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
             yield return null;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             Assert.That(controller.ReturnHome(), Is.True);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
             Assert.That(controller.Flow.Match, Is.Null);
+            Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
         }
 
         [UnityTest]
