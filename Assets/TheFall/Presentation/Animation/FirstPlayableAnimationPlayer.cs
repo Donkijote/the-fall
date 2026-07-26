@@ -270,7 +270,10 @@ namespace TheFall.Presentation.Animation
                 var step = _sequence.Steps[index];
                 timings.Add(new AnimationBeatTiming(
                     _configuration.GetDelay(step.Kind, FastForward),
-                    _configuration.GetDuration(step.Kind, FastForward, ReducedMotion)));
+                    _configuration.GetStepDuration(
+                        step,
+                        FastForward,
+                        ReducedMotion)));
             }
 
             _transport = new AnimationSequenceTransport(timings)

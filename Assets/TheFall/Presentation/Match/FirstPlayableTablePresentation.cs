@@ -809,7 +809,7 @@ namespace TheFall.Presentation.Match
                     motionBeat,
                     isParallelHandReflow ? Vector3.zero : trajectory,
                     isParallelHandReflow
-                        ? GetParallelMotionDurationFraction(step.Kind)
+                        ? GetParallelMotionDurationFraction(step)
                         : 1f,
                     source.CardPoses.TryGetValue(
                         rendered.PresentationCard.Value,
@@ -1313,7 +1313,7 @@ namespace TheFall.Presentation.Match
                     rendered.transform.position,
                     _animationPreset.GetBeat(ResolvedAnimationStepKind.HandReflow),
                     Vector3.zero,
-                    GetParallelMotionDurationFraction(step.Kind),
+                    GetParallelMotionDurationFraction(step),
                     Quaternion.AngleAxis(
                         AnimationHandCardLayoutEvaluator
                             .ResolveRestingYawDegrees(
@@ -1383,10 +1383,10 @@ namespace TheFall.Presentation.Match
                 || kind == ResolvedAnimationStepKind.CaptureCollection;
         }
 
-        private float GetParallelMotionDurationFraction(ResolvedAnimationStepKind primaryKind)
+        private float GetParallelMotionDurationFraction(ResolvedAnimationStep primaryStep)
         {
-            var primaryDuration = _animationPreset.GetDuration(
-                primaryKind,
+            var primaryDuration = _animationPreset.GetStepDuration(
+                primaryStep,
                 _animationPlayer.FastForward,
                 _animationPlayer.ReducedMotion);
             var parallelDuration = _animationPreset.GetDuration(

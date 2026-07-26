@@ -138,6 +138,12 @@ namespace TheFall.Tests.EditMode
                 AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress,
                 Is.GreaterThanOrEqualTo(0.90f),
                 "The first cascade step must follow after only a brief contact settle.");
+            Assert.That(
+                AnimationCardTreatmentEvaluator.CascadeLeadInDurationScale
+                    * AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress,
+                Is.EqualTo(AnimationCardTreatmentEvaluator.CapturePlayEndProgress)
+                    .Within(0.0001f),
+                "The cascade lead-in must retain the ordinary capture's hand-to-match velocity.");
         }
 
         [Test]

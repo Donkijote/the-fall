@@ -34,6 +34,8 @@ namespace TheFall.Presentation.Animation
         public const float CapturePlayEndProgress = 0.38f;
         public const float CapturePickupStartProgress = 0.46f;
         public const float CascadeLeadInEndProgress = 0.90f;
+        public const float CascadeLeadInDurationScale =
+            CapturePlayEndProgress / CascadeLeadInEndProgress;
         public const float CollectionFlipEndProgress = 0.68f;
 
         public static Vector3 EvaluateTranslation(

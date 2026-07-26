@@ -254,6 +254,26 @@ namespace TheFall.Presentation.Animation
             return Mathf.Max(0f, duration);
         }
 
+        public float GetStepDuration(
+            ResolvedAnimationStep step,
+            bool fastForward,
+            bool reducedMotion)
+        {
+            if (step == null)
+            {
+                throw new ArgumentNullException(nameof(step));
+            }
+
+            var duration = GetDuration(step.Kind, fastForward, reducedMotion);
+            var continuesToCascade =
+                step.Kind == ResolvedAnimationStepKind.NormalCapture
+                && step.SourceEvent is TheFall.Domain.CardsCapturedEvent captured
+                && captured.Cards.Count > 2;
+            return continuesToCascade
+                ? duration * AnimationCardTreatmentEvaluator.CascadeLeadInDurationScale
+                : duration;
+        }
+
         public float GetDelay(ResolvedAnimationStepKind stepKind, bool fastForward)
         {
             var delay = GetBeat(stepKind)?.DelaySeconds ?? 0f;

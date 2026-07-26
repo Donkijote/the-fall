@@ -264,10 +264,43 @@ namespace TheFall.Tests.EditMode
                     ResolvedAnimationStepKind.NormalCapture,
                     false,
                     true);
+                var normalRecording = AnimationScenarioRecording.Create(
+                    AnimationScenarioKind.NormalCapture,
+                    Seat.First);
+                var normalStep = ResolvedAnimationSequence.Create(
+                        normalRecording.Result.Events,
+                        normalRecording.Result.State)
+                    .Steps
+                    .Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture);
+                var cascadeRecording = AnimationScenarioRecording.Create(
+                    AnimationScenarioKind.CascadeCapture,
+                    Seat.First);
+                var cascadeLeadInStep = ResolvedAnimationSequence.Create(
+                        cascadeRecording.Result.Events,
+                        cascadeRecording.Result.State)
+                    .Steps
+                    .Single(step => step.Kind == ResolvedAnimationStepKind.NormalCapture);
+                var normalStepDuration = configuration.GetStepDuration(
+                    normalStep,
+                    false,
+                    false);
+                var cascadeLeadInDuration = configuration.GetStepDuration(
+                    cascadeLeadInStep,
+                    false,
+                    false);
 
                 Assert.That(normal, Is.EqualTo(configuration.NormalCaptureSeconds));
                 Assert.That(fast, Is.LessThan(normal));
                 Assert.That(reduced, Is.LessThanOrEqualTo(normal));
+                Assert.That(normalStepDuration, Is.EqualTo(normal));
+                Assert.That(cascadeLeadInDuration, Is.LessThan(normalStepDuration));
+                Assert.That(
+                    cascadeLeadInDuration
+                        * AnimationCardTreatmentEvaluator.CascadeLeadInEndProgress,
+                    Is.EqualTo(
+                            normalStepDuration
+                            * AnimationCardTreatmentEvaluator.CapturePlayEndProgress)
+                        .Within(0.0001f));
             }
             finally
             {
