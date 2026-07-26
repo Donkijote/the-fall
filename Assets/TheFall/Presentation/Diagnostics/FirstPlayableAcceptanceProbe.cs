@@ -30,6 +30,7 @@ namespace TheFall.Presentation.Diagnostics
     public sealed class FirstPlayableAcceptanceProbe : MonoBehaviour
     {
         private const string EnableArgument = "--first-playable-acceptance";
+        private const string EnableEnvironmentVariable = "THE_FALL_FIRST_PLAYABLE_ACCEPTANCE";
         private const string ReadinessArgument = "--acceptance-readiness-only";
         private const string OutputArgument = "--acceptance-output";
         private const string CommitArgument = "--acceptance-commit";
@@ -87,9 +88,14 @@ namespace TheFall.Presentation.Diagnostics
 
         public static void AttachWhenRequested(GameObject host)
         {
+            var isRequested = Environment.GetCommandLineArgs().Contains(EnableArgument)
+                || string.Equals(
+                    Environment.GetEnvironmentVariable(EnableEnvironmentVariable),
+                    "1",
+                    StringComparison.Ordinal);
             if (!Debug.isDebugBuild
                 || host == null
-                || !Environment.GetCommandLineArgs().Contains(EnableArgument)
+                || !isRequested
                 || host.GetComponent<FirstPlayableAcceptanceProbe>() != null)
             {
                 return;
