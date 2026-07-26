@@ -50,6 +50,11 @@ namespace TheFall.Tests.PlayMode
             Assert.That(humanIntentCount, Is.LessThan(5000));
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Result));
             var completedMatch = controller.Flow.Match;
+            var resultEyebrow = controller
+                .GetComponent<UIDocument>()
+                .rootVisualElement
+                .Q<Label>("result-eyebrow");
+            Assert.That(resultEyebrow.resolvedStyle.whiteSpace, Is.EqualTo(WhiteSpace.NoWrap));
 
             Assert.That(controller.Replay(), Is.True);
             Assert.That(controller.Flow.Match, Is.Not.SameAs(completedMatch));

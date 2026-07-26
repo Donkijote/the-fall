@@ -513,6 +513,12 @@ Button {
     align-items: center;
 }
 
+#result-eyebrow {
+    min-width: 120px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
 .result-seal {
     width: 72%;
     min-height: 130px;
