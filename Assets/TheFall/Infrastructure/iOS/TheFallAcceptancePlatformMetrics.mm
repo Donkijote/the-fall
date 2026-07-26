@@ -1,38 +1,21 @@
 #import <Foundation/Foundation.h>
-#import <libproc.h>
 #import <mach/mach.h>
-#import <sys/time.h>
-#import <unistd.h>
+#import <mach/mach_time.h>
+
+static const uint64_t TheFallAcceptanceNativeLoadTime = mach_continuous_time();
 
 extern "C"
 {
     double TheFallAcceptanceProcessUptimeSeconds()
     {
-        struct proc_bsdinfo processInfo = {};
-        const int result = proc_pidinfo(
-            getpid(),
-            PROC_PIDTBSDINFO,
-            0,
-            &processInfo,
-            sizeof(processInfo));
-        if (result != sizeof(processInfo))
-        {
-            return -1.0;
-        }
-
-        struct timeval now = {};
-        if (gettimeofday(&now, nullptr) != 0)
-        {
-            return -1.0;
-        }
-
-        const double startedAt =
-            (double)processInfo.pbi_start_tvsec
-            + ((double)processInfo.pbi_start_tvusec / 1000000.0);
-        const double currentTime =
-            (double)now.tv_sec
-            + ((double)now.tv_usec / 1000000.0);
-        return MAX(0.0, currentTime - startedAt);
+        mach_timebase_info_data_t timebase = {};
+        mach_timebase_info(&timebase);
+        const uint64_t elapsed = mach_continuous_time() - TheFallAcceptanceNativeLoadTime;
+        const double nanoseconds =
+            (double)elapsed
+            * (double)timebase.numer
+            / (double)timebase.denom;
+        return nanoseconds / 1000000000.0;
     }
 
     uint64_t TheFallAcceptancePhysicalFootprintBytes()
