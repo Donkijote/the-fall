@@ -217,7 +217,7 @@ using the card seed as its stable tie breaker. Deterministic per-card jitter and
 only to played-card anchors and preserve replay stability without moving survivors, overlapping cards,
 or allowing the occupied area to grow toward either player.
 
-The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top. Integrated collection enforces the back rotation, logical hidden identity, and shared back material together on every late-travel and landing frame; synchronization never supplies the first face-down frame.
+The isolated leftovers collection keeps the collector's existing pile visible at the player-left anchor. Every remaining table card travels to that anchor, turns face down in flight, and settles into a higher pile slot so the final synchronized state preserves the newly collected cards on top. Integrated collection enforces the back rotation, logical hidden identity, and shared back material together on every late-travel and landing frame. Switching a reused gameplay renderer back-down also clears its face-atlas material-property override; otherwise that override would continue displaying the face even after the back material was assigned. Synchronization never supplies the first visually face-down frame.
 
 ## Generation and validation
 

@@ -650,6 +650,16 @@ namespace TheFall.Tests.PlayMode
                         backMaterial)),
                 Is.True,
                 $"{stepKind} reached the pile without the shared back material.");
+            var propertyBlock = new MaterialPropertyBlock();
+            foreach (var rendered in capturedCards)
+            {
+                propertyBlock.Clear();
+                rendered.GetComponent<Renderer>().GetPropertyBlock(propertyBlock);
+                Assert.That(
+                    propertyBlock.isEmpty,
+                    Is.True,
+                    $"{stepKind} reached the pile with a stale face-atlas property override.");
+            }
         }
 
         private static bool IsCaptureTreatment(ResolvedAnimationStepKind kind)

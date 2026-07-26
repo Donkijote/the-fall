@@ -739,7 +739,7 @@ namespace TheFall.Presentation.Match
                     target.transform.position = dealerStart;
                     target.transform.localRotation = Quaternion.identity;
                     target.SetFaceUp(false);
-                    target.GetComponent<Renderer>().sharedMaterial = _cardBackMaterial;
+                    ApplyCardBack(target.GetComponent<Renderer>());
                     _pendingDealerSelectionInteractionIndex = null;
                 }
             }
@@ -919,7 +919,7 @@ namespace TheFall.Presentation.Match
                 }
                 else
                 {
-                    renderer.sharedMaterial = _cardBackMaterial;
+                    ApplyCardBack(renderer);
                 }
             }
         }
@@ -1432,7 +1432,7 @@ namespace TheFall.Presentation.Match
                 }
                 else
                 {
-                    dealerMotion.Renderer.sharedMaterial = _cardBackMaterial;
+                    ApplyCardBack(dealerMotion.Renderer);
                 }
             }
         }
@@ -1590,7 +1590,7 @@ namespace TheFall.Presentation.Match
             }
             else
             {
-                renderer.sharedMaterial = _cardBackMaterial;
+                ApplyCardBack(renderer);
             }
         }
 
@@ -2003,7 +2003,7 @@ namespace TheFall.Presentation.Match
             }
             else
             {
-                renderer.sharedMaterial = _cardBackMaterial;
+                ApplyCardBack(renderer);
             }
 
             var rendered = cardObject.AddComponent<FirstPlayableRenderedCard>();
@@ -2057,6 +2057,12 @@ namespace TheFall.Presentation.Match
         {
             return Quaternion.AngleAxis(restingYawDegrees, Vector3.up)
                 * Quaternion.AngleAxis(flipDegrees, Vector3.forward);
+        }
+
+        private void ApplyCardBack(Renderer renderer)
+        {
+            renderer.SetPropertyBlock(null);
+            renderer.sharedMaterial = _cardBackMaterial;
         }
 
         private void ApplyInteractionState()
