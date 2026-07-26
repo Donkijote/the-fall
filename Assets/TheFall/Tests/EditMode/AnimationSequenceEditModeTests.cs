@@ -109,8 +109,8 @@ namespace TheFall.Tests.EditMode
             var matchingCard = new Card(CardSuit.Cups, CardRank.Two);
             var initialTable = new[]
             {
-                matchingCard,
                 new Card(CardSuit.Clubs, CardRank.Seven),
+                matchingCard,
                 new Card(CardSuit.Coins, CardRank.Ten),
                 new Card(CardSuit.Swords, CardRank.Eleven),
                 new Card(CardSuit.Cups, CardRank.Twelve),

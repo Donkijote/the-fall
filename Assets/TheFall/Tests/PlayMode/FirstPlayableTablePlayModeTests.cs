@@ -180,6 +180,11 @@ namespace TheFall.Tests.PlayMode
             Assert.That(expectedScale.x / expectedScale.z, Is.EqualTo(63f / 88f).Within(0.0001f));
             AssertHandFan(localHandCards, true);
             AssertHandFan(opponentHandCards, false);
+            Assert.That(
+                deckCard.transform.parent.localPosition,
+                Is.EqualTo(AnimationDealerDeckLayoutEvaluator.Resolve(
+                    table.Snapshot.DealerSeat,
+                    table.AuthoredLayout.DeckAnchor.localPosition.y)));
             Assert.That(publicTableCard.transform.localEulerAngles.z, Is.EqualTo(180f).Within(0.001f));
             Assert.That(deckCard.transform.localEulerAngles.z, Is.EqualTo(0f).Within(0.001f));
             Assert.That(openingTableCards, Has.Length.EqualTo(4));

@@ -1903,6 +1903,9 @@ namespace TheFall.Presentation.Match
         private void CreateDeck(Transform parent, int count)
         {
             var zoneParent = CreateRuntimeAnchor(parent, _authoredLayout.DeckAnchor, "Deck Zone");
+            zoneParent.localPosition = AnimationDealerDeckLayoutEvaluator.Resolve(
+                Snapshot.DealerSeat,
+                _authoredLayout.DeckAnchor.localPosition.y);
             for (var index = 0; index < count; index++)
             {
                 CreateCard(zoneParent, $"Deck Card {index + 1}",

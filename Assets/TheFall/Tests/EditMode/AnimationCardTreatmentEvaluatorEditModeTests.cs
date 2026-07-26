@@ -157,6 +157,19 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void DealerDeckLayout_MirrorsOntoEachDealersRight()
+        {
+            var localDealer = AnimationDealerDeckLayoutEvaluator.Resolve(Seat.First, 0.8f);
+            var opponentDealer = AnimationDealerDeckLayoutEvaluator.Resolve(Seat.Second, 0.8f);
+
+            Assert.That(localDealer, Is.EqualTo(new Vector3(0.72f, 0.8f, -0.62f)));
+            Assert.That(opponentDealer, Is.EqualTo(new Vector3(-0.72f, 0.8f, 0.62f)));
+            Assert.That(
+                new Vector2(localDealer.x, localDealer.z),
+                Is.EqualTo(-new Vector2(opponentDealer.x, opponentDealer.z)));
+        }
+
+        [Test]
         public void TableLayout_UsesDeterministicScatteredSlotsWithinTheBoundedField()
         {
             var ranks = new[]
@@ -194,7 +207,19 @@ namespace TheFall.Tests.EditMode
             Assert.That(firstRun, Is.EqualTo(secondRun));
             Assert.That(firstRun.Distinct().Count(), Is.EqualTo(ranks.Length));
             Assert.That(firstRun, Is.Not.EqualTo(Enumerable.Range(0, ranks.Length)));
-            Assert.That(positions.Select(position => position.z).Distinct().Count(), Is.GreaterThan(2));
+            Assert.That(
+                positions
+                    .Select(position => Mathf.RoundToInt(position.x * 10f))
+                    .Distinct()
+                    .Count(),
+                Is.GreaterThanOrEqualTo(4),
+                "Played cards must not collapse into two vertical lanes.");
+            Assert.That(
+                positions
+                    .Select(position => Mathf.RoundToInt(position.z * 10f))
+                    .Distinct()
+                    .Count(),
+                Is.GreaterThanOrEqualTo(3));
             Assert.That(positions, Has.All.Matches<Vector3>(
                 position => Mathf.Abs(position.x) < 0.49f
                     && Mathf.Abs(position.z) < 0.40f));
@@ -253,7 +278,9 @@ namespace TheFall.Tests.EditMode
             var playedPosition = AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
                 playedSlot,
                 playedCard);
-            Assert.That(playedSlot, Is.InRange(4, 9));
+            Assert.That(
+                playedSlot,
+                Is.InRange(4, AnimationTableCardLayoutEvaluator.Capacity - 1));
             Assert.That(Mathf.Abs(playedPosition.z), Is.LessThan(0.29f));
         }
     }

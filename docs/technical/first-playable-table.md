@@ -54,13 +54,15 @@ resetting manual changes.
 - both three-card hands use the shared shallow fan: the center card remains upright and slightly
   forward toward the table, while the outer cards overlap, arc toward their owner, and rotate
   outward symmetrically; the opponent layout mirrors the local layout
+- the live draw deck follows the current dealer, sitting close to that seat on the dealer's own
+  right; the position mirrors between local and opponent dealers
 - captured cards remain face down in separate owner piles
 - public table cards retain their presentation slots when another card is captured; capture and
   cascade removal never compact or rearrange the surviving table
 - the dealer's four accepted opening cards form a centered, aligned two-by-two grid
-- later player-played cards prefer six bounded outer anchors away from both seats, choosing the
-  clearest empty anchor with deterministic position and angle variation; captured opening anchors
-  become fallback capacity without moving survivors
+- later player-played cards choose from a bounded staggered field spanning several horizontal
+  bands, using the clearest empty candidate with deterministic position and angle variation;
+  this avoids two-column buildup while keeping cards away from both seats and never moving survivors
 - slots vacated by the latest capture are reserved until the next non-capturing card is placed, so
   that play uses another available central slot instead of repeating the capture location
 - table slot and resting-angle assignments survive animation steps, batch boundaries, completion,

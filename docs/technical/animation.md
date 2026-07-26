@@ -169,7 +169,9 @@ midpoint, so the public identity becoming available cannot flash the face before
 Runtime transitions retain the outgoing card pose while the next resolved beat is delayed or begins.
 Rebuilding the authoritative prefix therefore cannot snap a card to its final zone between adjacent
 beats. Local Deal and opening-placement cards leave the deck back-up and reveal once in flight;
-opponent Deal cards stay face down for the complete deck-to-hand path. Existing hand cards use a
+opponent Deal cards stay face down for the complete deck-to-hand path. The draw deck follows the
+current dealer and mirrors onto that player's own right, so every Deal path starts beside its owner
+rather than from a fixed table edge. Existing hand cards use a
 concurrent zero-trajectory reflow, so they do not inherit the incoming card's arc. Hand positions
 and resting angles both interpolate into the shared shallow three-card fan used by the workbench
 and integrated table; the center stays upright and forward while the outer cards rotate away from
@@ -209,11 +211,11 @@ its beat and joins the lifted stack only on the following cascade beat. Cards en
 stack retain the exact resting angle they had on the table; joining a normal or cascade capture does
 not assign a new card-seeded angle. Table-slot assignments persist across animation transitions,
 normal completion, and early synchronization, so neither a newly played card nor any survivor can
-fall back into the opening grid or trigger a fresh scatter. The layout is a bounded
-ten-anchor pool, matching the accepted one-card-per-rank table maximum. Four inner anchors form the
-organized opening grid. Player-played cards prefer six irregular outer anchors that remain inside
-the tightened central table field and away from both seats; if all six are occupied, captured opening
-anchors may be reused. Slots emptied by a capture remain reserved through the next non-capturing play,
+fall back into the opening grid or trigger a fresh scatter. The layout uses a bounded candidate
+field with more presentation slots than the accepted ten-card rank maximum. Four dedicated inner
+anchors form the organized opening grid. Player-played cards choose among twelve staggered anchors
+across several horizontal bands inside the tightened central table field and away from both seats.
+Slots emptied by a capture remain reserved through the next non-capturing play,
 so that card chooses another available position instead of retracing the capture location. The probe
 prefers the free anchor with the most clearance from occupied and temporarily reserved anchors before
 using the card seed as its stable tie breaker. Deterministic per-card jitter and angle variation apply

@@ -232,12 +232,37 @@ namespace TheFall.Presentation.Animation
     }
 
     /// <summary>
+    /// Places the live draw deck beside the dealer, on that player's own right.
+    /// </summary>
+    public static class AnimationDealerDeckLayoutEvaluator
+    {
+        public const float LateralOffset = 0.72f;
+        public const float SeatOffset = 0.62f;
+
+        public static Vector3 Resolve(Seat dealerSeat, float height)
+        {
+            switch (dealerSeat)
+            {
+                case Seat.First:
+                    return new Vector3(LateralOffset, height, -SeatOffset);
+                case Seat.Second:
+                    return new Vector3(-LateralOffset, height, SeatOffset);
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(dealerSeat),
+                        dealerSeat,
+                        "The first-playable deck supports the two 1v1 seats.");
+            }
+        }
+    }
+
+    /// <summary>
     /// Shared bounded table-card placement used by the workbench and integrated game.
     /// Slot selection is deterministic for replay, but deliberately avoids insertion-order rows.
     /// </summary>
     public static class AnimationTableCardLayoutEvaluator
     {
-        public const int Capacity = 10;
+        public const int Capacity = 16;
 
         private static readonly Vector2[] Anchors =
         {
@@ -245,12 +270,18 @@ namespace TheFall.Presentation.Animation
             new Vector2(0.13f, -0.15f),
             new Vector2(-0.13f, 0.15f),
             new Vector2(0.13f, 0.15f),
-            new Vector2(-0.47f, -0.27f),
-            new Vector2(-0.44f, 0.01f),
-            new Vector2(-0.47f, 0.27f),
-            new Vector2(0.47f, -0.27f),
-            new Vector2(0.44f, -0.01f),
-            new Vector2(0.47f, 0.27f),
+            new Vector2(-0.45f, -0.31f),
+            new Vector2(-0.14f, -0.28f),
+            new Vector2(0.18f, -0.31f),
+            new Vector2(0.46f, -0.27f),
+            new Vector2(-0.40f, -0.01f),
+            new Vector2(-0.11f, 0.02f),
+            new Vector2(0.20f, -0.02f),
+            new Vector2(0.47f, 0.01f),
+            new Vector2(-0.46f, 0.27f),
+            new Vector2(-0.17f, 0.31f),
+            new Vector2(0.14f, 0.28f),
+            new Vector2(0.44f, 0.31f),
         };
 
         private static readonly int[] ProbeStrides = { 1, 3, 7, 9 };
@@ -335,7 +366,7 @@ namespace TheFall.Presentation.Animation
             }
 
             throw new InvalidOperationException(
-                $"The table cannot contain more than {Capacity} rank slots.");
+                "The table has no remaining presentation slot.");
         }
 
         public static Vector3 ResolveLocalPosition(
