@@ -31,6 +31,10 @@ namespace TheFall.Presentation.Diagnostics
     {
         private const string EnableArgument = "--first-playable-acceptance";
         private const string EnableEnvironmentVariable = "THE_FALL_FIRST_PLAYABLE_ACCEPTANCE";
+        private const string ModeEnvironmentVariable = "THE_FALL_ACCEPTANCE_MODE";
+        private const string CommitEnvironmentVariable = "THE_FALL_ACCEPTANCE_COMMIT";
+        private const string WarmupEnvironmentVariable = "THE_FALL_ACCEPTANCE_WARMUP_SECONDS";
+        private const string MeasureEnvironmentVariable = "THE_FALL_ACCEPTANCE_MEASURE_SECONDS";
         private const string ReadinessArgument = "--acceptance-readiness-only";
         private const string OutputArgument = "--acceptance-output";
         private const string CommitArgument = "--acceptance-commit";
@@ -107,14 +111,27 @@ namespace TheFall.Presentation.Diagnostics
         private void Awake()
         {
             var arguments = Environment.GetCommandLineArgs();
-            _readinessOnly = arguments.Contains(ReadinessArgument);
+            _readinessOnly = arguments.Contains(ReadinessArgument)
+                || string.Equals(
+                    Environment.GetEnvironmentVariable(ModeEnvironmentVariable),
+                    "readiness",
+                    StringComparison.OrdinalIgnoreCase);
             _outputPath = ReadStringArgument(
                 arguments,
                 OutputArgument,
                 Path.Combine(UnityEngine.Application.persistentDataPath, "first-playable-acceptance.json"));
-            _candidateCommit = ReadStringArgument(arguments, CommitArgument, "unrecorded");
-            _warmupSeconds = ReadDoubleArgument(arguments, WarmupArgument, 300d);
-            _measurementSeconds = ReadDoubleArgument(arguments, MeasureArgument, 900d);
+            _candidateCommit = ReadStringArgument(
+                arguments,
+                CommitArgument,
+                ReadEnvironmentVariable(CommitEnvironmentVariable, "unrecorded"));
+            _warmupSeconds = ReadDoubleArgument(
+                arguments,
+                WarmupArgument,
+                ReadDoubleEnvironmentVariable(WarmupEnvironmentVariable, 300d));
+            _measurementSeconds = ReadDoubleArgument(
+                arguments,
+                MeasureArgument,
+                ReadDoubleEnvironmentVariable(MeasureEnvironmentVariable, 900d));
             _runtime = Stopwatch.StartNew();
 
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_outputPath)) ?? ".");
@@ -573,6 +590,24 @@ namespace TheFall.Presentation.Diagnostics
             double fallback)
         {
             var value = ReadStringArgument(arguments, name, string.Empty);
+            return double.TryParse(
+                value,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out var parsed)
+                ? Math.Max(0d, parsed)
+                : fallback;
+        }
+
+        private static string ReadEnvironmentVariable(string name, string fallback)
+        {
+            var value = Environment.GetEnvironmentVariable(name);
+            return string.IsNullOrWhiteSpace(value) ? fallback : value;
+        }
+
+        private static double ReadDoubleEnvironmentVariable(string name, double fallback)
+        {
+            var value = Environment.GetEnvironmentVariable(name);
             return double.TryParse(
                 value,
                 NumberStyles.Float,
