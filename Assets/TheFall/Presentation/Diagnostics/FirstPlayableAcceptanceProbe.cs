@@ -83,6 +83,7 @@ namespace TheFall.Presentation.Diagnostics
         private int _submittedHumanIntents;
         private int _matchIndex;
         private int _resolutionIndex;
+        private int _previousSleepTimeout;
         private int _worstThermalState = AcceptancePlatformMetrics.ThermalStateUnavailable;
         private bool _readinessOnly;
         private bool _pendingSkip;
@@ -133,6 +134,8 @@ namespace TheFall.Presentation.Diagnostics
                 MeasureArgument,
                 ReadDoubleEnvironmentVariable(MeasureEnvironmentVariable, 900d));
             _runtime = Stopwatch.StartNew();
+            _previousSleepTimeout = Screen.sleepTimeout;
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_outputPath)) ?? ".");
             UnityEngine.Application.targetFrameRate = UnityEngine.Application.isMobilePlatform ? 60 : -1;
@@ -222,10 +225,16 @@ namespace TheFall.Presentation.Diagnostics
 
         private void OnApplicationQuit()
         {
+            Screen.sleepTimeout = _previousSleepTimeout;
             if (!_isQuitting)
             {
                 WriteReport("application-quit", false);
             }
+        }
+
+        private void OnDestroy()
+        {
+            Screen.sleepTimeout = _previousSleepTimeout;
         }
 
         private IEnumerator WaitForIntegratedHome()
@@ -481,6 +490,7 @@ namespace TheFall.Presentation.Diagnostics
 
             _isQuitting = true;
             WriteReport(status, true);
+            Screen.sleepTimeout = _previousSleepTimeout;
             UnityEngine.Application.Quit(0);
         }
 
