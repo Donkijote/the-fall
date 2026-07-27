@@ -85,6 +85,16 @@ namespace TheFall.Tests.EditMode
             Assert.That(element.ClassListContains("profile-mobile-portrait"), Is.False);
             Assert.That(element.ClassListContains("semantic-rejected"), Is.True);
             Assert.That(element.ClassListContains("semantic-selected"), Is.False);
+
+            AdaptiveUiFoundation.ApplySemanticState(
+                element,
+                AdaptiveUiSemanticState.Inspected);
+            Assert.That(element.ClassListContains("semantic-inspected"), Is.True);
+            AdaptiveUiFoundation.ApplySemanticState(
+                element,
+                AdaptiveUiSemanticState.Cancelled);
+            Assert.That(element.ClassListContains("semantic-cancelled"), Is.True);
+            Assert.That(element.ClassListContains("semantic-inspected"), Is.False);
         }
 
         [Test]

@@ -121,8 +121,10 @@ namespace TheFall.Tests.PlayMode
                 matchHomeButton.worldBound.width,
                 Is.LessThan(root.Q<VisualElement>("home-screen").worldBound.width * 0.35f));
             Assert.That(root.Q<Label>("match-score").text, Is.Not.Empty);
-            Assert.That(root.Q<Label>("match-progress"), Is.Null);
-            Assert.That(root.Q<Label>("match-canto"), Is.Null);
+            Assert.That(root.Q<Label>("match-progress").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("match-canto").text, Is.Not.Empty);
+            Assert.That(root.Q<VisualElement>("match-event-callout"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>("match-feedback-callout"), Is.Not.Null);
             Assert.That(root.Q<Toggle>("audio-master-toggle"), Is.Null);
             Assert.That(root.Q<Toggle>("animation-fast-toggle"), Is.Null);
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
@@ -339,7 +341,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(scoreHud.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
             Assert.That(scoreHud.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
             Assert.That(matchHome.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
-            Assert.That(matchStatus.worldBound.width, Is.LessThan(screen.worldBound.width * 0.5f));
+            Assert.That(matchStatus.worldBound.width, Is.GreaterThan(screen.worldBound.width * 0.9f));
             Assert.That(matchHome.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(matchSkip.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 

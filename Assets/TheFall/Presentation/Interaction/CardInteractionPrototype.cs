@@ -274,6 +274,8 @@ namespace TheFall.Presentation.Interaction
             {
                 switch (state.Feedback)
                 {
+                    case CardInteractionFeedback.Inspected:
+                        return PrototypeCardVisualState.Inspected;
                     case CardInteractionFeedback.Confirmed:
                         return PrototypeCardVisualState.Confirmed;
                     case CardInteractionFeedback.Rejected:
@@ -281,6 +283,11 @@ namespace TheFall.Presentation.Interaction
                     case CardInteractionFeedback.TemporarilyBlocked:
                         return PrototypeCardVisualState.TemporarilyBlocked;
                 }
+            }
+
+            if (state.InspectedCard == card && state.SelectedCard != card)
+            {
+                return PrototypeCardVisualState.Inspected;
             }
 
             if (state.SelectedCard == card)

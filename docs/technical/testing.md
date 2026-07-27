@@ -97,6 +97,13 @@ state, loading-session, duplicate-start, loading-cancellation, winner, score, re
 assertions. Pseudo-localization and both phone profiles cover the redesigned setup footer, focusable
 toggles and actions, and minimum touch-target height without creating a second application state model.
 
+Issue #45 extends Edit Mode with distinct inspected/cancelled application feedback and semantic-state
+coverage. Integrated Play Mode selects explicit phone portrait and landscape table profiles, measures
+local/public/dealer card widths against the adaptive minimums, rotates with an active selection, and
+verifies unchanged match/trace/interaction state, private opponent cards, fixed camera, HUD hierarchy,
+and capture/cascade/Fall/clean-table/canto/score/tie/victory treatments. See the
+[V0.1 match HUD contract](../design/1v1-match-hud-and-card-interaction.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.

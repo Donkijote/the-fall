@@ -5,8 +5,10 @@ namespace TheFall.Application.Interaction
     public enum CardInteractionFeedback
     {
         Legal,
+        Inspected,
         Selected,
         Confirmed,
+        Cancelled,
         Rejected,
         TemporarilyBlocked,
     }
@@ -82,10 +84,14 @@ namespace TheFall.Application.Interaction
 
             switch (feedback)
             {
+                case CardInteractionFeedback.Inspected:
+                    return "interaction.feedback.inspected";
                 case CardInteractionFeedback.Selected:
                     return "interaction.feedback.selected";
                 case CardInteractionFeedback.Confirmed:
                     return "interaction.feedback.confirmed";
+                case CardInteractionFeedback.Cancelled:
+                    return "interaction.feedback.cancelled";
                 case CardInteractionFeedback.TemporarilyBlocked:
                     return "interaction.feedback.temporarily-blocked";
                 default:

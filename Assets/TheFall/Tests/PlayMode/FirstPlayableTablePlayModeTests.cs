@@ -298,6 +298,136 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
         }
 
+        [UnityTest]
+        public IEnumerator PhoneProfilesEnlargeCardsAndPreserveSelectionPrivacyAndFixedCamera()
+        {
+            yield return LoadMatch();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            var state = controller.Flow.Match.State;
+            var cameraPosition = table.GameplayCamera.transform.position;
+            var cameraRotation = table.GameplayCamera.transform.rotation;
+            var traceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+
+            foreach (var profile in new[]
+            {
+                (
+                    new Vector2Int(390, 844),
+                    new Rect(0f, 34f, 390f, 776f),
+                    AdaptiveUiProfile.MobilePortrait),
+                (
+                    new Vector2Int(844, 390),
+                    new Rect(36f, 0f, 772f, 390f),
+                    AdaptiveUiProfile.MobileLandscape),
+            })
+            {
+                table.ApplyViewportForTests(profile.Item1, profile.Item2, true);
+                var dealerCard = table.RenderedCards.First(
+                    card => card.Zone == FirstPlayableCardZone.DealerSpread);
+                Assert.That(table.CurrentAdaptiveProfile, Is.EqualTo(profile.Item3));
+                Assert.That(
+                    table.MeasureProjectedCardSize(dealerCard).x,
+                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+                Assert.That(controller.Flow.Match.State, Is.SameAs(state));
+                Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(traceCount));
+                Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
+                Assert.That(table.GameplayCamera.transform.rotation, Is.EqualTo(cameraRotation));
+            }
+
+            AdvanceToHumanPlay(controller);
+            var feedbackCallout = controller.GetComponent<UIDocument>()
+                .rootVisualElement
+                .Q<VisualElement>("match-feedback-callout");
+            var selectedCard = table.Snapshot.LocalHand[0];
+            table.InputAdapter.MouseInspect(selectedCard);
+            Assert.That(
+                table.LocalHandViews.Single(view => view.HandIndex == 0).VisualState,
+                Is.EqualTo(PrototypeCardVisualState.Inspected));
+            Assert.That(feedbackCallout.ClassListContains("semantic-inspected"), Is.True);
+            table.InputAdapter.MouseSelect(selectedCard);
+            Assert.That(feedbackCallout.ClassListContains("semantic-selected"), Is.True);
+            state = controller.Flow.Match.State;
+            var interactionRevision = table.Interaction.State.Revision;
+            var interactionIntentCount = table.Interaction.IntentHistory.Count;
+            traceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+
+            foreach (var profile in new[]
+            {
+                (
+                    new Vector2Int(390, 844),
+                    new Rect(0f, 34f, 390f, 776f),
+                    AdaptiveUiProfile.MobilePortrait),
+                (
+                    new Vector2Int(844, 390),
+                    new Rect(36f, 0f, 772f, 390f),
+                    AdaptiveUiProfile.MobileLandscape),
+            })
+            {
+                table.ApplyViewportForTests(profile.Item1, profile.Item2, true);
+                var localCard = table.RenderedCards.First(
+                    card => card.Zone == FirstPlayableCardZone.LocalHand);
+                var tableCard = table.RenderedCards.First(
+                    card => card.Zone == FirstPlayableCardZone.Table);
+                Assert.That(table.CurrentAdaptiveProfile, Is.EqualTo(profile.Item3));
+                Assert.That(
+                    table.MeasureProjectedCardSize(localCard).x,
+                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumLocalCardIdentityPoints));
+                Assert.That(
+                    table.MeasureProjectedCardSize(tableCard).x,
+                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumPublicCardIdentityPoints));
+                Assert.That(table.CurrentLocalCardScaleMultiplier,
+                    Is.GreaterThan(table.CurrentPublicCardScaleMultiplier));
+                Assert.That(table.CurrentCharacterScaleMultiplier, Is.GreaterThan(1f));
+                Assert.That(table.Interaction.State.SelectedCard, Is.EqualTo(selectedCard));
+                Assert.That(table.Interaction.State.Revision, Is.EqualTo(interactionRevision));
+                Assert.That(table.Interaction.IntentHistory, Has.Count.EqualTo(interactionIntentCount));
+                Assert.That(controller.Flow.Match.State, Is.SameAs(state));
+                Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(traceCount));
+                Assert.That(table.RenderedCards
+                    .Where(card => card.Zone == FirstPlayableCardZone.OpponentHand)
+                    .All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
+                Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
+                Assert.That(table.GameplayCamera.transform.rotation, Is.EqualTo(cameraRotation));
+            }
+
+            table.InputAdapter.Cancel();
+            Assert.That(feedbackCallout.ClassListContains("semantic-cancelled"), Is.True);
+
+            var eventCallout = controller.GetComponent<UIDocument>()
+                .rootVisualElement
+                .Q<VisualElement>("match-event-callout");
+            controller.RenderPresentationEvent(
+                new ScoreChangedEvent(TeamId.One, 1, new Score(1), ScoreReason.Fall));
+            Assert.That(eventCallout.ClassListContains("outcome-fall"), Is.True);
+            controller.RenderPresentationEvent(
+                new ScoreChangedEvent(TeamId.One, 4, new Score(5), ScoreReason.CleanTable));
+            Assert.That(eventCallout.ClassListContains("outcome-clean-table"), Is.True);
+            controller.RenderPresentationEvent(
+                new CardsCapturedEvent(table.Snapshot.LocalPlayerId, table.Snapshot.TableCards.Take(1)));
+            Assert.That(eventCallout.ClassListContains("outcome-capture"), Is.True);
+            controller.RenderPresentationEvent(
+                new CardsCapturedEvent(
+                    table.Snapshot.LocalPlayerId,
+                    table.Snapshot.TableCards.Concat(table.Snapshot.LocalHand).Take(3)));
+            Assert.That(
+                controller.GetComponent<UIDocument>()
+                    .rootVisualElement
+                    .Q<Label>("match-event")
+                    .text,
+                Does.StartWith("Cascade:"));
+            controller.RenderPresentationEvent(
+                new CantoResolvedEvent(
+                    table.Snapshot.LocalPlayerId,
+                    CantoKind.Ronda,
+                    true,
+                    true));
+            Assert.That(eventCallout.ClassListContains("outcome-canto"), Is.True);
+            controller.RenderPresentationEvent(new TieExtensionStartedEvent(2, new Score(24)));
+            Assert.That(eventCallout.ClassListContains("outcome-tie"), Is.True);
+            controller.RenderPresentationEvent(new MatchCompletedEvent(TeamId.One));
+            Assert.That(eventCallout.ClassListContains("outcome-victory"), Is.True);
+        }
+
         private static void AssertPresentation(FirstPlayableTablePresentation table, MatchState state)
         {
             Assert.That(table.RenderedState, Is.SameAs(state));

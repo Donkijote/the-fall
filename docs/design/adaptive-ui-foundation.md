@@ -179,10 +179,13 @@ touch, safe-area hardware, viewing-distance, rotation-sensor, or physical readab
 - Play Mode verifies portrait-to-landscape recomposition applies safe insets without changing the
   current flow stage. Existing table coverage continues to protect selected card, interaction
   revision/history, match instance, authoritative state, trace, and fixed camera.
-- Later issues #44 and #45 may refine screen-specific structure, but they must consume these
-  profiles, minimums, state classes, and priority rules rather than adding another breakpoint model.
+- Issues #44 and #45 refine screen-specific structure while consuming these profiles, minimums, and
+  priority rules rather than adding another breakpoint model. Issue #45 extends the semantic vocabulary
+  with explicit inspected and cancelled states, measures phone card/touch widths from the fixed camera,
+  and applies zone-priority sizing inside the three established profiles.
 
 Related: [V0.1 milestone](../planning/v0.1-1v1-playtest-milestone.md),
 [experience design](experience.md), [first-playable flow](../technical/first-playable-flow.md),
+[V0.1 match HUD and card interaction](1v1-match-hud-and-card-interaction.md),
 [platform requirements](../technical/platforms.md), and
 [validation baseline](../development/validation.md).

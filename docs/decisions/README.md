@@ -106,6 +106,7 @@ This directory records durable product and technical decisions. Create one Markd
 | First playable is a complete offline 1v1 bot match accepted first on macOS with prototype fidelity | Accepted | 2026-07-20 | [ADR 0002](0002-first-playable-milestone.md) |
 | V0.1 authors separate desktop, mobile portrait, and mobile landscape UI compositions | Accepted | 2026-07-27 | Issue #43 and [adaptive UI foundation](../design/adaptive-ui-foundation.md) |
 | Player-facing interface and thematic symbols use curated Game-icons.net PNGs | Accepted | 2026-07-27 | Issue #44 and [UI icon library](../assets/ui-icon-library.md) |
+| The V0.1 match HUD projects authoritative public state and phone card sizes follow decision priority rather than desktop-uniform scale | Accepted | 2026-07-27 | Issue #45 and [match HUD contract](../design/1v1-match-hud-and-card-interaction.md) |
 
 ## ADR template
 

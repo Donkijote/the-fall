@@ -388,4 +388,31 @@ Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
 - physical-iPhone readability and touch review was not rerun; the accepted issue #31 device run
   remains baseline evidence and a new device pass is required before closing V0.1 physical acceptance
 
+## Issue #45 validation checkpoint
+
+Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
+
+- first-playable flow generation and localization validation passed
+- complete Edit Mode suite passed: 116/116
+- complete Play Mode suite passed: 33/33
+- macOS universal development-player smoke build passed
+- Unity iPhoneOS and arm64 iOS-simulator exports passed
+- the native arm64 iOS `26.5` simulator build, install, launch, portrait/landscape review, active
+  rotation with a selected card, and retained selection passed
+- phone-profile coverage measures `390 x 844` portrait and `844 x 390` landscape with representative
+  hardware insets; local hand cards clear `72 pt`, public table cards clear `48 pt`, and face-down
+  dealer selections clear the `44 pt` touch minimum
+- active portrait/landscape recomposition preserves selected card, interaction revision/history,
+  authoritative state, trace history, opponent-hand privacy, and the fixed gameplay camera
+- HUD coverage verifies score/target, round/deal/final/tie state, dealer/active player, public canto
+  state, and distinct capture/cascade/Fall/clean-table/canto/score/tie/victory outcome treatments
+- interaction coverage verifies distinct legal, inspected, selected, confirmed, cancelled, rejected,
+  and temporarily-blocked text/symbol/state classes without changing the shared intent sequence
+- a paired physical iPhone was available, but the native signed build could not proceed because the
+  local Xcode Apple Development account/profile was unavailable; no signing or account detail was
+  persisted in the repository
+- physical-iPhone readability, touch comfort, hardware safe areas, and sensor-driven rotation still
+  require a new recorded-device pass; automated projected sizes and simulator evidence do not replace
+  that acceptance
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

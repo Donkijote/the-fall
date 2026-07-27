@@ -326,11 +326,33 @@
                 </ui:VisualElement>
 
                 <ui:VisualElement class="match-status panel">
-                    <ui:Label name="match-phase" class="status-title" />
-                    <ui:VisualElement class="match-status-rule" />
-                    <ui:Label name="match-turn" class="match-primary-status" />
-                    <ui:Label name="match-event" class="status-line event-line" />
-                    <ui:Label name="match-feedback" class="interaction-feedback" />
+                    <ui:VisualElement class="match-status-content">
+                        <ui:VisualElement class="match-status-summary">
+                            <ui:VisualElement class="match-status-heading">
+                                <ui:Label name="match-phase" class="status-title" />
+                                <ui:Label name="match-progress" class="match-progress" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="match-status-rule" />
+                            <ui:Label name="match-turn" class="match-primary-status" />
+                            <ui:VisualElement class="match-canto-row">
+                                <ui:VisualElement class="game-icon match-canto-icon icon-canto" picking-mode="Ignore" />
+                                <ui:Label name="match-canto" class="match-canto" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="match-status-resolution">
+                            <ui:VisualElement name="match-event-callout" class="match-callout match-event-callout">
+                                <ui:Label name="match-event-label" class="match-callout-label" />
+                                <ui:Label name="match-event" class="status-line event-line" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="match-feedback-callout" class="match-callout match-feedback-callout semantic-legal">
+                                <ui:Label name="match-feedback-symbol" class="match-feedback-symbol" />
+                                <ui:VisualElement class="match-feedback-copy">
+                                    <ui:Label name="match-feedback-label" class="match-callout-label" />
+                                    <ui:Label name="match-feedback" class="interaction-feedback" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                     <ui:Button name="animation-skip-button" class="quiet-button presentation-skip icon-label-button">
                         <ui:VisualElement class="game-icon action-button-icon icon-skip" picking-mode="Ignore" />
                     </ui:Button>
@@ -338,6 +360,7 @@
 
                 <ui:VisualElement class="match-score-hud panel" picking-mode="Ignore">
                     <ui:Label name="match-score" class="score-line" />
+                    <ui:Label name="match-score-objective" class="match-score-objective" />
                 </ui:VisualElement>
 
                 <ui:Button name="match-home-button" class="quiet-button match-home-floating icon-label-button">

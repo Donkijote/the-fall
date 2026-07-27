@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TheFall.Application;
+using TheFall.Application.Interaction;
 using TheFall.Domain;
 using TheFall.Presentation.Bootstrap;
 using UnityEngine;
@@ -25,6 +26,17 @@ namespace TheFall.Presentation.UI
             "loading-stage",
             "match-stage",
             "result-stage",
+        };
+
+        private static readonly string[] MatchOutcomeClasses =
+        {
+            "outcome-capture",
+            "outcome-fall",
+            "outcome-clean-table",
+            "outcome-canto",
+            "outcome-score",
+            "outcome-tie",
+            "outcome-victory",
         };
 
         private static readonly IReadOnlyDictionary<string, string> LabelLocalizationKeys =
@@ -80,6 +92,9 @@ namespace TheFall.Presentation.UI
                 { "loading-status", "flow.loading.status" },
                 { "dealer-options-title", "flow.context.dealer-title" },
                 { "canto-options-title", "flow.context.canto-title" },
+                { "match-event-label", "flow.match.event-label" },
+                { "match-feedback-label", "flow.match.feedback-label" },
+                { "match-score-objective", "flow.match.score-objective" },
                 { "result-eyebrow", "flow.result.eyebrow" },
                 { "result-title", "flow.result.title" },
                 { "result-winner-label", "flow.result.winner-label" },
@@ -129,9 +144,14 @@ namespace TheFall.Presentation.UI
         private Label _loadingSession;
         private Label _matchPhase;
         private Label _matchScore;
+        private Label _matchProgress;
         private Label _matchTurn;
+        private Label _matchCanto;
         private Label _matchEvent;
+        private VisualElement _matchEventCallout;
         private Label _matchFeedback;
+        private Label _matchFeedbackSymbol;
+        private VisualElement _matchFeedbackCallout;
         private Label _resultOutcome;
         private Label _resultScore;
         private Label _resultRules;
@@ -371,12 +391,17 @@ namespace TheFall.Presentation.UI
             return true;
         }
 
-        public void RenderInteractionFeedback(string localizationKey)
+        public void RenderInteractionFeedback(CardInteractionState state)
         {
-            if (_matchFeedback != null && !string.IsNullOrWhiteSpace(localizationKey))
+            if (state == null)
             {
-                _matchFeedback.text = Localize(localizationKey);
+                return;
             }
+
+            SetMatchFeedback(
+                state.FeedbackLocalizationKey,
+                InteractionSemanticState(state.Feedback),
+                InteractionSymbol(state.Feedback));
         }
 
         public void RenderPresentationEvent(DomainEvent resolvedEvent)
@@ -384,6 +409,7 @@ namespace TheFall.Presentation.UI
             if (_matchEvent != null && resolvedEvent != null)
             {
                 _matchEvent.text = EventSummary(resolvedEvent);
+                ApplyOutcomeClass(resolvedEvent);
             }
         }
 
@@ -485,9 +511,14 @@ namespace TheFall.Presentation.UI
             }
             _matchPhase = Require<Label>("match-phase");
             _matchScore = Require<Label>("match-score");
+            _matchProgress = Require<Label>("match-progress");
             _matchTurn = Require<Label>("match-turn");
+            _matchCanto = Require<Label>("match-canto");
             _matchEvent = Require<Label>("match-event");
+            _matchEventCallout = Require<VisualElement>("match-event-callout");
             _matchFeedback = Require<Label>("match-feedback");
+            _matchFeedbackSymbol = Require<Label>("match-feedback-symbol");
+            _matchFeedbackCallout = Require<VisualElement>("match-feedback-callout");
             _resultOutcome = Require<Label>("result-outcome");
             _resultScore = Require<Label>("result-score");
             _resultRules = Require<Label>("result-rules");
@@ -725,6 +756,19 @@ namespace TheFall.Presentation.UI
                 state.TeamOneScore.Value,
                 state.TeamTwoScore.Value,
                 state.Rules.VictoryTarget);
+            var progressState = Localize(state.IsTieExtension
+                ? "flow.match.tie-extension"
+                : "flow.match.standard-round");
+            if (state.IsFinalDeal)
+            {
+                progressState = $"{progressState} · {Localize("flow.match.final-deal")}";
+            }
+
+            _matchProgress.text = Localize(
+                "flow.match.progress",
+                state.RoundNumber,
+                state.DealNumber,
+                progressState);
             _matchTurn.text = state.Phase == MatchPhase.DealerSelection
                 ? Localize(
                     "flow.match.turn.dealer-pending",
@@ -733,7 +777,14 @@ namespace TheFall.Presentation.UI
                     "flow.match.turn",
                     Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
                     Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
-            _matchEvent.text = EventSummary();
+            _matchCanto.text = CantoSummary(state);
+            var latestEvent = Flow.Match.Trace.Events.Count == 0
+                ? null
+                : Flow.Match.Trace.Events[Flow.Match.Trace.Events.Count - 1];
+            _matchEvent.text = latestEvent == null
+                ? Localize("flow.match.event.ready")
+                : EventSummary(latestEvent);
+            ApplyOutcomeClass(latestEvent);
             var legalIntents = IsPresentationBusy
                 ? Array.Empty<PlayerIntent>()
                 : Flow.Match.GetHumanLegalIntents();
@@ -747,7 +798,10 @@ namespace TheFall.Presentation.UI
             RenderContextualActions(state, legalIntents);
             if (IsPresentationBusy)
             {
-                _matchFeedback.text = Localize("interaction.feedback.temporarily-blocked");
+                SetMatchFeedback(
+                    "interaction.feedback.temporarily-blocked",
+                    AdaptiveUiSemanticState.Blocked,
+                    "Ⅱ");
             }
         }
 
@@ -786,11 +840,14 @@ namespace TheFall.Presentation.UI
 
             _dealerOptionsButton.tooltip = Localize("flow.context.dealer-tooltip");
             _cantoOptionsButton.tooltip = Localize("flow.context.canto-tooltip");
-            _matchFeedback.text = state.Phase == MatchPhase.DealerSelection
-                ? Localize("flow.context.dealer-card-prompt")
-                : dealerOptionCount > 0
-                    ? Localize("flow.context.dealer-required")
-                    : Localize("interaction.feedback.legal");
+            SetMatchFeedback(
+                state.Phase == MatchPhase.DealerSelection
+                    ? "flow.context.dealer-card-prompt"
+                    : dealerOptionCount > 0
+                        ? "flow.context.dealer-required"
+                        : "interaction.feedback.legal",
+                AdaptiveUiSemanticState.Legal,
+                "+");
         }
 
         private Button CreateContextButton(string name, string text, PlayerIntent intent)
@@ -882,6 +939,28 @@ namespace TheFall.Presentation.UI
             return Localize("flow.action.unavailable");
         }
 
+        private string CantoSummary(MatchState state)
+        {
+            if (state.CantoAnnouncements.Count == 0)
+            {
+                return Localize("flow.match.canto.none");
+            }
+
+            var announcements = new string[state.CantoAnnouncements.Count];
+            for (var index = 0; index < state.CantoAnnouncements.Count; index++)
+            {
+                var announcement = state.CantoAnnouncements[index];
+                announcements[index] = Localize(
+                    "flow.match.canto.announcement",
+                    Localize(announcement.PlayerId == state.GetPlayerAt(Seat.First).Player.Id
+                        ? "flow.player.you"
+                        : "flow.player.bot"),
+                    Localize(CantoLocalizationKey(announcement.ClaimedKind)));
+            }
+
+            return Localize("flow.match.canto.summary", string.Join(" · ", announcements));
+        }
+
         private string EventSummary()
         {
             var events = Flow.Match.Trace.Events;
@@ -926,7 +1005,12 @@ namespace TheFall.Presentation.UI
 
             if (resolvedEvent is CardsCapturedEvent captured)
             {
-                return Localize("flow.match.event.cards-captured", PlayerDisplayName(captured.PlayerId), captured.Cards.Count);
+                return Localize(
+                    captured.Cards.Count > 2
+                        ? "flow.match.event.cascade-captured"
+                        : "flow.match.event.cards-captured",
+                    PlayerDisplayName(captured.PlayerId),
+                    captured.Cards.Count);
             }
 
             if (resolvedEvent is CantoAnnouncedEvent canto)
@@ -935,6 +1019,18 @@ namespace TheFall.Presentation.UI
                     "flow.match.event.canto-announced",
                     PlayerDisplayName(canto.PlayerId),
                     Localize(CantoLocalizationKey(canto.ClaimedKind)));
+            }
+
+            if (resolvedEvent is CantoResolvedEvent resolvedCanto)
+            {
+                return Localize(
+                    resolvedCanto.IsValid
+                        ? resolvedCanto.DidScore
+                            ? "flow.match.event.canto-scored"
+                            : "flow.match.event.canto-resolved"
+                        : "flow.match.event.canto-rejected",
+                    PlayerDisplayName(resolvedCanto.PlayerId),
+                    Localize(CantoLocalizationKey(resolvedCanto.ClaimedKind)));
             }
 
             if (resolvedEvent is ScoreChangedEvent score)
@@ -971,6 +1067,121 @@ namespace TheFall.Presentation.UI
             }
 
             return Localize("flow.match.event.resolved");
+        }
+
+        private void SetMatchFeedback(
+            string localizationKey,
+            AdaptiveUiSemanticState semanticState,
+            string symbol)
+        {
+            if (_matchFeedback == null || string.IsNullOrWhiteSpace(localizationKey))
+            {
+                return;
+            }
+
+            _matchFeedback.text = Localize(localizationKey);
+            _matchFeedbackSymbol.text = symbol;
+            AdaptiveUiFoundation.ApplySemanticState(_matchFeedbackCallout, semanticState);
+        }
+
+        private static AdaptiveUiSemanticState InteractionSemanticState(
+            CardInteractionFeedback feedback)
+        {
+            switch (feedback)
+            {
+                case CardInteractionFeedback.Inspected:
+                    return AdaptiveUiSemanticState.Inspected;
+                case CardInteractionFeedback.Selected:
+                    return AdaptiveUiSemanticState.Selected;
+                case CardInteractionFeedback.Confirmed:
+                    return AdaptiveUiSemanticState.Confirmed;
+                case CardInteractionFeedback.Cancelled:
+                    return AdaptiveUiSemanticState.Cancelled;
+                case CardInteractionFeedback.Rejected:
+                    return AdaptiveUiSemanticState.Rejected;
+                case CardInteractionFeedback.TemporarilyBlocked:
+                    return AdaptiveUiSemanticState.Blocked;
+                default:
+                    return AdaptiveUiSemanticState.Legal;
+            }
+        }
+
+        private static string InteractionSymbol(CardInteractionFeedback feedback)
+        {
+            switch (feedback)
+            {
+                case CardInteractionFeedback.Inspected:
+                    return "?";
+                case CardInteractionFeedback.Selected:
+                    return "◆";
+                case CardInteractionFeedback.Confirmed:
+                    return "✓";
+                case CardInteractionFeedback.Cancelled:
+                    return "↶";
+                case CardInteractionFeedback.Rejected:
+                    return "×";
+                case CardInteractionFeedback.TemporarilyBlocked:
+                    return "Ⅱ";
+                default:
+                    return "+";
+            }
+        }
+
+        private void ApplyOutcomeClass(DomainEvent resolvedEvent)
+        {
+            if (_matchEventCallout == null)
+            {
+                return;
+            }
+
+            foreach (var className in MatchOutcomeClasses)
+            {
+                _matchEventCallout.RemoveFromClassList(className);
+            }
+
+            var classToAdd = MatchOutcomeClass(resolvedEvent);
+            if (!string.IsNullOrEmpty(classToAdd))
+            {
+                _matchEventCallout.AddToClassList(classToAdd);
+            }
+        }
+
+        private static string MatchOutcomeClass(DomainEvent resolvedEvent)
+        {
+            if (resolvedEvent is ScoreChangedEvent score)
+            {
+                switch (score.Reason)
+                {
+                    case ScoreReason.Fall:
+                        return "outcome-fall";
+                    case ScoreReason.CleanTable:
+                        return "outcome-clean-table";
+                    case ScoreReason.Canto:
+                    case ScoreReason.FalseCantoPenalty:
+                        return "outcome-canto";
+                    default:
+                        return "outcome-score";
+                }
+            }
+
+            if (resolvedEvent is CardsCapturedEvent)
+            {
+                return "outcome-capture";
+            }
+
+            if (resolvedEvent is CantoAnnouncedEvent || resolvedEvent is CantoResolvedEvent)
+            {
+                return "outcome-canto";
+            }
+
+            if (resolvedEvent is TieExtensionStartedEvent)
+            {
+                return "outcome-tie";
+            }
+
+            return resolvedEvent is MatchCompletedEvent
+                ? "outcome-victory"
+                : null;
         }
 
         private void UpdatePresentationAvailability()

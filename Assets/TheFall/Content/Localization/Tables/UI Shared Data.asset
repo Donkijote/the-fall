@@ -903,6 +903,46 @@ MonoBehaviour:
     m_Key: flow.home.settings.motion-copy
     m_Metadata:
       m_Items: []
+  - m_Id: 2754802386722816
+    m_Key: flow.match.score-objective
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802399305728
+    m_Key: flow.match.event-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802399305729
+    m_Key: flow.match.feedback-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802399305730
+    m_Key: flow.match.event.canto-scored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500032
+    m_Key: flow.match.event.canto-resolved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500033
+    m_Key: flow.match.event.canto-rejected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500034
+    m_Key: flow.match.final-deal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500035
+    m_Key: interaction.feedback.inspected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500036
+    m_Key: interaction.feedback.cancelled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2755764119658496
+    m_Key: flow.match.event.cascade-captured
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

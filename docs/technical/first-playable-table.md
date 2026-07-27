@@ -78,10 +78,13 @@ resolved event, actionable feedback, and Skip animation. Match configuration rem
 the former settings header and persistent bottom explanation strip are not rendered. Dealer and canto
 decisions remain contextual screen-space controls attached to the local player.
 
-Every gameplay card uses one consistent footprint with the source art's exact `63:88` aspect ratio.
-Hands, table cards, deck cards, captured cards, and the dealer-selection spread distinguish their zones
-through position and overlap instead of changing card size or stretching the artwork. This keeps rank and
-suit scale predictable at the required desktop resolutions while preserving clear ownership zones.
+Every desktop gameplay card uses one consistent footprint with the source art's exact `63:88` aspect
+ratio. V0.1 phone profiles retain that aspect ratio while applying the accepted decision priority:
+the local actionable hand is largest, public table and dealer-selection cards satisfy their documented
+identity/touch minimums, and secondary deck, captured-pile, and hidden-hand representations remain
+subordinate. Profile-specific spacing changes with those authored sizes so phone content is not a
+uniformly shrunken desktop table. This keeps rank and suit scale predictable at the required desktop
+resolutions while making the physical-phone decision surface readable.
 For perspective testing, face-up cards use a deliberately minimal atlas treatment with a dominant rank and
 one suit marker. Every face is oriented toward the local seat so the single rank reads upright; detailed
 pip and court art remains deferred to the dedicated card-design pass.
@@ -119,6 +122,13 @@ After one intent is accepted, both the flow controller and card-interaction sess
 
 Legal, selected, confirmed, rejected, and temporarily blocked states retain the documented shape/text symbols and localized feedback. Dealer selection, dealer setup, and canto announcements remain localized UI actions because they are not card-hand interactions.
 
+Issue #45 adds distinct inspected and cancelled feedback instead of collapsing both back into the
+legal state. The compact HUD now projects score/target, round/deal/final/tie state, dealer/active
+player, public canto claims, critical resolved outcomes, and the current local action result. Capture,
+cascade, Fall, clean-table, canto resolution/penalty, score, tie-extension, and victory treatments
+combine explicit localized text with shape/value boundaries. See the
+[V0.1 match HUD contract](../design/1v1-match-hud-and-card-interaction.md).
+
 ## Recomposition contract
 
 Viewport or safe-area changes rebuild only transient view objects. The `FirstPlayableFlow`, orchestrator, `MatchState`, match trace, `CardInteractionSession`, selected card, interaction revision, and pending intent history remain unchanged.
@@ -154,6 +164,7 @@ presentation-only and use the same resolved beat stream without changing transpo
 
 Related: [first-playable application flow](first-playable-flow.md),
 [first-playable functional audio](audio.md), [match orchestration](match-orchestration.md),
+[V0.1 match HUD and card interaction](../design/1v1-match-hud-and-card-interaction.md),
 [fixed table composition](../design/table-composition-prototype.md),
 [card interaction](../design/card-interaction-prototype.md), and
 [modular card visuals](../assets/card-visual-pipeline.md).

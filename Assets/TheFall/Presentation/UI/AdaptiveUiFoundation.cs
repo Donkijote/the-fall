@@ -14,8 +14,10 @@ namespace TheFall.Presentation.UI
     {
         Neutral,
         Legal,
+        Inspected,
         Selected,
         Confirmed,
+        Cancelled,
         Rejected,
         Blocked,
     }
@@ -115,8 +117,10 @@ namespace TheFall.Presentation.UI
         {
             "semantic-neutral",
             "semantic-legal",
+            "semantic-inspected",
             "semantic-selected",
             "semantic-confirmed",
+            "semantic-cancelled",
             "semantic-rejected",
             "semantic-blocked",
         };
@@ -217,10 +221,14 @@ namespace TheFall.Presentation.UI
                     return "semantic-neutral";
                 case AdaptiveUiSemanticState.Legal:
                     return "semantic-legal";
+                case AdaptiveUiSemanticState.Inspected:
+                    return "semantic-inspected";
                 case AdaptiveUiSemanticState.Selected:
                     return "semantic-selected";
                 case AdaptiveUiSemanticState.Confirmed:
                     return "semantic-confirmed";
+                case AdaptiveUiSemanticState.Cancelled:
+                    return "semantic-cancelled";
                 case AdaptiveUiSemanticState.Rejected:
                     return "semantic-rejected";
                 case AdaptiveUiSemanticState.Blocked:
