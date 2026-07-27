@@ -587,6 +587,74 @@ MonoBehaviour:
     m_Key: flow.login.mock-note
     m_Metadata:
       m_Items: []
+  - m_Id: 2714096574128128
+    m_Key: flow.home.objective-title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099648
+    m_Key: flow.home.stat.mode-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099649
+    m_Key: flow.home.stat.mode-value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099650
+    m_Key: flow.home.stat.target-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099651
+    m_Key: flow.home.stat.target-value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099652
+    m_Key: flow.home.stat.deck-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099653
+    m_Key: flow.home.stat.deck-value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099654
+    m_Key: flow.home.status-ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099655
+    m_Key: flow.home.status-detail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099656
+    m_Key: flow.home.route-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099657
+    m_Key: flow.home.brief-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099658
+    m_Key: flow.home.brief.opponent-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099659
+    m_Key: flow.home.brief.opponent-value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099660
+    m_Key: flow.home.brief.rules-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099661
+    m_Key: flow.home.brief.rules-value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099662
+    m_Key: flow.home.brief.victory-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099663
+    m_Key: flow.home.brief.victory-value
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

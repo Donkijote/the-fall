@@ -60,23 +60,100 @@
         </ui:VisualElement>
 
         <ui:VisualElement name="home-stage" class="stage stage-home">
-            <ui:VisualElement class="hero-mark">
-                <ui:Label name="home-eyebrow" class="eyebrow" />
-                <ui:Label name="home-title" class="display-title" />
-                <ui:VisualElement class="title-rule" />
-                <ui:Label name="home-subtitle" class="subtitle" />
-            </ui:VisualElement>
-            <ui:VisualElement class="home-card panel">
-                <ui:Label name="home-card-label" class="card-label" />
-                <ui:Label name="home-mode" class="mode-summary" />
-                <ui:VisualElement class="journey-list">
-                    <ui:Label name="home-step-setup" class="journey-step" />
-                    <ui:Label name="home-step-match" class="journey-step" />
-                    <ui:Label name="home-step-result" class="journey-step" />
+            <ui:ScrollView name="hub-scroll" class="hub-scroll">
+                <ui:VisualElement class="hub-layout">
+                    <ui:VisualElement class="hub-topbar">
+                        <ui:VisualElement class="hub-identity panel">
+                            <ui:VisualElement class="hub-identity-seal">
+                                <ui:Label text="TF" class="hub-seal-label" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="hub-identity-copy">
+                                <ui:Label name="home-title" class="hub-title" />
+                                <ui:Label name="home-eyebrow" class="hub-kicker" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="hub-ready-dot" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="hub-stats">
+                            <ui:VisualElement class="hub-stat panel hub-stat-brass">
+                                <ui:Label name="home-stat-mode-label" class="hub-stat-label" />
+                                <ui:Label name="home-stat-mode-value" class="hub-stat-value" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="hub-stat panel hub-stat-woad">
+                                <ui:Label name="home-stat-target-label" class="hub-stat-label" />
+                                <ui:Label name="home-stat-target-value" class="hub-stat-value" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="hub-stat panel hub-stat-madder">
+                                <ui:Label name="home-stat-deck-label" class="hub-stat-label" />
+                                <ui:Label name="home-stat-deck-value" class="hub-stat-value" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="hub-connection panel">
+                            <ui:VisualElement class="hub-connection-mark">
+                                <ui:Label text="●" class="hub-connection-icon" />
+                            </ui:VisualElement>
+                            <ui:VisualElement>
+                                <ui:Label name="home-status-ready" class="hub-connection-title" />
+                                <ui:Label name="home-status-detail" class="hub-connection-detail" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="hub-center-space" picking-mode="Ignore">
+                        <ui:VisualElement class="hub-watermark">
+                            <ui:Label text="TF" class="hub-watermark-label" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="hub-bottombar">
+                        <ui:VisualElement class="hub-objective panel">
+                            <ui:Label name="home-card-label" class="card-label" />
+                            <ui:Label name="home-objective-title" class="hub-card-title" />
+                            <ui:Label name="home-subtitle" class="hub-card-copy" />
+                            <ui:VisualElement class="hub-objective-progress">
+                                <ui:VisualElement class="hub-progress-fill" />
+                            </ui:VisualElement>
+                            <ui:Label name="home-mode" class="hub-objective-meta" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="hub-dock panel">
+                            <ui:Label name="home-route-label" class="hub-route-label" />
+                            <ui:VisualElement class="hub-route">
+                                <ui:Button name="home-start-button" class="hub-route-button hub-route-active" />
+                                <ui:VisualElement class="hub-route-divider" />
+                                <ui:VisualElement class="hub-route-stop">
+                                    <ui:Label text="Ⅱ" class="hub-route-icon" />
+                                    <ui:Label name="home-step-match" class="hub-route-copy" />
+                                </ui:VisualElement>
+                                <ui:VisualElement class="hub-route-divider" />
+                                <ui:VisualElement class="hub-route-stop">
+                                    <ui:Label text="◆" class="hub-route-icon" />
+                                    <ui:Label name="home-step-result" class="hub-route-copy" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:Label name="home-prompt" class="input-prompt hub-prompt" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="hub-brief panel">
+                            <ui:Label name="home-brief-label" class="card-label" />
+                            <ui:VisualElement class="hub-brief-rule" />
+                            <ui:VisualElement class="hub-brief-row">
+                                <ui:Label name="home-brief-opponent-label" class="hub-brief-key" />
+                                <ui:Label name="home-brief-opponent-value" class="hub-brief-value" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="hub-brief-row">
+                                <ui:Label name="home-brief-rules-label" class="hub-brief-key" />
+                                <ui:Label name="home-brief-rules-value" class="hub-brief-value" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="hub-brief-row">
+                                <ui:Label name="home-brief-victory-label" class="hub-brief-key" />
+                                <ui:Label name="home-brief-victory-value" class="hub-brief-value" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Button name="home-start-button" class="primary-button" />
-                <ui:Label name="home-prompt" class="input-prompt" />
-            </ui:VisualElement>
+            </ui:ScrollView>
         </ui:VisualElement>
 
         <ui:VisualElement name="setup-stage" class="stage stage-setup">

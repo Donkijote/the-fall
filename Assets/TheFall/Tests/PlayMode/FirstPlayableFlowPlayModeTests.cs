@@ -44,9 +44,13 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.SessionNumber, Is.Zero);
             Assert.That(root.Q<VisualElement>("login-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
             Assert.That(root.Q<VisualElement>("home-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
-            Assert.That(root.Q<Label>("home-step-setup").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("home-objective-title").text, Is.Not.Empty);
             Assert.That(root.Q<Label>("home-step-match").text, Is.Not.Empty);
             Assert.That(root.Q<Label>("home-step-result").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("home-stat-target-value").text, Is.EqualTo("24"));
+            Assert.That(root.Q<Label>("home-brief-opponent-value").text, Is.Not.Empty);
+            Assert.That(root.Q<VisualElement>(className: "hub-topbar"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>(className: "hub-bottombar"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-start-button").focusable, Is.True);
             Assert.That(controller.OpenSetup(), Is.True);
             Assert.That(root.Q<Toggle>("casas-toggle").value, Is.True);

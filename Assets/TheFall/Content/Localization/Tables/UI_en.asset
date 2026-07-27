@@ -24,24 +24,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036300873728
-    m_Localized: OFFLINE TABLE MATCH
+    m_Localized: "OFFLINE PLAYER \xB7 READY"
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011072
-    m_Localized: Reach 24 points before the Baseline Bot in one complete match of
-      The Fall.
+    m_Localized: Outscore the Baseline Bot in one complete match and claim the table.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011073
-    m_Localized: "1 PLAYER \xB7 BASELINE BOT \xB7 FIRST TO 24"
+    m_Localized: "1V1 \xB7 40-CARD DECK"
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011074
-    m_Localized: Set up match
+    m_Localized: "01 \xB7 PLAY"
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011075
-    m_Localized: Review the two rule options before the match begins.
+    m_Localized: Play opens the two rule choices before the table.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011076
@@ -487,7 +486,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2702885463777280
-    m_Localized: YOUR NEXT MATCH
+    m_Localized: CURRENT OBJECTIVE
     m_Metadata:
       m_Items: []
   - m_Id: 2702885480554496
@@ -495,11 +494,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2702885480554497
-    m_Localized: "02 \xB7 Play a complete 1v1 match"
+    m_Localized: "02 \xB7 MATCH"
     m_Metadata:
       m_Items: []
   - m_Id: 2702885480554498
-    m_Localized: "03 \xB7 See the winner and final score"
+    m_Localized: "03 \xB7 RESULT"
     m_Metadata:
       m_Items: []
   - m_Id: 2702885480554499
@@ -624,6 +623,74 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2710831954386953
     m_Localized: "No account required \xB7 credentials are not checked"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096574128128
+    m_Localized: Defeat the Baseline Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099648
+    m_Localized: MODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099649
+    m_Localized: 1V1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099650
+    m_Localized: TARGET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099651
+    m_Localized: 24
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099652
+    m_Localized: DECK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099653
+    m_Localized: 40
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099654
+    m_Localized: READY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099655
+    m_Localized: LOCAL SESSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099656
+    m_Localized: MATCH ROUTE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099657
+    m_Localized: TABLE BRIEF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099658
+    m_Localized: OPPONENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099659
+    m_Localized: Baseline Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099660
+    m_Localized: DEFAULTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099661
+    m_Localized: "Casas on \xB7 Trivil\xEDn 5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099662
+    m_Localized: VICTORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2714096595099663
+    m_Localized: First to 24
     m_Metadata:
       m_Items: []
   references:

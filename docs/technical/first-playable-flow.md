@@ -60,8 +60,10 @@ Issue #44 applies that foundation to the player journey around the match:
 - Gateway adapts the approved two-column medieval entry composition to The Fall's aged vellum,
   antique brass, woad, and madder palette. Desktop and mobile landscape retain the hero/form split;
   mobile portrait stacks both sections in one safe-area-aware scroll view.
-- Home states the 24-point objective, opponent, and three-step setup/match/result route before the
-  primary `Set up match` action.
+- Home uses a HUD-like hub composition without inventing currencies, chat, inventory, progression, or
+  profile state. Its top bar identifies the local player context and summarizes the real 1v1 mode,
+  24-point target, 40-card deck, and offline readiness. Its bottom bar presents the Baseline Bot
+  objective, setup/match/result route, functional `Play` action, and default-rule table brief.
 - Setup presents only Casa Grande/Casa Chica scoring and the Trivilín effect. Each option names its
   recommended default, explains both outcomes, and reflects the current selection in text as well as
   toggle state. Offline 1v1, the baseline bot, and the 24-point target remain visibly fixed.
