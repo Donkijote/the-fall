@@ -50,12 +50,17 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.AnimationPreset.PresetVersion, Is.EqualTo(AnimationSequenceConfiguration.CurrentPresetVersion));
             Assert.That(table.IsPresentationBusy, Is.True);
             Assert.That(controller.IsPresentationBusy, Is.True);
-            Assert.That(ui.Q<Toggle>("animation-fast-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("animation-reduced-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("animation-fast-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("animation-reduced-toggle"), Is.Null);
             Assert.That(ui.Q<Button>("animation-skip-button"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("audio-master-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("audio-effects-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("audio-music-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("audio-master-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("audio-effects-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("audio-music-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-animation-fast-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-animation-reduced-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-audio-master-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-audio-effects-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-audio-music-toggle"), Is.Not.Null);
             Assert.That(audio.MasterEnabled, Is.True);
             Assert.That(audio.EffectsEnabled, Is.True);
             Assert.That(audio.MusicEnabled, Is.False);
@@ -72,9 +77,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
             Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
 
-            var masterToggle = ui.Q<Toggle>("audio-master-toggle");
-            var effectsToggle = ui.Q<Toggle>("audio-effects-toggle");
-            var musicToggle = ui.Q<Toggle>("audio-music-toggle");
+            var masterToggle = ui.Q<Toggle>("home-settings-audio-master-toggle");
+            var effectsToggle = ui.Q<Toggle>("home-settings-audio-effects-toggle");
+            var musicToggle = ui.Q<Toggle>("home-settings-audio-music-toggle");
             masterToggle.value = false;
             var playedBeforeMutedBatch = audio.PlayedCueCount;
             var unchangedState = controller.Flow.Match.State;

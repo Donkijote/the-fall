@@ -99,8 +99,9 @@ Buttons and toggles remain mouse-clickable and keyboard-focusable through UI Too
 - every canto claim, including false announcements
 - every legal card play
 
-The match header also exposes localized fast-forward, reduced-motion, and skip controls plus independent
-master-audio, effects, and music toggles. Music remains intentionally source-free for the milestone. While
+The match keeps only a compact Skip animation action in its status card. Fast-forward, reduced-motion,
+master-audio, effects, and music remain exclusively in Home Settings and continue to control the active
+table through the presentation adapter. Music remains intentionally source-free for the milestone. While
 presentation is busy, legal-intent controls are disabled and direct submissions are rejected before
 reaching the orchestrator. Re-enabling input after synchronization reconstructs contextual menus from the
 current authoritative legal-intent surface.

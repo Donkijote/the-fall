@@ -81,8 +81,6 @@ namespace TheFall.Tests.PlayMode
             homeTrivilin.value = true;
             homeMasterAudio.value = false;
             homeReducedMotion.value = true;
-            Assert.That(root.Q<Toggle>("audio-master-toggle").value, Is.False);
-            Assert.That(root.Q<Toggle>("animation-reduced-toggle").value, Is.True);
             Assert.That(controller.AudioMasterEnabled, Is.False);
             Assert.That(controller.BeginQuest(), Is.True);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Loading));
@@ -98,6 +96,17 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<Button>("loading-home-button").focusable, Is.True);
             yield return null;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            Assert.That(root.Q<VisualElement>(className: "match-header"), Is.Null);
+            Assert.That(root.Q<VisualElement>(className: "interaction-strip"), Is.Null);
+            Assert.That(root.Q<VisualElement>(className: "match-score-hud"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>(className: "match-status"), Is.Not.Null);
+            Assert.That(root.Q<Button>("match-home-button").ClassListContains("match-home-floating"), Is.True);
+            Assert.That(root.Q<Button>("match-home-button").focusable, Is.True);
+            Assert.That(root.Q<Label>("match-score").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("match-progress"), Is.Null);
+            Assert.That(root.Q<Label>("match-canto"), Is.Null);
+            Assert.That(root.Q<Toggle>("audio-master-toggle"), Is.Null);
+            Assert.That(root.Q<Toggle>("animation-fast-toggle"), Is.Null);
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
             table.SkipPresentation();
             Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
@@ -286,6 +295,37 @@ namespace TheFall.Tests.PlayMode
             Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(audioToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
+            Assert.That(controller.BeginQuest(), Is.True);
+            yield return null;
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            yield return null;
+            var scoreHud = root.Q<VisualElement>(className: "match-score-hud");
+            var matchStatus = root.Q<VisualElement>(className: "match-status");
+            var matchHome = root.Q<Button>("match-home-button");
+            var matchSkip = root.Q<Button>("animation-skip-button");
+            Assert.That(root.Q<VisualElement>(className: "match-header"), Is.Null);
+            Assert.That(root.Q<VisualElement>(className: "interaction-strip"), Is.Null);
+            Assert.That(scoreHud.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
+            Assert.That(scoreHud.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
+            Assert.That(matchStatus.worldBound.width, Is.LessThan(screen.worldBound.width * 0.5f));
+            Assert.That(matchHome.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(matchSkip.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+
+            controller.ApplyViewportForTests(
+                new Vector2Int(390, 844),
+                new Rect(0f, 34f, 390f, 776f),
+                true);
+            yield return null;
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobilePortrait));
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            Assert.That(scoreHud.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
+            Assert.That(scoreHud.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
+            Assert.That(matchHome.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
+            Assert.That(matchStatus.worldBound.width, Is.LessThan(screen.worldBound.width * 0.5f));
+            Assert.That(matchHome.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(matchSkip.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+
+            Assert.That(controller.ReturnHome(), Is.True);
             controller.ClearViewportOverrideForTests();
         }
 

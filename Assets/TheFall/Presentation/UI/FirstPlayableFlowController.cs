@@ -81,8 +81,6 @@ namespace TheFall.Presentation.UI
                 { "loading-title", "flow.loading.title" },
                 { "loading-message", "flow.loading.message" },
                 { "loading-status", "flow.loading.status" },
-                { "match-eyebrow", "flow.match.eyebrow" },
-                { "match-title", "flow.match.title" },
                 { "dealer-options-title", "flow.context.dealer-title" },
                 { "canto-options-title", "flow.context.canto-title" },
                 { "result-eyebrow", "flow.result.eyebrow" },
@@ -134,12 +132,9 @@ namespace TheFall.Presentation.UI
         private Label _loadingSession;
         private Label _matchPhase;
         private Label _matchScore;
-        private Label _matchProgress;
         private Label _matchTurn;
-        private Label _matchCanto;
         private Label _matchEvent;
         private Label _matchFeedback;
-        private Label _matchPrompt;
         private Label _resultOutcome;
         private Label _resultScore;
         private Label _resultRules;
@@ -151,12 +146,7 @@ namespace TheFall.Presentation.UI
         private VisualElement _cantoOptionsMenu;
         private VisualElement _cantoOptions;
         private Button _cantoOptionsButton;
-        private Toggle _animationFastToggle;
-        private Toggle _animationReducedToggle;
         private Button _animationSkipButton;
-        private Toggle _audioMasterToggle;
-        private Toggle _audioEffectsToggle;
-        private Toggle _audioMusicToggle;
         private Label _loginFeedback;
         private Label _homeActionStatus;
         private Label _homeChatDate;
@@ -211,11 +201,11 @@ namespace TheFall.Presentation.UI
 
         public bool IsPresentationBusy { get; private set; }
 
-        public bool AudioMasterEnabled => _audioMasterToggle?.value ?? true;
+        public bool AudioMasterEnabled => _homeAudioMasterToggle?.value ?? true;
 
-        public bool AudioEffectsEnabled => _audioEffectsToggle?.value ?? true;
+        public bool AudioEffectsEnabled => _homeAudioEffectsToggle?.value ?? true;
 
-        public bool AudioMusicEnabled => _audioMusicToggle?.value ?? false;
+        public bool AudioMusicEnabled => _homeAudioMusicToggle?.value ?? false;
 
         public bool HasEnteredGateway => _hasEnteredGateway;
 
@@ -498,12 +488,9 @@ namespace TheFall.Presentation.UI
             }
             _matchPhase = Require<Label>("match-phase");
             _matchScore = Require<Label>("match-score");
-            _matchProgress = Require<Label>("match-progress");
             _matchTurn = Require<Label>("match-turn");
-            _matchCanto = Require<Label>("match-canto");
             _matchEvent = Require<Label>("match-event");
             _matchFeedback = Require<Label>("match-feedback");
-            _matchPrompt = Require<Label>("match-prompt");
             _resultOutcome = Require<Label>("result-outcome");
             _resultScore = Require<Label>("result-score");
             _resultRules = Require<Label>("result-rules");
@@ -515,12 +502,7 @@ namespace TheFall.Presentation.UI
             _cantoOptionsMenu = Require<VisualElement>("canto-options-menu");
             _cantoOptions = Require<VisualElement>("canto-options");
             _cantoOptionsButton = Require<Button>("canto-options-button");
-            _animationFastToggle = Require<Toggle>("animation-fast-toggle");
-            _animationReducedToggle = Require<Toggle>("animation-reduced-toggle");
             _animationSkipButton = Require<Button>("animation-skip-button");
-            _audioMasterToggle = Require<Toggle>("audio-master-toggle");
-            _audioEffectsToggle = Require<Toggle>("audio-effects-toggle");
-            _audioMusicToggle = Require<Toggle>("audio-music-toggle");
             _loginFeedback = Require<Label>("login-feedback");
             _homeActionStatus = Require<Label>("home-action-status");
             _homeChatDate = Require<Label>("home-chat-date");
@@ -589,55 +571,25 @@ namespace TheFall.Presentation.UI
             Require<Button>("match-home-button").clicked += () => ReturnHome();
             _dealerOptionsButton.clicked += ToggleDealerOptions;
             _cantoOptionsButton.clicked += ToggleCantoOptions;
-            _animationFastToggle.RegisterValueChangedCallback(change =>
-            {
-                _homeAnimationFastToggle.SetValueWithoutNotify(change.newValue);
-                AnimationFastForwardChanged?.Invoke(change.newValue);
-            });
-            _animationReducedToggle.RegisterValueChangedCallback(change =>
-            {
-                _homeAnimationReducedToggle.SetValueWithoutNotify(change.newValue);
-                AnimationReducedMotionChanged?.Invoke(change.newValue);
-            });
             _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
-            _audioMasterToggle.RegisterValueChangedCallback(change =>
-            {
-                _homeAudioMasterToggle.SetValueWithoutNotify(change.newValue);
-                AudioMasterChanged?.Invoke(change.newValue);
-            });
-            _audioEffectsToggle.RegisterValueChangedCallback(change =>
-            {
-                _homeAudioEffectsToggle.SetValueWithoutNotify(change.newValue);
-                AudioEffectsChanged?.Invoke(change.newValue);
-            });
-            _audioMusicToggle.RegisterValueChangedCallback(change =>
-            {
-                _homeAudioMusicToggle.SetValueWithoutNotify(change.newValue);
-                AudioMusicChanged?.Invoke(change.newValue);
-            });
             _homeAnimationFastToggle.RegisterValueChangedCallback(change =>
             {
-                _animationFastToggle.SetValueWithoutNotify(change.newValue);
                 AnimationFastForwardChanged?.Invoke(change.newValue);
             });
             _homeAnimationReducedToggle.RegisterValueChangedCallback(change =>
             {
-                _animationReducedToggle.SetValueWithoutNotify(change.newValue);
                 AnimationReducedMotionChanged?.Invoke(change.newValue);
             });
             _homeAudioMasterToggle.RegisterValueChangedCallback(change =>
             {
-                _audioMasterToggle.SetValueWithoutNotify(change.newValue);
                 AudioMasterChanged?.Invoke(change.newValue);
             });
             _homeAudioEffectsToggle.RegisterValueChangedCallback(change =>
             {
-                _audioEffectsToggle.SetValueWithoutNotify(change.newValue);
                 AudioEffectsChanged?.Invoke(change.newValue);
             });
             _homeAudioMusicToggle.RegisterValueChangedCallback(change =>
             {
-                _audioMusicToggle.SetValueWithoutNotify(change.newValue);
                 AudioMusicChanged?.Invoke(change.newValue);
             });
             Require<Button>("result-replay-button").clicked += () => Replay();
@@ -776,11 +728,6 @@ namespace TheFall.Presentation.UI
                 state.TeamOneScore.Value,
                 state.TeamTwoScore.Value,
                 state.Rules.VictoryTarget);
-            _matchProgress.text = Localize(
-                "flow.match.progress",
-                state.RoundNumber,
-                state.DealNumber,
-                state.IsTieExtension ? Localize("flow.match.tie-extension") : Localize("flow.match.standard-round"));
             _matchTurn.text = state.Phase == MatchPhase.DealerSelection
                 ? Localize(
                     "flow.match.turn.dealer-pending",
@@ -789,7 +736,6 @@ namespace TheFall.Presentation.UI
                     "flow.match.turn",
                     Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
                     Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
-            _matchCanto.text = CantoSummary(state);
             _matchEvent.text = EventSummary();
             var legalIntents = IsPresentationBusy
                 ? Array.Empty<PlayerIntent>()
@@ -843,8 +789,6 @@ namespace TheFall.Presentation.UI
 
             _dealerOptionsButton.tooltip = Localize("flow.context.dealer-tooltip");
             _cantoOptionsButton.tooltip = Localize("flow.context.canto-tooltip");
-            _matchPrompt.text = Localize("flow.match.prompt");
-            SetVisible(_matchPrompt, state.Phase == MatchPhase.Active);
             _matchFeedback.text = state.Phase == MatchPhase.DealerSelection
                 ? Localize("flow.context.dealer-card-prompt")
                 : dealerOptionCount > 0
@@ -939,28 +883,6 @@ namespace TheFall.Presentation.UI
             }
 
             return Localize("flow.action.unavailable");
-        }
-
-        private string CantoSummary(MatchState state)
-        {
-            if (state.CantoAnnouncements.Count == 0)
-            {
-                return Localize("flow.match.canto.none");
-            }
-
-            var announcements = new string[state.CantoAnnouncements.Count];
-            for (var index = 0; index < state.CantoAnnouncements.Count; index++)
-            {
-                var announcement = state.CantoAnnouncements[index];
-                announcements[index] = Localize(
-                    "flow.match.canto.announcement",
-                    Localize(announcement.PlayerId == state.GetPlayerAt(Seat.First).Player.Id
-                        ? "flow.player.you"
-                        : "flow.player.bot"),
-                    Localize(CantoLocalizationKey(announcement.ClaimedKind)));
-            }
-
-            return Localize("flow.match.canto.summary", string.Join(" · ", announcements));
         }
 
         private string EventSummary()
@@ -1107,17 +1029,8 @@ namespace TheFall.Presentation.UI
                 _trivilinToggle.text = Localize("flow.setup.trivilin");
             }
 
-            if (_animationFastToggle != null)
+            if (_homeAudioMasterToggle != null)
             {
-                _animationFastToggle.text = Localize("flow.animation.fast-forward");
-                _animationReducedToggle.text = Localize("flow.animation.reduced-motion");
-            }
-
-            if (_audioMasterToggle != null)
-            {
-                _audioMasterToggle.text = Localize("flow.audio.master");
-                _audioEffectsToggle.text = Localize("flow.audio.effects");
-                _audioMusicToggle.text = Localize("flow.audio.music");
                 _homeCasasToggle.text = Localize("flow.setup.casas");
                 _homeTrivilinToggle.text = Localize("flow.setup.trivilin");
                 _homeAnimationFastToggle.text = Localize("flow.animation.fast-forward");

@@ -187,7 +187,7 @@ namespace TheFall.Editor
             Text("flow.match.standard-round", "Standard round"),
             Text("flow.animation.fast-forward", "Fast forward"),
             Text("flow.animation.reduced-motion", "Reduced motion"),
-            Text("flow.animation.skip", "Skip"),
+            Text("flow.animation.skip", "Skip animation"),
             Text("flow.audio.master", "Master audio"),
             Text("flow.audio.effects", "Effects"),
             Text("flow.audio.music", "Music"),
