@@ -4,7 +4,7 @@ Status: Confirmed first-playable UI contract
 
 ## Purpose
 
-Issue #24 adds the minimal localized application flow around the complete deterministic match orchestrator from issue #23. A player can launch into Home, configure the bounded rules, progress through an explicit loading state, complete a match, see its authoritative result, replay with the same configuration, or return Home without editor intervention.
+Issue #24 adds the minimal localized application flow around the complete deterministic match orchestrator from issue #23. A player launches into a presentation-only gateway, enters Home, configures the bounded rules, progresses through an explicit loading state, completes a match, sees its authoritative result, replays with the same configuration, or returns Home without editor intervention.
 
 This is functional prototype UI. Issue #25 supplies complete table rendering and integrated card interaction within the same Home scene and application session. Issue #26 adds resolved-event animation controls and presentation blocking. Issue #27 adds resolved-beat prototype audio plus independent master, effects, and music controls.
 
@@ -23,6 +23,12 @@ The flow accepts only valid transitions. Repeated start, replay, loading-complet
 
 The pure flow still reaches Result as soon as the authoritative match completes. The UI adapter deliberately continues to present the Match panel while its final animation batch is busy, then reveals Result after synchronization. This is presentation gating only; it does not add a flow stage or delay the accepted rule state.
 
+The gateway shown before Home follows the same boundary. Its email and password fields are visual
+prototype controls: values are not read, stored, or validated, and `Enter the Realm` only reveals Home.
+The application remains in `Home`, with no match and no session created, while the gateway is visible.
+Authentication, accounts, profiles, credential persistence, and online authority remain deferred product
+work. Returning Home within the first-playable session does not reopen the gateway.
+
 Starting a match creates one `FirstPlayableMatchOrchestrator` through the manual Bootstrap composition root. Replay replaces the completed orchestrator with a fresh seeded session while preserving the two selected rule options. Returning Home releases the match reference and restores the documented defaults before another setup begins.
 
 ## Configuration boundary
@@ -38,7 +44,7 @@ The flow translates those values into an immutable domain `RuleConfiguration` be
 
 ## UI Toolkit and localization
 
-`Home` owns one adaptive UI Toolkit document with Home, setup, loading, match, and result panels. The
+`Home` owns one adaptive UI Toolkit document with gateway, Home, setup, loading, match, and result panels. The
 layout uses the confirmed warm medieval prototype palette, non-color-only labels, flexible wrapping,
 scrollable action lists, and an authored composition selected from runtime platform and orientation.
 
@@ -51,6 +57,9 @@ changing the flow stage or match. The measurable tokens and screen audit are rec
 
 Issue #44 applies that foundation to the player journey around the match:
 
+- Gateway adapts the approved two-column medieval entry composition to The Fall's aged vellum,
+  antique brass, woad, and madder palette. Desktop and mobile landscape retain the hero/form split;
+  mobile portrait stacks both sections in one safe-area-aware scroll view.
 - Home states the 24-point objective, opponent, and three-step setup/match/result route before the
   primary `Set up match` action.
 - Setup presents only Casa Grande/Casa Chica scoring and the Trivilín effect. Each option names its
@@ -93,12 +102,13 @@ Leaving while loading cancels the presentation coroutine and clears the applicat
 ## Validation
 
 - Edit Mode verifies defaults, the fixed 24-point 1v1 bot boundary, legal transitions, repeated or invalid navigation, fresh replay sessions, retained replay configuration, and Home reset behavior.
-- Play Mode launches through Bootstrap, verifies the player-facing route and default/current setup
-  explanations, observes the explicit loading stage, rejects duplicate starts, completes a match through
-  the UI adapter, exposes both result actions, replays, and returns Home. A focused loading-exit regression
-  proves a cancelled callback cannot restore an abandoned session.
+- Play Mode launches through Bootstrap, verifies the gateway is first and entering it leaves application
+  state untouched, then verifies the player-facing route and default/current setup explanations, observes
+  the explicit loading stage, rejects duplicate starts, completes a match through the UI adapter, exposes
+  both result actions, replays, and returns Home. A focused loading-exit regression proves a cancelled
+  callback cannot restore an abandoned session.
 - The same Play Mode fixture switches to pseudo-localization, checks expanded controls remain visible
-  and keyboard-focusable, and validates touch-sized setup actions in both mobile profiles.
+  and keyboard-focusable, and validates touch-sized gateway and setup actions in both mobile profiles.
 - `The Fall > First Playable Flow > Generate` adds the controller and localization entries without embedding player copy in the scene.
 - `The Fall > First Playable Flow > Validate` checks the scene binding, UI asset, entries, and Smart String flags.
 

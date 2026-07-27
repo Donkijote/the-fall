@@ -20,6 +20,17 @@ namespace TheFall.Editor
 
         private static readonly EntryDefinition[] Entries =
         {
+            Text("flow.login.eyebrow", "THE TABLE IS CALLING"),
+            Text("flow.login.title", "TAKE YOUR SEAT"),
+            Text("flow.login.title-accent", "PLAY YOUR HAND"),
+            Text("flow.login.description", "Step into a battle of memory, nerve, and old-world cards. Outsmart the Baseline Bot and be first to 24."),
+            Text("flow.login.proof", "40 cards · one table · first to 24"),
+            Text("flow.login.panel-subtitle", "Enter the table"),
+            Text("flow.login.email", "EMAIL ADDRESS"),
+            Text("flow.login.password", "PASSWORD"),
+            Text("flow.login.enter", "ENTER THE REALM  →"),
+            Text("flow.login.divider", "PROTOTYPE ACCESS"),
+            Text("flow.login.mock-note", "No account required · credentials are not checked"),
             Text("flow.home.eyebrow", "OFFLINE TABLE MATCH"),
             Text("flow.home.subtitle", "Reach 24 points before the Baseline Bot in one complete match of The Fall."),
             Text("flow.home.card-label", "YOUR NEXT MATCH"),
@@ -165,7 +176,7 @@ namespace TheFall.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Validate();
-            Debug.Log("The first-playable Home, setup, loading, match, and result flow was generated and validated.");
+            Debug.Log("The first-playable gateway, Home, setup, loading, match, and result flow was generated and validated.");
         }
 
         [MenuItem("The Fall/First Playable Flow/Validate")]
@@ -248,7 +259,7 @@ namespace TheFall.Editor
             var purpose = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
                 .FirstOrDefault();
-            purpose?.SetDescription("Localized first-playable Home, setup, loading, match, result, replay, and return flow.");
+            purpose?.SetDescription("Localized first-playable gateway and flow with an authoritative fixed-camera 1v1 table presentation and resolved-beat prototype audio.");
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, HomeScenePath);

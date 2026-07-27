@@ -19,6 +19,7 @@ namespace TheFall.Presentation.UI
 
         private static readonly string[] StageElementNames =
         {
+            "login-stage",
             "home-stage",
             "setup-stage",
             "loading-stage",
@@ -29,6 +30,17 @@ namespace TheFall.Presentation.UI
         private static readonly IReadOnlyDictionary<string, string> LabelLocalizationKeys =
             new Dictionary<string, string>
             {
+                { "login-eyebrow", "flow.login.eyebrow" },
+                { "login-title", "flow.login.title" },
+                { "login-title-accent", "flow.login.title-accent" },
+                { "login-description", "flow.login.description" },
+                { "login-proof", "flow.login.proof" },
+                { "login-panel-title", "app.title" },
+                { "login-panel-subtitle", "flow.login.panel-subtitle" },
+                { "login-email-label", "flow.login.email" },
+                { "login-password-label", "flow.login.password" },
+                { "login-divider-label", "flow.login.divider" },
+                { "login-mock-note", "flow.login.mock-note" },
                 { "home-eyebrow", "flow.home.eyebrow" },
                 { "home-title", "app.title" },
                 { "home-subtitle", "flow.home.subtitle" },
@@ -67,6 +79,7 @@ namespace TheFall.Presentation.UI
         private static readonly IReadOnlyDictionary<string, string> ButtonLocalizationKeys =
             new Dictionary<string, string>
             {
+                { "login-enter-button", "flow.login.enter" },
                 { "home-start-button", "flow.home.start" },
                 { "setup-start-button", "flow.setup.start" },
                 { "setup-back-button", "flow.common.back" },
@@ -115,6 +128,7 @@ namespace TheFall.Presentation.UI
         private Toggle _audioMusicToggle;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
+        private bool _hasEnteredGateway;
         private bool _isDealerMenuOpen;
         private bool _isCantoMenuOpen;
         private MatchState _contextState;
@@ -148,6 +162,8 @@ namespace TheFall.Presentation.UI
         public bool AudioEffectsEnabled => _audioEffectsToggle?.value ?? true;
 
         public bool AudioMusicEnabled => _audioMusicToggle?.value ?? false;
+
+        public bool HasEnteredGateway => _hasEnteredGateway;
 
         public AdaptiveUiLayout CurrentAdaptiveLayout { get; private set; }
 
@@ -204,9 +220,21 @@ namespace TheFall.Presentation.UI
             }
         }
 
+        public bool EnterGateway()
+        {
+            if (_hasEnteredGateway || Flow.Stage != FirstPlayableFlowStage.Home)
+            {
+                return false;
+            }
+
+            _hasEnteredGateway = true;
+            Render();
+            return true;
+        }
+
         public bool OpenSetup()
         {
-            if (!Flow.TryOpenSetup())
+            if (!_hasEnteredGateway || !Flow.TryOpenSetup())
             {
                 return false;
             }
@@ -325,6 +353,16 @@ namespace TheFall.Presentation.UI
             }
 
             RefreshLocalizedStaticText();
+            if (!_hasEnteredGateway)
+            {
+                ShowOnly("login-stage");
+                _screen.EnableInClassList("show-table", false);
+                Focus("login-enter-button");
+                UpdatePresentationAvailability();
+                PresentationChanged?.Invoke();
+                return;
+            }
+
             var presentedStage = Flow.Stage == FirstPlayableFlowStage.Result && IsPresentationBusy
                 ? FirstPlayableFlowStage.Match
                 : Flow.Stage;
@@ -400,7 +438,9 @@ namespace TheFall.Presentation.UI
             _audioMasterToggle = Require<Toggle>("audio-master-toggle");
             _audioEffectsToggle = Require<Toggle>("audio-effects-toggle");
             _audioMusicToggle = Require<Toggle>("audio-music-toggle");
+            Require<TextField>("login-password").isPasswordField = true;
 
+            Require<Button>("login-enter-button").clicked += () => EnterGateway();
             Require<Button>("home-start-button").clicked += () => OpenSetup();
             Require<Button>("setup-start-button").clicked += () => StartMatch();
             Require<Button>("setup-back-button").clicked += () => ReturnHome();

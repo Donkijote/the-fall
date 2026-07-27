@@ -269,7 +269,9 @@ namespace TheFall.Presentation.Diagnostics
 
         private void StartConfiguredMatch()
         {
-            if (_controller.Flow.Stage != FirstPlayableFlowStage.Home || !_controller.OpenSetup())
+            if (_controller.Flow.Stage != FirstPlayableFlowStage.Home
+                || (!_controller.HasEnteredGateway && !_controller.EnterGateway())
+                || !_controller.OpenSetup())
             {
                 throw new InvalidOperationException("Acceptance probe could not open first-playable setup.");
             }

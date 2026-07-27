@@ -838,6 +838,7 @@ namespace TheFall.Tests.PlayMode
 
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller, Is.Not.Null);
+            Assert.That(controller.EnterGateway(), Is.True);
             Assert.That(controller.OpenSetup(), Is.True);
             Assert.That(controller.StartMatch(), Is.True);
             yield return null;

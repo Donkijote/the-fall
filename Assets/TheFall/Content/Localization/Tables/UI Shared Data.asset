@@ -543,6 +543,50 @@ MonoBehaviour:
     m_Key: flow.result.next
     m_Metadata:
       m_Items: []
+  - m_Id: 2710831937609728
+    m_Key: flow.login.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386944
+    m_Key: flow.login.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386945
+    m_Key: flow.login.title-accent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386946
+    m_Key: flow.login.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386947
+    m_Key: flow.login.proof
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386948
+    m_Key: flow.login.panel-subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386949
+    m_Key: flow.login.email
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386950
+    m_Key: flow.login.password
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386951
+    m_Key: flow.login.enter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386952
+    m_Key: flow.login.divider
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386953
+    m_Key: flow.login.mock-note
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

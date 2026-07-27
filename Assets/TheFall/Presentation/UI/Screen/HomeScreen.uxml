@@ -4,6 +4,61 @@
         <ui:VisualElement class="ambient ambient-left" />
         <ui:VisualElement class="ambient ambient-right" />
 
+        <ui:VisualElement name="login-stage" class="stage stage-login">
+            <ui:VisualElement class="login-backdrop" picking-mode="Ignore">
+                <ui:VisualElement class="login-moon" />
+                <ui:VisualElement class="login-tower login-tower-left" />
+                <ui:VisualElement class="login-tower login-tower-center" />
+                <ui:VisualElement class="login-tower login-tower-right" />
+            </ui:VisualElement>
+            <ui:ScrollView name="login-scroll" class="login-scroll">
+                <ui:VisualElement class="login-layout">
+                    <ui:VisualElement class="login-hero">
+                        <ui:Label name="login-eyebrow" class="eyebrow login-eyebrow" />
+                        <ui:Label name="login-title" class="login-display-title" />
+                        <ui:Label name="login-title-accent" class="login-display-title login-display-accent" />
+                        <ui:VisualElement class="login-story">
+                            <ui:VisualElement class="login-story-rule" />
+                            <ui:Label name="login-description" class="login-description" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="login-proof">
+                            <ui:VisualElement class="suit-token suit-token-brass">
+                                <ui:Label text="♣" class="suit-token-label" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="suit-token suit-token-woad">
+                                <ui:Label text="♦" class="suit-token-label" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="suit-token suit-token-madder">
+                                <ui:Label text="♠" class="suit-token-label" />
+                            </ui:VisualElement>
+                            <ui:Label name="login-proof" class="login-proof-copy" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="login-panel panel">
+                        <ui:VisualElement class="login-emblem">
+                            <ui:Label text="TF" class="login-emblem-label" />
+                        </ui:VisualElement>
+                        <ui:Label name="login-panel-title" class="login-panel-title" />
+                        <ui:Label name="login-panel-subtitle" class="login-panel-subtitle" />
+                        <ui:VisualElement class="login-form">
+                            <ui:Label name="login-email-label" class="login-field-label" />
+                            <ui:TextField name="login-email" class="login-field" />
+                            <ui:Label name="login-password-label" class="login-field-label login-password-label" />
+                            <ui:TextField name="login-password" class="login-field" is-password-field="true" />
+                            <ui:Button name="login-enter-button" class="primary-button login-enter-button" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="login-divider">
+                            <ui:VisualElement class="login-divider-rule" />
+                            <ui:Label name="login-divider-label" class="login-divider-label" />
+                            <ui:VisualElement class="login-divider-rule" />
+                        </ui:VisualElement>
+                        <ui:Label name="login-mock-note" class="login-mock-note" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+
         <ui:VisualElement name="home-stage" class="stage stage-home">
             <ui:VisualElement class="hero-mark">
                 <ui:Label name="home-eyebrow" class="eyebrow" />

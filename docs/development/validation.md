@@ -167,8 +167,8 @@ For each required matrix row:
 
 1. Install or launch a development build made from a recorded commit.
 2. Record hardware, OS, display, quality, build, and profiler attachment state.
-3. Cold-launch three times and record Home and match readiness.
-4. Exercise touch or mouse/keyboard inspection, selection, confirmation, cancellation, rejection, and temporary blocking.
+3. Cold-launch three times, enter through the mock gateway, and record Home and match readiness.
+4. Confirm gateway credential text is neither required nor retained, then exercise touch or mouse/keyboard inspection, selection, confirmation, cancellation, rejection, and temporary blocking.
 5. Rotate mobile during a selected card and during animation; on desktop resize across every required resolution.
 6. Exercise both 1v1 acting seats, portrait and landscape, normal completion, skip, interruption, cancellation, and fast-forward.
 7. Confirm cards, names, scores, hands, capture piles, and state symbols remain readable and unobscured.

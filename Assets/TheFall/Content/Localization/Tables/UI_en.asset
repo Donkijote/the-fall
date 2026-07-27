@@ -581,6 +581,51 @@ MonoBehaviour:
     m_Localized: Choose what happens next
     m_Metadata:
       m_Items: []
+  - m_Id: 2710831937609728
+    m_Localized: THE TABLE IS CALLING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386944
+    m_Localized: TAKE YOUR SEAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386945
+    m_Localized: PLAY YOUR HAND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386946
+    m_Localized: Step into a battle of memory, nerve, and old-world cards. Outsmart
+      the Baseline Bot and be first to 24.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386947
+    m_Localized: "40 cards \xB7 one table \xB7 first to 24"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386948
+    m_Localized: Enter the table
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386949
+    m_Localized: EMAIL ADDRESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386950
+    m_Localized: PASSWORD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386951
+    m_Localized: "ENTER THE REALM  \u2192"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386952
+    m_Localized: PROTOTYPE ACCESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2710831954386953
+    m_Localized: "No account required \xB7 credentials are not checked"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
