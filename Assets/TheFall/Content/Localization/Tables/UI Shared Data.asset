@@ -655,6 +655,230 @@ MonoBehaviour:
     m_Key: flow.home.brief.victory-value
     m_Metadata:
       m_Items: []
+  - m_Id: 2720884388257792
+    m_Key: flow.login.panel-title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035008
+    m_Key: flow.login.forgot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035009
+    m_Key: flow.login.google
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035010
+    m_Key: flow.login.apple
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035011
+    m_Key: flow.login.account-prefix
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035012
+    m_Key: flow.login.create
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035013
+    m_Key: flow.login.feedback.forgot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035014
+    m_Key: flow.login.feedback.google
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035015
+    m_Key: flow.login.feedback.apple
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035016
+    m_Key: flow.login.feedback.create
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035017
+    m_Key: flow.home.profile-name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035018
+    m_Key: flow.home.xp-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035019
+    m_Key: flow.home.level-value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035020
+    m_Key: flow.home.action-status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035021
+    m_Key: flow.home.mail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035022
+    m_Key: flow.home.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035023
+    m_Key: flow.home.nav.decks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035024
+    m_Key: flow.home.nav.bag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035025
+    m_Key: flow.home.nav.shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035026
+    m_Key: flow.home.nav.rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035027
+    m_Key: flow.home.chat.global
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035028
+    m_Key: flow.home.chat.guild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035029
+    m_Key: flow.home.chat.system
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035030
+    m_Key: flow.home.chat.send
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035031
+    m_Key: flow.home.chat.input-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035032
+    m_Key: flow.home.chat.date
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035033
+    m_Key: flow.home.chat.global.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035034
+    m_Key: flow.home.chat.global.two
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035035
+    m_Key: flow.home.chat.global.three
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035036
+    m_Key: flow.home.chat.guild.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035037
+    m_Key: flow.home.chat.guild.two
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035038
+    m_Key: flow.home.chat.guild.three
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035039
+    m_Key: flow.home.chat.system.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035040
+    m_Key: flow.home.chat.system.two
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035041
+    m_Key: flow.home.chat.system.three
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035042
+    m_Key: flow.home.chat.you
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229312
+    m_Key: flow.home.chat.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229313
+    m_Key: flow.home.chat.sent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229314
+    m_Key: flow.home.modal.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229315
+    m_Key: flow.common.close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229316
+    m_Key: flow.home.mail.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229317
+    m_Key: flow.home.mail.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229318
+    m_Key: flow.home.settings.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229319
+    m_Key: flow.home.settings.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229320
+    m_Key: flow.home.decks.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229321
+    m_Key: flow.home.decks.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229322
+    m_Key: flow.home.bag.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229323
+    m_Key: flow.home.bag.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229324
+    m_Key: flow.home.shop.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229325
+    m_Key: flow.home.shop.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229326
+    m_Key: flow.home.rank.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229327
+    m_Key: flow.home.rank.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229328
+    m_Key: flow.home.status.decks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229329
+    m_Key: flow.home.status.bag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229330
+    m_Key: flow.home.status.shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229331
+    m_Key: flow.home.status.rank
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

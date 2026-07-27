@@ -24,23 +24,24 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036300873728
-    m_Localized: "OFFLINE PLAYER \xB7 READY"
+    m_Localized: "LEVEL 1 \xB7 TABLE NOVICE"
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011072
-    m_Localized: Outscore the Baseline Bot in one complete match and claim the table.
+    m_Localized: The Baseline Bot waits at the offline table. Choose the rules, complete
+      one match, and claim victory.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011073
-    m_Localized: "1V1 \xB7 40-CARD DECK"
+    m_Localized: 0 / 1 MATCH
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011074
-    m_Localized: "01 \xB7 PLAY"
+    m_Localized: BEGIN QUEST
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011075
-    m_Localized: Play opens the two rule choices before the table.
+    m_Localized: Begin Quest opens the two rule choices before the table.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011076
@@ -486,7 +487,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2702885463777280
-    m_Localized: CURRENT OBJECTIVE
+    m_Localized: CURRENT QUEST
     m_Metadata:
       m_Items: []
   - m_Id: 2702885480554496
@@ -581,20 +582,20 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2710831937609728
-    m_Localized: THE TABLE IS CALLING
+    m_Localized: "SEASON I \xB7 THE FIRST FALL"
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386944
-    m_Localized: TAKE YOUR SEAT
+    m_Localized: FORGE YOUR
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386945
-    m_Localized: PLAY YOUR HAND
+    m_Localized: DESTINY
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386946
-    m_Localized: Step into a battle of memory, nerve, and old-world cards. Outsmart
-      the Baseline Bot and be first to 24.
+    m_Localized: Enter a world where memory meets nerve. Master the old deck, choose
+      your rules, and conquer the table.
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386947
@@ -602,7 +603,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386948
-    m_Localized: Enter the table
+    m_Localized: LOGIN TO ACCESS YOUR TABLE
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386949
@@ -618,7 +619,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386952
-    m_Localized: PROTOTYPE ACCESS
+    m_Localized: OR INVOKE
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386953
@@ -630,27 +631,27 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099648
-    m_Localized: MODE
+    m_Localized: COINS
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099649
-    m_Localized: 1V1
+    m_Localized: 14,200
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099650
-    m_Localized: TARGET
+    m_Localized: GEMS
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099651
-    m_Localized: 24
+    m_Localized: 500
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099652
-    m_Localized: DECK
+    m_Localized: ENERGY
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099653
-    m_Localized: 40
+    m_Localized: 45/60
     m_Metadata:
       m_Items: []
   - m_Id: 2714096595099654
@@ -693,6 +694,237 @@ MonoBehaviour:
     m_Localized: First to 24
     m_Metadata:
       m_Items: []
+  - m_Id: 2720884388257792
+    m_Localized: GATEWAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035008
+    m_Localized: Forgot Cipher?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035009
+    m_Localized: G
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035010
+    m_Localized: A
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035011
+    m_Localized: New to the realm?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035012
+    m_Localized: Create Account
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035013
+    m_Localized: Cipher recovery is not connected in this build.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035014
+    m_Localized: Google invocation is not connected in this build.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035015
+    m_Localized: Apple invocation is not connected in this build.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035016
+    m_Localized: Account creation is not connected in this build.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035017
+    m_Localized: THE WANDERER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035018
+    m_Localized: XP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035019
+    m_Localized: 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035020
+    m_Localized: Choose a hub destination.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035021
+    m_Localized: MAIL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035022
+    m_Localized: SET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035023
+    m_Localized: "\u25B1\nDECKS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035024
+    m_Localized: "\u25A3\nBAG"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035025
+    m_Localized: "\u25B0\nSHOP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035026
+    m_Localized: "\u265B\nRANK"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035027
+    m_Localized: Global
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035028
+    m_Localized: Guild
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035029
+    m_Localized: System
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035030
+    m_Localized: "\u25B6"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035031
+    m_Localized: SCRIBE A LOCAL MESSAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035032
+    m_Localized: "\u2014 TODAY \u2014"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035033
+    m_Localized: '[HERALD] Welcome to the first season of The Fall.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035034
+    m_Localized: '[PLAYER] The Baseline Bot is waiting at the table.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035035
+    m_Localized: '[SCOUT] Casas are enabled by default.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035036
+    m_Localized: '[GUILD] No guild is connected in this build.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035037
+    m_Localized: '[GUILD] Social services remain local-only.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035038
+    m_Localized: '[GUILD] Gather your table when guilds arrive.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035039
+    m_Localized: '[SYSTEM] Offline first-playable ready.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035040
+    m_Localized: '[SYSTEM] Target score: 24.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035041
+    m_Localized: '[SYSTEM] Deck integrity: 40 cards.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884405035042
+    m_Localized: '[YOU] {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 2720884409229312
+    m_Localized: Write a message before sending.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229313
+    m_Localized: Local message added to Global.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229314
+    m_Localized: HUB DESTINATION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229315
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229316
+    m_Localized: Courier Mail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229317
+    m_Localized: Your courier inbox is ready for future connected messages. No remote
+      mailbox is active in this offline build.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229318
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229319
+    m_Localized: Match audio and animation controls remain available at the table.
+      Broader account settings arrive with connected services.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229320
+    m_Localized: Decks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229321
+    m_Localized: Reviewing and collecting alternate decks is reserved for the progression
+      layer. The complete 40-card first-playable deck is ready.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229322
+    m_Localized: Bag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229323
+    m_Localized: Inventory presentation is in place; persistent rewards and owned
+      items are not connected in this offline build.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229324
+    m_Localized: Shop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229325
+    m_Localized: The storefront destination is staged for the final hub. Purchases
+      and currency transactions are intentionally disabled.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229326
+    m_Localized: Rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229327
+    m_Localized: Competitive ranking will connect with online play. This build records
+      no account or ladder progress.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229328
+    m_Localized: Decks selected.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229329
+    m_Localized: Bag selected.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229330
+    m_Localized: Shop selected.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2720884409229331
+    m_Localized: Rank selected.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -727,3 +959,4 @@ MonoBehaviour:
         - id: 2702885480554507
         - id: 2702885480554510
         - id: 2702885480554516
+        - id: 2720884405035042

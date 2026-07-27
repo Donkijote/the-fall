@@ -5,12 +5,8 @@
         <ui:VisualElement class="ambient ambient-right" />
 
         <ui:VisualElement name="login-stage" class="stage stage-login">
-            <ui:VisualElement class="login-backdrop" picking-mode="Ignore">
-                <ui:VisualElement class="login-moon" />
-                <ui:VisualElement class="login-tower login-tower-left" />
-                <ui:VisualElement class="login-tower login-tower-center" />
-                <ui:VisualElement class="login-tower login-tower-right" />
-            </ui:VisualElement>
+            <ui:VisualElement class="login-backdrop" picking-mode="Ignore" />
+            <ui:VisualElement class="login-scrim" picking-mode="Ignore" />
             <ui:ScrollView name="login-scroll" class="login-scroll">
                 <ui:VisualElement class="login-layout">
                     <ui:VisualElement class="login-hero">
@@ -43,17 +39,36 @@
                         <ui:Label name="login-panel-subtitle" class="login-panel-subtitle" />
                         <ui:VisualElement class="login-form">
                             <ui:Label name="login-email-label" class="login-field-label" />
-                            <ui:TextField name="login-email" class="login-field" />
-                            <ui:Label name="login-password-label" class="login-field-label login-password-label" />
-                            <ui:TextField name="login-password" class="login-field" is-password-field="true" />
+                            <ui:VisualElement class="login-input-shell">
+                                <ui:Label text="✉" class="login-input-icon" />
+                                <ui:TextField name="login-email" class="login-field" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="login-password-heading">
+                                <ui:Label name="login-password-label" class="login-field-label login-password-label" />
+                                <ui:Button name="login-forgot-button" class="login-link-button" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="login-input-shell">
+                                <ui:Label text="◆" class="login-input-icon" />
+                                <ui:TextField name="login-password" class="login-field" is-password-field="true" />
+                            </ui:VisualElement>
                             <ui:Button name="login-enter-button" class="primary-button login-enter-button" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="login-divider">
-                            <ui:VisualElement class="login-divider-rule" />
-                            <ui:Label name="login-divider-label" class="login-divider-label" />
-                            <ui:VisualElement class="login-divider-rule" />
+                        <ui:VisualElement class="login-lower-panel">
+                            <ui:VisualElement class="login-divider">
+                                <ui:VisualElement class="login-divider-rule" />
+                                <ui:Label name="login-divider-label" class="login-divider-label" />
+                                <ui:VisualElement class="login-divider-rule" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="login-social-row">
+                                <ui:Button name="login-google-button" class="login-social-button" />
+                                <ui:Button name="login-apple-button" class="login-social-button" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="login-account-row">
+                                <ui:Label name="login-account-prefix" class="login-account-prefix" />
+                                <ui:Button name="login-create-button" class="login-link-button login-create-button" />
+                            </ui:VisualElement>
+                            <ui:Label name="login-feedback" class="login-feedback" />
                         </ui:VisualElement>
-                        <ui:Label name="login-mock-note" class="login-mock-note" />
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:ScrollView>
@@ -70,90 +85,103 @@
                             <ui:VisualElement class="hub-identity-copy">
                                 <ui:Label name="home-title" class="hub-title" />
                                 <ui:Label name="home-eyebrow" class="hub-kicker" />
+                                <ui:VisualElement class="hub-xp-row">
+                                    <ui:VisualElement class="hub-xp-track">
+                                        <ui:VisualElement class="hub-xp-fill" />
+                                    </ui:VisualElement>
+                                    <ui:Label name="home-xp-label" class="hub-xp-label" />
+                                </ui:VisualElement>
                             </ui:VisualElement>
-                            <ui:VisualElement class="hub-ready-dot" />
+                            <ui:Label name="home-level-value" class="hub-level-value" />
                         </ui:VisualElement>
 
                         <ui:VisualElement class="hub-stats">
                             <ui:VisualElement class="hub-stat panel hub-stat-brass">
+                                <ui:Label text="●" class="hub-resource-icon hub-resource-brass" />
                                 <ui:Label name="home-stat-mode-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-mode-value" class="hub-stat-value" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-stat panel hub-stat-woad">
+                                <ui:Label text="◆" class="hub-resource-icon hub-resource-woad" />
                                 <ui:Label name="home-stat-target-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-target-value" class="hub-stat-value" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-stat panel hub-stat-madder">
+                                <ui:Label text="ϟ" class="hub-resource-icon hub-resource-madder" />
                                 <ui:Label name="home-stat-deck-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-deck-value" class="hub-stat-value" />
+                                <ui:VisualElement class="hub-energy-track">
+                                    <ui:VisualElement class="hub-energy-fill" />
+                                </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>
 
-                        <ui:VisualElement class="hub-connection panel">
-                            <ui:VisualElement class="hub-connection-mark">
-                                <ui:Label text="●" class="hub-connection-icon" />
-                            </ui:VisualElement>
-                            <ui:VisualElement>
-                                <ui:Label name="home-status-ready" class="hub-connection-title" />
-                                <ui:Label name="home-status-detail" class="hub-connection-detail" />
-                            </ui:VisualElement>
+                        <ui:VisualElement class="hub-top-actions">
+                            <ui:Button name="home-mail-button" class="hub-square-button hub-mail-button" />
+                            <ui:VisualElement class="hub-mail-dot" />
+                            <ui:Button name="home-settings-button" class="hub-square-button" />
                         </ui:VisualElement>
                     </ui:VisualElement>
 
-                    <ui:VisualElement class="hub-center-space" picking-mode="Ignore">
-                        <ui:VisualElement class="hub-watermark">
-                            <ui:Label text="TF" class="hub-watermark-label" />
-                        </ui:VisualElement>
-                    </ui:VisualElement>
+                    <ui:VisualElement class="hub-center-space" picking-mode="Ignore" />
 
                     <ui:VisualElement class="hub-bottombar">
                         <ui:VisualElement class="hub-objective panel">
                             <ui:Label name="home-card-label" class="card-label" />
+                            <ui:VisualElement class="hub-brief-rule" />
                             <ui:Label name="home-objective-title" class="hub-card-title" />
                             <ui:Label name="home-subtitle" class="hub-card-copy" />
                             <ui:VisualElement class="hub-objective-progress">
                                 <ui:VisualElement class="hub-progress-fill" />
                             </ui:VisualElement>
                             <ui:Label name="home-mode" class="hub-objective-meta" />
+                            <ui:Button name="home-start-button" class="hub-quest-button" />
                         </ui:VisualElement>
 
                         <ui:VisualElement class="hub-dock panel">
-                            <ui:Label name="home-route-label" class="hub-route-label" />
                             <ui:VisualElement class="hub-route">
-                                <ui:Button name="home-start-button" class="hub-route-button hub-route-active" />
+                                <ui:Button name="home-decks-button" class="hub-nav-button hub-nav-decks" />
                                 <ui:VisualElement class="hub-route-divider" />
-                                <ui:VisualElement class="hub-route-stop">
-                                    <ui:Label text="Ⅱ" class="hub-route-icon" />
-                                    <ui:Label name="home-step-match" class="hub-route-copy" />
-                                </ui:VisualElement>
+                                <ui:Button name="home-bag-button" class="hub-nav-button" />
                                 <ui:VisualElement class="hub-route-divider" />
-                                <ui:VisualElement class="hub-route-stop">
-                                    <ui:Label text="◆" class="hub-route-icon" />
-                                    <ui:Label name="home-step-result" class="hub-route-copy" />
-                                </ui:VisualElement>
+                                <ui:Button name="home-shop-button" class="hub-nav-button hub-nav-selected" />
+                                <ui:VisualElement class="hub-route-divider" />
+                                <ui:Button name="home-rank-button" class="hub-nav-button" />
                             </ui:VisualElement>
-                            <ui:Label name="home-prompt" class="input-prompt hub-prompt" />
+                            <ui:Label name="home-action-status" class="hub-action-status" />
                         </ui:VisualElement>
 
-                        <ui:VisualElement class="hub-brief panel">
-                            <ui:Label name="home-brief-label" class="card-label" />
-                            <ui:VisualElement class="hub-brief-rule" />
-                            <ui:VisualElement class="hub-brief-row">
-                                <ui:Label name="home-brief-opponent-label" class="hub-brief-key" />
-                                <ui:Label name="home-brief-opponent-value" class="hub-brief-value" />
+                        <ui:VisualElement class="hub-chat panel">
+                            <ui:VisualElement class="hub-chat-tabs">
+                                <ui:Button name="home-chat-global-button" class="hub-chat-tab hub-chat-tab-active" />
+                                <ui:Button name="home-chat-guild-button" class="hub-chat-tab" />
+                                <ui:Button name="home-chat-system-button" class="hub-chat-tab" />
                             </ui:VisualElement>
-                            <ui:VisualElement class="hub-brief-row">
-                                <ui:Label name="home-brief-rules-label" class="hub-brief-key" />
-                                <ui:Label name="home-brief-rules-value" class="hub-brief-value" />
+                            <ui:VisualElement class="hub-chat-feed">
+                                <ui:Label name="home-chat-date" class="hub-chat-date" />
+                                <ui:Label name="home-chat-message-one" class="hub-chat-message" />
+                                <ui:Label name="home-chat-message-two" class="hub-chat-message" />
+                                <ui:Label name="home-chat-message-three" class="hub-chat-message" />
+                                <ui:Label name="home-chat-user-message" class="hub-chat-message hub-chat-user-message" />
                             </ui:VisualElement>
-                            <ui:VisualElement class="hub-brief-row">
-                                <ui:Label name="home-brief-victory-label" class="hub-brief-key" />
-                                <ui:Label name="home-brief-victory-value" class="hub-brief-value" />
+                            <ui:Label name="home-chat-input-label" class="hub-chat-input-label" />
+                            <ui:VisualElement class="hub-chat-input-row">
+                                <ui:TextField name="home-chat-input" class="hub-chat-input" />
+                                <ui:Button name="home-chat-send-button" class="hub-chat-send" />
                             </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:ScrollView>
+
+            <ui:VisualElement name="hub-modal" class="hub-modal">
+                <ui:VisualElement class="hub-modal-card panel">
+                    <ui:Label name="hub-modal-eyebrow" class="card-label" />
+                    <ui:Label name="hub-modal-title" class="section-title" />
+                    <ui:Label name="hub-modal-description" class="body-copy" />
+                    <ui:Button name="hub-modal-close-button" class="secondary-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement name="setup-stage" class="stage stage-setup">

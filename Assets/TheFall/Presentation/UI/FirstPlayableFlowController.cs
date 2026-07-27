@@ -35,37 +35,29 @@ namespace TheFall.Presentation.UI
                 { "login-title-accent", "flow.login.title-accent" },
                 { "login-description", "flow.login.description" },
                 { "login-proof", "flow.login.proof" },
-                { "login-panel-title", "app.title" },
+                { "login-panel-title", "flow.login.panel-title" },
                 { "login-panel-subtitle", "flow.login.panel-subtitle" },
                 { "login-email-label", "flow.login.email" },
                 { "login-password-label", "flow.login.password" },
                 { "login-divider-label", "flow.login.divider" },
-                { "login-mock-note", "flow.login.mock-note" },
+                { "login-account-prefix", "flow.login.account-prefix" },
                 { "home-eyebrow", "flow.home.eyebrow" },
-                { "home-title", "app.title" },
+                { "home-title", "flow.home.profile-name" },
+                { "home-xp-label", "flow.home.xp-label" },
+                { "home-level-value", "flow.home.level-value" },
                 { "home-subtitle", "flow.home.subtitle" },
                 { "home-card-label", "flow.home.card-label" },
                 { "home-objective-title", "flow.home.objective-title" },
                 { "home-mode", "flow.home.mode" },
-                { "home-step-match", "flow.home.step.match" },
-                { "home-step-result", "flow.home.step.result" },
-                { "home-prompt", "flow.home.prompt" },
                 { "home-stat-mode-label", "flow.home.stat.mode-label" },
                 { "home-stat-mode-value", "flow.home.stat.mode-value" },
                 { "home-stat-target-label", "flow.home.stat.target-label" },
                 { "home-stat-target-value", "flow.home.stat.target-value" },
                 { "home-stat-deck-label", "flow.home.stat.deck-label" },
                 { "home-stat-deck-value", "flow.home.stat.deck-value" },
-                { "home-status-ready", "flow.home.status-ready" },
-                { "home-status-detail", "flow.home.status-detail" },
-                { "home-route-label", "flow.home.route-label" },
-                { "home-brief-label", "flow.home.brief-label" },
-                { "home-brief-opponent-label", "flow.home.brief.opponent-label" },
-                { "home-brief-opponent-value", "flow.home.brief.opponent-value" },
-                { "home-brief-rules-label", "flow.home.brief.rules-label" },
-                { "home-brief-rules-value", "flow.home.brief.rules-value" },
-                { "home-brief-victory-label", "flow.home.brief.victory-label" },
-                { "home-brief-victory-value", "flow.home.brief.victory-value" },
+                { "home-action-status", "flow.home.action-status" },
+                { "home-chat-input-label", "flow.home.chat.input-label" },
+                { "hub-modal-eyebrow", "flow.home.modal.eyebrow" },
                 { "setup-eyebrow", "flow.setup.eyebrow" },
                 { "setup-title", "flow.setup.title" },
                 { "setup-subtitle", "flow.setup.subtitle" },
@@ -96,7 +88,22 @@ namespace TheFall.Presentation.UI
             new Dictionary<string, string>
             {
                 { "login-enter-button", "flow.login.enter" },
+                { "login-forgot-button", "flow.login.forgot" },
+                { "login-google-button", "flow.login.google" },
+                { "login-apple-button", "flow.login.apple" },
+                { "login-create-button", "flow.login.create" },
                 { "home-start-button", "flow.home.start" },
+                { "home-mail-button", "flow.home.mail" },
+                { "home-settings-button", "flow.home.settings" },
+                { "home-decks-button", "flow.home.nav.decks" },
+                { "home-bag-button", "flow.home.nav.bag" },
+                { "home-shop-button", "flow.home.nav.shop" },
+                { "home-rank-button", "flow.home.nav.rank" },
+                { "home-chat-global-button", "flow.home.chat.global" },
+                { "home-chat-guild-button", "flow.home.chat.guild" },
+                { "home-chat-system-button", "flow.home.chat.system" },
+                { "home-chat-send-button", "flow.home.chat.send" },
+                { "hub-modal-close-button", "flow.common.close" },
                 { "setup-start-button", "flow.setup.start" },
                 { "setup-back-button", "flow.common.back" },
                 { "loading-home-button", "flow.loading.cancel" },
@@ -142,6 +149,20 @@ namespace TheFall.Presentation.UI
         private Toggle _audioMasterToggle;
         private Toggle _audioEffectsToggle;
         private Toggle _audioMusicToggle;
+        private Label _loginFeedback;
+        private Label _homeActionStatus;
+        private Label _homeChatDate;
+        private Label _homeChatMessageOne;
+        private Label _homeChatMessageTwo;
+        private Label _homeChatMessageThree;
+        private Label _homeChatUserMessage;
+        private TextField _homeChatInput;
+        private Button _homeChatGlobalButton;
+        private Button _homeChatGuildButton;
+        private Button _homeChatSystemButton;
+        private VisualElement _hubModal;
+        private Label _hubModalTitle;
+        private Label _hubModalDescription;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
         private bool _hasEnteredGateway;
@@ -152,6 +173,7 @@ namespace TheFall.Presentation.UI
         private Rect _adaptiveSafeArea;
         private Vector2 _adaptivePanelSize;
         private bool _hasAdaptiveViewportOverride;
+        private string _homeChatChannel = "global";
 
         public FirstPlayableFlow Flow { get; private set; }
 
@@ -243,6 +265,8 @@ namespace TheFall.Presentation.UI
                 return false;
             }
 
+            Require<TextField>("login-email").SetValueWithoutNotify(string.Empty);
+            Require<TextField>("login-password").SetValueWithoutNotify(string.Empty);
             _hasEnteredGateway = true;
             Render();
             return true;
@@ -372,6 +396,8 @@ namespace TheFall.Presentation.UI
             if (!_hasEnteredGateway)
             {
                 ShowOnly("login-stage");
+                _screen.EnableInClassList("show-login", true);
+                _screen.EnableInClassList("show-hub", false);
                 _screen.EnableInClassList("show-table", false);
                 Focus("login-enter-button");
                 UpdatePresentationAvailability();
@@ -383,10 +409,13 @@ namespace TheFall.Presentation.UI
                 ? FirstPlayableFlowStage.Match
                 : Flow.Stage;
             ShowOnly(StageElementName(presentedStage));
+            _screen.EnableInClassList("show-login", false);
+            _screen.EnableInClassList("show-hub", presentedStage == FirstPlayableFlowStage.Home);
 
             switch (presentedStage)
             {
                 case FirstPlayableFlowStage.Home:
+                    RenderHomeChat();
                     Focus("home-start-button");
                     break;
                 case FirstPlayableFlowStage.Setup:
@@ -454,10 +483,61 @@ namespace TheFall.Presentation.UI
             _audioMasterToggle = Require<Toggle>("audio-master-toggle");
             _audioEffectsToggle = Require<Toggle>("audio-effects-toggle");
             _audioMusicToggle = Require<Toggle>("audio-music-toggle");
+            _loginFeedback = Require<Label>("login-feedback");
+            _homeActionStatus = Require<Label>("home-action-status");
+            _homeChatDate = Require<Label>("home-chat-date");
+            _homeChatMessageOne = Require<Label>("home-chat-message-one");
+            _homeChatMessageTwo = Require<Label>("home-chat-message-two");
+            _homeChatMessageThree = Require<Label>("home-chat-message-three");
+            _homeChatUserMessage = Require<Label>("home-chat-user-message");
+            _homeChatInput = Require<TextField>("home-chat-input");
+            _homeChatGlobalButton = Require<Button>("home-chat-global-button");
+            _homeChatGuildButton = Require<Button>("home-chat-guild-button");
+            _homeChatSystemButton = Require<Button>("home-chat-system-button");
+            _hubModal = Require<VisualElement>("hub-modal");
+            _hubModalTitle = Require<Label>("hub-modal-title");
+            _hubModalDescription = Require<Label>("hub-modal-description");
             Require<TextField>("login-password").isPasswordField = true;
 
             Require<Button>("login-enter-button").clicked += () => EnterGateway();
+            Require<Button>("login-forgot-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.forgot");
+            Require<Button>("login-google-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.google");
+            Require<Button>("login-apple-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.apple");
+            Require<Button>("login-create-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.create");
             Require<Button>("home-start-button").clicked += () => OpenSetup();
+            Require<Button>("home-mail-button").clicked += () =>
+                ShowHubPanel("flow.home.mail.title", "flow.home.mail.description");
+            Require<Button>("home-settings-button").clicked += () =>
+                ShowHubPanel("flow.home.settings.title", "flow.home.settings.description");
+            Require<Button>("home-decks-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.decks",
+                    "flow.home.decks.title",
+                    "flow.home.decks.description");
+            Require<Button>("home-bag-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.bag",
+                    "flow.home.bag.title",
+                    "flow.home.bag.description");
+            Require<Button>("home-shop-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.shop",
+                    "flow.home.shop.title",
+                    "flow.home.shop.description");
+            Require<Button>("home-rank-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.rank",
+                    "flow.home.rank.title",
+                    "flow.home.rank.description");
+            _homeChatGlobalButton.clicked += () => SelectHomeChatChannel("global");
+            _homeChatGuildButton.clicked += () => SelectHomeChatChannel("guild");
+            _homeChatSystemButton.clicked += () => SelectHomeChatChannel("system");
+            Require<Button>("home-chat-send-button").clicked += SendHomeChatMessage;
+            Require<Button>("hub-modal-close-button").clicked += CloseHubPanel;
             Require<Button>("setup-start-button").clicked += () => StartMatch();
             Require<Button>("setup-back-button").clicked += () => ReturnHome();
             Require<Button>("loading-home-button").clicked += () => ReturnHome();
@@ -493,7 +573,70 @@ namespace TheFall.Presentation.UI
             });
             _screen.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
 
+            SetVisible(_hubModal, false);
+            SetVisible(_homeChatUserMessage, false);
             _isBound = true;
+        }
+
+        private void ShowLoginFeedback(string localizationKey)
+        {
+            _loginFeedback.text = Localize(localizationKey);
+        }
+
+        private void SelectHubDestination(string statusKey, string titleKey, string descriptionKey)
+        {
+            _homeActionStatus.text = Localize(statusKey);
+            ShowHubPanel(titleKey, descriptionKey);
+        }
+
+        private void ShowHubPanel(string titleKey, string descriptionKey)
+        {
+            _hubModalTitle.text = Localize(titleKey);
+            _hubModalDescription.text = Localize(descriptionKey);
+            SetVisible(_hubModal, true);
+            Focus("hub-modal-close-button");
+        }
+
+        private void CloseHubPanel()
+        {
+            SetVisible(_hubModal, false);
+            Focus("home-start-button");
+        }
+
+        private void SelectHomeChatChannel(string channel)
+        {
+            _homeChatChannel = channel;
+            RenderHomeChat();
+        }
+
+        private void RenderHomeChat()
+        {
+            _homeChatGlobalButton.EnableInClassList("hub-chat-tab-active", _homeChatChannel == "global");
+            _homeChatGuildButton.EnableInClassList("hub-chat-tab-active", _homeChatChannel == "guild");
+            _homeChatSystemButton.EnableInClassList("hub-chat-tab-active", _homeChatChannel == "system");
+            _homeChatDate.text = Localize("flow.home.chat.date");
+            _homeChatMessageOne.text = Localize($"flow.home.chat.{_homeChatChannel}.one");
+            _homeChatMessageTwo.text = Localize($"flow.home.chat.{_homeChatChannel}.two");
+            _homeChatMessageThree.text = Localize($"flow.home.chat.{_homeChatChannel}.three");
+            SetVisible(
+                _homeChatUserMessage,
+                _homeChatChannel == "global" && !string.IsNullOrWhiteSpace(_homeChatUserMessage.text));
+        }
+
+        private void SendHomeChatMessage()
+        {
+            var message = _homeChatInput.value?.Trim();
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                _homeActionStatus.text = Localize("flow.home.chat.empty");
+                return;
+            }
+
+            _homeChatChannel = "global";
+            _homeChatUserMessage.text = Localize("flow.home.chat.you", message);
+            _homeChatInput.SetValueWithoutNotify(string.Empty);
+            _homeActionStatus.text = Localize("flow.home.chat.sent");
+            RenderHomeChat();
         }
 
         private void RenderSetup()

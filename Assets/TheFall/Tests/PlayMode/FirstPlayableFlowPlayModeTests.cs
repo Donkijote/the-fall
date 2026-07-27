@@ -36,6 +36,10 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<TextField>("login-email").focusable, Is.True);
             Assert.That(root.Q<TextField>("login-password").isPasswordField, Is.True);
             Assert.That(root.Q<Button>("login-enter-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("login-forgot-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("login-google-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("login-apple-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("login-create-button").focusable, Is.True);
             Assert.That(controller.OpenSetup(), Is.False);
             Assert.That(controller.EnterGateway(), Is.True);
             Assert.That(controller.EnterGateway(), Is.False);
@@ -45,10 +49,15 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<VisualElement>("login-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
             Assert.That(root.Q<VisualElement>("home-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
             Assert.That(root.Q<Label>("home-objective-title").text, Is.Not.Empty);
-            Assert.That(root.Q<Label>("home-step-match").text, Is.Not.Empty);
-            Assert.That(root.Q<Label>("home-step-result").text, Is.Not.Empty);
-            Assert.That(root.Q<Label>("home-stat-target-value").text, Is.EqualTo("24"));
-            Assert.That(root.Q<Label>("home-brief-opponent-value").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("home-stat-target-value").text, Is.EqualTo("500"));
+            Assert.That(root.Q<Button>("home-mail-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-settings-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-decks-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-bag-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-shop-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-rank-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-chat-global-button").focusable, Is.True);
+            Assert.That(root.Q<TextField>("home-chat-input").focusable, Is.True);
             Assert.That(root.Q<VisualElement>(className: "hub-topbar"), Is.Not.Null);
             Assert.That(root.Q<VisualElement>(className: "hub-bottombar"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-start-button").focusable, Is.True);
@@ -157,10 +166,14 @@ namespace TheFall.Tests.PlayMode
             Assert.That(enter.text, Is.Not.Empty);
             Assert.That(enter.focusable, Is.True);
             Assert.That(proof.text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("login-google-button").text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("login-create-button").text, Is.Not.Empty);
             Assert.That(screen.layout.width, Is.GreaterThan(0f));
             Assert.That(screen.layout.height, Is.GreaterThan(0f));
 
             Assert.That(controller.EnterGateway(), Is.True);
+            Assert.That(root.Q<Button>("home-decks-button").text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("home-chat-system-button").text, Is.Not.Empty);
             Assert.That(controller.OpenSetup(), Is.True);
             yield return null;
             var setupStage = root.Q<VisualElement>("setup-stage");
@@ -186,6 +199,9 @@ namespace TheFall.Tests.PlayMode
             var root = controller.GetComponent<UIDocument>().rootVisualElement;
             var screen = root.Q<VisualElement>("home-screen");
             var enterGateway = root.Q<Button>("login-enter-button");
+            var loginGoogle = root.Q<Button>("login-google-button");
+            var homeDecks = root.Q<Button>("home-decks-button");
+            var homeChatSend = root.Q<Button>("home-chat-send-button");
             var casasToggle = root.Q<Toggle>("casas-toggle");
             var startMatch = root.Q<Button>("setup-start-button");
 
@@ -201,6 +217,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CurrentAdaptivePanelInsets.Bottom, Is.GreaterThan(0f));
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
             Assert.That(enterGateway.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(loginGoogle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             controller.ApplyViewportForTests(
                 new Vector2Int(844, 390),
@@ -216,6 +233,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(enterGateway.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             Assert.That(controller.EnterGateway(), Is.True);
+            yield return null;
+            Assert.That(homeDecks.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(homeChatSend.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(controller.OpenSetup(), Is.True);
             var stage = controller.Flow.Stage;
 

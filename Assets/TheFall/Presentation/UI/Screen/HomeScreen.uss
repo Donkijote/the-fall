@@ -2139,7 +2139,7 @@ Toggle:disabled {
 }
 
 .hub-bottombar {
-    min-height: 220px;
+    min-height: 190px;
     align-items: stretch;
     justify-content: space-between;
 }
@@ -2611,4 +2611,694 @@ Toggle:disabled {
 
 .screen-root.profile-mobile-landscape .hub-route-icon {
     font-size: 40px;
+}
+
+.screen-root.show-login .ambient,
+.screen-root.show-hub .ambient {
+    display: none;
+}
+
+.login-backdrop {
+    opacity: 1;
+    background-image: url("/Assets/TheFall/Content/UI/LoginGatewayBackground.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.login-scrim {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(24, 15, 12, 0.66);
+}
+
+.login-scroll {
+    background-color: rgba(36, 26, 20, 0.12);
+}
+
+.login-panel {
+    padding-top: 30px;
+    padding-bottom: 24px;
+}
+
+.login-password-heading,
+.login-social-row,
+.login-account-row,
+.login-input-shell {
+    flex-direction: row;
+    align-items: center;
+}
+
+.login-input-shell {
+    height: 54px;
+    background-color: rgb(36, 26, 20);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.35);
+    border-right-color: rgba(216, 196, 147, 0.35);
+    border-top-color: rgba(216, 196, 147, 0.35);
+    border-bottom-color: rgba(216, 196, 147, 0.35);
+    border-radius: 7px;
+}
+
+.login-input-icon {
+    width: 42px;
+    min-width: 42px;
+    color: rgb(112, 136, 155);
+    font-size: 16px;
+    -unity-text-align: middle-center;
+}
+
+.login-input-shell .login-field {
+    flex-grow: 1;
+    height: 52px;
+    background-color: rgba(36, 26, 20, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.login-password-heading {
+    margin-top: 17px;
+    justify-content: space-between;
+}
+
+.login-password-label {
+    margin-top: 0;
+    margin-bottom: 7px;
+}
+
+.login-link-button {
+    min-height: 28px;
+    padding-left: 4px;
+    padding-right: 4px;
+    color: rgb(181, 139, 62);
+    background-color: rgba(36, 26, 20, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-radius: 0;
+    font-size: 12px;
+}
+
+.login-link-button:hover,
+.login-link-button:focus {
+    color: rgb(245, 226, 176);
+    background-color: rgba(36, 26, 20, 0);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.login-social-row {
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.login-lower-panel {
+    margin-left: -42px;
+    margin-right: -42px;
+    margin-bottom: -24px;
+    padding-left: 42px;
+    padding-right: 42px;
+    padding-bottom: 18px;
+    background-color: rgba(36, 26, 20, 0.42);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.login-social-button {
+    width: 58px;
+    min-width: 58px;
+    height: 58px;
+    min-height: 58px;
+    margin-left: 8px;
+    margin-right: 8px;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(216, 196, 147);
+    background-color: rgb(36, 26, 20);
+    border-left-color: rgba(216, 196, 147, 0.42);
+    border-right-color: rgba(216, 196, 147, 0.42);
+    border-top-color: rgba(216, 196, 147, 0.42);
+    border-bottom-color: rgb(141, 66, 56);
+    border-bottom-width: 3px;
+    border-radius: 29px;
+    font-size: 21px;
+}
+
+.login-social-button:hover,
+.login-social-button:focus {
+    color: rgb(36, 26, 20);
+    background-color: rgb(181, 139, 62);
+}
+
+.login-account-row {
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.login-account-prefix {
+    color: rgb(160, 144, 118);
+    font-size: 13px;
+}
+
+.login-create-button {
+    margin-left: 5px;
+    color: rgb(181, 139, 62);
+    -unity-font-style: bold;
+}
+
+.login-feedback {
+    min-height: 18px;
+    margin-top: 8px;
+    color: rgb(181, 165, 134);
+    font-size: 11px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.hub-layout {
+    padding: 18px 24px 22px 24px;
+    background-color: rgba(36, 26, 20, 0.82);
+}
+
+.hub-xp-row {
+    margin-top: 6px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.hub-xp-track {
+    width: 78%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgba(216, 196, 147, 0.16);
+}
+
+.hub-xp-fill {
+    width: 72%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgb(70, 92, 115);
+}
+
+.hub-xp-label {
+    margin-left: 8px;
+    color: rgb(160, 144, 118);
+    font-size: 9px;
+}
+
+.hub-level-value {
+    min-width: 28px;
+    height: 28px;
+    margin-left: 10px;
+    padding-left: 7px;
+    padding-right: 7px;
+    color: rgb(245, 226, 176);
+    background-color: rgb(36, 26, 20);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+    border-radius: 5px;
+    -unity-text-align: middle-center;
+}
+
+.hub-resource-icon {
+    margin-right: 7px;
+    font-size: 19px;
+    -unity-font-style: bold;
+}
+
+.hub-resource-brass {
+    color: rgb(181, 139, 62);
+}
+
+.hub-resource-woad {
+    color: rgb(112, 136, 155);
+}
+
+.hub-resource-madder {
+    color: rgb(141, 66, 56);
+}
+
+.hub-energy-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background-color: rgba(216, 196, 147, 0.10);
+}
+
+.hub-energy-fill {
+    width: 75%;
+    height: 4px;
+    background-color: rgb(70, 92, 115);
+}
+
+.hub-top-actions {
+    width: 116px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.hub-square-button {
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+    min-height: 50px;
+    margin-left: 8px;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(216, 196, 147);
+    background-color: rgba(59, 41, 31, 0.96);
+    border-left-color: rgba(216, 196, 147, 0.35);
+    border-right-color: rgba(216, 196, 147, 0.35);
+    border-top-color: rgba(216, 196, 147, 0.35);
+    border-bottom-color: rgba(216, 196, 147, 0.35);
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+.hub-square-button:hover,
+.hub-square-button:focus {
+    color: rgb(245, 226, 176);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-mail-dot {
+    position: absolute;
+    right: 53px;
+    top: 10px;
+    width: 9px;
+    height: 9px;
+    border-radius: 5px;
+    background-color: rgb(141, 66, 56);
+}
+
+.hub-center-space {
+    min-height: 150px;
+}
+
+.hub-bottombar {
+    min-height: 220px;
+    align-items: flex-end;
+}
+
+.hub-objective {
+    width: 25%;
+    min-width: 270px;
+    max-width: 380px;
+    min-height: 220px;
+}
+
+.hub-quest-button {
+    min-height: 42px;
+    margin-top: 14px;
+    color: rgb(245, 226, 176);
+    background-color: rgb(141, 66, 56);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(110, 46, 40);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(110, 46, 40);
+    font-size: 13px;
+}
+
+.hub-quest-button:hover,
+.hub-quest-button:focus {
+    color: rgb(36, 26, 20);
+    background-color: rgb(181, 139, 62);
+}
+
+.hub-dock {
+    width: 36%;
+    min-width: 410px;
+    max-width: 560px;
+    min-height: 142px;
+    padding: 12px 16px;
+}
+
+.hub-route {
+    min-height: 104px;
+    margin-top: 0;
+}
+
+.hub-nav-button {
+    width: 24%;
+    min-width: 0;
+    min-height: 94px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: rgb(181, 165, 134);
+    background-color: rgba(36, 26, 20, 0.48);
+    border-left-color: rgba(216, 196, 147, 0.18);
+    border-right-color: rgba(216, 196, 147, 0.18);
+    border-top-color: rgba(216, 196, 147, 0.18);
+    border-bottom-color: rgba(216, 196, 147, 0.18);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.hub-nav-button:hover,
+.hub-nav-button:focus,
+.hub-nav-selected {
+    color: rgb(245, 226, 176);
+    background-color: rgb(59, 41, 31);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-action-status {
+    min-height: 16px;
+    margin-top: 5px;
+    color: rgb(160, 144, 118);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.hub-chat {
+    width: 31%;
+    min-width: 330px;
+    max-width: 430px;
+    min-height: 180px;
+    border-right-width: 3px;
+    border-right-color: rgb(70, 92, 115);
+}
+
+.hub-chat-tabs,
+.hub-chat-input-row {
+    flex-direction: row;
+}
+
+.hub-chat-tab {
+    width: 33.33%;
+    min-width: 0;
+    min-height: 36px;
+    padding-left: 4px;
+    padding-right: 4px;
+    color: rgb(160, 144, 118);
+    background-color: rgb(36, 26, 20);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-color: rgba(216, 196, 147, 0.16);
+    border-radius: 0;
+    font-size: 11px;
+}
+
+.hub-chat-tab-active,
+.hub-chat-tab:hover,
+.hub-chat-tab:focus {
+    color: rgb(245, 226, 176);
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-chat-feed {
+    flex-grow: 1;
+    min-height: 52px;
+    padding: 12px 14px 8px 14px;
+    background-color: rgba(36, 26, 20, 0.54);
+}
+
+.hub-chat-date {
+    margin-bottom: 8px;
+    color: rgb(116, 105, 88);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+}
+
+.hub-chat-message {
+    margin-top: 6px;
+    color: rgb(197, 178, 142);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.hub-chat-user-message {
+    color: rgb(112, 136, 155);
+}
+
+.hub-chat-input-label {
+    margin-top: 7px;
+    margin-left: 10px;
+    color: rgb(116, 105, 88);
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.hub-chat-input-row {
+    height: 38px;
+    padding: 4px 6px 6px 8px;
+}
+
+.hub-chat-input {
+    flex-grow: 1;
+    height: 32px;
+    color: rgb(216, 196, 147);
+    background-color: rgb(36, 26, 20);
+    border-left-color: rgba(216, 196, 147, 0.28);
+    border-right-color: rgba(216, 196, 147, 0.28);
+    border-top-color: rgba(216, 196, 147, 0.28);
+    border-bottom-color: rgba(216, 196, 147, 0.28);
+}
+
+.hub-chat-input .unity-base-text-field__input {
+    color: rgb(216, 196, 147);
+    background-color: rgba(36, 26, 20, 0);
+}
+
+.hub-chat-send {
+    width: 42px;
+    min-width: 42px;
+    min-height: 32px;
+    margin-left: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(245, 226, 176);
+    background-color: rgb(70, 92, 115);
+    font-size: 14px;
+}
+
+.hub-modal {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(15, 12, 10, 0.72);
+}
+
+.hub-modal-card {
+    width: 44%;
+    min-width: 420px;
+    max-width: 640px;
+    padding: 34px;
+    border-top-width: 3px;
+    border-top-color: rgb(181, 139, 62);
+}
+
+.hub-modal-card > Button {
+    align-self: flex-end;
+    min-width: 150px;
+}
+
+.screen-root.profile-mobile-portrait .login-password-heading {
+    margin-top: 48px;
+}
+
+.screen-root.profile-mobile-portrait .login-input-shell {
+    height: 190px;
+    border-radius: 22px;
+}
+
+.screen-root.profile-mobile-portrait .login-input-icon {
+    width: 140px;
+    min-width: 140px;
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-portrait .login-input-shell .login-field {
+    height: 186px;
+}
+
+.screen-root.profile-mobile-portrait .login-lower-panel {
+    margin-left: -88px;
+    margin-right: -88px;
+    margin-bottom: -88px;
+    padding-left: 88px;
+    padding-right: 88px;
+    padding-bottom: 70px;
+}
+
+.screen-root.profile-mobile-portrait .login-link-button,
+.screen-root.profile-mobile-portrait .login-account-prefix,
+.screen-root.profile-mobile-portrait .login-feedback {
+    font-size: 40px;
+}
+
+.screen-root.profile-mobile-portrait .login-social-row,
+.screen-root.profile-mobile-portrait .login-account-row {
+    margin-top: 54px;
+}
+
+.screen-root.profile-mobile-portrait .login-social-button {
+    width: 190px;
+    min-width: 190px;
+    height: 190px;
+    min-height: 190px;
+    margin-left: 28px;
+    margin-right: 28px;
+    border-radius: 95px;
+    font-size: 64px;
+}
+
+.screen-root.profile-mobile-portrait .hub-top-actions {
+    width: 100%;
+    margin-top: 36px;
+    justify-content: flex-end;
+}
+
+.screen-root.profile-mobile-portrait .hub-square-button {
+    width: 190px;
+    min-width: 190px;
+    height: 190px;
+    min-height: 190px;
+    font-size: 40px;
+}
+
+.screen-root.profile-mobile-portrait .hub-mail-dot {
+    right: 194px;
+    top: 24px;
+    width: 34px;
+    height: 34px;
+    border-radius: 17px;
+}
+
+.screen-root.profile-mobile-portrait .hub-level-value,
+.screen-root.profile-mobile-portrait .hub-xp-label {
+    font-size: 36px;
+}
+
+.screen-root.profile-mobile-portrait .hub-xp-track,
+.screen-root.profile-mobile-portrait .hub-xp-fill {
+    height: 18px;
+}
+
+.screen-root.profile-mobile-portrait .hub-resource-icon {
+    margin-right: 0;
+    font-size: 60px;
+}
+
+.screen-root.profile-mobile-portrait .hub-bottombar {
+    min-height: 0;
+}
+
+.screen-root.profile-mobile-portrait .hub-objective,
+.screen-root.profile-mobile-portrait .hub-dock,
+.screen-root.profile-mobile-portrait .hub-chat {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 640px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 44px;
+}
+
+.screen-root.profile-mobile-portrait .hub-quest-button,
+.screen-root.profile-mobile-portrait .hub-nav-button,
+.screen-root.profile-mobile-portrait .hub-chat-tab,
+.screen-root.profile-mobile-portrait .hub-chat-send {
+    min-height: 210px;
+    font-size: 48px;
+}
+
+.screen-root.profile-mobile-portrait .hub-chat-feed {
+    min-height: 620px;
+    padding: 44px;
+}
+
+.screen-root.profile-mobile-portrait .hub-chat-date,
+.screen-root.profile-mobile-portrait .hub-chat-message,
+.screen-root.profile-mobile-portrait .hub-chat-input-label,
+.screen-root.profile-mobile-portrait .hub-action-status {
+    font-size: 38px;
+}
+
+.screen-root.profile-mobile-portrait .hub-chat-input-row {
+    height: 230px;
+}
+
+.screen-root.profile-mobile-portrait .hub-chat-input {
+    height: 210px;
+}
+
+.screen-root.profile-mobile-portrait .hub-modal-card {
+    width: 86%;
+    min-width: 0;
+    max-width: none;
+    padding: 80px;
+}
+
+.screen-root.profile-mobile-landscape .hub-top-actions {
+    width: 190px;
+}
+
+.screen-root.profile-mobile-landscape .hub-square-button {
+    width: 82px;
+    min-width: 82px;
+    height: 82px;
+    min-height: 82px;
+    font-size: 18px;
+}
+
+.screen-root.profile-mobile-landscape .hub-bottombar {
+    min-height: 430px;
+}
+
+.screen-root.profile-mobile-landscape .hub-objective {
+    width: 25%;
+    min-width: 420px;
+}
+
+.screen-root.profile-mobile-landscape .hub-dock {
+    width: 34%;
+    min-width: 660px;
+}
+
+.screen-root.profile-mobile-landscape .hub-chat {
+    width: 32%;
+    min-width: 530px;
+    min-height: 430px;
+}
+
+.screen-root.profile-mobile-landscape .hub-nav-button,
+.screen-root.profile-mobile-landscape .hub-chat-tab {
+    min-height: 145px;
+    font-size: 24px;
+}
+
+.screen-root.profile-mobile-landscape .hub-chat-message {
+    font-size: 20px;
 }

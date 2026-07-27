@@ -56,6 +56,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Generated 3D asset intake](assets/generated-3d-intake.md): repeatable Meshy-to-Unity procedure, retained table provenance, import settings, exceptions, and validation results.
 - [Modular card visual pipeline](assets/card-visual-pipeline.md): reusable card components, deterministic forty-card atlas generation, runtime binding, and replacement workflow.
 - [Functional prototype audio sources](assets/prototype-audio.md): project-owned procedural cue provenance, parameters, license status, intended use, and replacement boundary.
+- [Login gateway background](assets/login-gateway-background.md): generated citadel-backdrop prompt, provenance, Unity import path, usage, and replacement boundary.
 
 ### Technical
 

@@ -23,11 +23,15 @@ The flow accepts only valid transitions. Repeated start, replay, loading-complet
 
 The pure flow still reaches Result as soon as the authoritative match completes. The UI adapter deliberately continues to present the Match panel while its final animation batch is busy, then reveals Result after synchronization. This is presentation gating only; it does not add a flow stage or delay the accepted rule state.
 
-The gateway shown before Home follows the same boundary. Its email and password fields are visual
-prototype controls: values are not read, stored, or validated, and `Enter the Realm` only reveals Home.
-The application remains in `Home`, with no match and no session created, while the gateway is visible.
-Authentication, accounts, profiles, credential persistence, and online authority remain deferred product
-work. Returning Home within the first-playable session does not reopen the gateway.
+The gateway shown before Home follows the same boundary. It implements the complete accepted visual
+shell: authored citadel backdrop, campaign copy, email/password fields, recovery link, primary entry,
+Google and Apple invocation buttons, and account creation link. Email and password values are never
+read, stored, or validated and are cleared when `Enter the Realm` reveals Home. Auxiliary account and
+provider actions return localized unavailable-state feedback until those services exist. The application
+remains in `Home`, with no match and no session created, while the gateway is visible. Authentication,
+accounts, credential persistence, and online authority remain deferred product work. Returning Home
+within the first-playable session does not reopen the gateway. Background provenance is recorded in
+[login gateway background](../assets/login-gateway-background.md).
 
 Starting a match creates one `FirstPlayableMatchOrchestrator` through the manual Bootstrap composition root. Replay replaces the completed orchestrator with a fresh seeded session while preserving the two selected rule options. Returning Home releases the match reference and restores the documented defaults before another setup begins.
 
@@ -57,13 +61,15 @@ changing the flow stage or match. The measurable tokens and screen audit are rec
 
 Issue #44 applies that foundation to the player journey around the match:
 
-- Gateway adapts the approved two-column medieval entry composition to The Fall's aged vellum,
-  antique brass, woad, and madder palette. Desktop and mobile landscape retain the hero/form split;
-  mobile portrait stacks both sections in one safe-area-aware scroll view.
-- Home uses a HUD-like hub composition without inventing currencies, chat, inventory, progression, or
-  profile state. Its top bar identifies the local player context and summarizes the real 1v1 mode,
-  24-point target, 40-card deck, and offline readiness. Its bottom bar presents the Baseline Bot
-  objective, setup/match/result route, functional `Play` action, and default-rule table brief.
+- Gateway follows the accepted two-column medieval entry composition in The Fall's aged vellum,
+  antique brass, woad, and madder palette. Desktop and mobile landscape retain the full hero/form
+  split; mobile portrait stacks the complete action set in one safe-area-aware scroll view.
+- Home implements the accepted final hub shell. Its top bar contains the player card, level/XP,
+  coin/gem/energy counters, mail, and settings. Its bottom bar contains the current quest, functional
+  Decks/Bag/Shop/Rank destinations, and Global/Guild/System chat. `Begin Quest` is the authoritative
+  route to setup. Hub destinations open localized presentation panels and chat operates locally;
+  persistent profile, economy, inventory, commerce, guild, mailbox, and online chat services remain
+  disconnected rather than fabricating application data.
 - Setup presents only Casa Grande/Casa Chica scoring and the Trivilín effect. Each option names its
   recommended default, explains both outcomes, and reflects the current selection in text as well as
   toggle state. Offline 1v1, the baseline bot, and the 24-point target remain visibly fixed.
