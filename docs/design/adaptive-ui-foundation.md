@@ -42,12 +42,12 @@ operable, not that its visual hierarchy is accepted for V0.1.
 
 | Layout | Home | Setup | Match | Result |
 | --- | --- | --- | --- | --- |
-| Desktop `1280 x 720` | Pass; title and primary action read, but secondary copy and prompt are near the lower readable bound | Pass; two options fit, but descriptions and keyboard prompt are dense | Pass; status rail, header controls, and interaction strip compete with the smallest accepted table area | Pass; winner and actions read, but prompt is visually weak |
-| Desktop `1440 x 900` | Pass; hierarchy is clear | Pass; option grouping is clear | Pass; table is viable, but 12–16 px secondary/status text and the dense settings header remain weak | Pass; clear outcome and actions |
-| Desktop `1920 x 1080` | Pass; balanced two-column composition | Pass | Pass; table and status are readable, while presentation toggles still dominate the header | Pass |
+| Desktop `1280 x 720` | Pass; title and primary action read, but secondary copy and prompt are near the lower readable bound | Pass; two options fit, but descriptions and keyboard prompt are dense | Pass; centered score, compact status card, and floating exit preserve the minimum table area | Pass; winner and actions read, but prompt is visually weak |
+| Desktop `1440 x 900` | Pass; hierarchy is clear | Pass; option grouping is clear | Pass; table dominates while the score and current decision remain immediately readable | Pass; clear outcome and actions |
+| Desktop `1920 x 1080` | Pass; balanced two-column composition | Pass | Pass; presentation settings remain in Home and no match header competes with the table | Pass |
 | Desktop `2560 x 1440` | Pass; fixed maximum widths leave deliberate but excessive unused space | Pass; panel does not use the additional space to strengthen rule comparison | Pass; the `1500`-unit shell cap leaves unused space instead of improving card or character identity | Pass; result panel remains readable but visually undersized for the viewport |
-| Recorded iPhone portrait | Operable; desktop reference scaling makes title, copy, and action physically small and leaves excess vertical space | Operable; desktop option rows and prompts are too small for comfortable reading/touch | Operable; table, characters, cards, scores, header controls, context controls, and feedback all shrink together; decision priority is lost | Operable; winner reads before supporting score/prompt, but controls and copy are undersized |
-| Recorded iPhone landscape | Operable; desktop row fits but uses phone height inefficiently | Operable; copy, toggles, and buttons are small while horizontal space is underused | Operable; safe-area containment passes, but the desktop header/status/table proportions overcrowd the short axis and controls are below comfortable touch size | Operable; primary result survives, supporting copy and controls remain small |
+| Recorded iPhone portrait | Operable; desktop reference scaling makes title, copy, and action physically small and leaves excess vertical space | Operable; desktop option rows and prompts are too small for comfortable reading/touch | Operable; score, compact status, context controls, and table retain separate priority without persistent top or bottom bars | Operable; winner reads before supporting score/prompt, but controls and copy are undersized |
+| Recorded iPhone landscape | Operable; desktop row fits but uses phone height inefficiently | Operable; copy, toggles, and buttons are small while horizontal space is underused | Operable; safe-area containment passes with floating score, exit, and status overlays preserving the short axis | Operable; primary result survives, supporting copy and controls remain small |
 
 Cross-screen failures:
 
@@ -90,8 +90,9 @@ reduce all four layers uniformly.
 - Keep Home as a two-region hero and primary-action composition.
 - Keep setup and result in a centered, bounded reading panel; use surplus width for comparison and
   hierarchy rather than longer line length.
-- Keep match status beside the table at the accepted layouts. The table owns the largest region;
-  local hand and contextual action remain visually attached to the table.
+- Keep a compact match-status card at the table edge and the score centered above play. The table owns
+  the largest region; local hand and contextual action remain visually attached to the table. Do not
+  restore a persistent match header or bottom explanation strip.
 - Mouse and keyboard share the same visible action. Focus remains visible after pointer movement and
   pseudo-localization wrapping.
 
@@ -102,13 +103,12 @@ reduce all four layers uniformly.
 - Use the long axis for separation, not for enlarging decorative gaps.
 - Present score and next action before round/deal explanation. Context menus expand into a
   phone-width surface with touch rows rather than a scaled desktop popover.
-- Settings and non-urgent presentation controls may wrap below the primary header; they must not
-  reduce the table and local hand below their minimums.
+- Settings and non-urgent presentation controls remain on Home; they do not consume match space.
 
 ### Mobile landscape
 
-- Compose for the short vertical axis: compact status rail, dominant table/local-hand region, and a
-  bottom interaction strip.
+- Compose for the short vertical axis: compact floating status, dominant table/local-hand region, and
+  contextual actions only.
 - Use horizontal space for status and contextual choices. Do not stack the portrait composition or
   shrink the desktop header.
 - Hardware side insets are applied before profile gutters. Context popovers open away from the
@@ -140,7 +140,7 @@ Stable component classes:
 - `.primary-button`, `.secondary-button`, `.quiet-button`: action hierarchy
 - `.rule-toggle`, `.presentation-toggle`: keyboard-, mouse-, and touch-focusable toggles
 - `.context-icon`, `.context-action-button`: table-attached decision entry and expanded choices
-- `.interaction-strip`: next-action and semantic-feedback surface
+- `.match-status`: compact next-action and semantic-feedback surface
 
 Stable state classes:
 

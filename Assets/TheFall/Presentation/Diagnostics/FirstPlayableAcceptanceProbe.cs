@@ -269,19 +269,20 @@ namespace TheFall.Presentation.Diagnostics
 
         private void StartConfiguredMatch()
         {
-            if (_controller.Flow.Stage != FirstPlayableFlowStage.Home || !_controller.OpenSetup())
+            if (_controller.Flow.Stage != FirstPlayableFlowStage.Home
+                || (!_controller.HasEnteredGateway && !_controller.EnterGateway()))
             {
-                throw new InvalidOperationException("Acceptance probe could not open first-playable setup.");
+                throw new InvalidOperationException("Acceptance probe could not reach the first-playable hub.");
             }
 
             var root = _controller.GetComponent<UIDocument>().rootVisualElement;
             var casasEnabled = _matchIndex % 2 == 0;
             var trivilinWins = _matchIndex % 2 != 0;
-            root.Q<Toggle>("casas-toggle").value = casasEnabled;
-            root.Q<Toggle>("trivilin-toggle").value = trivilinWins;
+            root.Q<Toggle>("home-settings-casas-toggle").value = casasEnabled;
+            root.Q<Toggle>("home-settings-trivilin-toggle").value = trivilinWins;
             _observedRuleConfigurations.Add(
                 $"casas={casasEnabled.ToString().ToLowerInvariant()},trivilin-wins={trivilinWins.ToString().ToLowerInvariant()}");
-            if (!_controller.StartMatch())
+            if (!_controller.BeginQuest())
             {
                 throw new InvalidOperationException("Acceptance probe could not start the configured match.");
             }

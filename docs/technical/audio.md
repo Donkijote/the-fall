@@ -47,7 +47,8 @@ animation steps to catch missing or duplicated emission. It is not persisted or 
 
 ## Controls
 
-The localized match header exposes independent Master audio, Effects, and Music toggles.
+Home Settings exposes independent Master audio, Effects, and Music toggles. Those preferences remain
+active at the table without duplicating configuration controls in the match HUD.
 
 - Master off prevents and stops gameplay effects.
 - Effects off prevents and stops gameplay effects while preserving the master preference.

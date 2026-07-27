@@ -167,8 +167,8 @@ For each required matrix row:
 
 1. Install or launch a development build made from a recorded commit.
 2. Record hardware, OS, display, quality, build, and profiler attachment state.
-3. Cold-launch three times and record Home and match readiness.
-4. Exercise touch or mouse/keyboard inspection, selection, confirmation, cancellation, rejection, and temporary blocking.
+3. Cold-launch three times, enter through the mock gateway, and record Home and match readiness.
+4. Confirm gateway credential text is neither required nor retained, then exercise touch or mouse/keyboard inspection, selection, confirmation, cancellation, rejection, and temporary blocking.
 5. Rotate mobile during a selected card and during animation; on desktop resize across every required resolution.
 6. Exercise both 1v1 acting seats, portrait and landscape, normal completion, skip, interruption, cancellation, and fast-forward.
 7. Confirm cards, names, scores, hands, capture piles, and state symbols remain readable and unobscured.
@@ -370,5 +370,22 @@ Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
   physical-device pass
 - issue #42 remains the owner of the recorded physical iPhone frame-pacing miss; this UI foundation
   does not change that performance claim or select a support floor
+
+## Issue #44 validation checkpoint
+
+Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
+
+- first-playable flow and foundation validation passed
+- complete Edit Mode suite passed: 116/116
+- complete Play Mode suite passed: 32/32
+- macOS universal development-player smoke build passed
+- built-player visual review passed for the complete gateway, Game-icons.net symbol treatment,
+  Home hub, Settings, direct Begin Quest transition, centered match score, compact status card,
+  floating return-to-Home action, and absence of persistent match header and bottom explanation bar
+- automated coverage verifies localized icon labels/tooltips, required icon imports, 256-pixel
+  uncompressed mipmapped UI import settings, touch-target preservation, duplicate-start protection, replay,
+  return Home, and authoritative session reset
+- physical-iPhone readability and touch review was not rerun; the accepted issue #31 device run
+  remains baseline evidence and a new device pass is required before closing V0.1 physical acceptance
 
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

@@ -72,9 +72,11 @@ resetting manual changes.
 - the review-only high-resolution `WarmChallenger` asset is not referenced
 - active turn combines a brass ring and `>` marker; dealer combines a diamond token and `D` marker
 
-The UI leaves a transparent central table area and keeps scores, dealer, active turn, canto, round/deal
-state, latest resolved event, contextual non-card decisions, and interaction feedback in screen-space
-elements.
+The UI leaves the table as the dominant full-screen layer. Score floats in a centered top plaque, Return
+to Home floats at the upper-right edge, and a compact side card keeps only phase, active turn, latest
+resolved event, actionable feedback, and Skip animation. Match configuration remains in Home Settings;
+the former settings header and persistent bottom explanation strip are not rendered. Dealer and canto
+decisions remain contextual screen-space controls attached to the local player.
 
 Every gameplay card uses one consistent footprint with the source art's exact `63:88` aspect ratio.
 Hands, table cards, deck cards, captured cards, and the dealer-selection spread distinguish their zones
@@ -113,7 +115,7 @@ screen column, and they contain only intents supplied by the orchestrator.
 
 The interaction session now accepts application delegates as well as a direct `MatchSession`. The integrated delegate submits the confirmed `PlayCardIntent` through `FirstPlayableFlow.TrySubmitHumanIntent`, so automatic bot turns, trace recording, result transition, and authoritative rejection stay on the existing application path.
 
-After one intent is accepted, both the flow controller and card-interaction session remain blocked until all human and automatic-bot resolution records in that batch have been presented. Card selection is retained, but another card confirmation, dealer selection, dealer option, or canto cannot be accepted out of order. Fast-forward and reduced-motion toggles may change the active transport without changing the match; Skip synchronizes immediately. Interruption, cancellation, leaving Home, disable, and teardown also synchronize before transient views are released.
+After one intent is accepted, both the flow controller and card-interaction session remain blocked until all human and automatic-bot resolution records in that batch have been presented. Card selection is retained, but another card confirmation, dealer selection, dealer option, or canto cannot be accepted out of order. Fast-forward and reduced-motion preferences from Home Settings may change the active transport without changing the match; Skip animation synchronizes immediately from the compact status card. Interruption, cancellation, leaving Home, disable, and teardown also synchronize before transient views are released.
 
 Legal, selected, confirmed, rejected, and temporarily blocked states retain the documented shape/text symbols and localized feedback. Dealer selection, dealer setup, and canto announcements remain localized UI actions because they are not card-hand interactions.
 

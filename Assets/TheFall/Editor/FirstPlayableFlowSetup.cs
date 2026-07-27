@@ -17,29 +17,163 @@ namespace TheFall.Editor
     {
         private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
         private const string UxmlPath = "Assets/TheFall/Presentation/UI/Screen/HomeScreen.uxml";
+        private const string IconDirectory = "Assets/TheFall/Content/UI/Icons";
+
+        private static readonly string[] RequiredIconNames =
+        {
+            "audio",
+            "bag",
+            "canto",
+            "clubs",
+            "coins",
+            "cups",
+            "decks",
+            "energy",
+            "envelope",
+            "gems",
+            "home",
+            "padlock",
+            "quest",
+            "rank",
+            "replay",
+            "send",
+            "settings",
+            "shield",
+            "shop",
+            "skip",
+        };
 
         private static readonly EntryDefinition[] Entries =
         {
-            Text("flow.home.eyebrow", "FIRST PLAYABLE"),
-            Text("flow.home.subtitle", "A complete, deterministic table match. Configure two traditional rules, face one baseline bot, and race to 24."),
-            Text("flow.home.mode", "Offline · 1 player vs 1 baseline bot · First to 24"),
-            Text("flow.home.start", "Start first playable"),
-            Text("flow.home.prompt", "Mouse: click · Keyboard: Tab, Enter, or Space"),
-            Text("flow.setup.eyebrow", "MATCH SETUP"),
-            Text("flow.setup.title", "Choose the table rules"),
-            Text("flow.setup.subtitle", "Only the two documented first-playable options can be changed. Everything else remains fixed."),
-            Text("flow.setup.casas", "Enable Casa Grande and Casa Chica"),
-            Text("flow.setup.casas-description", "On by default. When off, those hands score as their corresponding Ronda."),
-            Text("flow.setup.trivilin", "Trivilín wins immediately"),
-            Text("flow.setup.trivilin-description", "Off by default, so Trivilín awards five points. Turn this on for immediate victory."),
-            Text("flow.setup.fixed", "Fixed match: human vs baseline bot · 24-point target · complete 1v1 rules"),
+            Text("flow.login.eyebrow", "SEASON I · THE FIRST FALL"),
+            Text("flow.login.title", "FORGE YOUR"),
+            Text("flow.login.title-accent", "DESTINY"),
+            Text("flow.login.description", "Enter a world where memory meets nerve. Master the old deck, choose your rules, and conquer the table."),
+            Text("flow.login.proof", "40 cards · one table · first to 24"),
+            Text("flow.login.panel-title", "GATEWAY"),
+            Text("flow.login.panel-subtitle", "LOGIN TO ACCESS YOUR TABLE"),
+            Text("flow.login.email", "EMAIL ADDRESS"),
+            Text("flow.login.password", "PASSWORD"),
+            Text("flow.login.enter", "ENTER THE REALM  →"),
+            Text("flow.login.forgot", "Forgot Cipher?"),
+            Text("flow.login.divider", "OR INVOKE"),
+            Text("flow.login.google", "G"),
+            Text("flow.login.apple", "A"),
+            Text("flow.login.account-prefix", "New to the realm?"),
+            Text("flow.login.create", "Create Account"),
+            Text("flow.login.feedback.forgot", "Cipher recovery is not connected in this build."),
+            Text("flow.login.feedback.google", "Google invocation is not connected in this build."),
+            Text("flow.login.feedback.apple", "Apple invocation is not connected in this build."),
+            Text("flow.login.feedback.create", "Account creation is not connected in this build."),
+            Text("flow.home.profile-name", "THE WANDERER"),
+            Text("flow.home.eyebrow", "LEVEL 1 · TABLE NOVICE"),
+            Text("flow.home.xp-label", "XP"),
+            Text("flow.home.level-value", "1"),
+            Text("flow.home.subtitle", "The Baseline Bot waits at the offline table. Set your preferences once, begin the quest, and claim victory."),
+            Text("flow.home.card-label", "CURRENT QUEST"),
+            Text("flow.home.objective-title", "Defeat the Baseline Bot"),
+            Text("flow.home.mode", "0 / 1 MATCH"),
+            Text("flow.home.step.setup", "01 · Choose two optional rules"),
+            Text("flow.home.step.match", "02 · MATCH"),
+            Text("flow.home.step.result", "03 · RESULT"),
+            Text("flow.home.start", "BEGIN QUEST"),
+            Text("flow.home.prompt", "Begin Quest deals the match with your current Settings."),
+            Text("flow.home.stat.mode-label", "COINS"),
+            Text("flow.home.stat.mode-value", "14,200"),
+            Text("flow.home.stat.target-label", "GEMS"),
+            Text("flow.home.stat.target-value", "500"),
+            Text("flow.home.stat.deck-label", "ENERGY"),
+            Text("flow.home.stat.deck-value", "45/60"),
+            Text("flow.home.status-ready", "READY"),
+            Text("flow.home.status-detail", "LOCAL SESSION"),
+            Text("flow.home.route-label", "MATCH ROUTE"),
+            Text("flow.home.brief-label", "TABLE BRIEF"),
+            Text("flow.home.brief.opponent-label", "OPPONENT"),
+            Text("flow.home.brief.opponent-value", "Baseline Bot"),
+            Text("flow.home.brief.rules-label", "DEFAULTS"),
+            Text("flow.home.brief.rules-value", "Casas on · Trivilín 5"),
+            Text("flow.home.brief.victory-label", "VICTORY"),
+            Text("flow.home.brief.victory-value", "First to 24"),
+            Text("flow.home.action-status", "Choose a hub destination."),
+            Text("flow.home.mail", "MAIL"),
+            Text("flow.home.settings", "SET"),
+            Text("flow.home.nav.decks", "DECKS"),
+            Text("flow.home.nav.bag", "BAG"),
+            Text("flow.home.nav.shop", "SHOP"),
+            Text("flow.home.nav.rank", "RANK"),
+            Text("flow.home.chat.global", "Global"),
+            Text("flow.home.chat.guild", "Guild"),
+            Text("flow.home.chat.system", "System"),
+            Text("flow.home.chat.send", "Send"),
+            Text("flow.home.chat.input-label", "SCRIBE A LOCAL MESSAGE"),
+            Text("flow.home.chat.date", "— TODAY —"),
+            Text("flow.home.chat.global.one", "[HERALD] Welcome to the first season of The Fall."),
+            Text("flow.home.chat.global.two", "[PLAYER] The Baseline Bot is waiting at the table."),
+            Text("flow.home.chat.global.three", "[SCOUT] Casas are enabled by default."),
+            Text("flow.home.chat.guild.one", "[GUILD] No guild is connected in this build."),
+            Text("flow.home.chat.guild.two", "[GUILD] Social services remain local-only."),
+            Text("flow.home.chat.guild.three", "[GUILD] Gather your table when guilds arrive."),
+            Text("flow.home.chat.system.one", "[SYSTEM] Offline first-playable ready."),
+            Text("flow.home.chat.system.two", "[SYSTEM] Target score: 24."),
+            Text("flow.home.chat.system.three", "[SYSTEM] Deck integrity: 40 cards."),
+            Smart("flow.home.chat.you", "[YOU] {0}"),
+            Text("flow.home.chat.empty", "Write a message before sending."),
+            Text("flow.home.chat.sent", "Local message added to Global."),
+            Text("flow.home.modal.eyebrow", "HUB DESTINATION"),
+            Text("flow.common.close", "Close"),
+            Text("flow.home.mail.title", "Courier Mail"),
+            Text("flow.home.mail.description", "Your courier inbox is ready for future connected messages. No remote mailbox is active in this offline build."),
+            Text("flow.home.settings.title", "Settings"),
+            Text("flow.home.settings.description", "Choose the rules, sound, and motion used when you begin your next quest. Changes remain active for this play session."),
+            Text("flow.home.settings.rules-label", "MATCH RULES"),
+            Text("flow.home.settings.rules-copy", "These choices are applied automatically when Begin Quest is selected."),
+            Text("flow.home.settings.audio-label", "AUDIO"),
+            Text("flow.home.settings.audio-copy", "Control the table mix independently or silence everything with Master audio."),
+            Text("flow.home.settings.motion-label", "TABLE MOTION"),
+            Text("flow.home.settings.motion-copy", "Set the pace and reduce movement before the table is dealt."),
+            Text("flow.home.decks.title", "Decks"),
+            Text("flow.home.decks.description", "Reviewing and collecting alternate decks is reserved for the progression layer. The complete 40-card first-playable deck is ready."),
+            Text("flow.home.bag.title", "Bag"),
+            Text("flow.home.bag.description", "Inventory presentation is in place; persistent rewards and owned items are not connected in this offline build."),
+            Text("flow.home.shop.title", "Shop"),
+            Text("flow.home.shop.description", "The storefront destination is staged for the final hub. Purchases and currency transactions are intentionally disabled."),
+            Text("flow.home.rank.title", "Rank"),
+            Text("flow.home.rank.description", "Competitive ranking will connect with online play. This build records no account or ladder progress."),
+            Text("flow.home.status.decks", "Decks selected."),
+            Text("flow.home.status.bag", "Bag selected."),
+            Text("flow.home.status.shop", "Shop selected."),
+            Text("flow.home.status.rank", "Rank selected."),
+            Text("flow.setup.eyebrow", "NEW MATCH"),
+            Text("flow.setup.title", "Choose your rules"),
+            Text("flow.setup.subtitle", "These are the only player choices before the match. Recommended defaults are already selected."),
+            Text("flow.setup.default-note", "You can change either option now. Returning Home restores both defaults."),
+            Text("flow.setup.casas", "Casa Grande and Casa Chica"),
+            Text("flow.setup.casas-default", "DEFAULT: ON"),
+            Text("flow.setup.casas-description", "When on, Casa Grande scores 12 points and Casa Chica scores 10. When off, each scores as its Ronda."),
+            Text("flow.setup.casas-state.enabled", "ON · Special canto scoring"),
+            Text("flow.setup.casas-state.disabled", "OFF · Ronda scoring"),
+            Text("flow.setup.trivilin", "Trivilín effect"),
+            Text("flow.setup.trivilin-default", "DEFAULT: 5 POINTS"),
+            Text("flow.setup.trivilin-description", "Choose whether Trivilín awards five points or wins the match immediately."),
+            Text("flow.setup.trivilin-state.points", "FIVE POINTS · Match continues"),
+            Text("flow.setup.trivilin-state.immediate", "IMMEDIATE VICTORY · Match ends"),
+            Text("flow.setup.fixed-label", "MATCH BASICS"),
+            Text("flow.setup.fixed", "Offline 1v1 · You vs Baseline Bot · First to 24 · Complete 1v1 rules"),
             Text("flow.setup.start", "Start match"),
-            Text("flow.setup.prompt", "Use Tab to move, Space to toggle, and Enter to activate."),
+            Text("flow.setup.prompt", "Choose any changes, then start the match."),
             Text("flow.common.back", "Back"),
-            Text("flow.common.return-home", "Return Home"),
-            Text("flow.loading.eyebrow", "LOADING"),
-            Text("flow.loading.title", "Preparing the table"),
-            Text("flow.loading.message", "Creating a fresh deterministic match session…"),
+            Text("flow.common.return-home", "Return to Home"),
+            Text("flow.loading.eyebrow", "MATCH IN PROGRESS"),
+            Text("flow.loading.title", "Setting the table"),
+            Text("flow.loading.message", "Creating one fresh match with your selected rules."),
+            Smart("flow.loading.session", "Session {0} · {1}"),
+            Text("flow.loading.status", "Please wait. Match controls unlock when the table is ready."),
+            Text("flow.loading.cancel", "Cancel and return Home"),
+            Smart("flow.rules.summary", "{0} · {1}"),
+            Text("flow.rules.casas.enabled", "Casas on"),
+            Text("flow.rules.casas.disabled", "Casas off"),
+            Text("flow.rules.trivilin.points", "Trivilín: five points"),
+            Text("flow.rules.trivilin.immediate", "Trivilín: immediate victory"),
             Text("flow.match.eyebrow", "OFFLINE · 1V1"),
             Text("flow.match.title", "First playable match"),
             Text("flow.match.prompt", "Click a card to select it; click it again or press Enter/Space to play."),
@@ -78,7 +212,7 @@ namespace TheFall.Editor
             Text("flow.match.standard-round", "Standard round"),
             Text("flow.animation.fast-forward", "Fast forward"),
             Text("flow.animation.reduced-motion", "Reduced motion"),
-            Text("flow.animation.skip", "Skip"),
+            Text("flow.animation.skip", "Skip animation"),
             Text("flow.audio.master", "Master audio"),
             Text("flow.audio.effects", "Effects"),
             Text("flow.audio.music", "Music"),
@@ -120,13 +254,16 @@ namespace TheFall.Editor
             Text("card.suit.cups", "Cups"),
             Text("card.suit.swords", "Swords"),
             Text("card.suit.clubs", "Clubs"),
-            Text("flow.result.eyebrow", "RESULT"),
-            Text("flow.result.title", "The table is settled"),
-            Text("flow.result.victory", "You won"),
-            Text("flow.result.defeat", "Baseline Bot won"),
-            Smart("flow.result.score", "Final score {0}–{1} · Completed in round {2}"),
-            Text("flow.result.replay", "Replay"),
-            Text("flow.result.prompt", "Replay starts a fresh session with the same two rule choices."),
+            Text("flow.result.eyebrow", "FINAL RESULT"),
+            Text("flow.result.title", "Match complete"),
+            Text("flow.result.winner-label", "WINNER"),
+            Text("flow.result.victory", "You win"),
+            Text("flow.result.defeat", "Baseline Bot wins"),
+            Smart("flow.result.score", "Final score · You {0} · Bot {1} · Round {2}"),
+            Smart("flow.result.rules", "Played with {0}"),
+            Text("flow.result.next", "Choose what happens next"),
+            Text("flow.result.replay", "Play again"),
+            Text("flow.result.prompt", "Play again keeps these rules. Returning Home clears the session and restores the recommended defaults."),
         };
 
         [MenuItem("The Fall/First Playable Flow/Generate")]
@@ -137,12 +274,13 @@ namespace TheFall.Editor
                 return;
             }
 
+            ConfigureIconImports();
             ConfigureLocalization();
             ConfigureHomeScene();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Validate();
-            Debug.Log("The first-playable Home, setup, loading, match, and result flow was generated and validated.");
+            Debug.Log("The first-playable gateway, Home, setup, loading, match, and result flow was generated and validated.");
         }
 
         [MenuItem("The Fall/First Playable Flow/Validate")]
@@ -169,6 +307,28 @@ namespace TheFall.Editor
 
             Require(File.Exists(HomeScenePath), "The Home scene is missing.", errors);
             Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath) != null, "The first-playable UXML is missing.", errors);
+            foreach (var iconName in RequiredIconNames)
+            {
+                var iconPath = $"{IconDirectory}/{iconName}.png";
+                var iconImporter = AssetImporter.GetAtPath(iconPath) as TextureImporter;
+                Require(
+                    AssetDatabase.LoadAssetAtPath<Texture2D>(iconPath) != null,
+                    $"Required UI icon is missing: {iconPath}.",
+                    errors);
+                Require(iconImporter != null, $"Required UI icon has no texture importer: {iconPath}.", errors);
+                if (iconImporter != null)
+                {
+                    Require(iconImporter.mipmapEnabled, $"UI icon must generate mipmaps for small UI treatments: {iconPath}.", errors);
+                    Require(iconImporter.alphaIsTransparency, $"UI icon must preserve transparent edges: {iconPath}.", errors);
+                    Require(iconImporter.wrapMode == TextureWrapMode.Clamp, $"UI icon must use clamp wrapping: {iconPath}.", errors);
+                    Require(iconImporter.maxTextureSize == 256, $"UI icon must be capped at 256 px: {iconPath}.", errors);
+                    Require(iconImporter.filterMode == FilterMode.Trilinear, $"UI icon must use trilinear filtering: {iconPath}.", errors);
+                    Require(
+                        iconImporter.textureCompression == TextureImporterCompression.Uncompressed,
+                        $"UI icon must remain uncompressed: {iconPath}.",
+                        errors);
+                }
+            }
 
             if (File.Exists(HomeScenePath))
             {
@@ -206,6 +366,32 @@ namespace TheFall.Editor
             LocalizationEditorSettings.SetPreloadTableFlag(table, true);
         }
 
+        [MenuItem("The Fall/First Playable Flow/Configure UI Icons")]
+        public static void ConfigureIconImports()
+        {
+            foreach (var iconName in RequiredIconNames)
+            {
+                var iconPath = $"{IconDirectory}/{iconName}.png";
+                var importer = AssetImporter.GetAtPath(iconPath) as TextureImporter;
+                if (importer == null)
+                {
+                    throw new InvalidOperationException($"Required UI icon has no texture importer: {iconPath}.");
+                }
+
+                importer.textureType = TextureImporterType.Default;
+                importer.mipmapEnabled = true;
+                importer.sRGBTexture = true;
+                importer.alphaSource = TextureImporterAlphaSource.FromInput;
+                importer.alphaIsTransparency = true;
+                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.npotScale = TextureImporterNPOTScale.None;
+                importer.maxTextureSize = 256;
+                importer.filterMode = FilterMode.Trilinear;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.SaveAndReimport();
+            }
+        }
+
         private static void ConfigureHomeScene()
         {
             var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
@@ -225,7 +411,7 @@ namespace TheFall.Editor
             var purpose = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
                 .FirstOrDefault();
-            purpose?.SetDescription("Localized first-playable Home, setup, loading, match, result, replay, and return flow.");
+            purpose?.SetDescription("Localized first-playable gateway and flow with an authoritative fixed-camera 1v1 table presentation and resolved-beat prototype audio.");
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, HomeScenePath);

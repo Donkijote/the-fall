@@ -19,6 +19,7 @@ namespace TheFall.Presentation.UI
 
         private static readonly string[] StageElementNames =
         {
+            "login-stage",
             "home-stage",
             "setup-stage",
             "loading-stage",
@@ -29,36 +30,86 @@ namespace TheFall.Presentation.UI
         private static readonly IReadOnlyDictionary<string, string> LabelLocalizationKeys =
             new Dictionary<string, string>
             {
+                { "login-eyebrow", "flow.login.eyebrow" },
+                { "login-title", "flow.login.title" },
+                { "login-title-accent", "flow.login.title-accent" },
+                { "login-description", "flow.login.description" },
+                { "login-proof", "flow.login.proof" },
+                { "login-panel-title", "flow.login.panel-title" },
+                { "login-panel-subtitle", "flow.login.panel-subtitle" },
+                { "login-email-label", "flow.login.email" },
+                { "login-password-label", "flow.login.password" },
+                { "login-divider-label", "flow.login.divider" },
+                { "login-account-prefix", "flow.login.account-prefix" },
                 { "home-eyebrow", "flow.home.eyebrow" },
-                { "home-title", "app.title" },
+                { "home-title", "flow.home.profile-name" },
+                { "home-xp-label", "flow.home.xp-label" },
+                { "home-level-value", "flow.home.level-value" },
                 { "home-subtitle", "flow.home.subtitle" },
+                { "home-card-label", "flow.home.card-label" },
+                { "home-objective-title", "flow.home.objective-title" },
                 { "home-mode", "flow.home.mode" },
-                { "home-prompt", "flow.home.prompt" },
+                { "home-stat-mode-value", "flow.home.stat.mode-value" },
+                { "home-stat-target-value", "flow.home.stat.target-value" },
+                { "home-stat-deck-value", "flow.home.stat.deck-value" },
+                { "home-action-status", "flow.home.action-status" },
+                { "home-chat-input-label", "flow.home.chat.input-label" },
+                { "hub-modal-eyebrow", "flow.home.modal.eyebrow" },
+                { "home-settings-rules-label", "flow.home.settings.rules-label" },
+                { "home-settings-rules-copy", "flow.home.settings.rules-copy" },
+                { "home-settings-casas-description", "flow.setup.casas-description" },
+                { "home-settings-trivilin-description", "flow.setup.trivilin-description" },
+                { "home-settings-audio-label", "flow.home.settings.audio-label" },
+                { "home-settings-audio-copy", "flow.home.settings.audio-copy" },
+                { "home-settings-motion-label", "flow.home.settings.motion-label" },
+                { "home-settings-motion-copy", "flow.home.settings.motion-copy" },
                 { "setup-eyebrow", "flow.setup.eyebrow" },
                 { "setup-title", "flow.setup.title" },
                 { "setup-subtitle", "flow.setup.subtitle" },
+                { "setup-default-note", "flow.setup.default-note" },
+                { "casas-default", "flow.setup.casas-default" },
                 { "casas-description", "flow.setup.casas-description" },
+                { "trivilin-default", "flow.setup.trivilin-default" },
                 { "trivilin-description", "flow.setup.trivilin-description" },
+                { "setup-fixed-label", "flow.setup.fixed-label" },
                 { "setup-fixed", "flow.setup.fixed" },
                 { "setup-prompt", "flow.setup.prompt" },
                 { "loading-eyebrow", "flow.loading.eyebrow" },
                 { "loading-title", "flow.loading.title" },
                 { "loading-message", "flow.loading.message" },
-                { "match-eyebrow", "flow.match.eyebrow" },
-                { "match-title", "flow.match.title" },
+                { "loading-status", "flow.loading.status" },
                 { "dealer-options-title", "flow.context.dealer-title" },
                 { "canto-options-title", "flow.context.canto-title" },
                 { "result-eyebrow", "flow.result.eyebrow" },
                 { "result-title", "flow.result.title" },
+                { "result-winner-label", "flow.result.winner-label" },
+                { "result-next", "flow.result.next" },
                 { "result-prompt", "flow.result.prompt" },
             };
 
         private static readonly IReadOnlyDictionary<string, string> ButtonLocalizationKeys =
             new Dictionary<string, string>
             {
+                { "login-enter-button", "flow.login.enter" },
+                { "login-forgot-button", "flow.login.forgot" },
+                { "login-google-button", "flow.login.google" },
+                { "login-apple-button", "flow.login.apple" },
+                { "login-create-button", "flow.login.create" },
                 { "home-start-button", "flow.home.start" },
+                { "home-mail-button", "flow.home.mail" },
+                { "home-settings-button", "flow.home.settings" },
+                { "home-decks-button", "flow.home.nav.decks" },
+                { "home-bag-button", "flow.home.nav.bag" },
+                { "home-shop-button", "flow.home.nav.shop" },
+                { "home-rank-button", "flow.home.nav.rank" },
+                { "home-chat-global-button", "flow.home.chat.global" },
+                { "home-chat-guild-button", "flow.home.chat.guild" },
+                { "home-chat-system-button", "flow.home.chat.system" },
+                { "home-chat-send-button", "flow.home.chat.send" },
+                { "hub-modal-close-button", "flow.common.close" },
                 { "setup-start-button", "flow.setup.start" },
                 { "setup-back-button", "flow.common.back" },
+                { "loading-home-button", "flow.loading.cancel" },
                 { "match-home-button", "flow.common.return-home" },
                 { "dealer-options-button", "flow.context.dealer-icon" },
                 { "canto-options-button", "flow.context.canto-icon" },
@@ -73,16 +124,17 @@ namespace TheFall.Presentation.UI
         private readonly List<VisualElement> _stages = new List<VisualElement>();
         private Toggle _casasToggle;
         private Toggle _trivilinToggle;
+        private Label _casasState;
+        private Label _trivilinState;
+        private Label _loadingSession;
         private Label _matchPhase;
         private Label _matchScore;
-        private Label _matchProgress;
         private Label _matchTurn;
-        private Label _matchCanto;
         private Label _matchEvent;
         private Label _matchFeedback;
-        private Label _matchPrompt;
         private Label _resultOutcome;
         private Label _resultScore;
+        private Label _resultRules;
         private VisualElement _dealerContext;
         private VisualElement _dealerOptionsMenu;
         private VisualElement _dealerOptions;
@@ -91,14 +143,32 @@ namespace TheFall.Presentation.UI
         private VisualElement _cantoOptionsMenu;
         private VisualElement _cantoOptions;
         private Button _cantoOptionsButton;
-        private Toggle _animationFastToggle;
-        private Toggle _animationReducedToggle;
         private Button _animationSkipButton;
-        private Toggle _audioMasterToggle;
-        private Toggle _audioEffectsToggle;
-        private Toggle _audioMusicToggle;
+        private Label _loginFeedback;
+        private Label _homeActionStatus;
+        private Label _homeChatDate;
+        private Label _homeChatMessageOne;
+        private Label _homeChatMessageTwo;
+        private Label _homeChatMessageThree;
+        private Label _homeChatUserMessage;
+        private TextField _homeChatInput;
+        private Button _homeChatGlobalButton;
+        private Button _homeChatGuildButton;
+        private Button _homeChatSystemButton;
+        private VisualElement _hubModal;
+        private Label _hubModalTitle;
+        private Label _hubModalDescription;
+        private VisualElement _hubSettingsContent;
+        private Toggle _homeCasasToggle;
+        private Toggle _homeTrivilinToggle;
+        private Toggle _homeAnimationFastToggle;
+        private Toggle _homeAnimationReducedToggle;
+        private Toggle _homeAudioMasterToggle;
+        private Toggle _homeAudioEffectsToggle;
+        private Toggle _homeAudioMusicToggle;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
+        private bool _hasEnteredGateway;
         private bool _isDealerMenuOpen;
         private bool _isCantoMenuOpen;
         private MatchState _contextState;
@@ -106,6 +176,7 @@ namespace TheFall.Presentation.UI
         private Rect _adaptiveSafeArea;
         private Vector2 _adaptivePanelSize;
         private bool _hasAdaptiveViewportOverride;
+        private string _homeChatChannel = "global";
 
         public FirstPlayableFlow Flow { get; private set; }
 
@@ -127,11 +198,13 @@ namespace TheFall.Presentation.UI
 
         public bool IsPresentationBusy { get; private set; }
 
-        public bool AudioMasterEnabled => _audioMasterToggle?.value ?? true;
+        public bool AudioMasterEnabled => _homeAudioMasterToggle?.value ?? true;
 
-        public bool AudioEffectsEnabled => _audioEffectsToggle?.value ?? true;
+        public bool AudioEffectsEnabled => _homeAudioEffectsToggle?.value ?? true;
 
-        public bool AudioMusicEnabled => _audioMusicToggle?.value ?? false;
+        public bool AudioMusicEnabled => _homeAudioMusicToggle?.value ?? false;
+
+        public bool HasEnteredGateway => _hasEnteredGateway;
 
         public AdaptiveUiLayout CurrentAdaptiveLayout { get; private set; }
 
@@ -188,15 +261,50 @@ namespace TheFall.Presentation.UI
             }
         }
 
+        public bool EnterGateway()
+        {
+            if (_hasEnteredGateway || Flow.Stage != FirstPlayableFlowStage.Home)
+            {
+                return false;
+            }
+
+            Require<TextField>("login-email").SetValueWithoutNotify(string.Empty);
+            Require<TextField>("login-password").SetValueWithoutNotify(string.Empty);
+            _hasEnteredGateway = true;
+            Render();
+            return true;
+        }
+
         public bool OpenSetup()
         {
-            if (!Flow.TryOpenSetup())
+            if (!_hasEnteredGateway || !Flow.TryOpenSetup())
             {
                 return false;
             }
 
             Render();
             return true;
+        }
+
+        public bool BeginQuest()
+        {
+            if (!_hasEnteredGateway
+                || Flow.Stage != FirstPlayableFlowStage.Home
+                || !Flow.TryOpenSetup())
+            {
+                return false;
+            }
+
+            _casasToggle.SetValueWithoutNotify(_homeCasasToggle.value);
+            _trivilinToggle.SetValueWithoutNotify(_homeTrivilinToggle.value);
+            if (StartMatch())
+            {
+                return true;
+            }
+
+            Flow.TryReturnHome();
+            Render();
+            return false;
         }
 
         public bool StartMatch()
@@ -258,6 +366,7 @@ namespace TheFall.Presentation.UI
                 _loadingCoroutine = null;
             }
 
+            SetVisible(_hubModal, false);
             Render();
             return true;
         }
@@ -309,19 +418,37 @@ namespace TheFall.Presentation.UI
             }
 
             RefreshLocalizedStaticText();
+            if (!_hasEnteredGateway)
+            {
+                ShowOnly("login-stage");
+                _screen.EnableInClassList("show-login", true);
+                _screen.EnableInClassList("show-hub", false);
+                _screen.EnableInClassList("show-table", false);
+                Focus("login-enter-button");
+                UpdatePresentationAvailability();
+                PresentationChanged?.Invoke();
+                return;
+            }
+
             var presentedStage = Flow.Stage == FirstPlayableFlowStage.Result && IsPresentationBusy
                 ? FirstPlayableFlowStage.Match
                 : Flow.Stage;
             ShowOnly(StageElementName(presentedStage));
+            _screen.EnableInClassList("show-login", false);
+            _screen.EnableInClassList("show-hub", presentedStage == FirstPlayableFlowStage.Home);
 
             switch (presentedStage)
             {
                 case FirstPlayableFlowStage.Home:
+                    RenderHomeChat();
                     Focus("home-start-button");
                     break;
                 case FirstPlayableFlowStage.Setup:
                     RenderSetup();
                     Focus("setup-start-button");
+                    break;
+                case FirstPlayableFlowStage.Loading:
+                    RenderLoading();
                     break;
                 case FirstPlayableFlowStage.Match:
                     RenderMatch();
@@ -348,6 +475,9 @@ namespace TheFall.Presentation.UI
 
             _casasToggle = Require<Toggle>("casas-toggle");
             _trivilinToggle = Require<Toggle>("trivilin-toggle");
+            _casasState = Require<Label>("casas-state");
+            _trivilinState = Require<Label>("trivilin-state");
+            _loadingSession = Require<Label>("loading-session");
             _screen = Require<VisualElement>("home-screen");
             foreach (var stageName in StageElementNames)
             {
@@ -355,14 +485,12 @@ namespace TheFall.Presentation.UI
             }
             _matchPhase = Require<Label>("match-phase");
             _matchScore = Require<Label>("match-score");
-            _matchProgress = Require<Label>("match-progress");
             _matchTurn = Require<Label>("match-turn");
-            _matchCanto = Require<Label>("match-canto");
             _matchEvent = Require<Label>("match-event");
             _matchFeedback = Require<Label>("match-feedback");
-            _matchPrompt = Require<Label>("match-prompt");
             _resultOutcome = Require<Label>("result-outcome");
             _resultScore = Require<Label>("result-score");
+            _resultRules = Require<Label>("result-rules");
             _dealerContext = Require<VisualElement>("dealer-context");
             _dealerOptionsMenu = Require<VisualElement>("dealer-options-menu");
             _dealerOptions = Require<VisualElement>("dealer-options");
@@ -371,39 +499,199 @@ namespace TheFall.Presentation.UI
             _cantoOptionsMenu = Require<VisualElement>("canto-options-menu");
             _cantoOptions = Require<VisualElement>("canto-options");
             _cantoOptionsButton = Require<Button>("canto-options-button");
-            _animationFastToggle = Require<Toggle>("animation-fast-toggle");
-            _animationReducedToggle = Require<Toggle>("animation-reduced-toggle");
             _animationSkipButton = Require<Button>("animation-skip-button");
-            _audioMasterToggle = Require<Toggle>("audio-master-toggle");
-            _audioEffectsToggle = Require<Toggle>("audio-effects-toggle");
-            _audioMusicToggle = Require<Toggle>("audio-music-toggle");
+            _loginFeedback = Require<Label>("login-feedback");
+            _homeActionStatus = Require<Label>("home-action-status");
+            _homeChatDate = Require<Label>("home-chat-date");
+            _homeChatMessageOne = Require<Label>("home-chat-message-one");
+            _homeChatMessageTwo = Require<Label>("home-chat-message-two");
+            _homeChatMessageThree = Require<Label>("home-chat-message-three");
+            _homeChatUserMessage = Require<Label>("home-chat-user-message");
+            _homeChatInput = Require<TextField>("home-chat-input");
+            _homeChatGlobalButton = Require<Button>("home-chat-global-button");
+            _homeChatGuildButton = Require<Button>("home-chat-guild-button");
+            _homeChatSystemButton = Require<Button>("home-chat-system-button");
+            _hubModal = Require<VisualElement>("hub-modal");
+            _hubModalTitle = Require<Label>("hub-modal-title");
+            _hubModalDescription = Require<Label>("hub-modal-description");
+            _hubSettingsContent = Require<VisualElement>("hub-settings-content");
+            _homeCasasToggle = Require<Toggle>("home-settings-casas-toggle");
+            _homeTrivilinToggle = Require<Toggle>("home-settings-trivilin-toggle");
+            _homeAnimationFastToggle = Require<Toggle>("home-settings-animation-fast-toggle");
+            _homeAnimationReducedToggle = Require<Toggle>("home-settings-animation-reduced-toggle");
+            _homeAudioMasterToggle = Require<Toggle>("home-settings-audio-master-toggle");
+            _homeAudioEffectsToggle = Require<Toggle>("home-settings-audio-effects-toggle");
+            _homeAudioMusicToggle = Require<Toggle>("home-settings-audio-music-toggle");
+            Require<TextField>("login-password").isPasswordField = true;
 
-            Require<Button>("home-start-button").clicked += () => OpenSetup();
+            Require<Button>("login-enter-button").clicked += () => EnterGateway();
+            Require<Button>("login-forgot-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.forgot");
+            Require<Button>("login-google-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.google");
+            Require<Button>("login-apple-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.apple");
+            Require<Button>("login-create-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.create");
+            Require<Button>("home-start-button").clicked += () => BeginQuest();
+            Require<Button>("home-mail-button").clicked += () =>
+                ShowHubPanel("flow.home.mail.title", "flow.home.mail.description");
+            Require<Button>("home-settings-button").clicked += () => OpenSettings();
+            Require<Button>("home-decks-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.decks",
+                    "flow.home.decks.title",
+                    "flow.home.decks.description");
+            Require<Button>("home-bag-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.bag",
+                    "flow.home.bag.title",
+                    "flow.home.bag.description");
+            Require<Button>("home-shop-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.shop",
+                    "flow.home.shop.title",
+                    "flow.home.shop.description");
+            Require<Button>("home-rank-button").clicked += () =>
+                SelectHubDestination(
+                    "flow.home.status.rank",
+                    "flow.home.rank.title",
+                    "flow.home.rank.description");
+            _homeChatGlobalButton.clicked += () => SelectHomeChatChannel("global");
+            _homeChatGuildButton.clicked += () => SelectHomeChatChannel("guild");
+            _homeChatSystemButton.clicked += () => SelectHomeChatChannel("system");
+            Require<Button>("home-chat-send-button").clicked += SendHomeChatMessage;
+            Require<Button>("hub-modal-close-button").clicked += CloseHubPanel;
             Require<Button>("setup-start-button").clicked += () => StartMatch();
             Require<Button>("setup-back-button").clicked += () => ReturnHome();
+            Require<Button>("loading-home-button").clicked += () => ReturnHome();
             Require<Button>("match-home-button").clicked += () => ReturnHome();
             _dealerOptionsButton.clicked += ToggleDealerOptions;
             _cantoOptionsButton.clicked += ToggleCantoOptions;
-            _animationFastToggle.RegisterValueChangedCallback(change =>
-                AnimationFastForwardChanged?.Invoke(change.newValue));
-            _animationReducedToggle.RegisterValueChangedCallback(change =>
-                AnimationReducedMotionChanged?.Invoke(change.newValue));
             _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
-            _audioMasterToggle.RegisterValueChangedCallback(change =>
-                AudioMasterChanged?.Invoke(change.newValue));
-            _audioEffectsToggle.RegisterValueChangedCallback(change =>
-                AudioEffectsChanged?.Invoke(change.newValue));
-            _audioMusicToggle.RegisterValueChangedCallback(change =>
-                AudioMusicChanged?.Invoke(change.newValue));
+            _homeAnimationFastToggle.RegisterValueChangedCallback(change =>
+            {
+                AnimationFastForwardChanged?.Invoke(change.newValue);
+            });
+            _homeAnimationReducedToggle.RegisterValueChangedCallback(change =>
+            {
+                AnimationReducedMotionChanged?.Invoke(change.newValue);
+            });
+            _homeAudioMasterToggle.RegisterValueChangedCallback(change =>
+            {
+                AudioMasterChanged?.Invoke(change.newValue);
+            });
+            _homeAudioEffectsToggle.RegisterValueChangedCallback(change =>
+            {
+                AudioEffectsChanged?.Invoke(change.newValue);
+            });
+            _homeAudioMusicToggle.RegisterValueChangedCallback(change =>
+            {
+                AudioMusicChanged?.Invoke(change.newValue);
+            });
             Require<Button>("result-replay-button").clicked += () => Replay();
             Require<Button>("result-home-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
-                Flow.TryConfigure(change.newValue, _trivilinToggle.value));
+            {
+                if (Flow.TryConfigure(change.newValue, _trivilinToggle.value))
+                {
+                    RenderSetup();
+                }
+            });
             _trivilinToggle.RegisterValueChangedCallback(change =>
-                Flow.TryConfigure(_casasToggle.value, change.newValue));
+            {
+                if (Flow.TryConfigure(_casasToggle.value, change.newValue))
+                {
+                    RenderSetup();
+                }
+            });
             _screen.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
 
+            SetVisible(_hubModal, false);
+            SetVisible(_hubSettingsContent, false);
+            SetVisible(_homeChatUserMessage, false);
             _isBound = true;
+        }
+
+        private void ShowLoginFeedback(string localizationKey)
+        {
+            _loginFeedback.text = Localize(localizationKey);
+        }
+
+        private void SelectHubDestination(string statusKey, string titleKey, string descriptionKey)
+        {
+            _homeActionStatus.text = Localize(statusKey);
+            ShowHubPanel(titleKey, descriptionKey);
+        }
+
+        private void ShowHubPanel(string titleKey, string descriptionKey)
+        {
+            _hubModalTitle.text = Localize(titleKey);
+            _hubModalDescription.text = Localize(descriptionKey);
+            _hubModal.EnableInClassList("hub-modal-settings", false);
+            SetVisible(_hubModalDescription, true);
+            SetVisible(_hubSettingsContent, false);
+            SetVisible(_hubModal, true);
+            Focus("hub-modal-close-button");
+        }
+
+        public bool OpenSettings()
+        {
+            if (!_hasEnteredGateway || Flow.Stage != FirstPlayableFlowStage.Home)
+            {
+                return false;
+            }
+
+            _hubModalTitle.text = Localize("flow.home.settings.title");
+            _hubModalDescription.text = Localize("flow.home.settings.description");
+            _hubModal.EnableInClassList("hub-modal-settings", true);
+            SetVisible(_hubModalDescription, true);
+            SetVisible(_hubSettingsContent, true);
+            SetVisible(_hubModal, true);
+            Focus("home-settings-casas-toggle");
+            return true;
+        }
+
+        private void CloseHubPanel()
+        {
+            SetVisible(_hubModal, false);
+            Focus("home-start-button");
+        }
+
+        private void SelectHomeChatChannel(string channel)
+        {
+            _homeChatChannel = channel;
+            RenderHomeChat();
+        }
+
+        private void RenderHomeChat()
+        {
+            _homeChatGlobalButton.EnableInClassList("hub-chat-tab-active", _homeChatChannel == "global");
+            _homeChatGuildButton.EnableInClassList("hub-chat-tab-active", _homeChatChannel == "guild");
+            _homeChatSystemButton.EnableInClassList("hub-chat-tab-active", _homeChatChannel == "system");
+            _homeChatDate.text = Localize("flow.home.chat.date");
+            _homeChatMessageOne.text = Localize($"flow.home.chat.{_homeChatChannel}.one");
+            _homeChatMessageTwo.text = Localize($"flow.home.chat.{_homeChatChannel}.two");
+            _homeChatMessageThree.text = Localize($"flow.home.chat.{_homeChatChannel}.three");
+            SetVisible(
+                _homeChatUserMessage,
+                _homeChatChannel == "global" && !string.IsNullOrWhiteSpace(_homeChatUserMessage.text));
+        }
+
+        private void SendHomeChatMessage()
+        {
+            var message = _homeChatInput.value?.Trim();
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                _homeActionStatus.text = Localize("flow.home.chat.empty");
+                return;
+            }
+
+            _homeChatChannel = "global";
+            _homeChatUserMessage.text = Localize("flow.home.chat.you", message);
+            _homeChatInput.SetValueWithoutNotify(string.Empty);
+            _homeActionStatus.text = Localize("flow.home.chat.sent");
+            RenderHomeChat();
         }
 
         private void RenderSetup()
@@ -412,6 +700,20 @@ namespace TheFall.Presentation.UI
             _trivilinToggle.SetValueWithoutNotify(Flow.Setup.TrivilinWinsImmediately);
             _casasToggle.text = Localize("flow.setup.casas");
             _trivilinToggle.text = Localize("flow.setup.trivilin");
+            _casasState.text = Localize(Flow.Setup.CasaCantosEnabled
+                ? "flow.setup.casas-state.enabled"
+                : "flow.setup.casas-state.disabled");
+            _trivilinState.text = Localize(Flow.Setup.TrivilinWinsImmediately
+                ? "flow.setup.trivilin-state.immediate"
+                : "flow.setup.trivilin-state.points");
+        }
+
+        private void RenderLoading()
+        {
+            _loadingSession.text = Localize(
+                "flow.loading.session",
+                Flow.SessionNumber,
+                RulesSummary());
         }
 
         private void RenderMatch()
@@ -423,11 +725,6 @@ namespace TheFall.Presentation.UI
                 state.TeamOneScore.Value,
                 state.TeamTwoScore.Value,
                 state.Rules.VictoryTarget);
-            _matchProgress.text = Localize(
-                "flow.match.progress",
-                state.RoundNumber,
-                state.DealNumber,
-                state.IsTieExtension ? Localize("flow.match.tie-extension") : Localize("flow.match.standard-round"));
             _matchTurn.text = state.Phase == MatchPhase.DealerSelection
                 ? Localize(
                     "flow.match.turn.dealer-pending",
@@ -436,7 +733,6 @@ namespace TheFall.Presentation.UI
                     "flow.match.turn",
                     Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
                     Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
-            _matchCanto.text = CantoSummary(state);
             _matchEvent.text = EventSummary();
             var legalIntents = IsPresentationBusy
                 ? Array.Empty<PlayerIntent>()
@@ -490,8 +786,6 @@ namespace TheFall.Presentation.UI
 
             _dealerOptionsButton.tooltip = Localize("flow.context.dealer-tooltip");
             _cantoOptionsButton.tooltip = Localize("flow.context.canto-tooltip");
-            _matchPrompt.text = Localize("flow.match.prompt");
-            SetVisible(_matchPrompt, state.Phase == MatchPhase.Active);
             _matchFeedback.text = state.Phase == MatchPhase.DealerSelection
                 ? Localize("flow.context.dealer-card-prompt")
                 : dealerOptionCount > 0
@@ -538,6 +832,19 @@ namespace TheFall.Presentation.UI
                 state.TeamOneScore.Value,
                 state.TeamTwoScore.Value,
                 state.RoundNumber);
+            _resultRules.text = Localize("flow.result.rules", RulesSummary());
+        }
+
+        private string RulesSummary()
+        {
+            return Localize(
+                "flow.rules.summary",
+                Localize(Flow.Setup.CasaCantosEnabled
+                    ? "flow.rules.casas.enabled"
+                    : "flow.rules.casas.disabled"),
+                Localize(Flow.Setup.TrivilinWinsImmediately
+                    ? "flow.rules.trivilin.immediate"
+                    : "flow.rules.trivilin.points"));
         }
 
         private string IntentText(PlayerIntent intent, int index)
@@ -573,28 +880,6 @@ namespace TheFall.Presentation.UI
             }
 
             return Localize("flow.action.unavailable");
-        }
-
-        private string CantoSummary(MatchState state)
-        {
-            if (state.CantoAnnouncements.Count == 0)
-            {
-                return Localize("flow.match.canto.none");
-            }
-
-            var announcements = new string[state.CantoAnnouncements.Count];
-            for (var index = 0; index < state.CantoAnnouncements.Count; index++)
-            {
-                var announcement = state.CantoAnnouncements[index];
-                announcements[index] = Localize(
-                    "flow.match.canto.announcement",
-                    Localize(announcement.PlayerId == state.GetPlayerAt(Seat.First).Player.Id
-                        ? "flow.player.you"
-                        : "flow.player.bot"),
-                    Localize(CantoLocalizationKey(announcement.ClaimedKind)));
-            }
-
-            return Localize("flow.match.canto.summary", string.Join(" · ", announcements));
         }
 
         private string EventSummary()
@@ -732,7 +1017,12 @@ namespace TheFall.Presentation.UI
 
             foreach (var binding in ButtonLocalizationKeys)
             {
-                Require<Button>(binding.Key).text = Localize(binding.Value);
+                var button = Require<Button>(binding.Key);
+                button.text = Localize(binding.Value);
+                if (button.ClassListContains("icon-only-button"))
+                {
+                    button.tooltip = button.text;
+                }
             }
 
             if (_casasToggle != null)
@@ -741,17 +1031,15 @@ namespace TheFall.Presentation.UI
                 _trivilinToggle.text = Localize("flow.setup.trivilin");
             }
 
-            if (_animationFastToggle != null)
+            if (_homeAudioMasterToggle != null)
             {
-                _animationFastToggle.text = Localize("flow.animation.fast-forward");
-                _animationReducedToggle.text = Localize("flow.animation.reduced-motion");
-            }
-
-            if (_audioMasterToggle != null)
-            {
-                _audioMasterToggle.text = Localize("flow.audio.master");
-                _audioEffectsToggle.text = Localize("flow.audio.effects");
-                _audioMusicToggle.text = Localize("flow.audio.music");
+                _homeCasasToggle.text = Localize("flow.setup.casas");
+                _homeTrivilinToggle.text = Localize("flow.setup.trivilin");
+                _homeAnimationFastToggle.text = Localize("flow.animation.fast-forward");
+                _homeAnimationReducedToggle.text = Localize("flow.animation.reduced-motion");
+                _homeAudioMasterToggle.text = Localize("flow.audio.master");
+                _homeAudioEffectsToggle.text = Localize("flow.audio.effects");
+                _homeAudioMusicToggle.text = Localize("flow.audio.music");
             }
         }
 
