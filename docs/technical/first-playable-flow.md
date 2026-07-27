@@ -49,6 +49,26 @@ current UI Toolkit panel units before profile padding, so rotation can change co
 changing the flow stage or match. The measurable tokens and screen audit are recorded in the
 [V0.1 adaptive UI foundation](../design/adaptive-ui-foundation.md).
 
+Issue #44 applies that foundation to the player journey around the match:
+
+- Home states the 24-point objective, opponent, and three-step setup/match/result route before the
+  primary `Set up match` action.
+- Setup presents only Casa Grande/Casa Chica scoring and the Trivilín effect. Each option names its
+  recommended default, explains both outcomes, and reflects the current selection in text as well as
+  toggle state. Offline 1v1, the baseline bot, and the 24-point target remain visibly fixed.
+- Loading identifies the newly created session and selected-rule summary, blocks match controls until
+  the table is ready, and exposes a return-to-Home action. Repeated start requests cannot create
+  another session, and leaving cancels the pending presentation callback before clearing the match.
+- Result names the winner, final score, completed round, and rules used. `Play again` creates a fresh
+  session with the same two choices; `Return to Home` clears the session and restores recommended
+  defaults.
+
+Setup content scrolls independently from its persistent navigation footer when localization expands.
+Desktop keeps the two rule cards side by side, mobile portrait stacks them into touch-sized rows, and
+mobile landscape uses the short axis for a compact two-column comparison. The in-process deterministic
+match factory has no data-dependent empty state or recoverable loading error; invalid or repeated
+navigation remains an explicit no-op rather than inventing a player-facing failure.
+
 All player-facing copy is resolved from stable keys in the `UI` string table. English remains the source locale and `qps-ploc` transforms the same entries for expansion, accenting, and encapsulation checks. Dynamic scores, rounds, turns, cards, dealer choices, cantos, and results use Smart String entries; rule and canto identifiers remain separate from display text.
 
 Buttons and toggles remain mouse-clickable and keyboard-focusable through UI Toolkit. The visible prompts describe Tab, Enter, Space, and mouse operation for the macOS acceptance path. Every human legal intent supplied by the orchestrator becomes a visible action without UI-side rule evaluation:
@@ -73,7 +93,12 @@ Leaving while loading cancels the presentation coroutine and clears the applicat
 ## Validation
 
 - Edit Mode verifies defaults, the fixed 24-point 1v1 bot boundary, legal transitions, repeated or invalid navigation, fresh replay sessions, retained replay configuration, and Home reset behavior.
-- Play Mode launches through Bootstrap, observes the explicit loading stage, completes a match through the UI adapter, replays, returns Home, switches to pseudo-localization, and checks expanded controls remain visible and keyboard-focusable.
+- Play Mode launches through Bootstrap, verifies the player-facing route and default/current setup
+  explanations, observes the explicit loading stage, rejects duplicate starts, completes a match through
+  the UI adapter, exposes both result actions, replays, and returns Home. A focused loading-exit regression
+  proves a cancelled callback cannot restore an abandoned session.
+- The same Play Mode fixture switches to pseudo-localization, checks expanded controls remain visible
+  and keyboard-focusable, and validates touch-sized setup actions in both mobile profiles.
 - `The Fall > First Playable Flow > Generate` adds the controller and localization entries without embedding player copy in the scene.
 - `The Fall > First Playable Flow > Validate` checks the scene binding, UI asset, entries, and Smart String flags.
 

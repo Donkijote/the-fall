@@ -32,24 +32,35 @@ namespace TheFall.Presentation.UI
                 { "home-eyebrow", "flow.home.eyebrow" },
                 { "home-title", "app.title" },
                 { "home-subtitle", "flow.home.subtitle" },
+                { "home-card-label", "flow.home.card-label" },
                 { "home-mode", "flow.home.mode" },
+                { "home-step-setup", "flow.home.step.setup" },
+                { "home-step-match", "flow.home.step.match" },
+                { "home-step-result", "flow.home.step.result" },
                 { "home-prompt", "flow.home.prompt" },
                 { "setup-eyebrow", "flow.setup.eyebrow" },
                 { "setup-title", "flow.setup.title" },
                 { "setup-subtitle", "flow.setup.subtitle" },
+                { "setup-default-note", "flow.setup.default-note" },
+                { "casas-default", "flow.setup.casas-default" },
                 { "casas-description", "flow.setup.casas-description" },
+                { "trivilin-default", "flow.setup.trivilin-default" },
                 { "trivilin-description", "flow.setup.trivilin-description" },
+                { "setup-fixed-label", "flow.setup.fixed-label" },
                 { "setup-fixed", "flow.setup.fixed" },
                 { "setup-prompt", "flow.setup.prompt" },
                 { "loading-eyebrow", "flow.loading.eyebrow" },
                 { "loading-title", "flow.loading.title" },
                 { "loading-message", "flow.loading.message" },
+                { "loading-status", "flow.loading.status" },
                 { "match-eyebrow", "flow.match.eyebrow" },
                 { "match-title", "flow.match.title" },
                 { "dealer-options-title", "flow.context.dealer-title" },
                 { "canto-options-title", "flow.context.canto-title" },
                 { "result-eyebrow", "flow.result.eyebrow" },
                 { "result-title", "flow.result.title" },
+                { "result-winner-label", "flow.result.winner-label" },
+                { "result-next", "flow.result.next" },
                 { "result-prompt", "flow.result.prompt" },
             };
 
@@ -59,6 +70,7 @@ namespace TheFall.Presentation.UI
                 { "home-start-button", "flow.home.start" },
                 { "setup-start-button", "flow.setup.start" },
                 { "setup-back-button", "flow.common.back" },
+                { "loading-home-button", "flow.loading.cancel" },
                 { "match-home-button", "flow.common.return-home" },
                 { "dealer-options-button", "flow.context.dealer-icon" },
                 { "canto-options-button", "flow.context.canto-icon" },
@@ -73,6 +85,9 @@ namespace TheFall.Presentation.UI
         private readonly List<VisualElement> _stages = new List<VisualElement>();
         private Toggle _casasToggle;
         private Toggle _trivilinToggle;
+        private Label _casasState;
+        private Label _trivilinState;
+        private Label _loadingSession;
         private Label _matchPhase;
         private Label _matchScore;
         private Label _matchProgress;
@@ -83,6 +98,7 @@ namespace TheFall.Presentation.UI
         private Label _matchPrompt;
         private Label _resultOutcome;
         private Label _resultScore;
+        private Label _resultRules;
         private VisualElement _dealerContext;
         private VisualElement _dealerOptionsMenu;
         private VisualElement _dealerOptions;
@@ -323,6 +339,9 @@ namespace TheFall.Presentation.UI
                     RenderSetup();
                     Focus("setup-start-button");
                     break;
+                case FirstPlayableFlowStage.Loading:
+                    RenderLoading();
+                    break;
                 case FirstPlayableFlowStage.Match:
                     RenderMatch();
                     break;
@@ -348,6 +367,9 @@ namespace TheFall.Presentation.UI
 
             _casasToggle = Require<Toggle>("casas-toggle");
             _trivilinToggle = Require<Toggle>("trivilin-toggle");
+            _casasState = Require<Label>("casas-state");
+            _trivilinState = Require<Label>("trivilin-state");
+            _loadingSession = Require<Label>("loading-session");
             _screen = Require<VisualElement>("home-screen");
             foreach (var stageName in StageElementNames)
             {
@@ -363,6 +385,7 @@ namespace TheFall.Presentation.UI
             _matchPrompt = Require<Label>("match-prompt");
             _resultOutcome = Require<Label>("result-outcome");
             _resultScore = Require<Label>("result-score");
+            _resultRules = Require<Label>("result-rules");
             _dealerContext = Require<VisualElement>("dealer-context");
             _dealerOptionsMenu = Require<VisualElement>("dealer-options-menu");
             _dealerOptions = Require<VisualElement>("dealer-options");
@@ -381,6 +404,7 @@ namespace TheFall.Presentation.UI
             Require<Button>("home-start-button").clicked += () => OpenSetup();
             Require<Button>("setup-start-button").clicked += () => StartMatch();
             Require<Button>("setup-back-button").clicked += () => ReturnHome();
+            Require<Button>("loading-home-button").clicked += () => ReturnHome();
             Require<Button>("match-home-button").clicked += () => ReturnHome();
             _dealerOptionsButton.clicked += ToggleDealerOptions;
             _cantoOptionsButton.clicked += ToggleCantoOptions;
@@ -398,9 +422,19 @@ namespace TheFall.Presentation.UI
             Require<Button>("result-replay-button").clicked += () => Replay();
             Require<Button>("result-home-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
-                Flow.TryConfigure(change.newValue, _trivilinToggle.value));
+            {
+                if (Flow.TryConfigure(change.newValue, _trivilinToggle.value))
+                {
+                    RenderSetup();
+                }
+            });
             _trivilinToggle.RegisterValueChangedCallback(change =>
-                Flow.TryConfigure(_casasToggle.value, change.newValue));
+            {
+                if (Flow.TryConfigure(_casasToggle.value, change.newValue))
+                {
+                    RenderSetup();
+                }
+            });
             _screen.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
 
             _isBound = true;
@@ -412,6 +446,20 @@ namespace TheFall.Presentation.UI
             _trivilinToggle.SetValueWithoutNotify(Flow.Setup.TrivilinWinsImmediately);
             _casasToggle.text = Localize("flow.setup.casas");
             _trivilinToggle.text = Localize("flow.setup.trivilin");
+            _casasState.text = Localize(Flow.Setup.CasaCantosEnabled
+                ? "flow.setup.casas-state.enabled"
+                : "flow.setup.casas-state.disabled");
+            _trivilinState.text = Localize(Flow.Setup.TrivilinWinsImmediately
+                ? "flow.setup.trivilin-state.immediate"
+                : "flow.setup.trivilin-state.points");
+        }
+
+        private void RenderLoading()
+        {
+            _loadingSession.text = Localize(
+                "flow.loading.session",
+                Flow.SessionNumber,
+                RulesSummary());
         }
 
         private void RenderMatch()
@@ -538,6 +586,19 @@ namespace TheFall.Presentation.UI
                 state.TeamOneScore.Value,
                 state.TeamTwoScore.Value,
                 state.RoundNumber);
+            _resultRules.text = Localize("flow.result.rules", RulesSummary());
+        }
+
+        private string RulesSummary()
+        {
+            return Localize(
+                "flow.rules.summary",
+                Localize(Flow.Setup.CasaCantosEnabled
+                    ? "flow.rules.casas.enabled"
+                    : "flow.rules.casas.disabled"),
+                Localize(Flow.Setup.TrivilinWinsImmediately
+                    ? "flow.rules.trivilin.immediate"
+                    : "flow.rules.trivilin.points"));
         }
 
         private string IntentText(PlayerIntent intent, int index)

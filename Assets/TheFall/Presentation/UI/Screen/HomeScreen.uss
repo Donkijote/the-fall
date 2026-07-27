@@ -41,7 +41,7 @@
     right: 0;
     top: 0;
     bottom: 0;
-    padding: 5%;
+    padding: 4%;
     align-items: center;
     justify-content: center;
 }
@@ -51,9 +51,9 @@
 }
 
 .hero-mark {
-    width: 52%;
-    max-width: 760px;
-    margin-right: 6%;
+    width: 50%;
+    max-width: 700px;
+    margin-right: 7%;
 }
 
 .eyebrow {
@@ -84,7 +84,6 @@
     max-width: 680px;
     color: rgb(205, 187, 150);
     font-size: 24px;
-    line-height: 32px;
     white-space: normal;
 }
 
@@ -102,18 +101,48 @@
 }
 
 .home-card {
-    width: 34%;
-    min-width: 300px;
-    max-width: 440px;
-    padding: 28px;
+    width: 38%;
+    min-width: 330px;
+    max-width: 480px;
+    padding: 32px;
+}
+
+.card-label {
+    color: rgb(181, 139, 62);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    white-space: normal;
 }
 
 .mode-summary {
-    margin-bottom: 24px;
-    color: rgb(216, 196, 147);
-    font-size: 18px;
-    line-height: 25px;
+    margin-top: 10px;
+    color: rgb(245, 226, 176);
+    font-size: 17px;
+    -unity-font-style: bold;
     white-space: normal;
+}
+
+.journey-list {
+    margin-top: 22px;
+    margin-bottom: 24px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.20);
+    border-bottom-color: rgba(216, 196, 147, 0.20);
+}
+
+.journey-step {
+    min-height: 26px;
+    color: rgb(197, 178, 142);
+    font-size: 16px;
+    white-space: normal;
+}
+
+.home-card > .primary-button {
+    width: 100%;
 }
 
 Button {
@@ -181,17 +210,26 @@ Toggle:disabled {
 .input-prompt {
     margin-top: 14px;
     color: rgb(160, 144, 118);
-    font-size: 12px;
+    font-size: 14px;
     -unity-text-align: middle-center;
     white-space: normal;
 }
 
-.setup-panel,
-.result-panel {
-    width: 78%;
-    max-width: 860px;
-    max-height: 94%;
-    padding: 32px;
+.setup-panel {
+    width: 90%;
+    max-width: 1120px;
+    height: 92%;
+    max-height: 760px;
+    padding: 30px;
+}
+
+.setup-scroll {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.setup-scroll .unity-scroll-view__content-container {
+    padding-right: 8px;
 }
 
 .section-title {
@@ -211,43 +249,103 @@ Toggle:disabled {
     margin-bottom: 18px;
     color: rgb(197, 178, 142);
     font-size: 17px;
-    line-height: 24px;
     white-space: normal;
 }
 
+.default-note {
+    margin-bottom: 10px;
+    color: rgb(181, 139, 62);
+    font-size: 14px;
+    white-space: normal;
+}
+
+.setup-options {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .option-card {
-    margin-top: 10px;
-    padding: 16px;
-    border-left-width: 4px;
-    border-left-color: rgb(70, 112, 70);
-    border-radius: 8px;
+    width: 49%;
+    min-height: 210px;
+    margin-top: 12px;
+    padding: 18px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.24);
+    border-right-color: rgba(216, 196, 147, 0.24);
+    border-top-color: rgba(216, 196, 147, 0.24);
+    border-bottom-color: rgba(216, 196, 147, 0.24);
+    border-radius: 10px;
     background-color: rgba(36, 26, 20, 0.70);
 }
 
+.default-badge {
+    align-self: flex-start;
+    min-width: 156px;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    color: rgb(36, 26, 20);
+    background-color: rgb(181, 139, 62);
+    border-radius: 4px;
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
 .rule-toggle {
-    min-height: 34px;
+    min-height: 44px;
     color: rgb(236, 215, 169);
-    font-size: 18px;
+    font-size: 19px;
     -unity-font-style: bold;
     white-space: normal;
 }
 
 .option-description {
-    margin-top: 5px;
-    margin-left: 24px;
+    margin-top: 8px;
     color: rgb(181, 165, 134);
     font-size: 14px;
-    line-height: 20px;
     white-space: normal;
 }
 
-.fixed-summary {
-    margin-top: 18px;
-    padding: 12px;
-    color: rgb(181, 139, 62);
+.option-state {
+    margin-top: auto;
+    padding-top: 12px;
+    color: rgb(216, 196, 147);
     font-size: 14px;
-    -unity-text-align: middle-center;
+    -unity-font-style: bold;
     white-space: normal;
+}
+
+.fixed-card {
+    margin-top: 16px;
+    padding: 14px 16px;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 8px;
+    background-color: rgba(70, 92, 115, 0.28);
+}
+
+.fixed-card > .card-label {
+    min-width: 132px;
+    margin-right: 16px;
+}
+
+.fixed-summary {
+    flex-grow: 1;
+    color: rgb(216, 196, 147);
+    font-size: 14px;
+    white-space: normal;
+}
+
+.setup-footer {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.22);
 }
 
 .button-row {
@@ -266,6 +364,31 @@ Toggle:disabled {
     max-width: 620px;
     padding: 42px;
     align-items: center;
+}
+
+.loading-session {
+    margin-top: 6px;
+    padding: 10px 16px;
+    color: rgb(245, 226, 176);
+    background-color: rgba(70, 92, 115, 0.30);
+    border-radius: 6px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.loading-status {
+    margin-top: 12px;
+    color: rgb(160, 144, 118);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.loading-cancel {
+    min-width: 240px;
+    margin-top: 18px;
 }
 
 .loading-glyph {
@@ -385,7 +508,6 @@ Toggle:disabled {
     margin-top: 10px;
     color: rgb(197, 178, 142);
     font-size: 16px;
-    line-height: 23px;
     white-space: normal;
 }
 
@@ -527,6 +649,10 @@ Toggle:disabled {
 }
 
 .result-panel {
+    width: 76%;
+    max-width: 900px;
+    max-height: 92%;
+    padding: 34px 42px;
     align-items: center;
 }
 
@@ -537,10 +663,10 @@ Toggle:disabled {
 }
 
 .result-seal {
-    width: 72%;
-    min-height: 130px;
-    margin-top: 28px;
-    margin-bottom: 18px;
+    width: 78%;
+    min-height: 150px;
+    margin-top: 22px;
+    margin-bottom: 16px;
     padding: 24px;
     align-items: center;
     justify-content: center;
@@ -556,6 +682,11 @@ Toggle:disabled {
     background-color: rgba(36, 26, 20, 0.72);
 }
 
+.result-winner-label {
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
 .result-outcome {
     color: rgb(245, 226, 176);
     font-size: 36px;
@@ -569,6 +700,34 @@ Toggle:disabled {
     font-size: 19px;
     -unity-text-align: middle-center;
     white-space: normal;
+}
+
+.result-rules {
+    margin-top: 8px;
+    color: rgb(181, 165, 134);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.result-next {
+    margin-top: 22px;
+    color: rgb(245, 226, 176);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.result-panel > .button-row {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.result-panel > .button-row > Button {
+    width: 42%;
+    max-width: 260px;
 }
 
 .semantic-legal {
@@ -650,7 +809,6 @@ Toggle:disabled {
 .screen-root.profile-mobile-portrait .subtitle {
     max-width: none;
     font-size: 72px;
-    line-height: 94px;
 }
 
 .screen-root.profile-mobile-portrait .title-rule {
@@ -671,11 +829,38 @@ Toggle:disabled {
     padding: 96px;
 }
 
+.screen-root.profile-mobile-portrait .setup-panel,
+.screen-root.profile-mobile-portrait .result-panel {
+    height: 92%;
+    max-height: none;
+}
+
+.screen-root.profile-mobile-portrait .card-label,
+.screen-root.profile-mobile-portrait .default-note,
+.screen-root.profile-mobile-portrait .default-badge,
+.screen-root.profile-mobile-portrait .option-state,
+.screen-root.profile-mobile-portrait .loading-status,
+.screen-root.profile-mobile-portrait .result-rules,
+.screen-root.profile-mobile-portrait .result-next {
+    font-size: 48px;
+}
+
 .screen-root.profile-mobile-portrait .mode-summary,
 .screen-root.profile-mobile-portrait .body-copy,
 .screen-root.profile-mobile-portrait .result-score {
     font-size: 64px;
-    line-height: 84px;
+}
+
+.screen-root.profile-mobile-portrait .journey-list {
+    margin-top: 56px;
+    margin-bottom: 64px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.screen-root.profile-mobile-portrait .journey-step {
+    min-height: 90px;
+    font-size: 56px;
 }
 
 .screen-root.profile-mobile-portrait .section-title {
@@ -694,14 +879,29 @@ Toggle:disabled {
 .screen-root.profile-mobile-portrait .option-description,
 .screen-root.profile-mobile-portrait .fixed-summary {
     font-size: 48px;
-    line-height: 66px;
+}
+
+.screen-root.profile-mobile-portrait .setup-options {
+    flex-direction: column;
 }
 
 .screen-root.profile-mobile-portrait .option-card {
+    width: 100%;
+    min-height: 620px;
     margin-top: 40px;
     padding: 52px;
-    border-left-width: 12px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
     border-radius: 24px;
+}
+
+.screen-root.profile-mobile-portrait .default-badge {
+    min-width: 620px;
+    margin-bottom: 24px;
+    padding: 12px 22px;
+    border-radius: 12px;
 }
 
 .screen-root.profile-mobile-portrait .rule-toggle {
@@ -711,7 +911,28 @@ Toggle:disabled {
 
 .screen-root.profile-mobile-portrait .option-description {
     margin-top: 20px;
-    margin-left: 76px;
+}
+
+.screen-root.profile-mobile-portrait .option-state {
+    padding-top: 32px;
+}
+
+.screen-root.profile-mobile-portrait .fixed-card {
+    margin-top: 40px;
+    padding: 38px 42px;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 20px;
+}
+
+.screen-root.profile-mobile-portrait .fixed-card > .card-label {
+    margin-right: 0;
+    margin-bottom: 12px;
+}
+
+.screen-root.profile-mobile-portrait .setup-footer {
+    margin-top: 36px;
+    padding-top: 36px;
 }
 
 .screen-root.profile-mobile-portrait .button-row {
@@ -735,6 +956,22 @@ Toggle:disabled {
     border-top-width: 16px;
     border-bottom-width: 16px;
     border-radius: 90px;
+}
+
+.screen-root.profile-mobile-portrait .loading-session {
+    margin-top: 24px;
+    padding: 30px 42px;
+    border-radius: 18px;
+    font-size: 52px;
+}
+
+.screen-root.profile-mobile-portrait .loading-status {
+    margin-top: 32px;
+}
+
+.screen-root.profile-mobile-portrait .loading-cancel {
+    width: 100%;
+    margin-top: 48px;
 }
 
 .screen-root.profile-mobile-portrait .match-header {
@@ -788,7 +1025,6 @@ Toggle:disabled {
     margin-top: 24px;
     padding-right: 24px;
     font-size: 48px;
-    line-height: 66px;
 }
 
 .screen-root.profile-mobile-portrait .event-line {
@@ -856,8 +1092,21 @@ Toggle:disabled {
     padding: 72px;
 }
 
+.screen-root.profile-mobile-portrait .result-winner-label {
+    margin-bottom: 24px;
+}
+
 .screen-root.profile-mobile-portrait .result-outcome {
     font-size: 108px;
+}
+
+.screen-root.profile-mobile-portrait .result-rules {
+    margin-top: 28px;
+}
+
+.screen-root.profile-mobile-portrait .result-next {
+    margin-top: 56px;
+    font-size: 58px;
 }
 
 .screen-root.profile-mobile-landscape .stage {
@@ -875,7 +1124,6 @@ Toggle:disabled {
 
 .screen-root.profile-mobile-landscape .subtitle {
     font-size: 36px;
-    line-height: 46px;
 }
 
 .screen-root.profile-mobile-landscape .home-card,
@@ -885,11 +1133,20 @@ Toggle:disabled {
     padding: 40px;
 }
 
+.screen-root.profile-mobile-landscape .card-label,
+.screen-root.profile-mobile-landscape .default-note,
+.screen-root.profile-mobile-landscape .default-badge,
+.screen-root.profile-mobile-landscape .option-state,
+.screen-root.profile-mobile-landscape .loading-status,
+.screen-root.profile-mobile-landscape .result-rules,
+.screen-root.profile-mobile-landscape .result-next {
+    font-size: 25px;
+}
+
 .screen-root.profile-mobile-landscape .mode-summary,
 .screen-root.profile-mobile-landscape .body-copy,
 .screen-root.profile-mobile-landscape .result-score {
     font-size: 32px;
-    line-height: 42px;
 }
 
 .screen-root.profile-mobile-landscape .section-title {
@@ -903,11 +1160,22 @@ Toggle:disabled {
     font-size: 31px;
 }
 
+.screen-root.profile-mobile-landscape .journey-list {
+    margin-top: 24px;
+    margin-bottom: 28px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.screen-root.profile-mobile-landscape .journey-step {
+    min-height: 42px;
+    font-size: 27px;
+}
+
 .screen-root.profile-mobile-landscape .input-prompt,
 .screen-root.profile-mobile-landscape .option-description,
 .screen-root.profile-mobile-landscape .fixed-summary {
     font-size: 26px;
-    line-height: 34px;
 }
 
 .screen-root.profile-mobile-landscape .rule-toggle,
@@ -917,11 +1185,51 @@ Toggle:disabled {
 }
 
 .screen-root.profile-mobile-landscape .option-card {
+    min-height: 260px;
     margin-top: 16px;
     padding: 22px;
 }
 
+.screen-root.profile-mobile-landscape .default-badge {
+    min-width: 320px;
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-size: 21px;
+}
+
+.screen-root.profile-mobile-landscape .option-state {
+    padding-top: 12px;
+}
+
+.screen-root.profile-mobile-landscape .fixed-card {
+    margin-top: 18px;
+    padding: 16px 20px;
+}
+
+.screen-root.profile-mobile-landscape .fixed-card > .card-label {
+    min-width: 200px;
+    margin-right: 20px;
+}
+
+.screen-root.profile-mobile-landscape .setup-footer {
+    margin-top: 18px;
+    padding-top: 18px;
+}
+
 .screen-root.profile-mobile-landscape .button-row {
+    margin-top: 22px;
+}
+
+.screen-root.profile-mobile-landscape .loading-session {
+    margin-top: 12px;
+    padding: 16px 24px;
+    border-radius: 10px;
+    font-size: 27px;
+}
+
+.screen-root.profile-mobile-landscape .loading-cancel {
+    min-width: 420px;
     margin-top: 22px;
 }
 
@@ -968,7 +1276,6 @@ Toggle:disabled {
 .screen-root.profile-mobile-landscape .status-line {
     margin-top: 12px;
     font-size: 27px;
-    line-height: 35px;
 }
 
 .screen-root.profile-mobile-landscape .interaction-feedback,
@@ -1003,9 +1310,15 @@ Toggle:disabled {
 }
 
 .screen-root.profile-mobile-landscape .result-seal {
+    width: 84%;
     min-height: 180px;
     margin-top: 28px;
     margin-bottom: 20px;
+}
+
+.screen-root.profile-mobile-landscape .result-next {
+    margin-top: 22px;
+    font-size: 28px;
 }
 
 .screen-root.profile-mobile-landscape .result-outcome {

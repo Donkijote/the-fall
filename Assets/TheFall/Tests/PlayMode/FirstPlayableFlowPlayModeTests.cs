@@ -23,12 +23,29 @@ namespace TheFall.Tests.PlayMode
         public IEnumerator PlayerCanCompleteReplayAndLeaveTheFirstPlayableThroughTheUiAdapter()
         {
             yield return LoadFlow();
+            yield return LocalizationSettings.InitializationOperation;
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var root = controller.GetComponent<UIDocument>().rootVisualElement;
 
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
+            Assert.That(root.Q<Label>("home-step-setup").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("home-step-match").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("home-step-result").text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("home-start-button").focusable, Is.True);
             Assert.That(controller.OpenSetup(), Is.True);
+            Assert.That(root.Q<Toggle>("casas-toggle").value, Is.True);
+            Assert.That(root.Q<Toggle>("trivilin-toggle").value, Is.False);
+            Assert.That(root.Q<Label>("casas-state").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("trivilin-state").text, Is.Not.Empty);
             Assert.That(controller.StartMatch(), Is.True);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Loading));
+            var loadingMatch = controller.Flow.Match;
+            var loadingSession = controller.Flow.SessionNumber;
+            Assert.That(controller.StartMatch(), Is.False);
+            Assert.That(controller.Flow.Match, Is.SameAs(loadingMatch));
+            Assert.That(controller.Flow.SessionNumber, Is.EqualTo(loadingSession));
+            Assert.That(root.Q<Label>("loading-session").text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("loading-home-button").focusable, Is.True);
             yield return null;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
@@ -50,11 +67,13 @@ namespace TheFall.Tests.PlayMode
             Assert.That(humanIntentCount, Is.LessThan(5000));
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Result));
             var completedMatch = controller.Flow.Match;
-            var resultEyebrow = controller
-                .GetComponent<UIDocument>()
-                .rootVisualElement
-                .Q<Label>("result-eyebrow");
+            var resultEyebrow = root.Q<Label>("result-eyebrow");
             Assert.That(resultEyebrow.resolvedStyle.whiteSpace, Is.EqualTo(WhiteSpace.NoWrap));
+            Assert.That(root.Q<Label>("result-outcome").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("result-score").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("result-rules").text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("result-replay-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("result-home-button").focusable, Is.True);
 
             Assert.That(controller.Replay(), Is.True);
             Assert.That(controller.Flow.Match, Is.Not.SameAs(completedMatch));
@@ -68,6 +87,29 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator LeavingDuringLoading_CancelsTheTransitionAndCannotRestoreAStaleSession()
+        {
+            yield return LoadFlow();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+
+            Assert.That(controller.OpenSetup(), Is.True);
+            Assert.That(controller.StartMatch(), Is.True);
+            var abandonedSession = controller.Flow.SessionNumber;
+
+            Assert.That(controller.ReturnHome(), Is.True);
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
+            Assert.That(controller.Flow.Match, Is.Null);
+
+            yield return null;
+
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
+            Assert.That(controller.Flow.Match, Is.Null);
+            Assert.That(controller.Flow.SessionNumber, Is.EqualTo(abandonedSession));
+            Assert.That(controller.Flow.Setup.CasaCantosEnabled, Is.True);
+            Assert.That(controller.Flow.Setup.TrivilinWinsImmediately, Is.False);
+        }
+
+        [UnityTest]
         public IEnumerator PseudoLocalization_RemainsExpandedReadableAndKeyboardFocusable()
         {
             yield return LoadFlow();
@@ -77,6 +119,7 @@ namespace TheFall.Tests.PlayMode
             var screen = root.Q<VisualElement>("home-screen");
             var subtitle = root.Q<Label>("home-subtitle");
             var start = root.Q<Button>("home-start-button");
+            var journeyStep = root.Q<Label>("home-step-setup");
 
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(new LocaleIdentifier("en"));
             controller.Render();
@@ -92,6 +135,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(subtitle.text, Is.Not.EqualTo(englishText));
             Assert.That(start.text, Is.Not.Empty);
             Assert.That(start.focusable, Is.True);
+            Assert.That(journeyStep.text, Is.Not.Empty);
             Assert.That(screen.layout.width, Is.GreaterThan(0f));
             Assert.That(screen.layout.height, Is.GreaterThan(0f));
 
@@ -99,10 +143,12 @@ namespace TheFall.Tests.PlayMode
             yield return null;
             var setupStage = root.Q<VisualElement>("setup-stage");
             var casasToggle = root.Q<Toggle>("casas-toggle");
+            var casasState = root.Q<Label>("casas-state");
             var startMatch = root.Q<Button>("setup-start-button");
             Assert.That(setupStage.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
             Assert.That(casasToggle.text, Is.Not.Empty);
             Assert.That(casasToggle.focusable, Is.True);
+            Assert.That(casasState.text, Is.Not.Empty);
             Assert.That(startMatch.text, Is.Not.Empty);
             Assert.That(startMatch.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
             Assert.That(startMatch.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
@@ -117,6 +163,8 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             var root = controller.GetComponent<UIDocument>().rootVisualElement;
             var screen = root.Q<VisualElement>("home-screen");
+            var casasToggle = root.Q<Toggle>("casas-toggle");
+            var startMatch = root.Q<Button>("setup-start-button");
 
             Assert.That(controller.OpenSetup(), Is.True);
             var stage = controller.Flow.Stage;
@@ -132,6 +180,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CurrentAdaptivePanelInsets.Top, Is.GreaterThan(0f));
             Assert.That(controller.CurrentAdaptivePanelInsets.Bottom, Is.GreaterThan(0f));
             Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
+            Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(startMatch.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             controller.ApplyViewportForTests(
                 new Vector2Int(844, 390),
@@ -145,6 +195,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CurrentAdaptivePanelInsets.Left, Is.GreaterThan(0f));
             Assert.That(controller.CurrentAdaptivePanelInsets.Right, Is.GreaterThan(0f));
             Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
+            Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(startMatch.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             controller.ClearViewportOverrideForTests();
         }

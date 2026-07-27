@@ -92,6 +92,11 @@ change without changing the flow stage. Existing table tests continue to own sel
 interaction-history, match, trace, authoritative-state, and fixed-camera preservation. See the
 [V0.1 adaptive UI foundation](../design/adaptive-ui-foundation.md).
 
+Issue #44 extends the first-playable flow fixture with player-facing Home route, setup default/current
+state, loading-session, duplicate-start, loading-cancellation, winner, score, replay, and Home-reset
+assertions. Pseudo-localization and both phone profiles cover the redesigned setup footer, focusable
+toggles and actions, and minimum touch-target height without creating a second application state model.
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.
