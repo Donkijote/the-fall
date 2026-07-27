@@ -759,19 +759,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035023
-    m_Localized: "\u25B1\nDECKS"
+    m_Localized: DECKS
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035024
-    m_Localized: "\u25A3\nBAG"
+    m_Localized: BAG
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035025
-    m_Localized: "\u25B0\nSHOP"
+    m_Localized: SHOP
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035026
-    m_Localized: "\u265B\nRANK"
+    m_Localized: RANK
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035027
@@ -787,7 +787,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035030
-    m_Localized: "\u25B6"
+    m_Localized: Send
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035031

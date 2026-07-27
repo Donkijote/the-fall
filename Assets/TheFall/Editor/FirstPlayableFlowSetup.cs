@@ -17,6 +17,31 @@ namespace TheFall.Editor
     {
         private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
         private const string UxmlPath = "Assets/TheFall/Presentation/UI/Screen/HomeScreen.uxml";
+        private const string IconDirectory = "Assets/TheFall/Content/UI/Icons";
+
+        private static readonly string[] RequiredIconNames =
+        {
+            "audio",
+            "bag",
+            "canto",
+            "clubs",
+            "coins",
+            "cups",
+            "decks",
+            "energy",
+            "envelope",
+            "gems",
+            "home",
+            "padlock",
+            "quest",
+            "rank",
+            "replay",
+            "send",
+            "settings",
+            "shield",
+            "shop",
+            "skip",
+        };
 
         private static readonly EntryDefinition[] Entries =
         {
@@ -72,14 +97,14 @@ namespace TheFall.Editor
             Text("flow.home.action-status", "Choose a hub destination."),
             Text("flow.home.mail", "MAIL"),
             Text("flow.home.settings", "SET"),
-            Text("flow.home.nav.decks", "▱\nDECKS"),
-            Text("flow.home.nav.bag", "▣\nBAG"),
-            Text("flow.home.nav.shop", "▰\nSHOP"),
-            Text("flow.home.nav.rank", "♛\nRANK"),
+            Text("flow.home.nav.decks", "DECKS"),
+            Text("flow.home.nav.bag", "BAG"),
+            Text("flow.home.nav.shop", "SHOP"),
+            Text("flow.home.nav.rank", "RANK"),
             Text("flow.home.chat.global", "Global"),
             Text("flow.home.chat.guild", "Guild"),
             Text("flow.home.chat.system", "System"),
-            Text("flow.home.chat.send", "▶"),
+            Text("flow.home.chat.send", "Send"),
             Text("flow.home.chat.input-label", "SCRIBE A LOCAL MESSAGE"),
             Text("flow.home.chat.date", "— TODAY —"),
             Text("flow.home.chat.global.one", "[HERALD] Welcome to the first season of The Fall."),
@@ -249,6 +274,7 @@ namespace TheFall.Editor
                 return;
             }
 
+            ConfigureIconImports();
             ConfigureLocalization();
             ConfigureHomeScene();
             AssetDatabase.SaveAssets();
@@ -281,6 +307,28 @@ namespace TheFall.Editor
 
             Require(File.Exists(HomeScenePath), "The Home scene is missing.", errors);
             Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath) != null, "The first-playable UXML is missing.", errors);
+            foreach (var iconName in RequiredIconNames)
+            {
+                var iconPath = $"{IconDirectory}/{iconName}.png";
+                var iconImporter = AssetImporter.GetAtPath(iconPath) as TextureImporter;
+                Require(
+                    AssetDatabase.LoadAssetAtPath<Texture2D>(iconPath) != null,
+                    $"Required UI icon is missing: {iconPath}.",
+                    errors);
+                Require(iconImporter != null, $"Required UI icon has no texture importer: {iconPath}.", errors);
+                if (iconImporter != null)
+                {
+                    Require(iconImporter.mipmapEnabled, $"UI icon must generate mipmaps for small UI treatments: {iconPath}.", errors);
+                    Require(iconImporter.alphaIsTransparency, $"UI icon must preserve transparent edges: {iconPath}.", errors);
+                    Require(iconImporter.wrapMode == TextureWrapMode.Clamp, $"UI icon must use clamp wrapping: {iconPath}.", errors);
+                    Require(iconImporter.maxTextureSize == 256, $"UI icon must be capped at 256 px: {iconPath}.", errors);
+                    Require(iconImporter.filterMode == FilterMode.Trilinear, $"UI icon must use trilinear filtering: {iconPath}.", errors);
+                    Require(
+                        iconImporter.textureCompression == TextureImporterCompression.Uncompressed,
+                        $"UI icon must remain uncompressed: {iconPath}.",
+                        errors);
+                }
+            }
 
             if (File.Exists(HomeScenePath))
             {
@@ -316,6 +364,32 @@ namespace TheFall.Editor
             EditorUtility.SetDirty(table);
             EditorUtility.SetDirty(table.SharedData);
             LocalizationEditorSettings.SetPreloadTableFlag(table, true);
+        }
+
+        [MenuItem("The Fall/First Playable Flow/Configure UI Icons")]
+        public static void ConfigureIconImports()
+        {
+            foreach (var iconName in RequiredIconNames)
+            {
+                var iconPath = $"{IconDirectory}/{iconName}.png";
+                var importer = AssetImporter.GetAtPath(iconPath) as TextureImporter;
+                if (importer == null)
+                {
+                    throw new InvalidOperationException($"Required UI icon has no texture importer: {iconPath}.");
+                }
+
+                importer.textureType = TextureImporterType.Default;
+                importer.mipmapEnabled = true;
+                importer.sRGBTexture = true;
+                importer.alphaSource = TextureImporterAlphaSource.FromInput;
+                importer.alphaIsTransparency = true;
+                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.npotScale = TextureImporterNPOTScale.None;
+                importer.maxTextureSize = 256;
+                importer.filterMode = FilterMode.Trilinear;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.SaveAndReimport();
+            }
         }
 
         private static void ConfigureHomeScene()

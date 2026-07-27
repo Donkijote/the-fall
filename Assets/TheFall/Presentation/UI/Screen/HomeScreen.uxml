@@ -19,13 +19,16 @@
                         </ui:VisualElement>
                         <ui:VisualElement class="login-proof">
                             <ui:VisualElement class="suit-token suit-token-brass">
-                                <ui:Label text="♣" class="suit-token-label" />
+                                <ui:VisualElement class="game-icon suit-token-icon icon-coins" picking-mode="Ignore" />
                             </ui:VisualElement>
                             <ui:VisualElement class="suit-token suit-token-woad">
-                                <ui:Label text="♦" class="suit-token-label" />
+                                <ui:VisualElement class="game-icon suit-token-icon icon-cups" picking-mode="Ignore" />
                             </ui:VisualElement>
                             <ui:VisualElement class="suit-token suit-token-madder">
-                                <ui:Label text="♠" class="suit-token-label" />
+                                <ui:VisualElement class="game-icon suit-token-icon icon-quest" picking-mode="Ignore" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="suit-token suit-token-moss">
+                                <ui:VisualElement class="game-icon suit-token-icon icon-clubs" picking-mode="Ignore" />
                             </ui:VisualElement>
                             <ui:Label name="login-proof" class="login-proof-copy" />
                         </ui:VisualElement>
@@ -33,14 +36,14 @@
 
                     <ui:VisualElement class="login-panel panel">
                         <ui:VisualElement class="login-emblem">
-                            <ui:Label text="TF" class="login-emblem-label" />
+                            <ui:VisualElement class="game-icon login-emblem-icon icon-shield" picking-mode="Ignore" />
                         </ui:VisualElement>
                         <ui:Label name="login-panel-title" class="login-panel-title" />
                         <ui:Label name="login-panel-subtitle" class="login-panel-subtitle" />
                         <ui:VisualElement class="login-form">
                             <ui:Label name="login-email-label" class="login-field-label" />
                             <ui:VisualElement class="login-input-shell">
-                                <ui:Label text="✉" class="login-input-icon" />
+                                <ui:VisualElement class="game-icon login-input-icon icon-envelope" picking-mode="Ignore" />
                                 <ui:TextField name="login-email" class="login-field" />
                             </ui:VisualElement>
                             <ui:VisualElement class="login-password-heading">
@@ -48,7 +51,7 @@
                                 <ui:Button name="login-forgot-button" class="login-link-button" />
                             </ui:VisualElement>
                             <ui:VisualElement class="login-input-shell">
-                                <ui:Label text="◆" class="login-input-icon" />
+                                <ui:VisualElement class="game-icon login-input-icon icon-padlock" picking-mode="Ignore" />
                                 <ui:TextField name="login-password" class="login-field" is-password-field="true" />
                             </ui:VisualElement>
                             <ui:Button name="login-enter-button" class="primary-button login-enter-button" />
@@ -80,7 +83,7 @@
                     <ui:VisualElement class="hub-topbar">
                         <ui:VisualElement class="hub-identity panel">
                             <ui:VisualElement class="hub-identity-seal">
-                                <ui:Label text="TF" class="hub-seal-label" />
+                                <ui:VisualElement class="game-icon hub-seal-icon icon-shield" picking-mode="Ignore" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-identity-copy">
                                 <ui:Label name="home-title" class="hub-title" />
@@ -97,17 +100,17 @@
 
                         <ui:VisualElement class="hub-stats">
                             <ui:VisualElement class="hub-stat panel hub-stat-brass">
-                                <ui:Label text="●" class="hub-resource-icon hub-resource-brass" />
+                                <ui:VisualElement class="game-icon hub-resource-icon hub-resource-brass icon-coins" picking-mode="Ignore" />
                                 <ui:Label name="home-stat-mode-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-mode-value" class="hub-stat-value" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-stat panel hub-stat-woad">
-                                <ui:Label text="◆" class="hub-resource-icon hub-resource-woad" />
+                                <ui:VisualElement class="game-icon hub-resource-icon hub-resource-woad icon-gems" picking-mode="Ignore" />
                                 <ui:Label name="home-stat-target-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-target-value" class="hub-stat-value" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-stat panel hub-stat-madder">
-                                <ui:Label text="ϟ" class="hub-resource-icon hub-resource-madder" />
+                                <ui:VisualElement class="game-icon hub-resource-icon hub-resource-madder icon-energy" picking-mode="Ignore" />
                                 <ui:Label name="home-stat-deck-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-deck-value" class="hub-stat-value" />
                                 <ui:VisualElement class="hub-energy-track">
@@ -117,9 +120,13 @@
                         </ui:VisualElement>
 
                         <ui:VisualElement class="hub-top-actions">
-                            <ui:Button name="home-mail-button" class="hub-square-button hub-mail-button" />
+                            <ui:Button name="home-mail-button" class="hub-square-button hub-mail-button icon-only-button">
+                                <ui:VisualElement class="game-icon hub-square-icon icon-envelope" picking-mode="Ignore" />
+                            </ui:Button>
                             <ui:VisualElement class="hub-mail-dot" />
-                            <ui:Button name="home-settings-button" class="hub-square-button" />
+                            <ui:Button name="home-settings-button" class="hub-square-button icon-only-button">
+                                <ui:VisualElement class="game-icon hub-square-icon icon-settings" picking-mode="Ignore" />
+                            </ui:Button>
                         </ui:VisualElement>
                     </ui:VisualElement>
 
@@ -135,18 +142,28 @@
                                 <ui:VisualElement class="hub-progress-fill" />
                             </ui:VisualElement>
                             <ui:Label name="home-mode" class="hub-objective-meta" />
-                            <ui:Button name="home-start-button" class="hub-quest-button" />
+                            <ui:Button name="home-start-button" class="hub-quest-button icon-label-button">
+                                <ui:VisualElement class="game-icon action-button-icon icon-quest" picking-mode="Ignore" />
+                            </ui:Button>
                         </ui:VisualElement>
 
                         <ui:VisualElement class="hub-dock panel">
                             <ui:VisualElement class="hub-route">
-                                <ui:Button name="home-decks-button" class="hub-nav-button hub-nav-decks" />
+                                <ui:Button name="home-decks-button" class="hub-nav-button hub-nav-decks">
+                                    <ui:VisualElement class="game-icon hub-nav-icon icon-decks" picking-mode="Ignore" />
+                                </ui:Button>
                                 <ui:VisualElement class="hub-route-divider" />
-                                <ui:Button name="home-bag-button" class="hub-nav-button" />
+                                <ui:Button name="home-bag-button" class="hub-nav-button">
+                                    <ui:VisualElement class="game-icon hub-nav-icon icon-bag" picking-mode="Ignore" />
+                                </ui:Button>
                                 <ui:VisualElement class="hub-route-divider" />
-                                <ui:Button name="home-shop-button" class="hub-nav-button hub-nav-selected" />
+                                <ui:Button name="home-shop-button" class="hub-nav-button hub-nav-selected">
+                                    <ui:VisualElement class="game-icon hub-nav-icon icon-shop" picking-mode="Ignore" />
+                                </ui:Button>
                                 <ui:VisualElement class="hub-route-divider" />
-                                <ui:Button name="home-rank-button" class="hub-nav-button" />
+                                <ui:Button name="home-rank-button" class="hub-nav-button">
+                                    <ui:VisualElement class="game-icon hub-nav-icon icon-rank" picking-mode="Ignore" />
+                                </ui:Button>
                             </ui:VisualElement>
                             <ui:Label name="home-action-status" class="hub-action-status" />
                         </ui:VisualElement>
@@ -167,7 +184,9 @@
                             <ui:Label name="home-chat-input-label" class="hub-chat-input-label" />
                             <ui:VisualElement class="hub-chat-input-row">
                                 <ui:TextField name="home-chat-input" class="hub-chat-input" />
-                                <ui:Button name="home-chat-send-button" class="hub-chat-send" />
+                                <ui:Button name="home-chat-send-button" class="hub-chat-send icon-only-button">
+                                    <ui:VisualElement class="game-icon hub-send-icon icon-send" picking-mode="Ignore" />
+                                </ui:Button>
                             </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
@@ -181,7 +200,10 @@
                     <ui:Label name="hub-modal-description" class="body-copy" />
                     <ui:ScrollView name="hub-settings-content" class="hub-settings-content">
                         <ui:VisualElement class="hub-settings-group">
-                            <ui:Label name="home-settings-rules-label" class="hub-settings-heading" />
+                            <ui:VisualElement class="hub-settings-title-row">
+                                <ui:VisualElement class="game-icon hub-settings-icon icon-quest" picking-mode="Ignore" />
+                                <ui:Label name="home-settings-rules-label" class="hub-settings-heading" />
+                            </ui:VisualElement>
                             <ui:Label name="home-settings-rules-copy" class="hub-settings-intro" />
                             <ui:VisualElement class="hub-settings-grid hub-settings-rules-grid">
                                 <ui:VisualElement class="hub-setting-card">
@@ -196,7 +218,10 @@
                         </ui:VisualElement>
 
                         <ui:VisualElement class="hub-settings-group">
-                            <ui:Label name="home-settings-audio-label" class="hub-settings-heading" />
+                            <ui:VisualElement class="hub-settings-title-row">
+                                <ui:VisualElement class="game-icon hub-settings-icon icon-audio" picking-mode="Ignore" />
+                                <ui:Label name="home-settings-audio-label" class="hub-settings-heading" />
+                            </ui:VisualElement>
                             <ui:Label name="home-settings-audio-copy" class="hub-settings-intro" />
                             <ui:VisualElement class="hub-settings-compact-grid">
                                 <ui:Toggle name="home-settings-audio-master-toggle" value="true" class="presentation-toggle hub-setting-toggle" />
@@ -206,13 +231,19 @@
                         </ui:VisualElement>
 
                         <ui:VisualElement class="hub-settings-group">
-                            <ui:Label name="home-settings-motion-label" class="hub-settings-heading" />
+                            <ui:VisualElement class="hub-settings-title-row">
+                                <ui:VisualElement class="game-icon hub-settings-icon icon-skip" picking-mode="Ignore" />
+                                <ui:Label name="home-settings-motion-label" class="hub-settings-heading" />
+                            </ui:VisualElement>
                             <ui:Label name="home-settings-motion-copy" class="hub-settings-intro" />
                             <ui:VisualElement class="hub-settings-compact-grid">
                                 <ui:Toggle name="home-settings-animation-fast-toggle" class="presentation-toggle hub-setting-toggle" />
                                 <ui:Toggle name="home-settings-animation-reduced-toggle" class="presentation-toggle hub-setting-toggle" />
                             </ui:VisualElement>
                         </ui:VisualElement>
+                        <ui:Label
+                            text="Game-icons.net · CC BY 3.0 · Lorc, Delapouite &amp; Faithtoken"
+                            class="hub-icon-credit" />
                     </ui:ScrollView>
                     <ui:Button name="hub-modal-close-button" class="secondary-button" />
                 </ui:VisualElement>
@@ -265,7 +296,9 @@
                 <ui:Label name="loading-message" class="body-copy centered" />
                 <ui:Label name="loading-session" class="loading-session" />
                 <ui:Label name="loading-status" class="loading-status" />
-                <ui:Button name="loading-home-button" class="quiet-button loading-cancel" />
+                <ui:Button name="loading-home-button" class="quiet-button loading-cancel icon-label-button">
+                    <ui:VisualElement class="game-icon action-button-icon icon-home" picking-mode="Ignore" />
+                </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -278,14 +311,18 @@
                                 <ui:Label name="dealer-options-title" class="context-title" />
                                 <ui:VisualElement name="dealer-options" class="context-options" />
                             </ui:VisualElement>
-                            <ui:Button name="dealer-options-button" class="context-icon dealer-icon" />
+                            <ui:Button name="dealer-options-button" class="context-icon dealer-icon icon-only-button">
+                                <ui:VisualElement class="game-icon context-button-icon icon-decks" picking-mode="Ignore" />
+                            </ui:Button>
                         </ui:VisualElement>
                         <ui:VisualElement name="canto-context" class="player-context player-context-canto">
                             <ui:VisualElement name="canto-options-menu" class="context-menu panel">
                                 <ui:Label name="canto-options-title" class="context-title" />
                                 <ui:VisualElement name="canto-options" class="context-options" />
                             </ui:VisualElement>
-                            <ui:Button name="canto-options-button" class="context-icon canto-icon" />
+                            <ui:Button name="canto-options-button" class="context-icon canto-icon icon-only-button">
+                                <ui:VisualElement class="game-icon context-button-icon icon-canto" picking-mode="Ignore" />
+                            </ui:Button>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
@@ -296,14 +333,18 @@
                     <ui:Label name="match-turn" class="match-primary-status" />
                     <ui:Label name="match-event" class="status-line event-line" />
                     <ui:Label name="match-feedback" class="interaction-feedback" />
-                    <ui:Button name="animation-skip-button" class="quiet-button presentation-skip" />
+                    <ui:Button name="animation-skip-button" class="quiet-button presentation-skip icon-label-button">
+                        <ui:VisualElement class="game-icon action-button-icon icon-skip" picking-mode="Ignore" />
+                    </ui:Button>
                 </ui:VisualElement>
 
                 <ui:VisualElement class="match-score-hud panel" picking-mode="Ignore">
                     <ui:Label name="match-score" class="score-line" />
                 </ui:VisualElement>
 
-                <ui:Button name="match-home-button" class="quiet-button match-home-floating" />
+                <ui:Button name="match-home-button" class="quiet-button match-home-floating icon-label-button">
+                    <ui:VisualElement class="game-icon action-button-icon icon-home" picking-mode="Ignore" />
+                </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -312,6 +353,7 @@
                 <ui:Label name="result-eyebrow" class="eyebrow" />
                 <ui:Label name="result-title" class="section-title centered" />
                 <ui:VisualElement class="result-seal">
+                    <ui:VisualElement class="game-icon result-icon icon-rank" picking-mode="Ignore" />
                     <ui:Label name="result-winner-label" class="card-label result-winner-label" />
                     <ui:Label name="result-outcome" class="result-outcome" />
                 </ui:VisualElement>
@@ -319,8 +361,12 @@
                 <ui:Label name="result-rules" class="result-rules" />
                 <ui:Label name="result-next" class="result-next" />
                 <ui:VisualElement class="button-row">
-                    <ui:Button name="result-home-button" class="secondary-button" />
-                    <ui:Button name="result-replay-button" class="primary-button" />
+                    <ui:Button name="result-home-button" class="secondary-button icon-label-button">
+                        <ui:VisualElement class="game-icon action-button-icon icon-home" picking-mode="Ignore" />
+                    </ui:Button>
+                    <ui:Button name="result-replay-button" class="primary-button icon-label-button">
+                        <ui:VisualElement class="game-icon action-button-icon icon-replay" picking-mode="Ignore" />
+                    </ui:Button>
                 </ui:VisualElement>
                 <ui:Label name="result-prompt" class="input-prompt" />
             </ui:VisualElement>

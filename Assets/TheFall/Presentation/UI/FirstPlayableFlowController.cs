@@ -1020,7 +1020,12 @@ namespace TheFall.Presentation.UI
 
             foreach (var binding in ButtonLocalizationKeys)
             {
-                Require<Button>(binding.Key).text = Localize(binding.Value);
+                var button = Require<Button>(binding.Key);
+                button.text = Localize(binding.Value);
+                if (button.ClassListContains("icon-only-button"))
+                {
+                    button.tooltip = button.text;
+                }
             }
 
             if (_casasToggle != null)

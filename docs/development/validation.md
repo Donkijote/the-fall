@@ -371,4 +371,21 @@ Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
 - issue #42 remains the owner of the recorded physical iPhone frame-pacing miss; this UI foundation
   does not change that performance claim or select a support floor
 
+## Issue #44 validation checkpoint
+
+Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
+
+- first-playable flow and foundation validation passed
+- complete Edit Mode suite passed: 116/116
+- complete Play Mode suite passed: 32/32
+- macOS universal development-player smoke build passed
+- built-player visual review passed for the complete gateway, Game-icons.net symbol treatment,
+  Home hub, Settings, direct Begin Quest transition, centered match score, compact status card,
+  floating return-to-Home action, and absence of persistent match header and bottom explanation bar
+- automated coverage verifies localized icon labels/tooltips, required icon imports, 256-pixel
+  uncompressed mipmapped UI import settings, touch-target preservation, duplicate-start protection, replay,
+  return Home, and authoritative session reset
+- physical-iPhone readability and touch review was not rerun; the accepted issue #31 device run
+  remains baseline evidence and a new device pass is required before closing V0.1 physical acceptance
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

@@ -40,6 +40,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<Button>("login-google-button").focusable, Is.True);
             Assert.That(root.Q<Button>("login-apple-button").focusable, Is.True);
             Assert.That(root.Q<Button>("login-create-button").focusable, Is.True);
+            Assert.That(root.Q<VisualElement>(className: "icon-envelope"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>(className: "icon-padlock"), Is.Not.Null);
+            Assert.That(root.Query<VisualElement>(className: "suit-token-icon").ToList(), Has.Count.EqualTo(4));
             Assert.That(controller.OpenSetup(), Is.False);
             Assert.That(controller.OpenSettings(), Is.False);
             Assert.That(controller.EnterGateway(), Is.True);
@@ -57,6 +60,12 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<Button>("home-bag-button").focusable, Is.True);
             Assert.That(root.Q<Button>("home-shop-button").focusable, Is.True);
             Assert.That(root.Q<Button>("home-rank-button").focusable, Is.True);
+            Assert.That(root.Q<Button>("home-mail-button").tooltip, Is.Not.Empty);
+            Assert.That(root.Q<Button>("home-settings-button").tooltip, Is.Not.Empty);
+            Assert.That(root.Q<Button>("home-decks-button").Q<VisualElement>(className: "icon-decks"), Is.Not.Null);
+            Assert.That(root.Q<Button>("home-bag-button").Q<VisualElement>(className: "icon-bag"), Is.Not.Null);
+            Assert.That(root.Q<Button>("home-shop-button").Q<VisualElement>(className: "icon-shop"), Is.Not.Null);
+            Assert.That(root.Q<Button>("home-rank-button").Q<VisualElement>(className: "icon-rank"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-chat-global-button").focusable, Is.True);
             Assert.That(root.Q<TextField>("home-chat-input").focusable, Is.True);
             Assert.That(root.Q<VisualElement>(className: "hub-topbar"), Is.Not.Null);
@@ -100,8 +109,12 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<VisualElement>(className: "interaction-strip"), Is.Null);
             Assert.That(root.Q<VisualElement>(className: "match-score-hud"), Is.Not.Null);
             Assert.That(root.Q<VisualElement>(className: "match-status"), Is.Not.Null);
-            Assert.That(root.Q<Button>("match-home-button").ClassListContains("match-home-floating"), Is.True);
-            Assert.That(root.Q<Button>("match-home-button").focusable, Is.True);
+            var matchHomeButton = root.Q<Button>("match-home-button");
+            Assert.That(matchHomeButton.ClassListContains("match-home-floating"), Is.True);
+            Assert.That(matchHomeButton.focusable, Is.True);
+            Assert.That(
+                matchHomeButton.worldBound.width,
+                Is.LessThan(root.Q<VisualElement>("home-screen").worldBound.width * 0.35f));
             Assert.That(root.Q<Label>("match-score").text, Is.Not.Empty);
             Assert.That(root.Q<Label>("match-progress"), Is.Null);
             Assert.That(root.Q<Label>("match-canto"), Is.Null);

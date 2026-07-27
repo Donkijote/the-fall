@@ -807,6 +807,7 @@ Toggle:disabled {
     position: absolute;
     right: 0;
     top: 0;
+    width: 190px;
     min-width: 170px;
     min-height: 48px;
     background-color: rgba(36, 26, 20, 0.88);
@@ -1304,6 +1305,7 @@ Toggle:disabled {
 }
 
 .screen-root.profile-mobile-portrait .match-home-floating {
+    width: 320px;
     min-width: 320px;
     min-height: 150px;
     font-size: 38px;
@@ -1542,6 +1544,7 @@ Toggle:disabled {
 }
 
 .screen-root.profile-mobile-landscape .match-home-floating {
+    width: 270px;
     min-width: 270px;
     min-height: 90px;
     font-size: 25px;
@@ -3425,4 +3428,354 @@ Toggle:disabled {
 .screen-root.profile-mobile-landscape .hub-setting-toggle {
     min-height: 64px;
     font-size: 18px;
+}
+
+/* Game-icons.net CC BY icon system. Source and attribution: docs/assets/ui-icon-library.md. */
+.game-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: rgb(216, 196, 147);
+}
+
+.icon-shield {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/shield.png");
+}
+
+.icon-envelope {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/envelope.png");
+}
+
+.icon-padlock {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/padlock.png");
+}
+
+.icon-coins {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/coins.png");
+}
+
+.icon-gems {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/gems.png");
+}
+
+.icon-energy {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/energy.png");
+}
+
+.icon-decks {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/decks.png");
+}
+
+.icon-bag {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/bag.png");
+}
+
+.icon-shop {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/shop.png");
+}
+
+.icon-rank {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/rank.png");
+}
+
+.icon-send {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/send.png");
+}
+
+.icon-settings {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/settings.png");
+}
+
+.icon-quest {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/quest.png");
+}
+
+.icon-home {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/home.png");
+}
+
+.icon-skip {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/skip.png");
+}
+
+.icon-cups {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/cups.png");
+}
+
+.icon-clubs {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/clubs.png");
+}
+
+.icon-canto {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/canto.png");
+}
+
+.icon-audio {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/audio.png");
+}
+
+.icon-replay {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/replay.png");
+}
+
+.suit-token-moss {
+    background-color: rgb(107, 112, 70);
+}
+
+.suit-token-icon {
+    width: 30px;
+    height: 30px;
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.login-emblem-icon {
+    width: 38px;
+    height: 38px;
+    -unity-background-image-tint-color: rgb(141, 66, 56);
+}
+
+.login-input-icon {
+    height: 22px;
+    -unity-background-image-tint-color: rgb(112, 136, 155);
+}
+
+.hub-seal-icon {
+    width: 38px;
+    height: 38px;
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.hub-resource-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.hub-resource-brass {
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.hub-resource-woad {
+    -unity-background-image-tint-color: rgb(112, 136, 155);
+}
+
+.hub-resource-madder {
+    -unity-background-image-tint-color: rgb(141, 66, 56);
+}
+
+.icon-only-button {
+    position: relative;
+    font-size: 0;
+}
+
+.hub-square-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 27px;
+    height: 27px;
+    margin-left: -14px;
+    margin-top: -14px;
+    -unity-background-image-tint-color: rgb(216, 196, 147);
+}
+
+.hub-square-button:hover .hub-square-icon,
+.hub-square-button:focus .hub-square-icon {
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.icon-label-button {
+    padding-left: 42px;
+}
+
+.action-button-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.icon-label-button:hover .action-button-icon,
+.icon-label-button:focus .action-button-icon {
+    -unity-background-image-tint-color: rgb(36, 26, 20);
+}
+
+.hub-nav-button {
+    position: relative;
+    padding-top: 48px;
+}
+
+.hub-nav-icon {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    -unity-background-image-tint-color: rgb(181, 165, 134);
+}
+
+.hub-nav-button:hover .hub-nav-icon,
+.hub-nav-button:focus .hub-nav-icon,
+.hub-nav-selected .hub-nav-icon {
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.hub-send-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.hub-settings-title-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.hub-icon-credit {
+    margin-top: 4px;
+    color: rgb(116, 105, 88);
+    font-size: 10px;
+    white-space: normal;
+}
+
+.hub-settings-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 10px;
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.context-button-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    margin-left: -15px;
+    margin-top: -15px;
+    -unity-background-image-tint-color: rgb(36, 26, 20);
+}
+
+.canto-icon .context-button-icon {
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.result-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 10px;
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.screen-root.profile-mobile-portrait .icon-only-button {
+    font-size: 0;
+}
+
+.screen-root.profile-mobile-portrait .suit-token-icon {
+    width: 58px;
+    height: 58px;
+}
+
+.screen-root.profile-mobile-portrait .login-emblem-icon,
+.screen-root.profile-mobile-portrait .hub-seal-icon {
+    width: 104px;
+    height: 104px;
+}
+
+.screen-root.profile-mobile-portrait .login-input-icon {
+    height: 74px;
+}
+
+.screen-root.profile-mobile-portrait .hub-square-icon {
+    width: 96px;
+    height: 96px;
+    margin-left: -48px;
+    margin-top: -48px;
+}
+
+.screen-root.profile-mobile-portrait .hub-resource-icon {
+    width: 62px;
+    height: 62px;
+}
+
+.screen-root.profile-mobile-portrait .hub-nav-button {
+    padding-top: 116px;
+}
+
+.screen-root.profile-mobile-portrait .hub-nav-icon {
+    top: 28px;
+    width: 78px;
+    height: 78px;
+    margin-left: -39px;
+}
+
+.screen-root.profile-mobile-portrait .hub-send-icon {
+    width: 76px;
+    height: 76px;
+    margin-left: -38px;
+    margin-top: -38px;
+}
+
+.screen-root.profile-mobile-portrait .hub-settings-icon {
+    width: 60px;
+    height: 60px;
+    margin-right: 24px;
+}
+
+.screen-root.profile-mobile-portrait .hub-icon-credit {
+    font-size: 28px;
+}
+
+.screen-root.profile-mobile-portrait .action-button-icon {
+    left: 42px;
+    width: 68px;
+    height: 68px;
+    margin-top: -34px;
+}
+
+.screen-root.profile-mobile-portrait .icon-label-button {
+    padding-left: 126px;
+}
+
+.screen-root.profile-mobile-portrait .result-icon {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 24px;
+}
+
+.screen-root.profile-mobile-landscape .icon-only-button {
+    font-size: 0;
+}
+
+.screen-root.profile-mobile-landscape .hub-square-icon {
+    width: 42px;
+    height: 42px;
+    margin-left: -21px;
+    margin-top: -21px;
+}
+
+.screen-root.profile-mobile-landscape .hub-nav-button {
+    padding-top: 70px;
+}
+
+.screen-root.profile-mobile-landscape .hub-nav-icon {
+    top: 16px;
+    width: 46px;
+    height: 46px;
+    margin-left: -23px;
+}
+
+.screen-root.profile-mobile-landscape .hub-settings-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 14px;
 }
