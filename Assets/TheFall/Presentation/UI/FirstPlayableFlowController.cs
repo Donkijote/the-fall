@@ -70,6 +70,7 @@ namespace TheFall.Presentation.UI
         private UIDocument _document;
         private VisualElement _root;
         private VisualElement _screen;
+        private readonly List<VisualElement> _stages = new List<VisualElement>();
         private Toggle _casasToggle;
         private Toggle _trivilinToggle;
         private Label _matchPhase;
@@ -101,6 +102,10 @@ namespace TheFall.Presentation.UI
         private bool _isDealerMenuOpen;
         private bool _isCantoMenuOpen;
         private MatchState _contextState;
+        private Vector2Int _adaptiveViewport;
+        private Rect _adaptiveSafeArea;
+        private Vector2 _adaptivePanelSize;
+        private bool _hasAdaptiveViewportOverride;
 
         public FirstPlayableFlow Flow { get; private set; }
 
@@ -128,6 +133,10 @@ namespace TheFall.Presentation.UI
 
         public bool AudioMusicEnabled => _audioMusicToggle?.value ?? false;
 
+        public AdaptiveUiLayout CurrentAdaptiveLayout { get; private set; }
+
+        public AdaptiveUiInsets CurrentAdaptivePanelInsets { get; private set; }
+
         private void OnEnable()
         {
             _document = GetComponent<UIDocument>();
@@ -145,6 +154,7 @@ namespace TheFall.Presentation.UI
 
             Flow = compositionRoot.FirstPlayableFlow;
             BindUi();
+            ApplyAdaptiveLayout(RuntimeViewport(), RuntimeSafeArea(), UnityEngine.Application.isMobilePlatform);
             LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
             Render();
         }
@@ -158,6 +168,24 @@ namespace TheFall.Presentation.UI
         private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+        }
+
+        private void Update()
+        {
+            if (_hasAdaptiveViewportOverride || _screen == null)
+            {
+                return;
+            }
+
+            var viewport = RuntimeViewport();
+            var safeArea = RuntimeSafeArea();
+            var panelSize = ResolvePanelSize(viewport);
+            if (viewport != _adaptiveViewport
+                || safeArea != _adaptiveSafeArea
+                || panelSize != _adaptivePanelSize)
+            {
+                ApplyAdaptiveLayout(viewport, safeArea, UnityEngine.Application.isMobilePlatform);
+            }
         }
 
         public bool OpenSetup()
@@ -321,6 +349,10 @@ namespace TheFall.Presentation.UI
             _casasToggle = Require<Toggle>("casas-toggle");
             _trivilinToggle = Require<Toggle>("trivilin-toggle");
             _screen = Require<VisualElement>("home-screen");
+            foreach (var stageName in StageElementNames)
+            {
+                _stages.Add(Require<VisualElement>(stageName));
+            }
             _matchPhase = Require<Label>("match-phase");
             _matchScore = Require<Label>("match-score");
             _matchProgress = Require<Label>("match-progress");
@@ -730,7 +762,92 @@ namespace TheFall.Presentation.UI
 
         private void HandleGeometryChanged(GeometryChangedEvent change)
         {
-            _screen.EnableInClassList("compact", change.newRect.width < 900f);
+            var viewport = _hasAdaptiveViewportOverride
+                ? _adaptiveViewport
+                : RuntimeViewport();
+            var safeArea = _hasAdaptiveViewportOverride
+                ? _adaptiveSafeArea
+                : RuntimeSafeArea();
+            ApplyAdaptiveLayout(
+                viewport,
+                safeArea,
+                _hasAdaptiveViewportOverride
+                    ? CurrentAdaptiveLayout.Profile != AdaptiveUiProfile.Desktop
+                    : UnityEngine.Application.isMobilePlatform);
+        }
+
+        public void ApplyViewportForTests(
+            Vector2Int viewportPixels,
+            Rect safeAreaPixels,
+            bool isMobilePlatform)
+        {
+            _hasAdaptiveViewportOverride = true;
+            ApplyAdaptiveLayout(viewportPixels, safeAreaPixels, isMobilePlatform);
+        }
+
+        public void ClearViewportOverrideForTests()
+        {
+            _hasAdaptiveViewportOverride = false;
+            ApplyAdaptiveLayout(RuntimeViewport(), RuntimeSafeArea(), UnityEngine.Application.isMobilePlatform);
+        }
+
+        private void ApplyAdaptiveLayout(
+            Vector2Int viewportPixels,
+            Rect safeAreaPixels,
+            bool isMobilePlatform)
+        {
+            if (_screen == null)
+            {
+                return;
+            }
+
+            _adaptiveViewport = viewportPixels;
+            _adaptiveSafeArea = safeAreaPixels;
+            _adaptivePanelSize = ResolvePanelSize(viewportPixels);
+            CurrentAdaptiveLayout = AdaptiveUiFoundation.Resolve(
+                viewportPixels,
+                safeAreaPixels,
+                isMobilePlatform);
+            CurrentAdaptivePanelInsets = AdaptiveUiFoundation.ResolvePanelInsets(
+                CurrentAdaptiveLayout,
+                _adaptivePanelSize);
+            AdaptiveUiFoundation.ApplyProfileClass(
+                _screen,
+                CurrentAdaptiveLayout.Profile);
+            _screen.EnableInClassList("compact", false);
+
+            foreach (var stage in _stages)
+            {
+                stage.style.left = CurrentAdaptivePanelInsets.Left;
+                stage.style.top = CurrentAdaptivePanelInsets.Top;
+                stage.style.right = CurrentAdaptivePanelInsets.Right;
+                stage.style.bottom = CurrentAdaptivePanelInsets.Bottom;
+            }
+        }
+
+        private Vector2 ResolvePanelSize(Vector2Int viewportPixels)
+        {
+            var width = _screen?.layout.width ?? 0f;
+            var height = _screen?.layout.height ?? 0f;
+            return float.IsNaN(width)
+                || float.IsNaN(height)
+                || width <= 0f
+                || height <= 0f
+                    ? new Vector2(viewportPixels.x, viewportPixels.y)
+                    : new Vector2(width, height);
+        }
+
+        private static Vector2Int RuntimeViewport()
+        {
+            return new Vector2Int(Mathf.Max(1, Screen.width), Mathf.Max(1, Screen.height));
+        }
+
+        private static Rect RuntimeSafeArea()
+        {
+            var safeArea = Screen.safeArea;
+            return safeArea.width > 0f && safeArea.height > 0f
+                ? safeArea
+                : new Rect(0f, 0f, Screen.width, Screen.height);
         }
 
         private string Localize(string key, params object[] arguments)

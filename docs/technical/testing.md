@@ -84,6 +84,14 @@ for stale playback. The Play Mode assembly fixture sets `AudioListener.volume` t
 of automated execution and restores the previous host value afterward; cue history, source state, and
 mute-control assertions still run without audible test output. See [first-playable functional audio](audio.md).
 
+Issue #43 adds Edit Mode coverage for explicit desktop, mobile-portrait, and mobile-landscape UI
+profile selection; normalized safe-area mapping into UI Toolkit panel space; stable profile and
+semantic-state classes; and measurable text, card, character, control, touch-target, and focus
+minimums. Play Mode rotates the active flow between both phone profiles and verifies safe insets
+change without changing the flow stage. Existing table tests continue to own selected-card,
+interaction-history, match, trace, authoritative-state, and fixed-camera preservation. See the
+[V0.1 adaptive UI foundation](../design/adaptive-ui-foundation.md).
+
 ## CI and remaining decisions
 
 GitHub Actions and Unity CI are deliberately deferred for V0 by owner decision. Local validation evidence is required until project scale justifies choosing a licensed runner, platform modules, cache/artifact policy, and secret ownership.
