@@ -353,4 +353,22 @@ recorded in [iOS development builds](ios-development-builds.md):
 - focused issue [#42](https://github.com/Donkijote/the-fall/issues/42) owns the frame-pacing follow-up;
   Android, representative iOS tiers, production support floors, and distribution remain unclaimed
 
+## Issue #43 validation checkpoint
+
+Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
+
+- foundation validation, 116/116 Edit Mode tests, and 31/31 Play Mode tests passed
+- profile coverage includes all four accepted desktop layouts plus `390 x 844` portrait and
+  `844 x 390` landscape phone viewports with representative safe insets
+- Play Mode portrait-to-landscape recomposition preserved the active application-flow stage while
+  applying different profile and safe-area classes
+- macOS universal and iOS-simulator Unity smoke exports passed
+- the native arm64 iOS `26.5` simulator build, install, launch, portrait capture, active rotation,
+  and landscape capture passed
+- the baseline physical-phone audit uses the accepted issue #31 run because the issue #43 baseline
+  UI code was unchanged; the new comparison images are simulator evidence and do not claim a new
+  physical-device pass
+- issue #42 remains the owner of the recorded physical iPhone frame-pacing miss; this UI foundation
+  does not change that performance claim or select a support floor
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

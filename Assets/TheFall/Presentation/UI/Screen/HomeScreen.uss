@@ -126,6 +126,23 @@ Button {
     white-space: normal;
 }
 
+Button:focus,
+Toggle:focus {
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(245, 226, 176);
+    border-right-color: rgb(245, 226, 176);
+    border-top-color: rgb(245, 226, 176);
+    border-bottom-color: rgb(245, 226, 176);
+}
+
+Button:disabled,
+Toggle:disabled {
+    opacity: 0.52;
+}
+
 .primary-button {
     color: rgb(36, 26, 20);
     background-color: rgb(216, 196, 147);
@@ -554,47 +571,443 @@ Button {
     white-space: normal;
 }
 
-.screen-root.compact .stage-home,
-.screen-root.compact .match-grid {
+.semantic-legal {
+    border-left-color: rgb(107, 140, 70);
+    border-right-color: rgb(107, 140, 70);
+    border-top-color: rgb(107, 140, 70);
+    border-bottom-color: rgb(107, 140, 70);
+}
+
+.semantic-selected {
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.semantic-confirmed {
+    border-left-color: rgb(112, 136, 155);
+    border-right-color: rgb(112, 136, 155);
+    border-top-color: rgb(112, 136, 155);
+    border-bottom-color: rgb(112, 136, 155);
+}
+
+.semantic-rejected {
+    border-left-color: rgb(141, 66, 56);
+    border-right-color: rgb(141, 66, 56);
+    border-top-color: rgb(141, 66, 56);
+    border-bottom-color: rgb(141, 66, 56);
+}
+
+.semantic-blocked {
+    border-left-color: rgb(160, 144, 118);
+    border-right-color: rgb(160, 144, 118);
+    border-top-color: rgb(160, 144, 118);
+    border-bottom-color: rgb(160, 144, 118);
+    opacity: 0.72;
+}
+
+.screen-root.profile-mobile-portrait .stage-home,
+.screen-root.profile-mobile-portrait .match-grid {
     flex-direction: column;
 }
 
-.screen-root.compact .hero-mark,
-.screen-root.compact .home-card,
-.screen-root.compact .match-status,
-.screen-root.compact .match-table-space {
+.screen-root.profile-mobile-portrait .stage {
+    padding: 96px 120px;
+}
+
+.screen-root.profile-mobile-portrait .hero-mark,
+.screen-root.profile-mobile-portrait .home-card,
+.screen-root.profile-mobile-portrait .setup-panel,
+.screen-root.profile-mobile-portrait .loading-panel,
+.screen-root.profile-mobile-portrait .result-panel,
+.screen-root.profile-mobile-portrait .match-status,
+.screen-root.profile-mobile-portrait .match-table-space {
     width: 100%;
     max-width: none;
     min-width: 0;
     margin-right: 0;
 }
 
-.screen-root.compact .match-table-space {
-    min-height: 260px;
+.screen-root.profile-mobile-portrait .hero-mark {
+    margin-bottom: 120px;
 }
 
-.screen-root.compact .hero-mark {
+.screen-root.profile-mobile-portrait .display-title {
+    margin-top: 28px;
+    font-size: 168px;
+}
+
+.screen-root.profile-mobile-portrait .eyebrow {
+    font-size: 52px;
+    letter-spacing: 8px;
+}
+
+.screen-root.profile-mobile-portrait .subtitle {
+    max-width: none;
+    font-size: 72px;
+    line-height: 94px;
+}
+
+.screen-root.profile-mobile-portrait .title-rule {
+    width: 220px;
+    height: 12px;
+    margin-top: 28px;
+    margin-bottom: 64px;
+}
+
+.screen-root.profile-mobile-portrait .panel {
+    border-radius: 38px;
+}
+
+.screen-root.profile-mobile-portrait .home-card,
+.screen-root.profile-mobile-portrait .setup-panel,
+.screen-root.profile-mobile-portrait .loading-panel,
+.screen-root.profile-mobile-portrait .result-panel {
+    padding: 96px;
+}
+
+.screen-root.profile-mobile-portrait .mode-summary,
+.screen-root.profile-mobile-portrait .body-copy,
+.screen-root.profile-mobile-portrait .result-score {
+    font-size: 64px;
+    line-height: 84px;
+}
+
+.screen-root.profile-mobile-portrait .section-title {
+    font-size: 112px;
+}
+
+.screen-root.profile-mobile-portrait Button {
+    min-height: 210px;
+    padding-left: 64px;
+    padding-right: 64px;
+    border-radius: 22px;
+    font-size: 64px;
+}
+
+.screen-root.profile-mobile-portrait .input-prompt,
+.screen-root.profile-mobile-portrait .option-description,
+.screen-root.profile-mobile-portrait .fixed-summary {
+    font-size: 48px;
+    line-height: 66px;
+}
+
+.screen-root.profile-mobile-portrait .option-card {
+    margin-top: 40px;
+    padding: 52px;
+    border-left-width: 12px;
+    border-radius: 24px;
+}
+
+.screen-root.profile-mobile-portrait .rule-toggle {
+    min-height: 210px;
+    font-size: 62px;
+}
+
+.screen-root.profile-mobile-portrait .option-description {
+    margin-top: 20px;
+    margin-left: 76px;
+}
+
+.screen-root.profile-mobile-portrait .button-row {
+    flex-direction: column;
+    margin-top: 48px;
+}
+
+.screen-root.profile-mobile-portrait .button-row > Button {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 28px;
+}
+
+.screen-root.profile-mobile-portrait .loading-glyph {
+    width: 180px;
+    height: 180px;
+    margin-top: 72px;
+    margin-bottom: 60px;
+    border-left-width: 16px;
+    border-right-width: 16px;
+    border-top-width: 16px;
+    border-bottom-width: 16px;
+    border-radius: 90px;
+}
+
+.screen-root.profile-mobile-portrait .match-header {
+    min-height: 310px;
+    padding: 52px 64px;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.screen-root.profile-mobile-portrait .match-header-actions {
+    margin-top: 32px;
+    justify-content: flex-start;
+}
+
+.screen-root.profile-mobile-portrait .presentation-toggle {
+    min-height: 210px;
+    margin-right: 36px;
+    font-size: 48px;
+}
+
+.screen-root.profile-mobile-portrait .audio-toggle {
+    font-size: 44px;
+}
+
+.screen-root.profile-mobile-portrait .match-grid {
+    margin-top: 48px;
+}
+
+.screen-root.profile-mobile-portrait .match-status {
+    margin-bottom: 40px;
+    padding: 64px;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.screen-root.profile-mobile-portrait .status-title {
+    width: 100%;
+    font-size: 76px;
+}
+
+.screen-root.profile-mobile-portrait .score-line {
+    width: 100%;
+    margin-top: 40px;
+    margin-bottom: 32px;
+    padding: 46px;
+    font-size: 64px;
+}
+
+.screen-root.profile-mobile-portrait .status-line {
+    width: 50%;
+    margin-top: 24px;
+    padding-right: 24px;
+    font-size: 48px;
+    line-height: 66px;
+}
+
+.screen-root.profile-mobile-portrait .event-line {
+    width: 100%;
+    margin-top: 36px;
+    padding-top: 32px;
+}
+
+.screen-root.profile-mobile-portrait .match-table-space {
+    min-height: 1540px;
+}
+
+.screen-root.profile-mobile-portrait .match-context-controls {
+    bottom: 18%;
+    margin-left: 110px;
+}
+
+.screen-root.profile-mobile-portrait .player-context {
+    width: 230px;
+    margin-left: 32px;
+}
+
+.screen-root.profile-mobile-portrait .context-icon {
+    width: 210px;
+    min-width: 210px;
+    height: 210px;
+    min-height: 210px;
+    border-radius: 105px;
+    font-size: 58px;
+}
+
+.screen-root.profile-mobile-portrait .context-menu {
+    width: 1120px;
+    max-height: 1080px;
+    bottom: 238px;
+    padding: 52px;
+}
+
+.screen-root.profile-mobile-portrait .context-title {
+    margin-bottom: 32px;
+    font-size: 60px;
+}
+
+.screen-root.profile-mobile-portrait .context-action-button {
+    min-height: 210px;
     margin-bottom: 24px;
-}
-
-.screen-root.compact .display-title {
     font-size: 52px;
 }
 
-.screen-root.compact .subtitle {
-    font-size: 19px;
-    line-height: 26px;
+.screen-root.profile-mobile-portrait .interaction-strip {
+    min-height: 240px;
+    padding: 32px 48px;
 }
 
-.screen-root.compact .match-status {
-    margin-bottom: 14px;
+.screen-root.profile-mobile-portrait .interaction-feedback {
+    min-height: 66px;
+    font-size: 48px;
 }
 
-.screen-root.compact .match-context-controls {
-    bottom: 17%;
-    margin-left: 42px;
+.screen-root.profile-mobile-portrait .result-seal {
+    width: 100%;
+    min-height: 460px;
+    margin-top: 80px;
+    margin-bottom: 56px;
+    padding: 72px;
 }
 
-.screen-root.compact .context-menu {
-    width: 300px;
+.screen-root.profile-mobile-portrait .result-outcome {
+    font-size: 108px;
+}
+
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .display-title {
+    font-size: 92px;
+}
+
+.screen-root.profile-mobile-landscape .subtitle {
+    font-size: 36px;
+    line-height: 46px;
+}
+
+.screen-root.profile-mobile-landscape .home-card,
+.screen-root.profile-mobile-landscape .setup-panel,
+.screen-root.profile-mobile-landscape .loading-panel,
+.screen-root.profile-mobile-landscape .result-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .mode-summary,
+.screen-root.profile-mobile-landscape .body-copy,
+.screen-root.profile-mobile-landscape .result-score {
+    font-size: 32px;
+    line-height: 42px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.screen-root.profile-mobile-landscape .input-prompt,
+.screen-root.profile-mobile-landscape .option-description,
+.screen-root.profile-mobile-landscape .fixed-summary {
+    font-size: 26px;
+    line-height: 34px;
+}
+
+.screen-root.profile-mobile-landscape .rule-toggle,
+.screen-root.profile-mobile-landscape .presentation-toggle {
+    min-height: 96px;
+    font-size: 30px;
+}
+
+.screen-root.profile-mobile-landscape .option-card {
+    margin-top: 16px;
+    padding: 22px;
+}
+
+.screen-root.profile-mobile-landscape .button-row {
+    margin-top: 22px;
+}
+
+.screen-root.profile-mobile-landscape .match-header {
+    min-height: 116px;
+    padding: 18px 28px;
+}
+
+.screen-root.profile-mobile-landscape .match-header-actions {
+    flex-wrap: nowrap;
+}
+
+.screen-root.profile-mobile-landscape .presentation-toggle {
+    margin-right: 16px;
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .audio-toggle {
+    font-size: 23px;
+}
+
+.screen-root.profile-mobile-landscape .match-grid {
+    margin-top: 18px;
+}
+
+.screen-root.profile-mobile-landscape .match-status {
+    width: 27%;
+    min-width: 360px;
+    max-width: 440px;
+    padding: 30px;
+}
+
+.screen-root.profile-mobile-landscape .status-title {
+    font-size: 42px;
+}
+
+.screen-root.profile-mobile-landscape .score-line {
+    margin-top: 24px;
+    margin-bottom: 20px;
+    padding: 22px;
+    font-size: 34px;
+}
+
+.screen-root.profile-mobile-landscape .status-line {
+    margin-top: 12px;
+    font-size: 27px;
+    line-height: 35px;
+}
+
+.screen-root.profile-mobile-landscape .interaction-feedback,
+.screen-root.profile-mobile-landscape .context-title {
+    font-size: 26px;
+}
+
+.screen-root.profile-mobile-landscape .context-icon {
+    width: 96px;
+    min-width: 96px;
+    height: 96px;
+    min-height: 96px;
+    border-radius: 48px;
+    font-size: 28px;
+}
+
+.screen-root.profile-mobile-landscape .context-menu {
+    width: 620px;
+    max-height: 520px;
+    bottom: 112px;
+    padding: 24px;
+}
+
+.screen-root.profile-mobile-landscape .context-action-button {
+    min-height: 96px;
+    font-size: 26px;
+}
+
+.screen-root.profile-mobile-landscape .interaction-strip {
+    min-height: 104px;
+    padding: 14px 24px;
+}
+
+.screen-root.profile-mobile-landscape .result-seal {
+    min-height: 180px;
+    margin-top: 28px;
+    margin-bottom: 20px;
+}
+
+.screen-root.profile-mobile-landscape .result-outcome {
+    font-size: 58px;
 }

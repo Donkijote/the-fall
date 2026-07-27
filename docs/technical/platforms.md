@@ -34,7 +34,10 @@ Android, iOS, and Windows remain confirmed product targets. Existing simulated t
 
 **Confirmed:** Rotating the device during an active match immediately recomposes the camera-safe presentation and UI without restarting or changing the match state.
 
-**Proposed:** Treat each orientation as an authored composition sharing the same game state, rather than scaling one layout mechanically.
+**Confirmed for V0.1:** Treat desktop, mobile portrait, and mobile landscape as authored
+compositions sharing the same game state, rather than scaling one layout mechanically. Issue #43
+implements the screen-space profile and safe-area foundation and records its measurable minimums in
+the [adaptive UI foundation](../design/adaptive-ui-foundation.md).
 
 Issue #6 implements and tests that proposal with three authored layout profiles and normalized safe-area recomposition. See [fixed table composition prototype](../design/table-composition-prototype.md) for its working parameters and remaining device-validation gaps.
 

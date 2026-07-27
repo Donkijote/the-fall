@@ -110,6 +110,45 @@ namespace TheFall.Tests.PlayMode
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(new LocaleIdentifier("en"));
         }
 
+        [UnityTest]
+        public IEnumerator AdaptiveProfiles_PreserveFlowAndApplyMobileSafeAreas()
+        {
+            yield return LoadFlow();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var root = controller.GetComponent<UIDocument>().rootVisualElement;
+            var screen = root.Q<VisualElement>("home-screen");
+
+            Assert.That(controller.OpenSetup(), Is.True);
+            var stage = controller.Flow.Stage;
+
+            controller.ApplyViewportForTests(
+                new Vector2Int(390, 844),
+                new Rect(0f, 34f, 390f, 776f),
+                true);
+            yield return null;
+
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobilePortrait));
+            Assert.That(screen.ClassListContains("profile-mobile-portrait"), Is.True);
+            Assert.That(controller.CurrentAdaptivePanelInsets.Top, Is.GreaterThan(0f));
+            Assert.That(controller.CurrentAdaptivePanelInsets.Bottom, Is.GreaterThan(0f));
+            Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
+
+            controller.ApplyViewportForTests(
+                new Vector2Int(844, 390),
+                new Rect(36f, 0f, 772f, 390f),
+                true);
+            yield return null;
+
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobileLandscape));
+            Assert.That(screen.ClassListContains("profile-mobile-landscape"), Is.True);
+            Assert.That(screen.ClassListContains("profile-mobile-portrait"), Is.False);
+            Assert.That(controller.CurrentAdaptivePanelInsets.Left, Is.GreaterThan(0f));
+            Assert.That(controller.CurrentAdaptivePanelInsets.Right, Is.GreaterThan(0f));
+            Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
+
+            controller.ClearViewportOverrideForTests();
+        }
+
         private static IEnumerator LoadFlow()
         {
             if (CompositionRoot.Instance != null)

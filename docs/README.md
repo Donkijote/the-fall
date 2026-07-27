@@ -42,6 +42,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 ### Design
 
 - [Experience](design/experience.md): camera, player representation, interaction, and UI principles.
+- [V0.1 adaptive UI foundation](design/adaptive-ui-foundation.md): screen audit, authored desktop/mobile profiles, measurable size tokens, safe-area rules, reusable components, and comparison captures.
 - [Fixed table composition prototype](design/table-composition-prototype.md): V0 camera, seat-anchor, orientation, safe-area, readability, validation, and unresolved-constraint evidence.
 - [Cross-platform card interaction prototype](design/card-interaction-prototype.md): shared card intents, touch/mouse/keyboard mappings, feedback states, orientation preservation, and validation evidence.
 - [Art direction](design/art-direction.md): visual principles, palette, cultural neutrality, readability, anti-goals, and V0 technical envelope.

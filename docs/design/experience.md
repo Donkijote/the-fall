@@ -34,6 +34,11 @@ Captured piles remain visually owned by the character who earned them even when 
 
 Issue #7's working shared-intent sequence, touch/mouse/keyboard mappings, semantic feedback states, and orientation-preservation behavior are recorded in the [cross-platform card interaction prototype](card-interaction-prototype.md). Those controls and visual treatments are V0 evidence rather than final production approval.
 
+Issue #43 promotes the V0.1 screen-space foundation to three authored compositions: desktop, mobile
+portrait, and mobile landscape. It records the physical-phone audit, measurable readability and
+target-size expectations, safe-area contract, decision hierarchy, reusable component/state classes,
+and retained regression boundary in the [adaptive UI foundation](adaptive-ui-foundation.md).
+
 ## Readability
 
 - the active player must be unmistakable
@@ -47,7 +52,7 @@ Issue #7's working shared-intent sequence, touch/mouse/keyboard mappings, semant
 - production camera angle, field of view, and safe framing thresholds beyond the V0 prototype
 - production tap-versus-drag behavior and input customization beyond the V0 tap/select/confirm prototype
 - card inspection and zoom behavior
-- portrait-mode seating and UI composition
+- production portrait and landscape composition beyond the V0.1 adaptive UI foundation
 - how remote player hands are represented
 - avatar source and placement
 - accessibility options, animation speed, and reduced-motion behavior

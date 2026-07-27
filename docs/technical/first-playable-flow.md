@@ -38,7 +38,16 @@ The flow translates those values into an immutable domain `RuleConfiguration` be
 
 ## UI Toolkit and localization
 
-`Home` owns one adaptive UI Toolkit document with Home, setup, loading, match, and result panels. The layout uses the confirmed warm medieval prototype palette, non-color-only labels, flexible wrapping, scrollable action lists, and a compact composition selected from resolved panel width.
+`Home` owns one adaptive UI Toolkit document with Home, setup, loading, match, and result panels. The
+layout uses the confirmed warm medieval prototype palette, non-color-only labels, flexible wrapping,
+scrollable action lists, and an authored composition selected from runtime platform and orientation.
+
+Issue #43 replaces the panel-width heuristic with an explicit platform/orientation profile. Desktop,
+mobile portrait, and mobile landscape use separate USS compositions while sharing the same document,
+localization keys, application state, and intents. The flow controller maps `Screen.safeArea` into
+current UI Toolkit panel units before profile padding, so rotation can change composition without
+changing the flow stage or match. The measurable tokens and screen audit are recorded in the
+[V0.1 adaptive UI foundation](../design/adaptive-ui-foundation.md).
 
 All player-facing copy is resolved from stable keys in the `UI` string table. English remains the source locale and `qps-ploc` transforms the same entries for expansion, accenting, and encapsulation checks. Dynamic scores, rounds, turns, cards, dealer choices, cantos, and results use Smart String entries; rule and canto identifiers remain separate from display text.
 
