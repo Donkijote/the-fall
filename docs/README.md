@@ -72,6 +72,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 
 - [V0 foundation plan](planning/v0-foundation-plan.md): ordered discovery and implementation preparation.
 - [First playable milestone](planning/first-playable-milestone.md): bounded 1v1 player outcome, rules, bot, fidelity, macOS acceptance gates, risks, and ordered implementation issues.
+- [V0.1 1v1 playtest milestone](planning/v0.1-1v1-playtest-milestone.md): adaptive UI, physical-phone readability, onboarding, presentation polish, friend distribution, feedback, and ordered issues.
 - [Development workflow](development/workflow.md): issues, branches, commits, pull requests, and project status.
 - [Project guidelines](development/guidelines.md): Unity, C#, asset, scene, prefab, and naming guidance.
 - [Bootstrap and validation](development/bootstrap-validation.md): implemented Unity foundation, scene roles, commands, and platform checkpoint.

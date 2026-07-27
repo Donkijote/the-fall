@@ -184,6 +184,10 @@ milestone. Android, Windows, representative mobile tiers, production support flo
 additional match modes, online play, and release readiness remain future scoped work rather than
 unchecked items in this plan.
 
+The next bounded phase is the [V0.1 1v1 playtest milestone](v0.1-1v1-playtest-milestone.md). It
+improves adaptive UI, phone readability, onboarding, presentation comfort, distribution, and external
+feedback without committing to Story Mode or another game mode.
+
 ## V0 foundation exit decision
 
 **Confirmed:** V0 exits when issue #11 is merged.
@@ -195,4 +199,4 @@ mobile-tier evidence, production content, Story Mode, additional modes, and onli
 future decisions and do not reopen the completed V0 foundation or block the bounded macOS first
 playable.
 
-Related: [V0 foundation plan](v0-foundation-plan.md), [V0 scope](../product/v0-scope.md), [game modes](../game/modes.md), [validation baseline](../development/validation.md), and [ADR 0002](../decisions/0002-first-playable-milestone.md).
+Related: [V0 foundation plan](v0-foundation-plan.md), [V0 scope](../product/v0-scope.md), [V0.1 1v1 playtest milestone](v0.1-1v1-playtest-milestone.md), [game modes](../game/modes.md), [validation baseline](../development/validation.md), and [ADR 0002](../decisions/0002-first-playable-milestone.md).
