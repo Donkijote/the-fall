@@ -54,7 +54,12 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<VisualElement>("home-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
             Assert.That(root.Q<Label>("home-objective-title").text, Is.Not.Empty);
             Assert.That(root.Q<Label>("home-stat-target-value").text, Is.EqualTo("500"));
+            Assert.That(root.Q<Label>("home-stat-mode-label"), Is.Null);
+            Assert.That(root.Q<Label>("home-stat-target-label"), Is.Null);
+            Assert.That(root.Q<Label>("home-stat-deck-label"), Is.Null);
             Assert.That(root.Q<Button>("home-mail-button").focusable, Is.True);
+            var mailIcon = root.Q<Button>("home-mail-button").Q<VisualElement>(className: "icon-envelope");
+            Assert.That(mailIcon.Q<VisualElement>(className: "hub-mail-dot"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-settings-button").focusable, Is.True);
             Assert.That(root.Q<Button>("home-decks-button").focusable, Is.True);
             Assert.That(root.Q<Button>("home-bag-button").focusable, Is.True);

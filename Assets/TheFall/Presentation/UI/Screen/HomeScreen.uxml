@@ -101,17 +101,14 @@
                         <ui:VisualElement class="hub-stats">
                             <ui:VisualElement class="hub-stat panel hub-stat-brass">
                                 <ui:VisualElement class="game-icon hub-resource-icon hub-resource-brass icon-coins" picking-mode="Ignore" />
-                                <ui:Label name="home-stat-mode-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-mode-value" class="hub-stat-value" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-stat panel hub-stat-woad">
                                 <ui:VisualElement class="game-icon hub-resource-icon hub-resource-woad icon-gems" picking-mode="Ignore" />
-                                <ui:Label name="home-stat-target-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-target-value" class="hub-stat-value" />
                             </ui:VisualElement>
                             <ui:VisualElement class="hub-stat panel hub-stat-madder">
                                 <ui:VisualElement class="game-icon hub-resource-icon hub-resource-madder icon-energy" picking-mode="Ignore" />
-                                <ui:Label name="home-stat-deck-label" class="hub-stat-label" />
                                 <ui:Label name="home-stat-deck-value" class="hub-stat-value" />
                                 <ui:VisualElement class="hub-energy-track">
                                     <ui:VisualElement class="hub-energy-fill" />
@@ -121,9 +118,10 @@
 
                         <ui:VisualElement class="hub-top-actions">
                             <ui:Button name="home-mail-button" class="hub-square-button hub-mail-button icon-only-button">
-                                <ui:VisualElement class="game-icon hub-square-icon icon-envelope" picking-mode="Ignore" />
+                                <ui:VisualElement class="game-icon hub-square-icon icon-envelope" picking-mode="Ignore">
+                                    <ui:VisualElement class="hub-mail-dot" picking-mode="Ignore" />
+                                </ui:VisualElement>
                             </ui:Button>
-                            <ui:VisualElement class="hub-mail-dot" />
                             <ui:Button name="home-settings-button" class="hub-square-button icon-only-button">
                                 <ui:VisualElement class="game-icon hub-square-icon icon-settings" picking-mode="Ignore" />
                             </ui:Button>
