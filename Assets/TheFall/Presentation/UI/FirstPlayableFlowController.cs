@@ -58,6 +58,14 @@ namespace TheFall.Presentation.UI
                 { "home-action-status", "flow.home.action-status" },
                 { "home-chat-input-label", "flow.home.chat.input-label" },
                 { "hub-modal-eyebrow", "flow.home.modal.eyebrow" },
+                { "home-settings-rules-label", "flow.home.settings.rules-label" },
+                { "home-settings-rules-copy", "flow.home.settings.rules-copy" },
+                { "home-settings-casas-description", "flow.setup.casas-description" },
+                { "home-settings-trivilin-description", "flow.setup.trivilin-description" },
+                { "home-settings-audio-label", "flow.home.settings.audio-label" },
+                { "home-settings-audio-copy", "flow.home.settings.audio-copy" },
+                { "home-settings-motion-label", "flow.home.settings.motion-label" },
+                { "home-settings-motion-copy", "flow.home.settings.motion-copy" },
                 { "setup-eyebrow", "flow.setup.eyebrow" },
                 { "setup-title", "flow.setup.title" },
                 { "setup-subtitle", "flow.setup.subtitle" },
@@ -163,6 +171,14 @@ namespace TheFall.Presentation.UI
         private VisualElement _hubModal;
         private Label _hubModalTitle;
         private Label _hubModalDescription;
+        private VisualElement _hubSettingsContent;
+        private Toggle _homeCasasToggle;
+        private Toggle _homeTrivilinToggle;
+        private Toggle _homeAnimationFastToggle;
+        private Toggle _homeAnimationReducedToggle;
+        private Toggle _homeAudioMasterToggle;
+        private Toggle _homeAudioEffectsToggle;
+        private Toggle _homeAudioMusicToggle;
         private Coroutine _loadingCoroutine;
         private bool _isBound;
         private bool _hasEnteredGateway;
@@ -283,6 +299,27 @@ namespace TheFall.Presentation.UI
             return true;
         }
 
+        public bool BeginQuest()
+        {
+            if (!_hasEnteredGateway
+                || Flow.Stage != FirstPlayableFlowStage.Home
+                || !Flow.TryOpenSetup())
+            {
+                return false;
+            }
+
+            _casasToggle.SetValueWithoutNotify(_homeCasasToggle.value);
+            _trivilinToggle.SetValueWithoutNotify(_homeTrivilinToggle.value);
+            if (StartMatch())
+            {
+                return true;
+            }
+
+            Flow.TryReturnHome();
+            Render();
+            return false;
+        }
+
         public bool StartMatch()
         {
             Flow.TryConfigure(_casasToggle.value, _trivilinToggle.value);
@@ -342,6 +379,7 @@ namespace TheFall.Presentation.UI
                 _loadingCoroutine = null;
             }
 
+            SetVisible(_hubModal, false);
             Render();
             return true;
         }
@@ -497,6 +535,14 @@ namespace TheFall.Presentation.UI
             _hubModal = Require<VisualElement>("hub-modal");
             _hubModalTitle = Require<Label>("hub-modal-title");
             _hubModalDescription = Require<Label>("hub-modal-description");
+            _hubSettingsContent = Require<VisualElement>("hub-settings-content");
+            _homeCasasToggle = Require<Toggle>("home-settings-casas-toggle");
+            _homeTrivilinToggle = Require<Toggle>("home-settings-trivilin-toggle");
+            _homeAnimationFastToggle = Require<Toggle>("home-settings-animation-fast-toggle");
+            _homeAnimationReducedToggle = Require<Toggle>("home-settings-animation-reduced-toggle");
+            _homeAudioMasterToggle = Require<Toggle>("home-settings-audio-master-toggle");
+            _homeAudioEffectsToggle = Require<Toggle>("home-settings-audio-effects-toggle");
+            _homeAudioMusicToggle = Require<Toggle>("home-settings-audio-music-toggle");
             Require<TextField>("login-password").isPasswordField = true;
 
             Require<Button>("login-enter-button").clicked += () => EnterGateway();
@@ -508,11 +554,10 @@ namespace TheFall.Presentation.UI
                 ShowLoginFeedback("flow.login.feedback.apple");
             Require<Button>("login-create-button").clicked += () =>
                 ShowLoginFeedback("flow.login.feedback.create");
-            Require<Button>("home-start-button").clicked += () => OpenSetup();
+            Require<Button>("home-start-button").clicked += () => BeginQuest();
             Require<Button>("home-mail-button").clicked += () =>
                 ShowHubPanel("flow.home.mail.title", "flow.home.mail.description");
-            Require<Button>("home-settings-button").clicked += () =>
-                ShowHubPanel("flow.home.settings.title", "flow.home.settings.description");
+            Require<Button>("home-settings-button").clicked += () => OpenSettings();
             Require<Button>("home-decks-button").clicked += () =>
                 SelectHubDestination(
                     "flow.home.status.decks",
@@ -545,16 +590,56 @@ namespace TheFall.Presentation.UI
             _dealerOptionsButton.clicked += ToggleDealerOptions;
             _cantoOptionsButton.clicked += ToggleCantoOptions;
             _animationFastToggle.RegisterValueChangedCallback(change =>
-                AnimationFastForwardChanged?.Invoke(change.newValue));
+            {
+                _homeAnimationFastToggle.SetValueWithoutNotify(change.newValue);
+                AnimationFastForwardChanged?.Invoke(change.newValue);
+            });
             _animationReducedToggle.RegisterValueChangedCallback(change =>
-                AnimationReducedMotionChanged?.Invoke(change.newValue));
+            {
+                _homeAnimationReducedToggle.SetValueWithoutNotify(change.newValue);
+                AnimationReducedMotionChanged?.Invoke(change.newValue);
+            });
             _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
             _audioMasterToggle.RegisterValueChangedCallback(change =>
-                AudioMasterChanged?.Invoke(change.newValue));
+            {
+                _homeAudioMasterToggle.SetValueWithoutNotify(change.newValue);
+                AudioMasterChanged?.Invoke(change.newValue);
+            });
             _audioEffectsToggle.RegisterValueChangedCallback(change =>
-                AudioEffectsChanged?.Invoke(change.newValue));
+            {
+                _homeAudioEffectsToggle.SetValueWithoutNotify(change.newValue);
+                AudioEffectsChanged?.Invoke(change.newValue);
+            });
             _audioMusicToggle.RegisterValueChangedCallback(change =>
-                AudioMusicChanged?.Invoke(change.newValue));
+            {
+                _homeAudioMusicToggle.SetValueWithoutNotify(change.newValue);
+                AudioMusicChanged?.Invoke(change.newValue);
+            });
+            _homeAnimationFastToggle.RegisterValueChangedCallback(change =>
+            {
+                _animationFastToggle.SetValueWithoutNotify(change.newValue);
+                AnimationFastForwardChanged?.Invoke(change.newValue);
+            });
+            _homeAnimationReducedToggle.RegisterValueChangedCallback(change =>
+            {
+                _animationReducedToggle.SetValueWithoutNotify(change.newValue);
+                AnimationReducedMotionChanged?.Invoke(change.newValue);
+            });
+            _homeAudioMasterToggle.RegisterValueChangedCallback(change =>
+            {
+                _audioMasterToggle.SetValueWithoutNotify(change.newValue);
+                AudioMasterChanged?.Invoke(change.newValue);
+            });
+            _homeAudioEffectsToggle.RegisterValueChangedCallback(change =>
+            {
+                _audioEffectsToggle.SetValueWithoutNotify(change.newValue);
+                AudioEffectsChanged?.Invoke(change.newValue);
+            });
+            _homeAudioMusicToggle.RegisterValueChangedCallback(change =>
+            {
+                _audioMusicToggle.SetValueWithoutNotify(change.newValue);
+                AudioMusicChanged?.Invoke(change.newValue);
+            });
             Require<Button>("result-replay-button").clicked += () => Replay();
             Require<Button>("result-home-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
@@ -574,6 +659,7 @@ namespace TheFall.Presentation.UI
             _screen.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
 
             SetVisible(_hubModal, false);
+            SetVisible(_hubSettingsContent, false);
             SetVisible(_homeChatUserMessage, false);
             _isBound = true;
         }
@@ -593,8 +679,28 @@ namespace TheFall.Presentation.UI
         {
             _hubModalTitle.text = Localize(titleKey);
             _hubModalDescription.text = Localize(descriptionKey);
+            _hubModal.EnableInClassList("hub-modal-settings", false);
+            SetVisible(_hubModalDescription, true);
+            SetVisible(_hubSettingsContent, false);
             SetVisible(_hubModal, true);
             Focus("hub-modal-close-button");
+        }
+
+        public bool OpenSettings()
+        {
+            if (!_hasEnteredGateway || Flow.Stage != FirstPlayableFlowStage.Home)
+            {
+                return false;
+            }
+
+            _hubModalTitle.text = Localize("flow.home.settings.title");
+            _hubModalDescription.text = Localize("flow.home.settings.description");
+            _hubModal.EnableInClassList("hub-modal-settings", true);
+            SetVisible(_hubModalDescription, true);
+            SetVisible(_hubSettingsContent, true);
+            SetVisible(_hubModal, true);
+            Focus("home-settings-casas-toggle");
+            return true;
         }
 
         private void CloseHubPanel()
@@ -1012,6 +1118,13 @@ namespace TheFall.Presentation.UI
                 _audioMasterToggle.text = Localize("flow.audio.master");
                 _audioEffectsToggle.text = Localize("flow.audio.effects");
                 _audioMusicToggle.text = Localize("flow.audio.music");
+                _homeCasasToggle.text = Localize("flow.setup.casas");
+                _homeTrivilinToggle.text = Localize("flow.setup.trivilin");
+                _homeAnimationFastToggle.text = Localize("flow.animation.fast-forward");
+                _homeAnimationReducedToggle.text = Localize("flow.animation.reduced-motion");
+                _homeAudioMasterToggle.text = Localize("flow.audio.master");
+                _homeAudioEffectsToggle.text = Localize("flow.audio.effects");
+                _homeAudioMusicToggle.text = Localize("flow.audio.music");
             }
         }
 

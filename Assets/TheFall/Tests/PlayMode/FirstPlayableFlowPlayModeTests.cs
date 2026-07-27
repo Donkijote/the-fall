@@ -41,6 +41,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<Button>("login-apple-button").focusable, Is.True);
             Assert.That(root.Q<Button>("login-create-button").focusable, Is.True);
             Assert.That(controller.OpenSetup(), Is.False);
+            Assert.That(controller.OpenSettings(), Is.False);
             Assert.That(controller.EnterGateway(), Is.True);
             Assert.That(controller.EnterGateway(), Is.False);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
@@ -61,16 +62,36 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<VisualElement>(className: "hub-topbar"), Is.Not.Null);
             Assert.That(root.Q<VisualElement>(className: "hub-bottombar"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-start-button").focusable, Is.True);
-            Assert.That(controller.OpenSetup(), Is.True);
-            Assert.That(root.Q<Toggle>("casas-toggle").value, Is.True);
-            Assert.That(root.Q<Toggle>("trivilin-toggle").value, Is.False);
-            Assert.That(root.Q<Label>("casas-state").text, Is.Not.Empty);
-            Assert.That(root.Q<Label>("trivilin-state").text, Is.Not.Empty);
-            Assert.That(controller.StartMatch(), Is.True);
+            Assert.That(controller.OpenSettings(), Is.True);
+            var settingsContent = root.Q<VisualElement>("hub-settings-content");
+            var homeCasas = root.Q<Toggle>("home-settings-casas-toggle");
+            var homeTrivilin = root.Q<Toggle>("home-settings-trivilin-toggle");
+            var homeMasterAudio = root.Q<Toggle>("home-settings-audio-master-toggle");
+            var homeReducedMotion = root.Q<Toggle>("home-settings-animation-reduced-toggle");
+            Assert.That(settingsContent.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(homeCasas.value, Is.True);
+            Assert.That(homeTrivilin.value, Is.False);
+            Assert.That(homeCasas.focusable, Is.True);
+            Assert.That(homeMasterAudio.focusable, Is.True);
+            Assert.That(homeReducedMotion.focusable, Is.True);
+            Assert.That(root.Q<Toggle>("home-settings-audio-effects-toggle").focusable, Is.True);
+            Assert.That(root.Q<Toggle>("home-settings-audio-music-toggle").focusable, Is.True);
+            Assert.That(root.Q<Toggle>("home-settings-animation-fast-toggle").focusable, Is.True);
+            homeCasas.value = false;
+            homeTrivilin.value = true;
+            homeMasterAudio.value = false;
+            homeReducedMotion.value = true;
+            Assert.That(root.Q<Toggle>("audio-master-toggle").value, Is.False);
+            Assert.That(root.Q<Toggle>("animation-reduced-toggle").value, Is.True);
+            Assert.That(controller.AudioMasterEnabled, Is.False);
+            Assert.That(controller.BeginQuest(), Is.True);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Loading));
+            Assert.That(controller.Flow.Setup.CasaCantosEnabled, Is.False);
+            Assert.That(controller.Flow.Setup.TrivilinWinsImmediately, Is.True);
+            Assert.That(root.Q<VisualElement>("setup-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
             var loadingMatch = controller.Flow.Match;
             var loadingSession = controller.Flow.SessionNumber;
-            Assert.That(controller.StartMatch(), Is.False);
+            Assert.That(controller.BeginQuest(), Is.False);
             Assert.That(controller.Flow.Match, Is.SameAs(loadingMatch));
             Assert.That(controller.Flow.SessionNumber, Is.EqualTo(loadingSession));
             Assert.That(root.Q<Label>("loading-session").text, Is.Not.Empty);
@@ -113,6 +134,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
             Assert.That(controller.Flow.Match, Is.Null);
             Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
+            Assert.That(homeCasas.value, Is.False);
+            Assert.That(homeTrivilin.value, Is.True);
         }
 
         [UnityTest]
@@ -122,8 +145,7 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
 
             Assert.That(controller.EnterGateway(), Is.True);
-            Assert.That(controller.OpenSetup(), Is.True);
-            Assert.That(controller.StartMatch(), Is.True);
+            Assert.That(controller.BeginQuest(), Is.True);
             var abandonedSession = controller.Flow.SessionNumber;
 
             Assert.That(controller.ReturnHome(), Is.True);
@@ -174,19 +196,18 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.EnterGateway(), Is.True);
             Assert.That(root.Q<Button>("home-decks-button").text, Is.Not.Empty);
             Assert.That(root.Q<Button>("home-chat-system-button").text, Is.Not.Empty);
-            Assert.That(controller.OpenSetup(), Is.True);
+            Assert.That(controller.OpenSettings(), Is.True);
             yield return null;
-            var setupStage = root.Q<VisualElement>("setup-stage");
-            var casasToggle = root.Q<Toggle>("casas-toggle");
-            var casasState = root.Q<Label>("casas-state");
-            var startMatch = root.Q<Button>("setup-start-button");
-            Assert.That(setupStage.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
+            var settingsContent = root.Q<VisualElement>("hub-settings-content");
+            var casasToggle = root.Q<Toggle>("home-settings-casas-toggle");
+            var audioToggle = root.Q<Toggle>("home-settings-audio-master-toggle");
+            Assert.That(settingsContent.resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
             Assert.That(casasToggle.text, Is.Not.Empty);
             Assert.That(casasToggle.focusable, Is.True);
-            Assert.That(casasState.text, Is.Not.Empty);
-            Assert.That(startMatch.text, Is.Not.Empty);
-            Assert.That(startMatch.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
-            Assert.That(startMatch.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
+            Assert.That(audioToggle.text, Is.Not.Empty);
+            Assert.That(audioToggle.focusable, Is.True);
+            Assert.That(casasToggle.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
+            Assert.That(casasToggle.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
 
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(new LocaleIdentifier("en"));
         }
@@ -202,8 +223,8 @@ namespace TheFall.Tests.PlayMode
             var loginGoogle = root.Q<Button>("login-google-button");
             var homeDecks = root.Q<Button>("home-decks-button");
             var homeChatSend = root.Q<Button>("home-chat-send-button");
-            var casasToggle = root.Q<Toggle>("casas-toggle");
-            var startMatch = root.Q<Button>("setup-start-button");
+            var casasToggle = root.Q<Toggle>("home-settings-casas-toggle");
+            var audioToggle = root.Q<Toggle>("home-settings-audio-master-toggle");
 
             controller.ApplyViewportForTests(
                 new Vector2Int(390, 844),
@@ -236,7 +257,7 @@ namespace TheFall.Tests.PlayMode
             yield return null;
             Assert.That(homeDecks.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(homeChatSend.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-            Assert.That(controller.OpenSetup(), Is.True);
+            Assert.That(controller.OpenSettings(), Is.True);
             var stage = controller.Flow.Stage;
 
             controller.ApplyViewportForTests(
@@ -248,7 +269,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobilePortrait));
             Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
             Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-            Assert.That(startMatch.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(audioToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             controller.ApplyViewportForTests(
                 new Vector2Int(844, 390),
@@ -263,7 +284,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.CurrentAdaptivePanelInsets.Right, Is.GreaterThan(0f));
             Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
             Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-            Assert.That(startMatch.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(audioToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             controller.ClearViewportOverrideForTests();
         }

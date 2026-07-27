@@ -3302,3 +3302,157 @@ Toggle:disabled {
 .screen-root.profile-mobile-landscape .hub-chat-message {
     font-size: 20px;
 }
+
+.hub-settings-content {
+    display: none;
+    max-height: 540px;
+    margin-top: 22px;
+    margin-bottom: 24px;
+    padding-right: 10px;
+}
+
+.hub-settings-group {
+    margin-bottom: 22px;
+    padding-top: 16px;
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.25);
+}
+
+.hub-settings-heading {
+    color: rgb(245, 226, 176);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.hub-settings-intro {
+    margin-top: 7px;
+    margin-bottom: 14px;
+    color: rgb(174, 162, 139);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.hub-settings-grid,
+.hub-settings-compact-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.hub-setting-card {
+    width: 48%;
+    min-height: 126px;
+    margin-right: 2%;
+    margin-bottom: 10px;
+    padding: 16px;
+    background-color: rgba(41, 32, 25, 0.9);
+    border-left-width: 2px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-width: 1px;
+    border-right-color: rgba(216, 196, 147, 0.18);
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.18);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(216, 196, 147, 0.18);
+}
+
+.hub-setting-toggle {
+    min-height: 44px;
+    margin-right: 14px;
+    margin-bottom: 8px;
+    color: rgb(231, 218, 184);
+    font-size: 13px;
+    white-space: normal;
+}
+
+.hub-setting-toggle .unity-toggle__label {
+    white-space: normal;
+}
+
+.hub-modal.hub-modal-settings .hub-modal-card {
+    width: 56%;
+    max-width: 760px;
+}
+
+.hub-settings-compact-grid .hub-setting-toggle {
+    width: 46%;
+    padding: 11px 12px;
+    background-color: rgba(41, 32, 25, 0.72);
+    border-left-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.22);
+    border-right-width: 1px;
+    border-right-color: rgba(216, 196, 147, 0.22);
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.22);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(216, 196, 147, 0.22);
+}
+
+.hub-setting-description {
+    color: rgb(157, 146, 126);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.screen-root.profile-mobile-portrait .hub-modal-card {
+    max-height: 82%;
+}
+
+.screen-root.profile-mobile-portrait .hub-modal.hub-modal-settings .hub-modal-card {
+    width: 86%;
+    max-width: none;
+}
+
+.screen-root.profile-mobile-portrait .hub-settings-content {
+    max-height: 2100px;
+    margin-top: 48px;
+    margin-bottom: 54px;
+}
+
+.screen-root.profile-mobile-portrait .hub-settings-group {
+    margin-bottom: 52px;
+    padding-top: 40px;
+}
+
+.screen-root.profile-mobile-portrait .hub-settings-heading {
+    font-size: 40px;
+}
+
+.screen-root.profile-mobile-portrait .hub-settings-intro,
+.screen-root.profile-mobile-portrait .hub-setting-description {
+    font-size: 34px;
+}
+
+.screen-root.profile-mobile-portrait .hub-setting-card,
+.screen-root.profile-mobile-portrait .hub-settings-compact-grid .hub-setting-toggle {
+    width: 100%;
+    min-height: 230px;
+    margin-right: 0;
+    margin-bottom: 28px;
+    padding: 36px;
+}
+
+.screen-root.profile-mobile-portrait .hub-setting-toggle {
+    min-height: 150px;
+    font-size: 40px;
+}
+
+.screen-root.profile-mobile-landscape .hub-modal-card {
+    width: 62%;
+    max-width: 1000px;
+    max-height: 88%;
+}
+
+.screen-root.profile-mobile-landscape .hub-modal.hub-modal-settings .hub-modal-card {
+    width: 68%;
+    max-width: 1100px;
+}
+
+.screen-root.profile-mobile-landscape .hub-settings-content {
+    max-height: 520px;
+}
+
+.screen-root.profile-mobile-landscape .hub-setting-toggle {
+    min-height: 64px;
+    font-size: 18px;
+}

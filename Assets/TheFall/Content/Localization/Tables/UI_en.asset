@@ -28,8 +28,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011072
-    m_Localized: The Baseline Bot waits at the offline table. Choose the rules, complete
-      one match, and claim victory.
+    m_Localized: The Baseline Bot waits at the offline table. Set your preferences
+      once, begin the quest, and claim victory.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011073
@@ -41,7 +41,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011075
-    m_Localized: Begin Quest opens the two rule choices before the table.
+    m_Localized: Begin Quest deals the match with your current Settings.
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011076
@@ -869,8 +869,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2720884409229319
-    m_Localized: Match audio and animation controls remain available at the table.
-      Broader account settings arrive with connected services.
+    m_Localized: Choose the rules, sound, and motion used when you begin your next
+      quest. Changes remain active for this play session.
     m_Metadata:
       m_Items: []
   - m_Id: 2720884409229320
@@ -923,6 +923,31 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2720884409229331
     m_Localized: Rank selected.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663770071040
+    m_Localized: MATCH RULES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848256
+    m_Localized: These choices are applied automatically when Begin Quest is selected.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848257
+    m_Localized: AUDIO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848258
+    m_Localized: Control the table mix independently or silence everything with Master
+      audio.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848259
+    m_Localized: TABLE MOTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848260
+    m_Localized: Set the pace and reduce movement before the table is dealt.
     m_Metadata:
       m_Items: []
   references:

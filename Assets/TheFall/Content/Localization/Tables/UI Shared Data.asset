@@ -879,6 +879,30 @@ MonoBehaviour:
     m_Key: flow.home.status.rank
     m_Metadata:
       m_Items: []
+  - m_Id: 2726663770071040
+    m_Key: flow.home.settings.rules-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848256
+    m_Key: flow.home.settings.rules-copy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848257
+    m_Key: flow.home.settings.audio-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848258
+    m_Key: flow.home.settings.audio-copy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848259
+    m_Key: flow.home.settings.motion-label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2726663786848260
+    m_Key: flow.home.settings.motion-copy
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
