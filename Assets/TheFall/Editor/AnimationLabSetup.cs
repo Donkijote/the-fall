@@ -184,8 +184,8 @@ namespace TheFall.Editor
             Capture(
                 controller,
                 Seat.First,
-                new Vector2Int(390, 844),
-                "Logs/AnimationLab-SeatOne-Portrait.png");
+                new Vector2Int(1024, 768),
+                "Logs/AnimationLab-SeatOne-TabletLandscape.png");
             Capture(
                 controller,
                 Seat.Second,
@@ -194,8 +194,8 @@ namespace TheFall.Editor
             Capture(
                 controller,
                 Seat.Second,
-                new Vector2Int(390, 844),
-                "Logs/AnimationLab-SeatTwo-Portrait.png");
+                new Vector2Int(1024, 768),
+                "Logs/AnimationLab-SeatTwo-TabletLandscape.png");
 
             controller.ClearEditorPreview();
             controller.GameplayCamera.targetTexture = null;

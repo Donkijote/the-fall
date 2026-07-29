@@ -56,11 +56,11 @@ namespace TheFall.Tests.PlayMode
             Assert.That(ui.Q<Toggle>("audio-master-toggle"), Is.Null);
             Assert.That(ui.Q<Toggle>("audio-effects-toggle"), Is.Null);
             Assert.That(ui.Q<Toggle>("audio-music-toggle"), Is.Null);
-            Assert.That(ui.Q<Toggle>("home-settings-animation-fast-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("home-settings-animation-reduced-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("home-settings-audio-master-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("home-settings-audio-effects-toggle"), Is.Not.Null);
-            Assert.That(ui.Q<Toggle>("home-settings-audio-music-toggle"), Is.Not.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-animation-fast-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-animation-reduced-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-audio-master-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-audio-effects-toggle"), Is.Null);
+            Assert.That(ui.Q<Toggle>("home-settings-audio-music-toggle"), Is.Null);
             Assert.That(audio.MasterEnabled, Is.True);
             Assert.That(audio.EffectsEnabled, Is.True);
             Assert.That(audio.MusicEnabled, Is.False);
@@ -77,10 +77,7 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
             Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
 
-            var masterToggle = ui.Q<Toggle>("home-settings-audio-master-toggle");
-            var effectsToggle = ui.Q<Toggle>("home-settings-audio-effects-toggle");
-            var musicToggle = ui.Q<Toggle>("home-settings-audio-music-toggle");
-            masterToggle.value = false;
+            controller.SetAudioMasterEnabled(false);
             var playedBeforeMutedBatch = audio.PlayedCueCount;
             var unchangedState = controller.Flow.Match.State;
             var unchangedTraceCount = controller.Flow.Match.Trace.IntentHistory.Count;
@@ -110,12 +107,12 @@ namespace TheFall.Tests.PlayMode
             table.SetReducedMotion(true);
             yield return WaitForPresentation(table);
             Assert.That(audio.PlayedCueCount, Is.EqualTo(playedBeforeMutedBatch));
-            masterToggle.value = true;
-            effectsToggle.value = false;
+            controller.SetAudioMasterEnabled(true);
+            controller.SetAudioEffectsEnabled(false);
             Assert.That(audio.EffectsAudible, Is.False);
-            musicToggle.value = true;
+            controller.SetAudioMusicEnabled(true);
             Assert.That(audio.MusicEnabled, Is.True);
-            musicToggle.value = false;
+            controller.SetAudioMusicEnabled(false);
             Assert.That(table.AnimationPlayer.FastForward, Is.True);
             Assert.That(table.AnimationPlayer.ReducedMotion, Is.True);
             Assert.That(table.AnimationPlayer.IsRenderedStateSynchronized, Is.True);
@@ -125,7 +122,7 @@ namespace TheFall.Tests.PlayMode
             AssertSynchronized(table, controller, AnimationSequenceCompletionReason.Interrupted);
             Assert.That(audio.PlayedCueCount, Is.EqualTo(playedBeforeMutedBatch));
             Assert.That(audio.ActiveCue, Is.Null);
-            effectsToggle.value = true;
+            controller.SetAudioEffectsEnabled(true);
             Assert.That(audio.EffectsAudible, Is.True);
 
             SubmitNext(controller);
@@ -836,7 +833,7 @@ namespace TheFall.Tests.PlayMode
 
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
             var deadline = Time.realtimeSinceStartup + 10f;
-            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            while (SceneManager.GetActiveScene().name != "Login" && Time.realtimeSinceStartup < deadline)
             {
                 yield return null;
             }
@@ -844,9 +841,26 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller, Is.Not.Null);
             Assert.That(controller.EnterGateway(), Is.True);
+            while (SceneManager.GetActiveScene().name != "Hub" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller.OpenSetup(), Is.True);
             Assert.That(controller.StartMatch(), Is.True);
-            yield return null;
+            while (SceneManager.GetActiveScene().name != "Match" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            while (controller.Flow.Stage == FirstPlayableFlowStage.Loading
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             Assert.That(Object.FindAnyObjectByType<FirstPlayableTablePresentation>(), Is.Not.Null);
         }

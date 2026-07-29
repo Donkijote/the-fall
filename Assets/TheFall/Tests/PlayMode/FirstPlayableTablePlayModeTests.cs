@@ -299,7 +299,7 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator PhoneProfilesEnlargeCardsAndPreserveSelectionPrivacyAndFixedCamera()
+        public IEnumerator MobileProfilesFitCardsAndPreserveSelectionPrivacyAndFixedCamera()
         {
             yield return LoadMatch();
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
@@ -312,13 +312,13 @@ namespace TheFall.Tests.PlayMode
             foreach (var profile in new[]
             {
                 (
-                    new Vector2Int(390, 844),
-                    new Rect(0f, 34f, 390f, 776f),
-                    AdaptiveUiProfile.MobilePortrait),
+                    new Vector2Int(1024, 768),
+                    new Rect(0f, 24f, 1024f, 720f),
+                    AdaptiveUiProfile.TabletLandscape),
                 (
                     new Vector2Int(844, 390),
                     new Rect(36f, 0f, 772f, 390f),
-                    AdaptiveUiProfile.MobileLandscape),
+                    AdaptiveUiProfile.PhoneLandscape),
             })
             {
                 table.ApplyViewportForTests(profile.Item1, profile.Item2, true);
@@ -326,8 +326,13 @@ namespace TheFall.Tests.PlayMode
                     card => card.Zone == FirstPlayableCardZone.DealerSpread);
                 Assert.That(table.CurrentAdaptiveProfile, Is.EqualTo(profile.Item3));
                 Assert.That(
-                    table.MeasureProjectedCardSize(dealerCard).x,
+                    table.MeasureProjectedInteractionSize(dealerCard).x,
                     Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+                Assert.That(
+                    table.MeasureProjectedCardSize(dealerCard).y,
+                    Is.LessThanOrEqualTo(
+                        profile.Item2.height *
+                        AdaptiveUiFoundation.MaximumDealerCardViewportHeight));
                 Assert.That(controller.Flow.Match.State, Is.SameAs(state));
                 Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(traceCount));
                 Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
@@ -354,13 +359,13 @@ namespace TheFall.Tests.PlayMode
             foreach (var profile in new[]
             {
                 (
-                    new Vector2Int(390, 844),
-                    new Rect(0f, 34f, 390f, 776f),
-                    AdaptiveUiProfile.MobilePortrait),
+                    new Vector2Int(1024, 768),
+                    new Rect(0f, 24f, 1024f, 720f),
+                    AdaptiveUiProfile.TabletLandscape),
                 (
                     new Vector2Int(844, 390),
                     new Rect(36f, 0f, 772f, 390f),
-                    AdaptiveUiProfile.MobileLandscape),
+                    AdaptiveUiProfile.PhoneLandscape),
             })
             {
                 table.ApplyViewportForTests(profile.Item1, profile.Item2, true);
@@ -373,10 +378,25 @@ namespace TheFall.Tests.PlayMode
                     table.MeasureProjectedCardSize(localCard).x,
                     Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumLocalCardIdentityPoints));
                 Assert.That(
+                    table.MeasureProjectedInteractionSize(localCard).x,
+                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+                Assert.That(
                     table.MeasureProjectedCardSize(tableCard).x,
                     Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumPublicCardIdentityPoints));
+                Assert.That(
+                    table.MeasureProjectedCardSize(localCard).y,
+                    Is.LessThanOrEqualTo(
+                        profile.Item2.height *
+                        AdaptiveUiFoundation.MaximumLocalCardViewportHeight));
+                Assert.That(
+                    table.MeasureProjectedCardSize(tableCard).y,
+                    Is.LessThanOrEqualTo(
+                        profile.Item2.height *
+                        AdaptiveUiFoundation.MaximumPublicCardViewportHeight));
                 Assert.That(table.CurrentLocalCardScaleMultiplier,
                     Is.GreaterThan(table.CurrentPublicCardScaleMultiplier));
+                Assert.That(table.CurrentLocalCardScaleMultiplier, Is.LessThan(3f));
+                Assert.That(table.CurrentPublicCardScaleMultiplier, Is.LessThan(2.5f));
                 Assert.That(table.CurrentCharacterScaleMultiplier, Is.GreaterThan(1f));
                 Assert.That(table.Interaction.State.SelectedCard, Is.EqualTo(selectedCard));
                 Assert.That(table.Interaction.State.Revision, Is.EqualTo(interactionRevision));
@@ -525,7 +545,7 @@ namespace TheFall.Tests.PlayMode
 
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
             var deadline = Time.realtimeSinceStartup + 10f;
-            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            while (SceneManager.GetActiveScene().name != "Login" && Time.realtimeSinceStartup < deadline)
             {
                 yield return null;
             }
@@ -533,9 +553,26 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller, Is.Not.Null);
             Assert.That(controller.EnterGateway(), Is.True);
+            while (SceneManager.GetActiveScene().name != "Hub" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller.OpenSetup(), Is.True);
             Assert.That(controller.StartMatch(), Is.True);
-            yield return null;
+            while (SceneManager.GetActiveScene().name != "Match" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            while (controller.Flow.Stage == FirstPlayableFlowStage.Loading
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
             Assert.That(table, Is.Not.Null);

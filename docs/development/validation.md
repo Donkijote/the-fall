@@ -2,6 +2,11 @@
 
 Status: Confirmed V0 baseline
 
+Current mobile validation is landscape-only for phones and tablets under
+[ADR 0003](../decisions/0003-landscape-only-mobile.md). Portrait rows and results in dated checkpoints
+below are retained as historical evidence only and must not be copied into new plans or acceptance
+criteria.
+
 ## Purpose
 
 This baseline makes deterministic rules, Unity integration, available player builds, and manual platform evidence repeatable. It is a V0 development gate, not production certification or an exhaustive device lab.
@@ -86,14 +91,17 @@ The OS lanes below are deliberately relative. They define what to compare withou
 
 | Platform lane | OS coverage | Viewports or resolutions | Required evidence |
 | --- | --- | --- | --- |
-| Android constrained phone | oldest candidate Android version, once selected | `360 x 800` portrait and `800 x 360` landscape, including cutout insets | physical touch, safe area, rotate during selection and animation, constrained-tier profile |
-| Android reference phone | current stable Android version | `390 x 844` portrait and `844 x 390` landscape, including cutout insets | physical touch, safe area, loading, 15-minute thermal/frame-pacing sample |
-| iOS constrained phone | oldest candidate iOS version and device, once selected | compact notched portrait and landscape viewport near the `390 x 844` reference | physical touch, safe area, rotate during selection and animation, constrained-tier profile |
-| iOS reference phone | current stable iOS version | `390 x 844` portrait and `844 x 390` landscape with safe areas | physical touch, safe area, loading, 15-minute thermal/frame-pacing sample |
+| Android constrained phone | oldest candidate Android version, once selected | compact landscape viewport near `800 x 360`, including cutout insets in both landscape directions | physical touch, safe area, rotate 180 degrees during selection and animation, constrained-tier profile |
+| Android reference phone | current stable Android version | landscape viewport near `844 x 390`, including cutout insets in both landscape directions | physical touch, safe area, loading, 15-minute thermal/frame-pacing sample |
+| iOS constrained phone | oldest candidate iOS version and device, once selected | compact notched landscape viewport near `844 x 390` | physical touch, safe area, rotate 180 degrees during selection and animation, constrained-tier profile |
+| iOS reference phone | current stable iOS version | landscape viewport near `844 x 390` with safe areas in both directions | physical touch, safe area, loading, 15-minute thermal/frame-pacing sample |
+| Reference tablet | current stable Android or iPadOS version | representative `4:3` or wider landscape viewport with hardware safe areas | physical touch, safe area, readable table/HUD, both landscape directions |
 | Windows desktop | current supported Windows 11 x64 servicing baseline | `1280 x 720`, `1920 x 1080`, `2560 x 1440`; resizable window | mouse and keyboard, resize, fullscreen decision evidence, build and launch |
 | macOS desktop | current and previous major macOS release | `1280 x 720`, `1440 x 900`, `1920 x 1080`, `2560 x 1440`; resizable window | mouse and keyboard, resize, universal player build, Apple silicon launch |
 
-Editor simulation continues to cover `390 x 844`, `844 x 390`, `1440 x 1080`, and `1920 x 1080` on every change to composition or interaction. Simulation is supporting evidence only and never replaces the physical mobile rows.
+Editor simulation covers representative phone landscape (`844 x 390`), tablet landscape
+(`1024 x 768`), `1440 x 1080`, and `1920 x 1080` on every change to composition or interaction.
+Simulation is supporting evidence only and never replaces the physical mobile rows.
 
 ### Representative mobile tiers
 
@@ -115,7 +123,7 @@ These are owner-approved development gates for the representative V0 scenes, not
 | peak app memory | at most `2.0 GiB` | at most `2.0 GiB` | at most `2.0 GiB` |
 | cold launch to usable Home | record three cold runs; no pass/fail budget yet | record three cold runs; no pass/fail budget yet | first playable: every one of three runs at most `10 s` |
 | Home to usable match scene | record three runs; no pass/fail budget yet | record three runs; no pass/fail budget yet | first playable: every one of three runs at most `5 s` |
-| orientation recomposition | at most `250 ms`, with no changed or duplicated intent | at most `250 ms`, with no changed or duplicated intent | not applicable; resize uses the same state-preservation contract |
+| landscape-direction recomposition | at most `250 ms`, with no changed or duplicated intent | at most `250 ms`, with no changed or duplicated intent | not applicable; resize uses the same state-preservation contract |
 
 All tiers must preserve the existing readability comparisons: card identity at 48-pixel card width, character expression at 64-pixel head height, names and scores without clipping, hover-independent interaction symbols, and distinguishable state cues in grayscale. A five-minute warm-up precedes the 15-minute sample. Record median and p95 CPU/GPU frame times, peak app memory, every loading sample, thermal state when available, and any frame over `100 ms`.
 
@@ -414,5 +422,11 @@ Validated locally on 2026-07-27 with Unity `6000.5.4f1`:
 - physical-iPhone readability, touch comfort, hardware safe areas, and sensor-driven rotation still
   require a new recorded-device pass; automated projected sizes and simulator evidence do not replace
   that acceptance
+
+The issue #45 measurements above are retained historical evidence. ADR 0005 supersedes their
+unbounded mobile-card sizing contract: current landscape validation requires `34 pt` local and
+`26 pt` public visual identity widths, `44 pt` local/dealer interaction widths, and safe-height
+maxima of `19%`, `15%`, and `18%` for steady-state local, public, and dealer cards. It also rejects
+`ScrollView` from all player-facing runtime screen assets.
 
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).

@@ -70,6 +70,10 @@ namespace TheFall.Editor
             Require(PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.Android) == "com.donkijote.thefall", "Android application identifier is incorrect.", errors);
             Require(PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.iOS) == "com.donkijote.thefall", "iOS application identifier is incorrect.", errors);
             Require(PlayerSettings.defaultInterfaceOrientation == UIOrientation.AutoRotation, "Mobile orientation is not Auto Rotation.", errors);
+            Require(!PlayerSettings.allowedAutorotateToPortrait, "Mobile portrait orientation must be disabled.", errors);
+            Require(!PlayerSettings.allowedAutorotateToPortraitUpsideDown, "Mobile upside-down portrait orientation must be disabled.", errors);
+            Require(PlayerSettings.allowedAutorotateToLandscapeLeft, "Mobile landscape-left orientation must be enabled.", errors);
+            Require(PlayerSettings.allowedAutorotateToLandscapeRight, "Mobile landscape-right orientation must be enabled.", errors);
             Require(PlayerSettings.resizableWindow, "Desktop windows are not resizable.", errors);
             Require(GraphicsSettings.defaultRenderPipeline != null, "The URP asset is not configured.", errors);
 
@@ -87,7 +91,16 @@ namespace TheFall.Editor
             Require(LocalizationEditorSettings.GetLocale("en") != null, "English source locale is missing.", errors);
             Require(LocalizationEditorSettings.GetPseudoLocales().Any(locale => locale.Identifier.Code == "qps-ploc"), "Pseudo locale is missing.", errors);
 
-            var expectedScenes = new[] { "Bootstrap", "Home", "MatchPrototype", "AnimationLab", "AssetReview" };
+            var expectedScenes = new[]
+            {
+                "Bootstrap",
+                FirstPlayableSceneContract.LoginSceneName,
+                FirstPlayableSceneContract.HubSceneName,
+                FirstPlayableSceneContract.MatchSceneName,
+                "MatchPrototype",
+                "AnimationLab",
+                "AssetReview",
+            };
             var buildScenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => Path.GetFileNameWithoutExtension(scene.path)).ToArray();
             Require(buildScenes.SequenceEqual(expectedScenes), "Build scenes are not configured in foundation order.", errors);
 
@@ -96,7 +109,9 @@ namespace TheFall.Editor
                 Require(File.Exists($"{SceneDirectory}/{sceneName}.unity"), $"{sceneName} scene is missing.", errors);
             }
 
-            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/HomeScreen.uxml") != null, "UI Toolkit screen foundation is missing.", errors);
+            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/LoginScreen.uxml") != null, "Login UI Toolkit screen is missing.", errors);
+            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/HubScreen.uxml") != null, "Hub UI Toolkit screen is missing.", errors);
+            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/MatchScreen.uxml") != null, "Match UI Toolkit screen is missing.", errors);
             Require(AssetDatabase.LoadAssetAtPath<GameObject>(WorldSpaceLabelPath) != null, "World-space TextMeshPro foundation is missing.", errors);
 
             if (errors.Count > 0)
@@ -116,8 +131,8 @@ namespace TheFall.Editor
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.donkijote.thefall");
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.donkijote.thefall");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
-            PlayerSettings.allowedAutorotateToPortrait = true;
-            PlayerSettings.allowedAutorotateToPortraitUpsideDown = true;
+            PlayerSettings.allowedAutorotateToPortrait = false;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.resizableWindow = true;
@@ -277,14 +292,24 @@ namespace TheFall.Editor
         private static void ConfigureScenes()
         {
             CreateBootstrapScene();
-            CreateHomeScene();
+            CreateFirstPlayableScene(
+                FirstPlayableSceneContract.LoginSceneName,
+                "Full-bleed localized gateway and account-entry presentation.");
+            CreateFirstPlayableScene(
+                FirstPlayableSceneContract.HubSceneName,
+                "Localized player hub, settings, and pre-match presentation.");
+            CreateFirstPlayableScene(
+                FirstPlayableSceneContract.MatchSceneName,
+                "Authoritative fixed-camera 1v1 table, loading transition, match HUD, and result presentation.");
             CreatePrototypeScene("MatchPrototype", "Foundation for the first 1v1 deterministic rules and table-composition prototype.", true);
             CreatePrototypeScene("AnimationLab", "Isolated card and character presentation experiments driven by resolved events.", false);
 
             EditorBuildSettings.scenes = new[]
             {
                 BuildScene("Bootstrap"),
-                BuildScene("Home"),
+                BuildScene(FirstPlayableSceneContract.LoginSceneName),
+                BuildScene(FirstPlayableSceneContract.HubSceneName),
+                BuildScene(FirstPlayableSceneContract.MatchSceneName),
                 BuildScene("MatchPrototype"),
                 BuildScene("AnimationLab"),
                 BuildScene("AssetReview"),
@@ -306,25 +331,25 @@ namespace TheFall.Editor
             SaveScene(scene, "Bootstrap");
         }
 
-        private static void CreateHomeScene()
+        private static void CreateFirstPlayableScene(string sceneName, string purpose)
         {
-            if (SceneExists("Home"))
+            if (SceneExists(sceneName))
             {
                 return;
             }
 
             var scene = NewScene();
-            var root = new GameObject("Home");
-            AddPurpose(root, "Minimal navigation shell using adaptive screen-space UI Toolkit UI.");
-            CreateCamera(root.transform);
+            var root = new GameObject(sceneName);
+            AddPurpose(root, purpose);
 
             var ui = new GameObject("Screen UI", typeof(UIDocument));
             ui.transform.SetParent(root.transform, false);
             var document = ui.GetComponent<UIDocument>();
             document.panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
-            document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/HomeScreen.uxml");
+            document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                ScreenUiDirectory + "/" + sceneName + "Screen.uxml");
 
-            SaveScene(scene, "Home");
+            SaveScene(scene, sceneName);
         }
 
         private static void CreatePrototypeScene(string sceneName, string purpose, bool includeWorldSpaceUi)

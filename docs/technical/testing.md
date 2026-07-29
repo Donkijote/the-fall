@@ -2,6 +2,10 @@
 
 Status: Confirmed V0 baseline
 
+Phone and tablet tests use landscape viewports only under
+[ADR 0003](../decisions/0003-landscape-only-mobile.md). Portrait references in dated V0 checkpoints
+are historical evidence, not a current regression requirement.
+
 ## Goals
 
 - prove game rules independently from Unity scenes
@@ -84,22 +88,22 @@ for stale playback. The Play Mode assembly fixture sets `AudioListener.volume` t
 of automated execution and restores the previous host value afterward; cue history, source state, and
 mute-control assertions still run without audible test output. See [first-playable functional audio](audio.md).
 
-Issue #43 adds Edit Mode coverage for explicit desktop, mobile-portrait, and mobile-landscape UI
-profile selection; normalized safe-area mapping into UI Toolkit panel space; stable profile and
+Issue #43 adds Edit Mode coverage for explicit desktop and mobile-landscape UI profile selection;
+screen-owned safe-area structure and runtime containment; stable profile and
 semantic-state classes; and measurable text, card, character, control, touch-target, and focus
-minimums. Play Mode rotates the active flow between both phone profiles and verifies safe insets
-change without changing the flow stage. Existing table tests continue to own selected-card,
+minimums. Play Mode covers representative phone and tablet landscape safe areas without changing
+the flow stage. Existing table tests continue to own selected-card,
 interaction-history, match, trace, authoritative-state, and fixed-camera preservation. See the
 [V0.1 adaptive UI foundation](../design/adaptive-ui-foundation.md).
 
 Issue #44 extends the first-playable flow fixture with player-facing Home route, setup default/current
 state, loading-session, duplicate-start, loading-cancellation, winner, score, replay, and Home-reset
-assertions. Pseudo-localization and both phone profiles cover the redesigned setup footer, focusable
+assertions. Pseudo-localization and the mobile-landscape profile cover the redesigned setup footer, focusable
 toggles and actions, and minimum touch-target height without creating a second application state model.
 
 Issue #45 extends Edit Mode with distinct inspected/cancelled application feedback and semantic-state
-coverage. Integrated Play Mode selects explicit phone portrait and landscape table profiles, measures
-local/public/dealer card widths against the adaptive minimums, rotates with an active selection, and
+coverage. Integrated Play Mode selects representative phone and tablet landscape table profiles,
+measures local/public/dealer card widths against the adaptive minimums, rotates with an active selection, and
 verifies unchanged match/trace/interaction state, private opponent cards, fixed camera, HUD hierarchy,
 and capture/cascade/Fall/clean-table/canto/score/tie/victory treatments. See the
 [V0.1 match HUD contract](../design/1v1-match-hud-and-card-interaction.md).

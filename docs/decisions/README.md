@@ -21,13 +21,13 @@ This directory records durable product and technical decisions. Create one Markd
 | Players use upper-body character representations | Accepted | 2026-07-19 | Issue #1 discussion |
 | Camera is a fixed cinematic overhead table view | Accepted | 2026-07-19 | Issue #1 discussion |
 | Target platforms are Android, iOS, Windows, and macOS | Accepted | 2026-07-19 | Issue #1 discussion |
-| Mobile supports landscape and portrait | Accepted | 2026-07-19 | Issue #1 discussion |
+| Mobile supports landscape and portrait | Superseded | 2026-07-19 | Replaced by [ADR 0003](0003-landscape-only-mobile.md) |
 | Mobile uses touch; desktop uses mouse and keyboard | Accepted | 2026-07-19 | Issue #1 discussion |
 | Story Mode is an offline tournament-like campaign against bots; online PvP comes later | Accepted | 2026-07-19 | Issue #1 discussion |
 | Story Mode uses a predefined cast; character customization is deferred | Accepted | 2026-07-19 | Issue #1 discussion |
 | Use 1v1 against one bot for the first technical rules prototype | Accepted | 2026-07-19 | Issue #1 discussion |
 | Gameplay camera remains completely stationary | Accepted | 2026-07-19 | Issue #1 discussion |
-| Active mobile matches immediately recompose after device rotation | Accepted | 2026-07-19 | Issue #1 discussion |
+| Active mobile matches immediately recompose after device rotation | Superseded | 2026-07-19 | Replaced by landscape-direction rotation in [ADR 0003](0003-landscape-only-mobile.md) |
 | Adopt Unity Localization from the project bootstrap | Accepted | 2026-07-19 | Issue #1 discussion |
 | English suit names are Coins, Cups, Swords, and Clubs | Accepted | 2026-07-19 | Issue #1 rules interview |
 | Dealer selection uses a face-down spread of the full deck with rank-only tie breaking | Accepted | 2026-07-19 | Issue #1 rules interview |
@@ -95,7 +95,7 @@ This directory records durable product and technical decisions. Create one Markd
 | Project-owned Unity content uses `Assets/TheFall` and the `TheFall` root namespace | Accepted | 2026-07-19 | Issue #1 architecture interview |
 | Assembly definitions separate Domain, Application, Infrastructure, Presentation, and test code | Accepted | 2026-07-19 | Issue #1 architecture interview |
 | Domain code has no `UnityEngine` dependency | Accepted | 2026-07-19 | Issue #1 architecture interview |
-| Bootstrap, Home, MatchPrototype, and AnimationLab are the initial project scenes | Accepted | 2026-07-19 | Issue #1 architecture interview |
+| Bootstrap, Home, MatchPrototype, and AnimationLab are the initial project scenes | Superseded | 2026-07-19 | Replaced by [ADR 0006](0006-first-playable-presentation-scenes.md) |
 | Dependencies are composed manually until a demonstrated need justifies a framework | Accepted | 2026-07-19 | Issue #1 architecture interview |
 | UI Toolkit handles adaptive screen-space UI while uGUI and TextMeshPro support world-space UI | Accepted | 2026-07-19 | Issue #1 architecture interview |
 | The Input System maps touch, mouse, and keyboard into shared application intents | Accepted | 2026-07-19 | Issue #1 architecture interview |
@@ -104,9 +104,13 @@ This directory records durable product and technical decisions. Create one Markd
 | Issue work branches from main using `<category>/ghi#<issue-number>` | Accepted | 2026-07-19 | Project workflow |
 | Card faces use reusable components and editor-time composition into one shared atlas | Accepted | 2026-07-20 | [ADR 0001](0001-modular-card-visual-pipeline.md) |
 | First playable is a complete offline 1v1 bot match accepted first on macOS with prototype fidelity | Accepted | 2026-07-20 | [ADR 0002](0002-first-playable-milestone.md) |
-| V0.1 authors separate desktop, mobile portrait, and mobile landscape UI compositions | Accepted | 2026-07-27 | Issue #43 and [adaptive UI foundation](../design/adaptive-ui-foundation.md) |
+| V0.1 authors separate desktop, mobile portrait, and mobile landscape UI compositions | Superseded | 2026-07-27 | Replaced by [ADR 0003](0003-landscape-only-mobile.md) |
 | Player-facing interface and thematic symbols use curated Game-icons.net PNGs | Accepted | 2026-07-27 | Issue #44 and [UI icon library](../assets/ui-icon-library.md) |
 | The V0.1 match HUD projects authoritative public state and phone card sizes follow decision priority rather than desktop-uniform scale | Accepted | 2026-07-27 | Issue #45 and [match HUD contract](../design/1v1-match-hud-and-card-interaction.md) |
+| Phone and tablet builds are landscape-only and allow both landscape directions | Accepted | 2026-07-29 | [ADR 0003](0003-landscape-only-mobile.md) |
+| The persistent UI document mounts one screen-specific UXML/USS hierarchy on demand | Superseded | 2026-07-29 | Scene ownership replaced by [ADR 0006](0006-first-playable-presentation-scenes.md); per-scene mounting remains |
+| Player-facing screens fit one safe viewport without scrolling, and mobile cards use safe-area-aware bounded sizing | Accepted | 2026-07-29 | [ADR 0005](0005-scroll-free-responsive-player-ui.md) |
+| Bootstrap persists application state while Login, Hub, and Match use separate presentation scenes | Accepted | 2026-07-29 | [ADR 0006](0006-first-playable-presentation-scenes.md) |
 
 ## ADR template
 

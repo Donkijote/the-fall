@@ -89,7 +89,9 @@ Compose these dependencies manually from the bootstrap flow. Do not add a depend
 ## Initial scenes
 
 - `Bootstrap`: application startup and persistent services
-- `Home`: minimal navigation shell
+- `Login`: gateway presentation
+- `Hub`: player hub, settings, and pre-match presentation
+- `Match`: loading, authoritative 1v1 table, HUD, result, animation, and audio
 - `MatchPrototype`: foundation for the first 1v1 rules prototype
 - `AnimationLab`: isolated card and character presentation experiments
 

@@ -31,8 +31,9 @@ while a resolved batch is busy.
 
 ## Authored match compositions
 
-Desktop, mobile portrait, and mobile landscape use the same authoritative snapshot but different
-presentation priorities.
+Desktop and mobile landscape use the same authoritative snapshot but different presentation
+priorities. Phones and tablets are landscape-only under
+[ADR 0003](../decisions/0003-landscape-only-mobile.md).
 
 ### Desktop
 
@@ -41,26 +42,19 @@ presentation priorities.
   at the upper-right.
 - Keep mouse and keyboard on the same inspect, select, confirm, and cancel intent path.
 
-### Mobile portrait
-
-- Keep the long axis for the table, local hand, and local decision rather than decorative separation.
-- Enlarge the local actionable hand above public table cards; keep secondary deck, captured pile, and
-  hidden-hand representations subordinate.
-- Place the full-width status/action surface after the table and local decision instead of scaling the
-  desktop edge card over the play space. Open contextual menus back toward the safe centre so they do
-  not extend through the unsafe side.
-
 ### Mobile landscape
 
-- Reduce the overall table root for the short axis, then enlarge local, public, dealer-selection, and
-  character identity independently instead of shrinking the desktop composition.
-- Increase hand, public-table, and dealer-spread spacing with their card sizes.
+- Derive the table root, local/public/dealer card scales, and zone spacing from the normalized
+  safe-area aspect ratio rather than fixed mobile multipliers.
+- Keep the local hand largest while bounding every card zone against the short landscape axis.
 - Keep floating score, status, Home, and contextual controls inside hardware side insets.
 
 Every card retains the exact `63:88` aspect ratio. Automated projected-size checks enforce at least
-`72 pt` local actionable card width, `48 pt` public table-card width, and `44 pt` dealer-selection
-touch width in both phone orientations. Character presentation is enlarged from the desktop
-placeholder scale in both phone profiles.
+`34 pt` local actionable visual width, `26 pt` public table-card width, and `44 pt` local/dealer
+interaction width on representative phone and tablet landscape viewports. Interactive cards use an
+invisible expanded collider instead of enlarging the artwork. Steady-state local, public, and dealer
+cards stay within `19%`, `15%`, and `18%` of safe viewport height. Selection emphasis may briefly
+exceed the local steady-state bound.
 
 ## HUD and outcome vocabulary
 
@@ -108,7 +102,8 @@ click/`E` selection, Enter/Space confirmation, and Escape cancellation.
 
 ## Recomposition, privacy, and authority
 
-Rotation or resize rebuilds transient geometry and profile-specific HUD layout only. It preserves:
+Landscape-direction changes or resize rebuild transient geometry and profile-specific HUD layout
+only. They preserve:
 
 - the `FirstPlayableFlow`, match orchestrator, `MatchState`, and trace
 - selected and inspected cards, interaction revision, and intent history
@@ -124,12 +119,13 @@ application state.
 
 - Edit Mode covers the distinct inspected/cancelled feedback vocabulary, semantic classes, shared
   input sequence, cancellation, rejection, blocking, and unchanged deterministic state.
-- Play Mode covers both phone profiles, projected card/touch minimums, desktop regressions, fixed
+- Play Mode covers representative phone and tablet landscape viewports, projected card/touch
+  minimums, desktop regressions, fixed
   camera, selection and animation recomposition, intent/trace preservation, hidden-hand privacy, HUD
   content, and every critical outcome class.
 - Complete Edit Mode and Play Mode suites remain the automated gate.
 - The recorded physical iPhone remains the acceptance authority for viewing distance, physical touch
-  comfort, hardware safe areas, and sensor-driven portrait/landscape rotation. Simulator or projected
+  comfort, hardware safe areas, and sensor-driven rotation between landscape directions. Simulator or projected
   measurements support that review but do not replace it.
 
 Related: [first-playable table](../technical/first-playable-table.md),

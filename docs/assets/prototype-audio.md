@@ -6,7 +6,7 @@ Status: Implemented first-playable asset record
 
 The first playable retains no imported recording, sample library, music file, ambience, voice,
 or other third-party audio. Its functional cues are deterministic waveforms generated in memory by
-`PrototypeAudioCueLibrary` when the Home scene starts.
+`PrototypeAudioCueLibrary` when the Match scene starts.
 
 | Record field | Value |
 | --- | --- |

@@ -1,0 +1,111 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="FlowShared.uss" />
+    <Style src="MatchScreen.uss" />
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
+    <ui:VisualElement name="match-stage" class="stage stage-match">
+        <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">
+            <ui:VisualElement class="match-shell">
+            <ui:VisualElement name="match-table-space" class="match-table-space" picking-mode="Ignore">
+                <ui:VisualElement name="match-context-controls" class="match-context-controls" picking-mode="Ignore">
+                    <ui:VisualElement name="dealer-context" class="player-context player-context-dealer">
+                        <ui:VisualElement name="dealer-options-menu" class="context-menu panel">
+                            <ui:Label name="dealer-options-title" class="context-title">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.dealer-title" />
+                                </Bindings>
+                            </ui:Label>
+                            <ui:VisualElement name="dealer-options" class="context-options" />
+                        </ui:VisualElement>
+                        <ui:Button name="dealer-options-button" class="context-icon dealer-icon icon-only-button">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.dealer-icon" />
+                            </Bindings>
+                            <ui:VisualElement class="game-icon context-button-icon icon-decks" picking-mode="Ignore" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="canto-context" class="player-context player-context-canto">
+                        <ui:VisualElement name="canto-options-menu" class="context-menu panel">
+                            <ui:Label name="canto-options-title" class="context-title">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.canto-title" />
+                                </Bindings>
+                            </ui:Label>
+                            <ui:VisualElement name="canto-options" class="context-options" />
+                        </ui:VisualElement>
+                        <ui:Button name="canto-options-button" class="context-icon canto-icon icon-only-button">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.canto-icon" />
+                            </Bindings>
+                            <ui:VisualElement class="game-icon context-button-icon icon-canto" picking-mode="Ignore" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="match-status panel">
+                <ui:VisualElement class="match-status-content">
+                    <ui:VisualElement class="match-status-summary">
+                        <ui:VisualElement class="match-status-heading">
+                            <ui:Label name="match-phase" text="ACTIVE ROUND" class="status-title" />
+                            <ui:Label name="match-progress" text="Round 2 · Deal 3" class="match-progress" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="match-status-rule" />
+                        <ui:Label name="match-turn" text="Your turn" class="match-primary-status" />
+                        <ui:VisualElement class="match-canto-row">
+                            <ui:VisualElement class="game-icon match-canto-icon icon-canto" picking-mode="Ignore" />
+                            <ui:Label name="match-canto" text="No canto announced" class="match-canto" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="match-status-resolution">
+                        <ui:VisualElement name="match-event-callout" class="match-callout match-event-callout">
+                            <ui:Label name="match-event-label" class="match-callout-label">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.match.event-label" />
+                                </Bindings>
+                            </ui:Label>
+                            <ui:Label name="match-event" text="Ready" class="status-line event-line" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="match-feedback-callout" class="match-callout match-feedback-callout semantic-legal">
+                            <ui:Label name="match-feedback-symbol" text="+" class="match-feedback-symbol" />
+                            <ui:VisualElement class="match-feedback-copy">
+                                <ui:Label name="match-feedback-label" class="match-callout-label">
+                                    <Bindings>
+                                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.match.feedback-label" />
+                                    </Bindings>
+                                </ui:Label>
+                                <ui:Label name="match-feedback" text="Choose a legal card" class="interaction-feedback" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="animation-skip-button" class="quiet-button presentation-skip icon-label-button">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.animation.skip" />
+                    </Bindings>
+                    <ui:VisualElement class="game-icon action-button-icon icon-skip" picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="match-score-hud panel" picking-mode="Ignore">
+                <ui:Label name="match-score" text="YOU 12 — 9 RIVAL" class="score-line" />
+                <ui:Label name="match-score-objective" class="match-score-objective">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.match.score-objective" />
+                    </Bindings>
+                </ui:Label>
+            </ui:VisualElement>
+
+            <ui:Button name="match-home-button" class="quiet-button match-home-floating icon-label-button">
+
+                <Bindings>
+
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.common.return-home" />
+
+                </Bindings>
+                <ui:VisualElement class="game-icon action-button-icon icon-home" picking-mode="Ignore" />
+            </ui:Button>
+            </ui:VisualElement>
+        </Bitbebop.SafeArea>
+    </ui:VisualElement>
+    </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
+</ui:UXML>

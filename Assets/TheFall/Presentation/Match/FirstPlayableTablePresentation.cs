@@ -13,6 +13,8 @@ using TheFall.Presentation.Table;
 using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DeviceApplication = UnityEngine.Device.Application;
+using DeviceScreen = UnityEngine.Device.Screen;
 
 namespace TheFall.Presentation.Match
 {
@@ -31,6 +33,7 @@ namespace TheFall.Presentation.Match
         private static readonly Color Brass = FromHex(0xB58B3E);
         private const float DealerFlipLift = 0.13f;
         private const float DealerSelectedRestHeight = 0.015f;
+        private const float InteractiveCardHitScale = 1.55f;
 
         [SerializeField] private Camera _gameplayCamera;
         [SerializeField] private GameObject _tablePrototypePrefab;
@@ -254,11 +257,11 @@ namespace TheFall.Presentation.Match
                         true,
                         viewport,
                         safeArea,
-                        UnityEngine.Application.isMobilePlatform);
+                        DeviceApplication.isMobilePlatform);
                 }
                 else
                 {
-                    Rebuild(viewport, safeArea, UnityEngine.Application.isMobilePlatform);
+                    Rebuild(viewport, safeArea, DeviceApplication.isMobilePlatform);
                 }
             }
         }
@@ -339,7 +342,24 @@ namespace TheFall.Presentation.Match
                 return Vector2.zero;
             }
 
-            var bounds = renderer.bounds;
+            return MeasureProjectedBounds(renderer.bounds);
+        }
+
+        public Vector2 MeasureProjectedInteractionSize(FirstPlayableRenderedCard card)
+        {
+            if (card == null)
+            {
+                throw new ArgumentNullException(nameof(card));
+            }
+
+            var collider = card.GetComponent<Collider>();
+            return collider == null || _gameplayCamera == null
+                ? Vector2.zero
+                : MeasureProjectedBounds(collider.bounds);
+        }
+
+        private Vector2 MeasureProjectedBounds(Bounds bounds)
+        {
             var minimum = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
             var maximum = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
             var tangent = Mathf.Tan(_gameplayCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
@@ -526,7 +546,7 @@ namespace TheFall.Presentation.Match
             Rebuild(
                 RuntimeViewport(),
                 RuntimeSafeArea(RuntimeViewport()),
-                UnityEngine.Application.isMobilePlatform);
+                DeviceApplication.isMobilePlatform);
             ApplyInteractionState();
         }
 
@@ -551,7 +571,7 @@ namespace TheFall.Presentation.Match
                 animateChangedCards,
                 viewport,
                 RuntimeSafeArea(viewport),
-                UnityEngine.Application.isMobilePlatform);
+                DeviceApplication.isMobilePlatform);
         }
 
         private void RefreshFromAnimation(
@@ -602,7 +622,7 @@ namespace TheFall.Presentation.Match
                 Rebuild(
                     RuntimeViewport(),
                     RuntimeSafeArea(RuntimeViewport()),
-                    UnityEngine.Application.isMobilePlatform);
+                    DeviceApplication.isMobilePlatform);
             }
 
             _interaction?.SetTemporarilyBlocked(false);
@@ -685,7 +705,7 @@ namespace TheFall.Presentation.Match
                 viewportSize,
                 safeAreaPixels,
                 isMobilePlatform).Profile;
-            ConfigureAdaptiveMatchProfile();
+            ConfigureAdaptiveMatchProfile(viewportSize, safeAreaPixels);
             LayoutRevision++;
 
             DestroyGeneratedContent();
@@ -718,7 +738,9 @@ namespace TheFall.Presentation.Match
             CreateStateCards(cardZones);
         }
 
-        private void ConfigureAdaptiveMatchProfile()
+        private void ConfigureAdaptiveMatchProfile(
+            Vector2Int viewportSize,
+            Rect safeAreaPixels)
         {
             _contentScale = CurrentProfile.ContentScale;
             _localCardScaleMultiplier = 1f;
@@ -732,27 +754,27 @@ namespace TheFall.Presentation.Match
 
             switch (CurrentAdaptiveProfile)
             {
-                case AdaptiveUiProfile.MobilePortrait:
-                    _contentScale = 0.78f;
-                    _localCardScaleMultiplier = 3.15f;
-                    _publicCardScaleMultiplier = 2.4f;
-                    _secondaryCardScaleMultiplier = 1.15f;
-                    _dealerCardScaleMultiplier = 2f;
-                    _handSpacingMultiplier = 1.5f;
-                    _tableSpacingMultiplier = 1.5f;
-                    _dealerSpreadSpacingMultiplier = 2f;
-                    _characterScaleMultiplier = 1.35f;
-                    break;
-                case AdaptiveUiProfile.MobileLandscape:
-                    _contentScale = 1.10f;
-                    _localCardScaleMultiplier = 4.10f;
-                    _publicCardScaleMultiplier = 3.4f;
-                    _secondaryCardScaleMultiplier = 1.25f;
-                    _dealerCardScaleMultiplier = 2.8f;
-                    _handSpacingMultiplier = 2f;
-                    _tableSpacingMultiplier = 1.65f;
-                    _dealerSpreadSpacingMultiplier = 3f;
-                    _characterScaleMultiplier = 1.2f;
+                case AdaptiveUiProfile.PhoneLandscape:
+                case AdaptiveUiProfile.TabletLandscape:
+                    var safeArea = TableCompositionLayout.NormalizeSafeArea(
+                        viewportSize,
+                        safeAreaPixels);
+                    var safeWidth = viewportSize.x * safeArea.width;
+                    var safeHeight = viewportSize.y * safeArea.height;
+                    var safeAspect = safeHeight > 0f
+                        ? safeWidth / safeHeight
+                        : (float)viewportSize.x / viewportSize.y;
+                    var wideLandscape = Mathf.InverseLerp(4f / 3f, 2.2f, safeAspect);
+
+                    _contentScale = Mathf.Lerp(1f, 1.05f, wideLandscape);
+                    _localCardScaleMultiplier = Mathf.Lerp(2.1f, 2.75f, wideLandscape);
+                    _publicCardScaleMultiplier = Mathf.Lerp(1.65f, 2.1f, wideLandscape);
+                    _secondaryCardScaleMultiplier = Mathf.Lerp(0.9f, 1f, wideLandscape);
+                    _dealerCardScaleMultiplier = Mathf.Lerp(1.95f, 2.55f, wideLandscape);
+                    _handSpacingMultiplier = Mathf.Lerp(1.18f, 1.4f, wideLandscape);
+                    _tableSpacingMultiplier = Mathf.Lerp(1.08f, 1.22f, wideLandscape);
+                    _dealerSpreadSpacingMultiplier = Mathf.Lerp(1.45f, 1.85f, wideLandscape);
+                    _characterScaleMultiplier = Mathf.Lerp(1f, 1.06f, wideLandscape);
                     break;
             }
         }
@@ -2268,6 +2290,13 @@ namespace TheFall.Presentation.Match
             {
                 DestroyGeneratedObject(collider);
             }
+            else if (collider is BoxCollider boxCollider)
+            {
+                boxCollider.size = new Vector3(
+                    InteractiveCardHitScale,
+                    1f,
+                    InteractiveCardHitScale);
+            }
 
             var renderer = cardObject.GetComponent<Renderer>();
             if (renderedFaceUp && card.HasValue)
@@ -2559,7 +2588,7 @@ namespace TheFall.Presentation.Match
 
             if (_gameplayCamera == null)
             {
-                throw new MissingReferenceException("The Home scene has no gameplay camera.");
+                throw new MissingReferenceException("The Match scene has no gameplay camera.");
             }
 
             _gameplayCamera.nearClipPlane = 0.1f;
@@ -2710,12 +2739,12 @@ namespace TheFall.Presentation.Match
 
         private static Vector2Int RuntimeViewport()
         {
-            return new Vector2Int(Mathf.Max(1, Screen.width), Mathf.Max(1, Screen.height));
+            return new Vector2Int(Mathf.Max(1, DeviceScreen.width), Mathf.Max(1, DeviceScreen.height));
         }
 
         private static Rect RuntimeSafeArea(Vector2Int viewport)
         {
-            var safeArea = Screen.safeArea;
+            var safeArea = DeviceScreen.safeArea;
             return safeArea.width > 0f && safeArea.height > 0f
                 ? safeArea
                 : new Rect(0f, 0f, viewport.x, viewport.y);

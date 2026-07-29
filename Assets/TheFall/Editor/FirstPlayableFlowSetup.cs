@@ -15,9 +15,21 @@ namespace TheFall.Editor
 {
     public static class FirstPlayableFlowSetup
     {
-        private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
-        private const string UxmlPath = "Assets/TheFall/Presentation/UI/Screen/HomeScreen.uxml";
+        private const string LoginScenePath = "Assets/TheFall/Presentation/Scenes/Login.unity";
+        private const string HubScenePath = "Assets/TheFall/Presentation/Scenes/Hub.unity";
+        private const string MatchScenePath = "Assets/TheFall/Presentation/Scenes/Match.unity";
+        private const string ScreenUiDirectory = "Assets/TheFall/Presentation/UI/Screen";
         private const string IconDirectory = "Assets/TheFall/Content/UI/Icons";
+
+        private static readonly string[] ScreenAssetNames =
+        {
+            "LoginScreen",
+            "HubScreen",
+            "SetupScreen",
+            "LoadingScreen",
+            "MatchScreen",
+            "ResultScreen",
+        };
 
         private static readonly string[] RequiredIconNames =
         {
@@ -54,11 +66,11 @@ namespace TheFall.Editor
             Text("flow.login.panel-subtitle", "LOGIN TO ACCESS YOUR TABLE"),
             Text("flow.login.email", "EMAIL ADDRESS"),
             Text("flow.login.password", "PASSWORD"),
-            Text("flow.login.enter", "ENTER THE REALM  →"),
+            Text("flow.login.enter", "ENTER THE REALM"),
             Text("flow.login.forgot", "Forgot Cipher?"),
             Text("flow.login.divider", "OR INVOKE"),
-            Text("flow.login.google", "G"),
-            Text("flow.login.apple", "A"),
+            Text("flow.login.google", "Continue with Google"),
+            Text("flow.login.apple", "Continue with Apple"),
             Text("flow.login.account-prefix", "New to the realm?"),
             Text("flow.login.create", "Create Account"),
             Text("flow.login.feedback.forgot", "Cipher recovery is not connected in this build."),
@@ -286,11 +298,11 @@ namespace TheFall.Editor
 
             ConfigureIconImports();
             ConfigureLocalization();
-            ConfigureHomeScene();
+            ConfigurePresentationScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Validate();
-            Debug.Log("The first-playable gateway, Home, setup, loading, match, and result flow was generated and validated.");
+            Debug.Log("The first-playable Login, Hub, and Match scenes were generated and validated.");
         }
 
         [MenuItem("The Fall/First Playable Flow/Validate")]
@@ -315,8 +327,16 @@ namespace TheFall.Editor
                 }
             }
 
-            Require(File.Exists(HomeScenePath), "The Home scene is missing.", errors);
-            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath) != null, "The first-playable UXML is missing.", errors);
+            Require(File.Exists(LoginScenePath), "The Login scene is missing.", errors);
+            Require(File.Exists(HubScenePath), "The Hub scene is missing.", errors);
+            Require(File.Exists(MatchScenePath), "The Match scene is missing.", errors);
+            foreach (var screenAssetName in ScreenAssetNames)
+            {
+                Require(
+                    LoadScreenAsset(screenAssetName) != null,
+                    $"The first-playable {screenAssetName} UXML is missing.",
+                    errors);
+            }
             foreach (var iconName in RequiredIconNames)
             {
                 var iconPath = $"{IconDirectory}/{iconName}.png";
@@ -340,12 +360,30 @@ namespace TheFall.Editor
                 }
             }
 
-            if (File.Exists(HomeScenePath))
+            foreach (var sceneDefinition in SceneDefinitions())
             {
-                var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+                if (!File.Exists(sceneDefinition.Path))
+                {
+                    continue;
+                }
+
+                var scene = EditorSceneManager.OpenScene(sceneDefinition.Path, OpenSceneMode.Single);
+                var controller = scene.GetRootGameObjects()
+                    .SelectMany(root => root.GetComponentsInChildren<FirstPlayableFlowController>(true))
+                    .SingleOrDefault();
                 Require(
-                    scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<FirstPlayableFlowController>(true)).Any(),
-                    "The Home scene has no FirstPlayableFlowController.",
+                    controller != null,
+                    $"The {sceneDefinition.Kind} scene has no FirstPlayableFlowController.",
+                    errors);
+                Require(
+                    controller != null && controller.HasConfiguredScreenAssets,
+                    $"The {sceneDefinition.Kind} scene controller is missing a scene-owned screen asset.",
+                    errors);
+                var document = controller?.GetComponent<UIDocument>();
+                var expectedSource = LoadScreenAsset($"{sceneDefinition.Kind}Screen");
+                Require(
+                    document != null && document.visualTreeAsset == expectedSource,
+                    $"The {sceneDefinition.Kind} scene UIDocument must directly reference {sceneDefinition.Kind}Screen.uxml.",
                     errors);
             }
 
@@ -402,29 +440,124 @@ namespace TheFall.Editor
             }
         }
 
-        private static void ConfigureHomeScene()
+        private static void ConfigurePresentationScenes()
         {
-            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            if (!File.Exists(MatchScenePath))
+            {
+                throw new InvalidOperationException(
+                    "The Match scene is missing. Migrate the former Home table scene before generating presentation scenes.");
+            }
+
+            var matchScene = EditorSceneManager.OpenScene(MatchScenePath, OpenSceneMode.Single);
+            var matchDocument = matchScene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<UIDocument>(true))
+                .SingleOrDefault();
+            if (matchDocument == null)
+            {
+                throw new InvalidOperationException("The Match scene UI Document is missing.");
+            }
+
+            var panelSettings = matchDocument.panelSettings;
+            matchDocument.visualTreeAsset = LoadScreenAsset("MatchScreen");
+            ConfigureScene(
+                matchScene,
+                MatchScenePath,
+                FirstPlayableSceneKind.Match,
+                matchDocument,
+                "Authoritative fixed-camera 1v1 table, loading transition, match HUD, and result presentation.");
+            ConfigureUiOnlyScene(
+                LoginScenePath,
+                FirstPlayableSceneKind.Login,
+                LoadScreenAsset("LoginScreen"),
+                panelSettings,
+                "Full-bleed localized gateway and account-entry presentation.");
+            ConfigureUiOnlyScene(
+                HubScenePath,
+                FirstPlayableSceneKind.Hub,
+                LoadScreenAsset("HubScreen"),
+                panelSettings,
+                "Localized player hub, settings, and pre-match presentation.");
+        }
+
+        private static void ConfigureUiOnlyScene(
+            string scenePath,
+            FirstPlayableSceneKind sceneKind,
+            VisualTreeAsset screenAsset,
+            PanelSettings panelSettings,
+            string purposeText)
+        {
+            var scene = File.Exists(scenePath)
+                ? EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single)
+                : EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var purpose = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
+                .FirstOrDefault();
+            if (purpose == null)
+            {
+                purpose = new GameObject(sceneKind.ToString()).AddComponent<ScenePurpose>();
+            }
+
             var document = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<UIDocument>(true))
                 .SingleOrDefault();
             if (document == null)
             {
-                throw new InvalidOperationException("The Home scene UI Document is missing.");
+                document = new GameObject("Screen UI").AddComponent<UIDocument>();
             }
 
-            if (document.GetComponent<FirstPlayableFlowController>() == null)
+            document.visualTreeAsset = screenAsset;
+            document.panelSettings = panelSettings;
+            ConfigureScene(scene, scenePath, sceneKind, document, purposeText);
+        }
+
+        private static void ConfigureScene(
+            UnityEngine.SceneManagement.Scene scene,
+            string scenePath,
+            FirstPlayableSceneKind sceneKind,
+            UIDocument document,
+            string purposeText)
+        {
+            var controller = document.GetComponent<FirstPlayableFlowController>();
+            if (controller == null)
             {
-                document.gameObject.AddComponent<FirstPlayableFlowController>();
+                controller = document.gameObject.AddComponent<FirstPlayableFlowController>();
             }
+
+            controller.ConfigureScene(
+                sceneKind,
+                sceneKind == FirstPlayableSceneKind.Login ? LoadScreenAsset("LoginScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Hub ? LoadScreenAsset("HubScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Hub ? LoadScreenAsset("SetupScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Match ? LoadScreenAsset("LoadingScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Match ? LoadScreenAsset("MatchScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Match ? LoadScreenAsset("ResultScreen") : null);
+            EditorUtility.SetDirty(controller);
 
             var purpose = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
                 .FirstOrDefault();
-            purpose?.SetDescription("Localized first-playable gateway and flow with an authoritative fixed-camera 1v1 table presentation and resolved-beat prototype audio.");
+            purpose?.SetDescription(purposeText);
+            if (purpose != null)
+            {
+                purpose.gameObject.name = sceneKind.ToString();
+                EditorUtility.SetDirty(purpose);
+            }
 
             EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene, HomeScenePath);
+            EditorSceneManager.SaveScene(scene, scenePath);
+        }
+
+        private static IEnumerable<(FirstPlayableSceneKind Kind, string Path)> SceneDefinitions()
+        {
+            yield return (FirstPlayableSceneKind.Login, LoginScenePath);
+            yield return (FirstPlayableSceneKind.Hub, HubScenePath);
+            yield return (FirstPlayableSceneKind.Match, MatchScenePath);
+        }
+
+        private static VisualTreeAsset LoadScreenAsset(string screenAssetName)
+        {
+            return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                $"{ScreenUiDirectory}/{screenAssetName}.uxml");
         }
 
         private static EntryDefinition Text(string key, string value)

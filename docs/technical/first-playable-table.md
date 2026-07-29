@@ -4,7 +4,7 @@ Status: Implemented first-playable presentation and animation contract
 
 ## Purpose
 
-Issue #25 integrates the complete authoritative 1v1 match into the existing first-playable `Home` scene.
+Issue #25 integrates the complete authoritative 1v1 match into the dedicated first-playable `Match` scene.
 Issue #26 promotes the reusable AnimationLab beats into that table, and issue #27 maps those resolved beats
 to functional prototype audio. The table is visible during Match and Result while the application flow
 continues to own setup, loading, replay, and return-to-Home lifecycle.
@@ -28,7 +28,7 @@ The HUD maps the active ordered domain event into localized semantic text. This 
 
 ## Edit Mode authoring
 
-`Home.unity` contains an active `First Playable Table Authoring` hierarchy that is visible without
+`Match.unity` contains an active `First Playable Table Authoring` hierarchy that is visible without
 entering Play Mode. Open it with `The Fall > First Playable Table > Open Authoring Layout`, or select it
 directly in the Home hierarchy. The saved scene is the runtime composition source of truth:
 
@@ -39,7 +39,7 @@ directly in the Home hierarchy. The saved scene is the runtime composition sourc
 - scale the X axis of `Card Size Reference — Scale X Only` to resize every card while the layout component
   preserves the `63:88` ratio and synchronizes the other representative cards.
 
-Save `Home.unity` normally after editing. On entering Play Mode, the authoring hierarchy is hidden and the
+Save `Match.unity` normally after editing. On entering Play Mode, the authoring hierarchy is hidden and the
 presentation clones its saved environment, table, and player objects, then creates authoritative match cards
 under the saved anchors. Rerunning the generator preserves an existing authored layout and camera instead of
 resetting manual changes.
@@ -79,12 +79,12 @@ the former settings header and persistent bottom explanation strip are not rende
 decisions remain contextual screen-space controls attached to the local player.
 
 Every desktop gameplay card uses one consistent footprint with the source art's exact `63:88` aspect
-ratio. V0.1 phone profiles retain that aspect ratio while applying the accepted decision priority:
-the local actionable hand is largest, public table and dealer-selection cards satisfy their documented
-identity/touch minimums, and secondary deck, captured-pile, and hidden-hand representations remain
-subordinate. Profile-specific spacing changes with those authored sizes so phone content is not a
-uniformly shrunken desktop table. This keeps rank and suit scale predictable at the required desktop
-resolutions while making the physical-phone decision surface readable.
+ratio. Phone and tablet profiles retain that aspect ratio while deriving card and zone-spacing
+multipliers from the normalized safe-area aspect ratio. The local actionable hand remains largest;
+public table and dealer-selection cards satisfy their documented identity/touch minimums; and local,
+public, and dealer cards remain bounded against the short landscape axis. Secondary deck,
+captured-pile, and hidden-hand representations remain subordinate. This keeps rank and suit scale
+predictable without reproducing the former oversized fixed mobile multipliers.
 For perspective testing, face-up cards use a deliberately minimal atlas treatment with a dominant rank and
 one suit marker. Every face is oriented toward the local seat so the single rank reads upright; detailed
 pip and court art remains deferred to the dedicated card-design pass.

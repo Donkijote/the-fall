@@ -51,6 +51,10 @@ The `180°` 2v2 seat is the local player's teammate. Identity data may be assign
 
 ## Orientation and safe areas
 
+This section records the original V0 prototype, including its portrait profile. Portrait is now
+unsupported on phones and tablets under [ADR 0003](../decisions/0003-landscape-only-mobile.md);
+future capture and validation sets use representative phone and tablet landscape viewports.
+
 The layout chooses one authored profile from the active viewport:
 
 | Profile | Selection | Root scale | Seat radius |
@@ -69,7 +73,7 @@ Automated checks exercise `390×844` portrait, `844×390` landscape with side in
 - Play Mode loads `MatchPrototype`, exercises every seating mode, verifies individual capture anchors, and proves portrait recomposition preserves active presentation state and camera pose.
 - `The Fall > Table Composition > Generate` updates the scene with the prototype component and fixed camera values.
 - `The Fall > Table Composition > Validate` checks that the component and stationary camera parameters are present.
-- `The Fall > Table Composition > Capture Validation Set` writes portrait and landscape captures for all three modes to the ignored `Logs` directory for visual review.
+- `The Fall > Table Composition > Capture Validation Set` writes phone- and tablet-landscape captures for all three modes to the ignored `Logs` directory for visual review.
 
 ## Validation checkpoint
 

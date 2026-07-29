@@ -35,6 +35,7 @@ The Settings panel exposes the author, source, and license attribution in the pl
 | `cups.png` | [Jeweled chalice](https://game-icons.net/1x1/lorc/jeweled-chalice.html) | Lorc | Cups suit motif |
 | `decks.png` | [Card draw](https://game-icons.net/1x1/faithtoken/card-draw.html) | Faithtoken | Decks and dealer action |
 | `energy.png` | [Bolt drop](https://game-icons.net/1x1/delapouite/bolt-drop.html) | Delapouite | energy resource |
+| `enter-arrow.png` | [Plain arrow](https://game-icons.net/1x1/delapouite/plain-arrow.html) | Delapouite | gateway primary action |
 | `envelope.png` | [Envelope](https://game-icons.net/1x1/lorc/envelope.html) | Lorc | email and mailbox |
 | `gems.png` | [Cut diamond](https://game-icons.net/1x1/lorc/cut-diamond.html) | Lorc | gems resource |
 | `home.png` | [House](https://game-icons.net/1x1/delapouite/house.html) | Delapouite | return Home |
@@ -48,6 +49,23 @@ The Settings panel exposes the author, source, and license attribution in the pl
 | `shop.png` | [Shop](https://game-icons.net/1x1/delapouite/shop.html) | Delapouite | Shop destination |
 | `skip.png` | [Fast forward button](https://game-icons.net/1x1/delapouite/fast-forward-button.html) | Delapouite | motion Settings and animation skip |
 
+## Authentication brand marks
+
+Authentication controls are the one exception to the thematic icon palette. The disconnected
+first-playable controls use the clean monochrome brand silhouettes from
+[Simple Icons](https://simpleicons.org/) so they remain recognizable while fitting the gateway's
+visual language:
+
+| Local file | Source | Current role |
+| --- | --- | --- |
+| `google-g.png` | [Simple Icons: Google](https://simpleicons.org/?q=google) | Continue with Google prototype |
+| `apple-sign-in.png` | [Simple Icons: Apple](https://simpleicons.org/?q=apple) | Continue with Apple prototype |
+
+Simple Icons is released under CC0, but the brand names and marks remain trademarks of their owners.
+These assets are suitable for the visibly disconnected prototype controls. Before either control is
+wired to production authentication, replace it with the provider-approved sign-in component or
+artwork and revalidate the current Google and Apple identity requirements.
+
 ## Import and usage
 
 - retain transparent alpha and disable wrap
@@ -55,7 +73,7 @@ The Settings panel exposes the author, source, and license attribution in the pl
   clean in small desktop treatments and larger phone profiles
 - reference icons directly from UXML/USS; do not load them dynamically or add a runtime package
 - keep localized text or a localized tooltip for every action so meaning never depends on the icon alone
-- preserve the same icon for a semantic action across desktop, mobile portrait, and mobile landscape
+- preserve the same icon for a semantic action across desktop and mobile landscape
 - add a new attribution row whenever another Game-icons.net PNG enters the repository
 
 Related: [asset strategy](strategy.md), [art direction](../design/art-direction.md), and

@@ -9,11 +9,21 @@ and reusable UI states used by the later Home/setup/result and match-HUD redesig
 finish those screen redesigns, change rules or bot behavior, select production platform floors, or
 claim accessibility certification.
 
-Desktop, mobile portrait, and mobile landscape are authored compositions selected from the runtime
-platform and orientation. UI Toolkit panel width is not used as a proxy for a phone because the
+Desktop, phone landscape, and tablet landscape are authored compositions selected from the runtime
+platform and safe-viewport aspect. Phone and tablet builds are landscape-only under
+[ADR 0003](../decisions/0003-landscape-only-mobile.md). UI
+Toolkit panel width is not used as a proxy for a phone because the
 panel's `1920 x 1080` reference scaling can make a physical phone report desktop-like logical width.
-The selected profile and current safe rectangle can change without replacing the application flow,
+The current safe rectangle and landscape direction can change without replacing the application flow,
 match, selected card, intent history, or fixed gameplay camera.
+
+Under [ADR 0006](../decisions/0006-first-playable-presentation-scenes.md), profile rules are applied
+by the active scene's document root to exactly one screen hierarchy. Each authoritative screen UXML
+owns one `Bitbebop.SafeArea` for physical edge containment; the flow controller does not calculate or
+apply panel insets. Each screen's `AdaptiveUiPreviewRoot` applies a switchable Phone Landscape,
+Tablet Landscape, or Desktop composition in UI Builder. The controller reads that selection for the
+scene's Edit Mode preview without starting application flow; Play Mode still selects the profile from
+the simulated/device platform. Reusable tokens and components remain in `FlowShared.uss`.
 
 ## Evidence baseline
 
@@ -25,8 +35,8 @@ Evidence used:
 
 - the accepted macOS issue #28 review at `1280 x 720`, `1440 x 900`, `1920 x 1080`, and
   `2560 x 1440`
-- the issue #31 touch-only Home, setup, match, result, safe-area, portrait, landscape, and active
-  rotation review on the recorded iPhone 17 Pro
+- the issue #31 touch-only Home, setup, match, result, safe-area, and earlier portrait/landscape
+  review on the recorded iPhone 17 Pro; its portrait evidence predates ADR 0003
 - the retained `1440 x 900` table and contextual-action captures in the ignored `Logs/` workspace
 - matching iPhone-simulator captures created by issue #43 for reproducible composition comparison;
   simulator images support visual comparison and are not physical-device validation
@@ -73,8 +83,8 @@ They are not universal accessibility thresholds or production support commitment
 | Secondary text: rule explanation, round/deal, prompts | `14 px` | `14 pt` | may wrap; never clip or become the only carrier of a required state |
 | Mouse/keyboard control target | `44 x 44 px` | — | includes the focusable hit rectangle |
 | Touch target | — | `44 x 44 pt` | targets may be visually smaller only when the full hit rectangle remains this size and targets keep `8 pt` separation |
-| Local actionable card identity | `64 px` wide | `72 pt` wide | rank and suit identify the card without inspection |
-| Public table-card identity | `48 px` wide | `48 pt` wide | rank remains identifiable; inspection can provide detail but cannot be required for the next action |
+| Local actionable card identity | `64 px` wide | `34 pt` visible width with a `44 pt` hit width, at most `19%` of safe height in steady state | rank and suit identify the card without consuming the short landscape axis |
+| Public table-card identity | `48 px` wide | `26 pt` wide, at most `15%` of safe height | rank remains identifiable; inspection can provide detail but cannot be required for the next action |
 | Character identity | `64 px` head height | `64 pt` head height | head/shoulder silhouette and active/dealer cue remain distinct |
 | Keyboard focus / selected stroke | `3 px` | `3 pt` | combined with value/shape or text; never color-only |
 | Safe-area breathing room | `16 px` from window content edge | `12 pt` inside the hardware safe rectangle | additional profile padding is applied after hardware insets |
@@ -96,32 +106,24 @@ reduce all four layers uniformly.
 - Mouse and keyboard share the same visible action. Focus remains visible after pointer movement and
   pseudo-localization wrapping.
 
-### Mobile portrait
-
-- Compose vertically: identity/status summary, table state, local hand/action, then secondary
-  explanation. The local decision remains reachable above the bottom safe inset.
-- Use the long axis for separation, not for enlarging decorative gaps.
-- Present score and next action before round/deal explanation. Context menus expand into a
-  phone-width surface with touch rows rather than a scaled desktop popover.
-- Settings and non-urgent presentation controls remain on Home; they do not consume match space.
-
-### Mobile landscape
+### Phone and tablet landscape
 
 - Compose for the short vertical axis: compact floating status, dominant table/local-hand region, and
   contextual actions only.
 - Use horizontal space for status and contextual choices. Do not stack the portrait composition or
   shrink the desktop header.
+- Fit every screen and modal into one safe viewport without horizontal or vertical scrolling.
 - Hardware side insets are applied before profile gutters. Context popovers open away from the
   unsafe edge and retain full touch rows.
 
 ## Safe-area and state-preservation contract
 
-`AdaptiveUiFoundation.Resolve` selects one of `profile-desktop`, `profile-mobile-portrait`, or
-`profile-mobile-landscape`. `FirstPlayableFlowController` maps the normalized hardware safe
-rectangle into current UI Toolkit panel units and applies it to every stage edge. USS then adds
-profile-specific internal padding.
+`AdaptiveUiFoundation.Resolve` selects `profile-desktop`, `profile-phone-landscape`, or
+`profile-tablet-landscape`. Phone and tablet also receive the shared
+`profile-mobile-landscape` base class. Each screen-owned `Bitbebop.SafeArea` maps the hardware safe
+rectangle into UI Toolkit panel units; USS then adds profile-specific internal padding.
 
-Rotation or resize may change the selected profile and rebuild transient presentation, but must not:
+Changing landscape direction or resizing may rebuild transient presentation, but must not:
 
 - restart or replace `FirstPlayableFlow` or its match orchestrator
 - submit, confirm, cancel, or duplicate an intent
@@ -131,8 +133,8 @@ Rotation or resize may change the selected profile and rebuild transient present
 
 ## Reusable UI tokens and components
 
-The runtime constants in `AdaptiveUiFoundation` own the measurable minimums. `HomeScreen.uss` owns the
-visual token application for the current prototype palette.
+The runtime constants in `AdaptiveUiFoundation` own the measurable minimums. `FlowShared.uss` owns
+the visual token application for the current prototype palette.
 
 Stable component classes:
 
@@ -157,14 +159,15 @@ the only visible feedback. Disabled state changes value in addition to retained 
 
 ## Comparison captures
 
-The committed captures are generated from the matching iPhone simulator so later issues can compare
-the three authored compositions without depending on a connected phone:
+The committed captures were generated from the matching iPhone simulator. The portrait capture is
+retained only as historical evidence from before ADR 0003; future comparison and acceptance use
+desktop and mobile landscape:
 
 - `adaptive-ui-captures/home-mobile-portrait.png`
 - `adaptive-ui-captures/home-mobile-landscape.jpg`
 - `adaptive-ui-captures/home-desktop-1440x900.jpg`
 
-| Desktop `1440 x 900` | Mobile portrait | Mobile landscape |
+| Desktop `1440 x 900` | Historical portrait (unsupported) | Mobile landscape |
 | --- | --- | --- |
 | ![Desktop Home composition](adaptive-ui-captures/home-desktop-1440x900.jpg) | ![Mobile portrait Home composition](adaptive-ui-captures/home-mobile-portrait.png) | ![Mobile landscape Home composition](adaptive-ui-captures/home-mobile-landscape.jpg) |
 
@@ -173,16 +176,16 @@ touch, safe-area hardware, viewing-distance, rotation-sensor, or physical readab
 
 ## Validation ownership
 
-- Edit Mode verifies all four desktop layouts plus both phone orientations resolve to the intended
-  profile, safe rectangles map correctly, one profile/state class remains active, and minimum tokens
-  cannot silently regress.
-- Play Mode verifies portrait-to-landscape recomposition applies safe insets without changing the
-  current flow stage. Existing table coverage continues to protect selected card, interaction
+- Edit Mode verifies all four desktop layouts plus representative phone and tablet landscape
+  viewports resolve to the intended profile, safe rectangles map correctly, one profile/state class
+  remains active, player screens contain no scroll views, and minimum/maximum tokens cannot silently regress.
+- Play Mode verifies landscape safe-area recomposition without changing the current flow stage.
+  Existing table coverage continues to protect selected card, interaction
   revision/history, match instance, authoritative state, trace, and fixed camera.
 - Issues #44 and #45 refine screen-specific structure while consuming these profiles, minimums, and
   priority rules rather than adding another breakpoint model. Issue #45 extends the semantic vocabulary
-  with explicit inspected and cancelled states, measures phone card/touch widths from the fixed camera,
-  and applies zone-priority sizing inside the three established profiles.
+  with explicit inspected and cancelled states, measures phone card/touch bounds from the fixed camera,
+  and applies safe-area-aware zone-priority sizing inside the desktop and handheld landscape profiles.
 
 Related: [V0.1 milestone](../planning/v0.1-1v1-playtest-milestone.md),
 [experience design](experience.md), [first-playable flow](../technical/first-playable-flow.md),

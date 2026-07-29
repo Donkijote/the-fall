@@ -46,7 +46,7 @@ V0 is complete when:
 - the rules required for the first gameplay slice contain no blocking ambiguities
 - the project has a clean bootstrap owned by The Fall
 - a deterministic rules model can execute independently of Unity presentation
-- the overhead table camera is readable in landscape and portrait
+- the overhead table camera is readable in desktop layouts and representative mobile landscape layouts
 - representative assets can move from concept to approved Unity prototype with traceable licensing
 - touch and mouse/keyboard can express core card intents
 - one representative gameplay sequence can be animated from domain events

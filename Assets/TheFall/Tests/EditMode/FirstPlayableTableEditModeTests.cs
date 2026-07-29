@@ -13,12 +13,12 @@ namespace TheFall.Tests.EditMode
 {
     public sealed class FirstPlayableTableEditModeTests
     {
-        private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
+        private const string MatchScenePath = "Assets/TheFall/Presentation/Scenes/Match.unity";
 
         [Test]
-        public void HomeSceneExposesThePersistentRuntimeAuthoringLayout()
+        public void MatchSceneExposesThePersistentRuntimeAuthoringLayout()
         {
-            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.OpenScene(MatchScenePath, OpenSceneMode.Single);
             var layout = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTableLayout>(true))
                 .Single();

@@ -54,8 +54,8 @@ active at the table without duplicating configuration controls in the match HUD.
 - Effects off prevents and stops gameplay effects while preserving the master preference.
 - Music retains an independent preference but controls no playback because milestone music is omitted.
 
-The preferences survive replay and return-to-Home transitions while the Home scene remains loaded. They
-are presentation state and are not translated into rule configuration.
+The preferences survive replay and Match-to-Hub scene replacement because Bootstrap owns their
+presentation-session state. They are not translated into rule configuration.
 
 ## Source and fidelity
 

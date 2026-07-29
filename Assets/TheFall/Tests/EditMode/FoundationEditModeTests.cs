@@ -1,14 +1,25 @@
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using NUnit.Framework;
 using TheFall.Application.Input;
 using TheFall.Domain;
 using TheFall.Presentation.Bootstrap;
+using TheFall.Presentation.Match;
+using TheFall.Presentation.Scenes;
+using TheFall.Presentation.UI;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace TheFall.Tests.EditMode
 {
     public sealed class FoundationEditModeTests
     {
+        private const string UiTableGuid = "5366e2894cb2a41e782277c1311dfc07";
+
         [Test]
         public void DomainAssembly_DoesNotReferenceUnityEngine()
         {
@@ -54,7 +65,195 @@ namespace TheFall.Tests.EditMode
             Assert.That(cancel.bindings.Any(binding => binding.path == "<Keyboard>/escape"), Is.True);
         }
 
-        [TestCase("Home")]
+        [Test]
+        public void MobilePlayerSettings_AllowOnlyBothLandscapeDirections()
+        {
+            Assert.That(PlayerSettings.defaultInterfaceOrientation, Is.EqualTo(UIOrientation.AutoRotation));
+            Assert.That(PlayerSettings.allowedAutorotateToPortrait, Is.False);
+            Assert.That(PlayerSettings.allowedAutorotateToPortraitUpsideDown, Is.False);
+            Assert.That(PlayerSettings.allowedAutorotateToLandscapeLeft, Is.True);
+            Assert.That(PlayerSettings.allowedAutorotateToLandscapeRight, Is.True);
+        }
+
+        [TestCase("Login", FirstPlayableSceneKind.Login, false)]
+        [TestCase("Hub", FirstPlayableSceneKind.Hub, false)]
+        [TestCase("Match", FirstPlayableSceneKind.Match, true)]
+        public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
+            string sceneName,
+            FirstPlayableSceneKind expectedKind,
+            bool expectsTable)
+        {
+            var scene = EditorSceneManager.OpenScene(
+                $"Assets/TheFall/Presentation/Scenes/{sceneName}.unity",
+                OpenSceneMode.Single);
+            var controller = scene.GetRootGameObjects()
+                .SelectMany(root =>
+                    root.GetComponentsInChildren<FirstPlayableFlowController>(true))
+                .Single();
+            var hasTable = scene.GetRootGameObjects()
+                .SelectMany(root =>
+                    root.GetComponentsInChildren<FirstPlayableTablePresentation>(true))
+                .Any();
+            var document = controller.GetComponent<UIDocument>();
+            var documentRoot = document.rootVisualElement;
+            var previewRoot = documentRoot.Q<AdaptiveUiPreviewRoot>();
+            var expectedScreen = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                $"Assets/TheFall/Presentation/UI/Screen/{sceneName}Screen.uxml");
+
+            Assert.That(controller.SceneKind, Is.EqualTo(expectedKind));
+            Assert.That(controller.enabled, Is.True);
+            Assert.That(controller.HasConfiguredScreenAssets, Is.True);
+            Assert.That(document.visualTreeAsset, Is.SameAs(expectedScreen));
+            Assert.That(previewRoot, Is.Not.Null);
+            Assert.That(previewRoot.PreviewProfile, Is.EqualTo(AdaptiveUiProfile.PhoneLandscape));
+            Assert.That(previewRoot.ClassListContains("authoring-preview-root"), Is.False);
+            Assert.That(previewRoot.ClassListContains("screen-root"), Is.False);
+            Assert.That(documentRoot.ClassListContains("screen-root"), Is.True);
+            Assert.That(documentRoot.ClassListContains("profile-mobile-landscape"), Is.True);
+            Assert.That(documentRoot.ClassListContains("profile-phone-landscape"), Is.True);
+            Assert.That(hasTable, Is.EqualTo(expectsTable));
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_DoNotExposePlayerScrolling(string screenAssetName)
+        {
+            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var document = XDocument.Load(Path.GetFullPath(assetPath));
+
+            Assert.That(
+                document.Descendants().Any(element => element.Name.LocalName == "ScrollView"),
+                Is.False,
+                $"{screenAssetName} must reflow inside its viewport instead of exposing scrolling.");
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_DelegateInteractiveInsetsToOneSafeAreaElement(string screenAssetName)
+        {
+            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var document = XDocument.Load(Path.GetFullPath(assetPath));
+            var safeArea = document
+                .Descendants()
+                .Single(element => element.Name.LocalName == "Bitbebop.SafeArea");
+            var interactiveControls = document
+                .Descendants()
+                .Where(element =>
+                    element.Name.LocalName == "Button"
+                    || element.Name.LocalName == "Toggle"
+                    || element.Name.LocalName == "TextField")
+                .ToArray();
+
+            Assert.That(interactiveControls, Is.Not.Empty);
+            foreach (var control in interactiveControls)
+            {
+                Assert.That(
+                    control.Ancestors().Contains(safeArea),
+                    Is.True,
+                    $"{screenAssetName}/{control.Attribute("name")?.Value} must remain inside its screen-owned SafeArea.");
+            }
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_ExposeSwitchableAuthoringPreviewRoot(string screenAssetName)
+        {
+            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var document = XDocument.Load(Path.GetFullPath(assetPath));
+            var previewRoot = document
+                .Descendants()
+                .Single(element => element.Name.LocalName.EndsWith("AdaptiveUiPreviewRoot"));
+            var safeArea = document
+                .Descendants()
+                .Single(element => element.Name.LocalName == "Bitbebop.SafeArea");
+
+            Assert.That(
+                previewRoot.Attribute("preview-profile")?.Value,
+                Is.EqualTo(nameof(AdaptiveUiProfile.PhoneLandscape)));
+            Assert.That(safeArea.Ancestors().Contains(previewRoot), Is.True);
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_ExposeAuthoringCopyOrLocalizedIconTooltipsInUiBuilder(string screenAssetName)
+        {
+            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var document = XDocument.Load(Path.GetFullPath(assetPath));
+            var textControls = document
+                .Descendants()
+                .Where(element =>
+                    element.Name.LocalName == "Label" ||
+                    element.Name.LocalName == "Button" ||
+                    element.Name.LocalName == "Toggle")
+                .ToArray();
+
+            Assert.That(textControls, Is.Not.Empty);
+            foreach (var control in textControls)
+            {
+                var isIconOnly = (control.Attribute("class")?.Value ?? string.Empty)
+                    .Split(' ')
+                    .Contains("icon-only-button");
+                var localizedProperty = isIconOnly ? "tooltip" : "text";
+                var previewText = control.Attribute("text")?.Value;
+                var localizationBinding = control
+                    .Descendants()
+                    .SingleOrDefault(element =>
+                        element.Name.LocalName.EndsWith("LocalizedString") &&
+                        element.Attribute("property")?.Value == localizedProperty);
+                var controlName = control.Attribute("name")?.Value ?? control.Name.LocalName;
+
+                Assert.That(
+                    !string.IsNullOrWhiteSpace(previewText) || localizationBinding != null,
+                    Is.True,
+                    $"{screenAssetName}/{controlName} needs localized copy or an icon-only tooltip.");
+
+                if (localizationBinding == null)
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    localizationBinding.Attribute("table")?.Value,
+                    Is.EqualTo($"GUID:{UiTableGuid}"),
+                    $"{screenAssetName}/{controlName} must bind to the authoritative UI table.");
+                Assert.That(
+                    localizationBinding.Attribute("entry")?.Value,
+                    Is.Not.Null.And.Not.Empty,
+                    $"{screenAssetName}/{controlName} has no localization key.");
+
+                if (isIconOnly)
+                {
+                    Assert.That(
+                        control
+                            .Descendants()
+                            .Any(element =>
+                                element.Name.LocalName.EndsWith("LocalizedString") &&
+                                element.Attribute("property")?.Value == "text"),
+                        Is.False,
+                        $"{screenAssetName}/{controlName} must not render localized text below its icon.");
+                }
+            }
+        }
+
+        [TestCase("Login")]
+        [TestCase("Hub")]
+        [TestCase("Match")]
         [TestCase("MatchPrototype")]
         [TestCase("AnimationLab")]
         public void DevelopmentSceneOverride_AcceptsRetainedLaunchScenes(string scene)

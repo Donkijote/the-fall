@@ -9,7 +9,13 @@ EditorBuildSettings:
     path: Assets/TheFall/Presentation/Scenes/Bootstrap.unity
     guid: c2c2facf2ebdb4686bd4a2d83e330258
   - enabled: 1
-    path: Assets/TheFall/Presentation/Scenes/Home.unity
+    path: Assets/TheFall/Presentation/Scenes/Login.unity
+    guid: b4ef2ca892b394e3b9927f2805179cea
+  - enabled: 1
+    path: Assets/TheFall/Presentation/Scenes/Hub.unity
+    guid: 06048d0c54b564eb1b3eeef05b94d70b
+  - enabled: 1
+    path: Assets/TheFall/Presentation/Scenes/Match.unity
     guid: 42002ca377bab40e9ac1d98d1eead181
   - enabled: 1
     path: Assets/TheFall/Presentation/Scenes/MatchPrototype.unity

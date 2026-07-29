@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using TheFall.Presentation.Interaction;
 using UnityEngine;
+using DeviceScreen = UnityEngine.Device.Screen;
 
 namespace TheFall.Presentation.Table
 {
@@ -613,14 +614,14 @@ namespace TheFall.Presentation.Table
 
         private static Vector2Int GetRuntimeViewport()
         {
-            return Screen.width >= 64 && Screen.height >= 64
-                ? new Vector2Int(Screen.width, Screen.height)
+            return DeviceScreen.width >= 64 && DeviceScreen.height >= 64
+                ? new Vector2Int(DeviceScreen.width, DeviceScreen.height)
                 : new Vector2Int(1920, 1080);
         }
 
         private static Rect GetRuntimeSafeArea(Vector2Int viewport)
         {
-            var safeArea = Screen.safeArea;
+            var safeArea = DeviceScreen.safeArea;
             return safeArea.width > 0f && safeArea.height > 0f
                 ? safeArea
                 : new Rect(0f, 0f, viewport.x, viewport.y);

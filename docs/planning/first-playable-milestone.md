@@ -109,7 +109,11 @@ Milestone acceptance is intentionally limited to a macOS universal development p
 - match load: each of three Home-to-match runs reaches the first accepted interaction within `5 s`
 - endurance: five-minute warm-up followed by a 15-minute measured representative loop
 
-Existing portrait, landscape, touch, safe-area, and orientation tests remain regression coverage and must keep passing. They are not a claim of physical mobile acceptance. Android, iOS, and Windows remain confirmed product targets but require later build, launch, hardware, and support decisions.
+Existing historical portrait evidence predates the landscape-only mobile decision. Current touch,
+safe-area, and orientation regression coverage uses landscape phone/tablet viewports and both
+landscape directions. It is not a claim of broad physical mobile acceptance. Android, iOS, and
+Windows remain confirmed product targets but require later build, launch, hardware, and support
+decisions.
 
 ## Objective acceptance criteria
 

@@ -40,7 +40,7 @@ Exit signal: a recorded intent deterministically produces state and presentation
 - block out the table and upper-body seating
 - establish the fixed cinematic overhead camera
 - test 1v1, three-player, and 2v2 composition
-- test landscape, portrait, and desktop aspect ratios
+- test representative phone/tablet landscape and desktop aspect ratios
 
 Exit signal: all seats, hands, table cards, names, and scores are legible with prototype geometry.
 
@@ -67,7 +67,7 @@ Exit signal: at least one representative character, table/prop, and card asset c
 - build a focused animation experiment scene
 - implement play, capture, and representative Fall sequences
 - drive a sequence from recorded domain events
-- test seats, orientations, skip, and performance behavior
+- test seats, both landscape directions, skip, and performance behavior
 
 Exit signal: presentation can consume rule outcomes without controlling them.
 

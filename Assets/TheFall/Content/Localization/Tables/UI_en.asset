@@ -614,7 +614,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386951
-    m_Localized: "ENTER THE REALM  \u2192"
+    m_Localized: ENTER THE REALM
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386952
@@ -702,11 +702,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035009
-    m_Localized: G
+    m_Localized: Continue with Google
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035010
-    m_Localized: A
+    m_Localized: Continue with Apple
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035011

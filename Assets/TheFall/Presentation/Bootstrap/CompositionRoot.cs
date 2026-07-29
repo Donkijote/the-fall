@@ -4,6 +4,8 @@ using TheFall.Domain;
 using TheFall.Infrastructure;
 using TheFall.Presentation.Diagnostics;
 using TheFall.Presentation.Input;
+using TheFall.Presentation.Scenes;
+using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,18 +26,22 @@ namespace TheFall.Presentation.Bootstrap
         private static readonly PlayerId BotId = new PlayerId("baseline-bot");
         private static readonly string[] DevelopmentScenes =
         {
-            "Home",
+            FirstPlayableSceneContract.LoginSceneName,
+            FirstPlayableSceneContract.HubSceneName,
+            FirstPlayableSceneContract.MatchSceneName,
             "MatchPrototype",
             "AnimationLab",
         };
 
-        private bool _loadHomeOnStart;
+        private bool _loadFirstPlayableOnStart;
 
         public static CompositionRoot Instance { get; private set; }
 
         public bool IsComposed { get; private set; }
 
         public FirstPlayableFlow FirstPlayableFlow { get; private set; }
+
+        public FirstPlayablePresentationState FirstPlayablePresentationState { get; private set; }
 
         private void Awake()
         {
@@ -45,7 +51,7 @@ namespace TheFall.Presentation.Bootstrap
                 return;
             }
 
-            _loadHomeOnStart = gameObject.scene.name == "Bootstrap";
+            _loadFirstPlayableOnStart = gameObject.scene.name == "Bootstrap";
             Instance = this;
             Compose();
             DontDestroyOnLoad(gameObject);
@@ -53,12 +59,14 @@ namespace TheFall.Presentation.Bootstrap
 
         private void Start()
         {
-            if (_loadHomeOnStart)
+            if (_loadFirstPlayableOnStart)
             {
                 var sceneOverride = ResolveDevelopmentSceneOverride(
                     Environment.GetCommandLineArgs(),
                     Debug.isDebugBuild);
-                SceneManager.LoadSceneAsync(sceneOverride ?? "Home", LoadSceneMode.Single);
+                SceneManager.LoadSceneAsync(
+                    sceneOverride ?? FirstPlayableSceneContract.LoginSceneName,
+                    LoadSceneMode.Single);
             }
         }
 
@@ -79,6 +87,7 @@ namespace TheFall.Presentation.Bootstrap
 
             GetComponent<InputIntentSource>().ValidateConfiguration();
             FirstPlayableFlow = new FirstPlayableFlow(CreateFirstPlayableMatch);
+            FirstPlayablePresentationState = new FirstPlayablePresentationState();
             FirstPlayableAcceptanceProbe.AttachWhenRequested(gameObject);
             IsComposed = true;
         }

@@ -37,7 +37,7 @@ namespace TheFall.Editor
                 .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
                 .SingleOrDefault();
             purpose?.SetDescription(
-                "Stationary-camera table and cross-platform card-interaction prototype for shared touch, mouse, and keyboard application intents across safe-area-aware portrait, landscape, and desktop profiles.");
+                "Stationary-camera table and cross-platform card-interaction prototype for shared touch, mouse, and keyboard application intents across safe-area-aware mobile-landscape and desktop profiles.");
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);

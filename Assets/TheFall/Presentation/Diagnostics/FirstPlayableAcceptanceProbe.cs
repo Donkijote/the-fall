@@ -16,6 +16,8 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Profiling;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
+using DeviceApplication = UnityEngine.Device.Application;
+using DeviceScreen = UnityEngine.Device.Screen;
 
 namespace TheFall.Presentation.Diagnostics
 {
@@ -138,8 +140,8 @@ namespace TheFall.Presentation.Diagnostics
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_outputPath)) ?? ".");
-            UnityEngine.Application.targetFrameRate = UnityEngine.Application.isMobilePlatform ? 60 : -1;
-            if (!UnityEngine.Application.isMobilePlatform)
+            UnityEngine.Application.targetFrameRate = DeviceApplication.isMobilePlatform ? 60 : -1;
+            if (!DeviceApplication.isMobilePlatform)
             {
                 Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
             }
@@ -171,7 +173,7 @@ namespace TheFall.Presentation.Diagnostics
                 yield return null;
             }
 
-            if (!UnityEngine.Application.isMobilePlatform)
+            if (!DeviceApplication.isMobilePlatform)
             {
                 Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
                 _observedResolutions.Add("1920x1080");
@@ -416,7 +418,7 @@ namespace TheFall.Presentation.Diagnostics
 
         private void ApplyNextResolution()
         {
-            if (UnityEngine.Application.isMobilePlatform)
+            if (DeviceApplication.isMobilePlatform)
             {
                 ObserveDisplay();
                 return;
@@ -478,8 +480,8 @@ namespace TheFall.Presentation.Diagnostics
 
         private void ObserveDisplay()
         {
-            _observedResolutions.Add($"{Screen.width}x{Screen.height}");
-            _observedOrientations.Add(Screen.orientation.ToString());
+            _observedResolutions.Add($"{DeviceScreen.width}x{DeviceScreen.height}");
+            _observedOrientations.Add(DeviceScreen.orientation.ToString());
         }
 
         private void QuitSuccessfully(string status)
@@ -517,9 +519,9 @@ namespace TheFall.Presentation.Diagnostics
             AppendJson(report, "graphicsMemoryMiB", SystemInfo.graphicsMemorySize, true);
             AppendJson(report, "displayRefreshRateHz", Screen.currentResolution.refreshRateRatio.value, true);
             AppendJson(report, "targetFrameRate", UnityEngine.Application.targetFrameRate, true);
-            AppendJson(report, "screenWidth", Screen.width, true);
-            AppendJson(report, "screenHeight", Screen.height, true);
-            AppendJson(report, "screenOrientation", Screen.orientation.ToString(), true);
+            AppendJson(report, "screenWidth", DeviceScreen.width, true);
+            AppendJson(report, "screenHeight", DeviceScreen.height, true);
+            AppendJson(report, "screenOrientation", DeviceScreen.orientation.ToString(), true);
             AppendJson(report, "homeReadySeconds", _homeReadySeconds, true);
             AppendJson(report, "homeToUsableMatchSeconds", _homeToMatchSeconds, true);
             AppendJson(report, "warmupSeconds", _warmupSeconds, true);

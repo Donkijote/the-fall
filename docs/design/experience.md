@@ -28,21 +28,22 @@ Captured piles remain visually owned by the character who earned them even when 
 
 - mobile uses touch input
 - desktop uses mouse and keyboard
-- mobile supports landscape and portrait orientation
+- phones and tablets use landscape only, with both landscape directions supported
 
 **Confirmed interaction principle:** Inputs express game intent—select card, inspect card, play card, confirm choice, or cancel—while deterministic rules decide whether and how the intent resolves. Captures are mandatory and automatic when a played rank is already on the table; the player does not choose whether or what to capture.
 
 Issue #7's working shared-intent sequence, touch/mouse/keyboard mappings, semantic feedback states, and orientation-preservation behavior are recorded in the [cross-platform card interaction prototype](card-interaction-prototype.md). Those controls and visual treatments are V0 evidence rather than final production approval.
 
-Issue #43 promotes the V0.1 screen-space foundation to three authored compositions: desktop, mobile
-portrait, and mobile landscape. It records the physical-phone audit, measurable readability and
+Issue #43 provides the V0.1 screen-space foundation for desktop and mobile landscape. It records the
+physical-phone audit, measurable readability and
 target-size expectations, safe-area contract, decision hierarchy, reusable component/state classes,
 and retained regression boundary in the [adaptive UI foundation](adaptive-ui-foundation.md).
 
 ## Readability
 
+- every player-facing screen and modal must fit one safe viewport without horizontal or vertical scrolling
 - the active player must be unmistakable
-- the local hand must remain readable in both orientations
+- the local hand must remain readable on representative phone and tablet landscape viewports
 - scores, teams, turn order, and canto state must not depend only on color
 - important captures and scoring events should be visually traceable
 - animation should not block essential decisions longer than necessary
@@ -52,7 +53,7 @@ and retained regression boundary in the [adaptive UI foundation](adaptive-ui-fou
 - production camera angle, field of view, and safe framing thresholds beyond the V0 prototype
 - production tap-versus-drag behavior and input customization beyond the V0 tap/select/confirm prototype
 - card inspection and zoom behavior
-- production portrait and landscape composition beyond the V0.1 adaptive UI foundation
+- production phone and tablet landscape composition beyond the V0.1 adaptive UI foundation
 - how remote player hands are represented
 - avatar source and placement
 - accessibility options, animation speed, and reduced-motion behavior
