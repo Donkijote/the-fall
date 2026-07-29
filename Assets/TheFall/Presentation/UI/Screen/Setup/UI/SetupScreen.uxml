@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="FlowShared.uss" />
-    <Style src="SetupScreen.uss" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Setup/Styles/SetupScreen.uss?fileID=7433441132597879392&amp;guid=40821aede333d49d59a3c02825946867&amp;type=3#SetupScreen" />
     <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
     <ui:VisualElement name="setup-stage" class="stage stage-setup">
         <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area player-safe-area-centered">

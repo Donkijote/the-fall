@@ -22,7 +22,7 @@ scene.
 authoritative `FirstPlayableFlow` and presentation-session preferences, then loads one mutually
 exclusive presentation scene:
 
-- `Login` owns the gateway UI and its `LoginScreen.uxml`/`LoginScreen.uss` pair.
+- `Login` owns the gateway UI and its screen-local `UI`/`Styles` assets.
 - `Hub` owns the hub and settings UI. The legacy setup screen remains a Hub substate.
 - `Match` owns loading, the fixed-camera table, match HUD, result presentation, animation, and audio.
 
@@ -35,6 +35,11 @@ domain state.
 
 Each screen asset also owns its `Bitbebop.SafeArea`. Scene controllers select responsive profiles but
 do not apply physical UI insets.
+
+Screen assets use `Screen/<Name>/UI` and `Screen/<Name>/Styles` folders. Cross-screen USS rules live
+under `Screen/Shared/Styles`; screen-specific profile cascades stay inside that screen's Styles
+folder. Moving these assets must preserve their Unity metas so serialized scene references remain
+stable.
 
 Each authoritative UXML owns an `AdaptiveUiPreviewRoot` whose Inspector exposes Phone Landscape,
 Tablet Landscape, and Desktop authoring profiles. UI Builder uses that root for a runtime-equivalent

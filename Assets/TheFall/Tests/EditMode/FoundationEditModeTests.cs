@@ -20,6 +20,14 @@ namespace TheFall.Tests.EditMode
     {
         private const string UiTableGuid = "5366e2894cb2a41e782277c1311dfc07";
 
+        private static string ScreenAssetPath(string screenAssetName)
+        {
+            var screenName = screenAssetName.EndsWith("Screen")
+                ? screenAssetName.Substring(0, screenAssetName.Length - "Screen".Length)
+                : screenAssetName;
+            return $"Assets/TheFall/Presentation/UI/Screen/{screenName}/UI/{screenAssetName}.uxml";
+        }
+
         [Test]
         public void DomainAssembly_DoesNotReferenceUnityEngine()
         {
@@ -75,12 +83,13 @@ namespace TheFall.Tests.EditMode
             Assert.That(PlayerSettings.allowedAutorotateToLandscapeRight, Is.True);
         }
 
-        [TestCase("Login", FirstPlayableSceneKind.Login, false)]
-        [TestCase("Hub", FirstPlayableSceneKind.Hub, false)]
-        [TestCase("Match", FirstPlayableSceneKind.Match, true)]
+        [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.PhoneLandscape, false)]
+        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.Desktop, false)]
+        [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
         public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
             string sceneName,
             FirstPlayableSceneKind expectedKind,
+            AdaptiveUiProfile expectedPreviewProfile,
             bool expectsTable)
         {
             var scene = EditorSceneManager.OpenScene(
@@ -98,19 +107,24 @@ namespace TheFall.Tests.EditMode
             var documentRoot = document.rootVisualElement;
             var previewRoot = documentRoot.Q<AdaptiveUiPreviewRoot>();
             var expectedScreen = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                $"Assets/TheFall/Presentation/UI/Screen/{sceneName}Screen.uxml");
+                ScreenAssetPath($"{sceneName}Screen"));
 
             Assert.That(controller.SceneKind, Is.EqualTo(expectedKind));
             Assert.That(controller.enabled, Is.True);
             Assert.That(controller.HasConfiguredScreenAssets, Is.True);
             Assert.That(document.visualTreeAsset, Is.SameAs(expectedScreen));
             Assert.That(previewRoot, Is.Not.Null);
-            Assert.That(previewRoot.PreviewProfile, Is.EqualTo(AdaptiveUiProfile.PhoneLandscape));
+            Assert.That(previewRoot.PreviewProfile, Is.EqualTo(expectedPreviewProfile));
             Assert.That(previewRoot.ClassListContains("authoring-preview-root"), Is.False);
             Assert.That(previewRoot.ClassListContains("screen-root"), Is.False);
             Assert.That(documentRoot.ClassListContains("screen-root"), Is.True);
-            Assert.That(documentRoot.ClassListContains("profile-mobile-landscape"), Is.True);
-            Assert.That(documentRoot.ClassListContains("profile-phone-landscape"), Is.True);
+            Assert.That(
+                documentRoot.ClassListContains(
+                    AdaptiveUiFoundation.ProfileClass(expectedPreviewProfile)),
+                Is.True);
+            Assert.That(
+                documentRoot.ClassListContains("profile-mobile-landscape"),
+                Is.EqualTo(expectedPreviewProfile != AdaptiveUiProfile.Desktop));
             Assert.That(hasTable, Is.EqualTo(expectsTable));
         }
 
@@ -122,7 +136,7 @@ namespace TheFall.Tests.EditMode
         [TestCase("ResultScreen")]
         public void ScreenAssets_DoNotExposePlayerScrolling(string screenAssetName)
         {
-            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var assetPath = ScreenAssetPath(screenAssetName);
             var document = XDocument.Load(Path.GetFullPath(assetPath));
 
             Assert.That(
@@ -139,7 +153,7 @@ namespace TheFall.Tests.EditMode
         [TestCase("ResultScreen")]
         public void ScreenAssets_DelegateInteractiveInsetsToOneSafeAreaElement(string screenAssetName)
         {
-            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var assetPath = ScreenAssetPath(screenAssetName);
             var document = XDocument.Load(Path.GetFullPath(assetPath));
             var safeArea = document
                 .Descendants()
@@ -162,15 +176,17 @@ namespace TheFall.Tests.EditMode
             }
         }
 
-        [TestCase("LoginScreen")]
-        [TestCase("HubScreen")]
-        [TestCase("SetupScreen")]
-        [TestCase("LoadingScreen")]
-        [TestCase("MatchScreen")]
-        [TestCase("ResultScreen")]
-        public void ScreenAssets_ExposeSwitchableAuthoringPreviewRoot(string screenAssetName)
+        [TestCase("LoginScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("HubScreen", AdaptiveUiProfile.Desktop)]
+        [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("ResultScreen", AdaptiveUiProfile.PhoneLandscape)]
+        public void ScreenAssets_ExposeSwitchableAuthoringPreviewRoot(
+            string screenAssetName,
+            AdaptiveUiProfile expectedPreviewProfile)
         {
-            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var assetPath = ScreenAssetPath(screenAssetName);
             var document = XDocument.Load(Path.GetFullPath(assetPath));
             var previewRoot = document
                 .Descendants()
@@ -181,8 +197,50 @@ namespace TheFall.Tests.EditMode
 
             Assert.That(
                 previewRoot.Attribute("preview-profile")?.Value,
-                Is.EqualTo(nameof(AdaptiveUiProfile.PhoneLandscape)));
+                Is.EqualTo(expectedPreviewProfile.ToString()));
             Assert.That(safeArea.Ancestors().Contains(previewRoot), Is.True);
+        }
+
+        [Test]
+        public void HubStyles_KeepProfileCascadeSplitAndExplicit()
+        {
+            var document = XDocument.Load(Path.GetFullPath(
+                ScreenAssetPath("HubScreen")));
+            var hubStyleSources = document.Root?
+                .Elements()
+                .Where(element => element.Name.LocalName == "Style")
+                .Select(element => element.Attribute("src")?.Value)
+                .Where(source => source != null && source.Contains("HubScreen."))
+                .ToArray();
+
+            Assert.That(
+                hubStyleSources,
+                Has.Length.EqualTo(5));
+            var expectedHubStyles = new[]
+            {
+                "HubScreen.Base.uss",
+                "HubScreen.Desktop.uss",
+                "HubScreen.HandheldLandscape.uss",
+                "HubScreen.PhoneLandscape.uss",
+                "HubScreen.TabletLandscape.uss",
+            };
+            for (var index = 0; index < expectedHubStyles.Length; index++)
+            {
+                Assert.That(
+                    hubStyleSources[index],
+                    Does.Contain(expectedHubStyles[index]));
+            }
+
+            var baseStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss"));
+            var handheldStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.HandheldLandscape.uss"));
+
+            Assert.That(baseStyles, Does.Not.Contain(".screen-root.profile-"));
+            Assert.That(handheldStyles, Does.Contain(".screen-root.profile-mobile-landscape"));
+            Assert.That(handheldStyles, Does.Not.Contain(".screen-root.profile-mobile-portrait"));
+            Assert.That(File.Exists(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.uss")), Is.False);
         }
 
         [TestCase("LoginScreen")]
@@ -193,7 +251,7 @@ namespace TheFall.Tests.EditMode
         [TestCase("ResultScreen")]
         public void ScreenAssets_ExposeAuthoringCopyOrLocalizedIconTooltipsInUiBuilder(string screenAssetName)
         {
-            var assetPath = $"Assets/TheFall/Presentation/UI/Screen/{screenAssetName}.uxml";
+            var assetPath = ScreenAssetPath(screenAssetName);
             var document = XDocument.Load(Path.GetFullPath(assetPath));
             var textControls = document
                 .Descendants()

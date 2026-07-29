@@ -556,8 +556,11 @@ namespace TheFall.Editor
 
         private static VisualTreeAsset LoadScreenAsset(string screenAssetName)
         {
+            var screenName = screenAssetName.EndsWith("Screen", StringComparison.Ordinal)
+                ? screenAssetName.Substring(0, screenAssetName.Length - "Screen".Length)
+                : screenAssetName;
             return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                $"{ScreenUiDirectory}/{screenAssetName}.uxml");
+                $"{ScreenUiDirectory}/{screenName}/UI/{screenAssetName}.uxml");
         }
 
         private static EntryDefinition Text(string key, string value)

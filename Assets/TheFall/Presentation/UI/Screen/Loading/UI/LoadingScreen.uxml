@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="FlowShared.uss" />
-    <Style src="LoadingScreen.uss" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Loading/Styles/LoadingScreen.uss?fileID=7433441132597879392&amp;guid=fca678cba337649309db81860e68d24c&amp;type=3#LoadingScreen" />
     <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
     <ui:VisualElement name="loading-stage" class="stage stage-loading">
         <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area player-safe-area-centered">

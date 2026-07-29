@@ -109,9 +109,9 @@ namespace TheFall.Editor
                 Require(File.Exists($"{SceneDirectory}/{sceneName}.unity"), $"{sceneName} scene is missing.", errors);
             }
 
-            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/LoginScreen.uxml") != null, "Login UI Toolkit screen is missing.", errors);
-            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/HubScreen.uxml") != null, "Hub UI Toolkit screen is missing.", errors);
-            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenUiDirectory + "/MatchScreen.uxml") != null, "Match UI Toolkit screen is missing.", errors);
+            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenAssetPath("Login")) != null, "Login UI Toolkit screen is missing.", errors);
+            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenAssetPath("Hub")) != null, "Hub UI Toolkit screen is missing.", errors);
+            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(ScreenAssetPath("Match")) != null, "Match UI Toolkit screen is missing.", errors);
             Require(AssetDatabase.LoadAssetAtPath<GameObject>(WorldSpaceLabelPath) != null, "World-space TextMeshPro foundation is missing.", errors);
 
             if (errors.Count > 0)
@@ -347,9 +347,14 @@ namespace TheFall.Editor
             var document = ui.GetComponent<UIDocument>();
             document.panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
             document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                ScreenUiDirectory + "/" + sceneName + "Screen.uxml");
+                ScreenAssetPath(sceneName));
 
             SaveScene(scene, sceneName);
+        }
+
+        private static string ScreenAssetPath(string screenName)
+        {
+            return $"{ScreenUiDirectory}/{screenName}/UI/{screenName}Screen.uxml";
         }
 
         private static void CreatePrototypeScene(string sceneName, string purpose, bool includeWorldSpaceUi)

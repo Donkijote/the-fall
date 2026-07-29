@@ -1,0 +1,988 @@
+/*
+ * Hub rules shared by Desktop, Phone Landscape, and Tablet Landscape.
+ * Profile files load after this file and override only their deliberate differences.
+ */
+
+/* Core shell, identity, resources, objective, navigation, and chat components. */
+.stage-home {
+    flex-direction: row;
+}
+
+.home-card {
+    width: 38%;
+    min-width: 330px;
+    max-width: 480px;
+    padding: 32px;
+}
+
+.home-card > .primary-button {
+    width: 100%;
+}
+
+.stage-home {
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.hub-content {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(36, 26, 20, 0.20);
+}
+
+/* Later base component refinements. Equal-specificity declarations below win within this file. */
+.hub-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    padding: 26px 30px 30px 30px;
+}
+
+.hub-topbar,
+.hub-bottombar,
+.hub-stats,
+.hub-route,
+.hub-identity,
+.hub-connection,
+.hub-brief-row {
+    flex-direction: row;
+}
+
+.hub-topbar {
+    min-height: 86px;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+.hub-identity {
+    width: 27%;
+    min-width: 260px;
+    max-width: 370px;
+    padding: 12px 16px;
+    align-items: center;
+    border-left-width: 3px;
+    border-left-color: rgb(181, 139, 62);
+}
+
+.hub-identity-seal {
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    align-items: center;
+    justify-content: center;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+    border-radius: 29px;
+    background-color: rgb(36, 26, 20);
+}
+
+.hub-seal-label {
+    color: rgb(245, 226, 176);
+    font-size: 17px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.hub-identity-copy {
+    flex-grow: 1;
+    margin-left: 14px;
+}
+
+.hub-title {
+    color: rgb(245, 226, 176);
+    font-size: 23px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    white-space: normal;
+}
+
+.hub-kicker {
+    margin-top: 4px;
+    color: rgb(181, 139, 62);
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    white-space: normal;
+}
+
+.hub-ready-dot {
+    width: 10px;
+    height: 10px;
+    margin-left: 10px;
+    border-radius: 5px;
+    background-color: rgb(107, 140, 70);
+}
+
+.hub-stats {
+    flex-grow: 1;
+    justify-content: center;
+    margin-left: 18px;
+    margin-right: 18px;
+}
+
+.hub-stat {
+    width: 29%;
+    min-width: 112px;
+    max-width: 160px;
+    margin-left: 6px;
+    margin-right: 6px;
+    padding: 12px 18px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom-width: 3px;
+}
+
+.hub-stat-brass {
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-stat-woad {
+    border-bottom-color: rgb(70, 92, 115);
+}
+
+.hub-stat-madder {
+    border-bottom-color: rgb(141, 66, 56);
+}
+
+.hub-stat-value {
+    margin-top: 7px;
+    color: rgb(245, 226, 176);
+    font-size: 23px;
+    -unity-font-style: bold;
+}
+
+.hub-connection {
+    width: 18%;
+    min-width: 172px;
+    max-width: 230px;
+    padding: 12px 16px;
+    align-items: center;
+}
+
+.hub-connection-mark {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background-color: rgba(70, 92, 115, 0.42);
+}
+
+.hub-connection-icon {
+    color: rgb(107, 140, 70);
+    font-size: 18px;
+}
+
+.hub-connection-title {
+    color: rgb(245, 226, 176);
+    font-size: 13px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.hub-connection-detail {
+    margin-top: 3px;
+    color: rgb(160, 144, 118);
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.hub-center-space {
+    flex-grow: 1;
+    min-height: 170px;
+    align-items: center;
+    justify-content: center;
+}
+
+.hub-watermark {
+    width: 138px;
+    height: 138px;
+    align-items: center;
+    justify-content: center;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgba(216, 196, 147, 0.16);
+    border-right-color: rgba(216, 196, 147, 0.16);
+    border-top-color: rgba(216, 196, 147, 0.16);
+    border-bottom-color: rgba(216, 196, 147, 0.16);
+    border-radius: 69px;
+    background-color: rgba(59, 41, 31, 0.24);
+}
+
+.hub-watermark-label {
+    color: rgba(216, 196, 147, 0.18);
+    font-size: 38px;
+    -unity-font-style: bold;
+    letter-spacing: 5px;
+}
+
+.hub-bottombar {
+    min-height: 190px;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+.hub-objective,
+.hub-brief {
+    width: 27%;
+    min-width: 260px;
+    max-width: 400px;
+    padding: 22px 24px;
+}
+
+.hub-objective {
+    border-left-width: 3px;
+    border-left-color: rgb(141, 66, 56);
+}
+
+.hub-card-title {
+    margin-top: 14px;
+    color: rgb(245, 226, 176);
+    font-size: 20px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.hub-card-copy {
+    margin-top: 8px;
+    color: rgb(181, 165, 134);
+    font-size: 13px;
+    white-space: normal;
+}
+
+.hub-objective-progress {
+    height: 6px;
+    margin-top: auto;
+    border-radius: 3px;
+    background-color: rgba(216, 196, 147, 0.15);
+}
+
+.hub-progress-fill {
+    width: 34%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgb(141, 66, 56);
+}
+
+.hub-objective-meta {
+    margin-top: 9px;
+    color: rgb(160, 144, 118);
+    font-size: 10px;
+    -unity-text-align: upper-right;
+    white-space: normal;
+}
+
+.hub-dock {
+    width: 40%;
+    min-width: 390px;
+    max-width: 570px;
+    margin-left: 16px;
+    margin-right: 16px;
+    padding: 18px 22px;
+    border-top-width: 2px;
+    border-top-color: rgb(181, 139, 62);
+}
+
+.hub-route-label {
+    color: rgb(181, 139, 62);
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+}
+
+.hub-route {
+    flex-grow: 1;
+    min-height: 100px;
+    margin-top: 10px;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.hub-route-button,
+.hub-route-stop {
+    width: 30%;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.hub-route-button {
+    min-height: 96px;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: rgb(245, 226, 176);
+    background-color: rgb(141, 66, 56);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(110, 46, 40);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(110, 46, 40);
+    font-size: 14px;
+}
+
+.hub-route-stop {
+    opacity: 0.72;
+}
+
+.hub-route-icon {
+    color: rgb(160, 144, 118);
+    font-size: 24px;
+    -unity-text-align: middle-center;
+}
+
+.hub-route-copy {
+    margin-top: 7px;
+    color: rgb(197, 178, 142);
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.hub-route-divider {
+    width: 1px;
+    height: 64%;
+    align-self: center;
+    background-color: rgba(216, 196, 147, 0.18);
+}
+
+.hub-prompt {
+    margin-top: 8px;
+    font-size: 11px;
+}
+
+.hub-brief {
+    border-right-width: 3px;
+    border-right-color: rgb(70, 92, 115);
+}
+
+.hub-brief-rule {
+    height: 1px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    background-color: rgba(216, 196, 147, 0.22);
+}
+
+.hub-brief-row {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(216, 196, 147, 0.10);
+}
+
+.hub-brief-key {
+    width: 36%;
+    color: rgb(160, 144, 118);
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.hub-brief-value {
+    width: 62%;
+    color: rgb(216, 196, 147);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+    white-space: normal;
+}
+
+.hub-layout {
+    padding: 18px 24px 22px 24px;
+    background-color: rgba(36, 26, 20, 0.82);
+}
+
+.hub-xp-row {
+    margin-top: 6px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.hub-xp-track {
+    width: 78%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgba(216, 196, 147, 0.16);
+}
+
+.hub-xp-fill {
+    width: 72%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgb(70, 92, 115);
+}
+
+.hub-xp-label {
+    margin-left: 8px;
+    color: rgb(160, 144, 118);
+    font-size: 9px;
+}
+
+.hub-level-value {
+    min-width: 28px;
+    height: 28px;
+    margin-left: 10px;
+    padding-left: 7px;
+    padding-right: 7px;
+    color: rgb(245, 226, 176);
+    background-color: rgb(36, 26, 20);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+    border-radius: 5px;
+    -unity-text-align: middle-center;
+}
+
+.hub-resource-icon {
+    margin-right: 0;
+    font-size: 19px;
+    -unity-font-style: bold;
+}
+
+.hub-resource-brass {
+    color: rgb(181, 139, 62);
+}
+
+.hub-resource-woad {
+    color: rgb(112, 136, 155);
+}
+
+.hub-resource-madder {
+    color: rgb(141, 66, 56);
+}
+
+.hub-energy-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background-color: rgba(216, 196, 147, 0.10);
+}
+
+.hub-energy-fill {
+    width: 75%;
+    height: 4px;
+    background-color: rgb(70, 92, 115);
+}
+
+.hub-top-actions {
+    width: 116px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.hub-square-button {
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+    min-height: 50px;
+    margin-left: 8px;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(216, 196, 147);
+    background-color: rgba(59, 41, 31, 0.96);
+    border-left-color: rgba(216, 196, 147, 0.35);
+    border-right-color: rgba(216, 196, 147, 0.35);
+    border-top-color: rgba(216, 196, 147, 0.35);
+    border-bottom-color: rgba(216, 196, 147, 0.35);
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+.hub-mail-dot {
+    position: absolute;
+    right: -4px;
+    top: -5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 5px;
+    background-color: rgb(141, 66, 56);
+}
+
+.hub-center-space {
+    min-height: 150px;
+}
+
+.hub-bottombar {
+    min-height: 220px;
+    align-items: flex-end;
+}
+
+.hub-objective {
+    width: 25%;
+    min-width: 270px;
+    max-width: 380px;
+    min-height: 220px;
+}
+
+.hub-quest-button {
+    min-height: 42px;
+    margin-top: 14px;
+    color: rgb(245, 226, 176);
+    background-color: rgb(141, 66, 56);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(110, 46, 40);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(110, 46, 40);
+    font-size: 13px;
+}
+
+.hub-dock {
+    width: 36%;
+    min-width: 410px;
+    max-width: 560px;
+    min-height: 142px;
+    padding: 12px 16px;
+}
+
+.hub-route {
+    min-height: 104px;
+    margin-top: 0;
+}
+
+.hub-nav-button {
+    width: 24%;
+    min-width: 0;
+    min-height: 94px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: rgb(181, 165, 134);
+    background-color: rgba(36, 26, 20, 0.48);
+    border-left-color: rgba(216, 196, 147, 0.18);
+    border-right-color: rgba(216, 196, 147, 0.18);
+    border-top-color: rgba(216, 196, 147, 0.18);
+    border-bottom-color: rgba(216, 196, 147, 0.18);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.hub-nav-selected {
+    color: rgb(245, 226, 176);
+    background-color: rgb(59, 41, 31);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-action-status {
+    min-height: 16px;
+    margin-top: 5px;
+    color: rgb(160, 144, 118);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.hub-chat {
+    width: 31%;
+    min-width: 330px;
+    max-width: 430px;
+    min-height: 220px;
+    padding: 8px;
+    overflow: hidden;
+    border-right-width: 3px;
+    border-right-color: rgb(70, 92, 115);
+}
+
+.hub-chat-tabs,
+.hub-chat-input-row {
+    flex-direction: row;
+}
+
+.hub-chat-tabs {
+    min-height: 38px;
+    max-height: 38px;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: rgb(36, 26, 20);
+}
+
+.hub-chat-tab {
+    width: auto;
+    min-width: 0;
+    flex-basis: 0;
+    flex-grow: 1;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(160, 144, 118);
+    background-color: rgb(36, 26, 20);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-color: rgba(216, 196, 147, 0.16);
+    border-radius: 0;
+    font-size: 11px;
+}
+
+.hub-chat-tab-active {
+    color: rgb(245, 226, 176);
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-chat-feed {
+    flex-grow: 1;
+    min-height: 76px;
+    padding: 10px 12px 8px 12px;
+    overflow: hidden;
+    border-radius: 6px;
+    background-color: rgba(36, 26, 20, 0.54);
+}
+
+.hub-chat-date {
+    margin-bottom: 8px;
+    color: rgb(116, 105, 88);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+}
+
+.hub-chat-message {
+    margin-top: 6px;
+    color: rgb(197, 178, 142);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.hub-chat-user-message {
+    color: rgb(112, 136, 155);
+}
+
+.hub-chat-input-label {
+    margin-top: 7px;
+    margin-left: 4px;
+    color: rgb(116, 105, 88);
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.hub-chat-input-row {
+    height: 42px;
+    min-height: 42px;
+    flex-shrink: 0;
+    padding: 4px 0 0 0;
+}
+
+.hub-chat-input {
+    flex-grow: 1;
+    min-width: 0;
+    height: 38px;
+    min-height: 38px;
+    color: rgb(216, 196, 147);
+    background-color: rgb(36, 26, 20);
+    border-left-color: rgba(216, 196, 147, 0.28);
+    border-right-color: rgba(216, 196, 147, 0.28);
+    border-top-color: rgba(216, 196, 147, 0.28);
+    border-bottom-color: rgba(216, 196, 147, 0.28);
+}
+
+.hub-chat-input .unity-base-text-field__input {
+    padding-left: 10px;
+    padding-right: 10px;
+    color: rgb(216, 196, 147);
+    background-color: rgba(36, 26, 20, 0);
+}
+
+.hub-chat-send {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    min-height: 38px;
+    margin-left: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(245, 226, 176);
+    background-color: rgb(70, 92, 115);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.hub-modal {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(15, 12, 10, 0.72);
+}
+
+.hub-modal-card {
+    width: 44%;
+    min-width: 420px;
+    max-width: 640px;
+    padding: 34px;
+    border-top-width: 3px;
+    border-top-color: rgb(181, 139, 62);
+}
+
+.hub-modal-card > Button {
+    align-self: flex-end;
+    min-width: 150px;
+}
+
+/* Settings and modal components shared by every profile. */
+.hub-settings-content {
+    display: none;
+    max-height: 540px;
+    margin-top: 22px;
+    margin-bottom: 24px;
+    padding-right: 10px;
+}
+
+.hub-settings-group {
+    margin-bottom: 22px;
+    padding-top: 16px;
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.25);
+}
+
+.hub-settings-heading {
+    color: rgb(245, 226, 176);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+
+.hub-settings-intro {
+    margin-top: 7px;
+    margin-bottom: 14px;
+    color: rgb(174, 162, 139);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.hub-settings-grid,
+.hub-settings-compact-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.hub-setting-card {
+    width: 48%;
+    min-height: 126px;
+    margin-right: 2%;
+    margin-bottom: 10px;
+    padding: 16px;
+    background-color: rgba(41, 32, 25, 0.9);
+    border-left-width: 2px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-width: 1px;
+    border-right-color: rgba(216, 196, 147, 0.18);
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.18);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(216, 196, 147, 0.18);
+}
+
+.hub-setting-toggle {
+    min-height: 44px;
+    margin-right: 14px;
+    margin-bottom: 8px;
+    color: rgb(231, 218, 184);
+    font-size: 13px;
+    white-space: normal;
+}
+
+.hub-setting-toggle .unity-toggle__label {
+    white-space: normal;
+}
+
+.hub-modal.hub-modal-settings .hub-modal-card {
+    width: 56%;
+    max-width: 760px;
+}
+
+.hub-settings-compact-grid .hub-setting-toggle {
+    width: 46%;
+    padding: 11px 12px;
+    background-color: rgba(41, 32, 25, 0.72);
+    border-left-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.22);
+    border-right-width: 1px;
+    border-right-color: rgba(216, 196, 147, 0.22);
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.22);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(216, 196, 147, 0.22);
+}
+
+.hub-setting-description {
+    color: rgb(157, 146, 126);
+    font-size: 11px;
+    white-space: normal;
+}
+
+/* Hub-specific icon placement and sizing shared by every profile. */
+.hub-seal-icon {
+    width: 38px;
+    height: 38px;
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.hub-resource-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.hub-resource-brass {
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.hub-resource-woad {
+    -unity-background-image-tint-color: rgb(112, 136, 155);
+}
+
+.hub-resource-madder {
+    -unity-background-image-tint-color: rgb(141, 66, 56);
+}
+
+.hub-square-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 27px;
+    height: 27px;
+    margin-left: -14px;
+    margin-top: -14px;
+    -unity-background-image-tint-color: rgb(216, 196, 147);
+}
+
+.hub-nav-button {
+    position: relative;
+    padding-top: 48px;
+}
+
+.hub-nav-icon {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    -unity-background-image-tint-color: rgb(181, 165, 134);
+}
+
+.hub-nav-selected .hub-nav-icon {
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.hub-send-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.hub-settings-title-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.hub-icon-credit {
+    margin-top: 4px;
+    color: rgb(116, 105, 88);
+    font-size: 10px;
+    white-space: normal;
+}
+
+.hub-settings-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 10px;
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+/*
+ * The Hub and every modal are single-viewport compositions. Settings become three responsive
+ * columns so neither the shell nor the modal needs a vertical or horizontal scroller.
+ */
+.hub-settings-content {
+    position: relative;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    overflow: hidden;
+    max-height: none;
+    min-height: 0;
+    padding-right: 0;
+    padding-bottom: 22px;
+}
+
+.hub-settings-group {
+    width: 32%;
+    min-width: 0;
+    margin-right: 1.33%;
+    margin-bottom: 0;
+    padding: 14px;
+}
+
+.hub-settings-rules {
+    width: 36%;
+}
+
+.hub-settings-audio,
+.hub-settings-motion {
+    width: 30%;
+}
+
+.hub-settings-grid,
+.hub-settings-compact-grid {
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.hub-setting-card,
+.hub-settings-compact-grid .hub-setting-toggle {
+    width: 100%;
+    min-height: 0;
+    margin-right: 0;
+    margin-bottom: 8px;
+}
+
+.hub-icon-credit {
+    position: absolute;
+    left: 14px;
+    bottom: 0;
+}
+
+.hub-modal.hub-modal-settings .hub-modal-card {
+    width: 88%;
+    max-width: 1420px;
+    max-height: 92%;
+    padding: 26px 30px;
+}

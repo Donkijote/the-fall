@@ -32,7 +32,8 @@ application/domain state.
 ## Consequences
 
 - UI Builder opens each screen without unrelated overlapping stages.
-- A screen's structure and screen-specific styling have one authoritative asset pair.
+- A screen's structure and screen-specific styling have one authoritative screen folder, split into
+  `UI` and `Styles` subfolders.
 - Shared tokens, component styles, icon treatment, and adaptive profile rules remain in
   `FlowShared.uss`.
 - Screen transitions allocate a small transient UI hierarchy and require one panel/layout update

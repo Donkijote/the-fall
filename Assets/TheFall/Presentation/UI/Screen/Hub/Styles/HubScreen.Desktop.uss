@@ -1,0 +1,6 @@
+/*
+ * Desktop-only Hub overrides.
+ *
+ * Prefix every selector with:
+ * .screen-root.profile-desktop
+ */

@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="FlowShared.uss" />
-    <Style src="MatchScreen.uss" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Styles/MatchScreen.uss?fileID=7433441132597879392&amp;guid=adf73f00e6b66402b8f94704904a3c6b&amp;type=3#MatchScreen" />
     <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
     <ui:VisualElement name="match-stage" class="stage stage-match">
         <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">

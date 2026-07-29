@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared"/>
-    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/LoginScreen.uss?fileID=7433441132597879392&amp;guid=85f841a7aa1fe4941ae51944759aa4b0&amp;type=3#LoginScreen"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Styles/LoginScreen.uss?fileID=7433441132597879392&amp;guid=85f841a7aa1fe4941ae51944759aa4b0&amp;type=3#LoginScreen"/>
     <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
     <ui:VisualElement name="login-stage" class="stage stage-login">
         <ui:VisualElement picking-mode="Ignore" class="login-backdrop"/>

@@ -10,12 +10,12 @@ the visible layout.
 
 | Screen | Structure | Screen-specific style |
 | --- | --- | --- |
-| Login | `LoginScreen.uxml` | `LoginScreen.uss` |
-| Hub and Settings | `HubScreen.uxml` | `HubScreen.uss` |
-| Legacy explicit setup route | `SetupScreen.uxml` | `SetupScreen.uss` |
-| Loading | `LoadingScreen.uxml` | `LoadingScreen.uss` |
-| Match HUD and contextual actions | `MatchScreen.uxml` | `MatchScreen.uss` |
-| Result | `ResultScreen.uxml` | `ResultScreen.uss` |
+| Login | `Screen/Login/UI/LoginScreen.uxml` | `Screen/Login/Styles/LoginScreen.uss` |
+| Hub and Settings | `Screen/Hub/UI/HubScreen.uxml` | ordered `Screen/Hub/Styles/HubScreen.*.uss` cascade described below |
+| Legacy explicit setup route | `Screen/Setup/UI/SetupScreen.uxml` | `Screen/Setup/Styles/SetupScreen.uss` |
+| Loading | `Screen/Loading/UI/LoadingScreen.uxml` | `Screen/Loading/Styles/LoadingScreen.uss` |
+| Match HUD and contextual actions | `Screen/Match/UI/MatchScreen.uxml` | `Screen/Match/Styles/MatchScreen.uss` |
+| Result | `Screen/Result/UI/ResultScreen.uxml` | `Screen/Result/Styles/ResultScreen.uss` |
 
 Scene ownership is intentionally coarser than UXML ownership:
 
@@ -25,9 +25,55 @@ Scene ownership is intentionally coarser than UXML ownership:
 | Hub | `HubScreen.uxml` | Hub, legacy Setup |
 | Match | `MatchScreen.uxml` | Loading, Match, Result |
 
-`FlowShared.uss` owns reusable screen-root, safe-area, typography, panel, button, semantic-state,
-adaptive-profile, and icon rules. Put a rule in a screen USS when it describes only that screen; put
-it in `FlowShared.uss` only when two or more screens intentionally share the component contract.
+The on-disk structure is consistent for every screen:
+
+```text
+Screen/
+  Shared/
+    Styles/FlowShared.uss
+  <ScreenName>/
+    UI/<ScreenName>Screen.uxml
+    Styles/<ScreenName>Screen*.uss
+```
+
+`Screen/Shared/Styles/FlowShared.uss` owns reusable screen-root, safe-area, typography, panel, button,
+semantic-state, adaptive-profile, and icon rules. Put a rule in a screen's `Styles` folder when it
+describes only that screen; put it in `FlowShared.uss` only when two or more screens intentionally
+share the component contract.
+
+### Hub stylesheet cascade
+
+USS does not support CSS-style nested selectors. This is invalid and must not be used:
+
+```css
+.screen-root.profile-desktop {
+    .hub-layout {
+        padding: 24px;
+    }
+}
+```
+
+Repeat the complete selector instead:
+
+```css
+.screen-root.profile-desktop .hub-layout {
+    padding: 24px;
+}
+```
+
+`HubScreen.uxml` loads its styles in this explicit order:
+
+1. `FlowShared.uss` — cross-screen components and tokens;
+2. `HubScreen.Base.uss` — Hub rules shared by every supported profile;
+3. `HubScreen.Desktop.uss` — `.screen-root.profile-desktop` overrides;
+4. `HubScreen.HandheldLandscape.uss` — shared `.profile-mobile-landscape` phone/tablet overrides;
+5. `HubScreen.PhoneLandscape.uss` — `.profile-phone-landscape` overrides;
+6. `HubScreen.TabletLandscape.uss` — `.profile-tablet-landscape` overrides.
+
+Use the narrowest file that owns the intended behavior. A value common to every Hub profile belongs
+in Base. A value common only to phone and tablet belongs in Handheld Landscape. Form-factor-specific
+exceptions belong in their named file. Keep the full profile prefix on every override so loading all
+five assets never activates the wrong composition. Unsupported portrait Hub rules are not retained.
 
 ## Runtime lifecycle
 
@@ -110,6 +156,12 @@ under `.screen-root.profile-phone-landscape`, `.screen-root.profile-tablet-lands
 `.screen-root.profile-desktop`. The preview root applies the same classes in UI Builder, making USS
 changes immediately visible without entering Play Mode.
 
+`profile-mobile-landscape` is a shared selector class, not a fourth Preview Profile. Phone receives
+both `profile-mobile-landscape` and `profile-phone-landscape`; tablet receives both
+`profile-mobile-landscape` and `profile-tablet-landscape`; desktop receives only
+`profile-desktop`. This avoids duplicating identical phone/tablet rules while leaving a precise
+override class for each selectable form factor.
+
 Preview Profile switches active classes; it does not create per-profile copies of UXML Inline Styles.
 An inline Inspector value is shared by every profile and wins over USS selectors. Keep common values
 in the base screen selector, remove a property from Inline Styles before making it responsive, and
@@ -142,8 +194,8 @@ to exercise wrapping and spacing, but do not treat them as player-facing copy.
 
 For a new screen:
 
-1. create its UXML and USS beside the existing screen assets and wrap its hierarchy in one
-   `AdaptiveUiPreviewRoot`;
+1. create `Screen/<Name>/UI` and `Screen/<Name>/Styles`, place its UXML and USS assets in their
+   corresponding folders, and wrap its hierarchy in one `AdaptiveUiPreviewRoot`;
 2. add localization bindings and preview-only values for dynamic labels;
 3. prove that every required control fits without adding a `ScrollView`;
 4. add a `FirstPlayableScreenKind` and assign it to Login, Hub, or Match scene ownership;
