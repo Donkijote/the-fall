@@ -1,0 +1,80 @@
+/* Desktop is the unqualified component style. */
+.hub-dock {
+    width: 36%;
+    min-width: 410px;
+    max-width: 560px;
+    min-height: 142px;
+    margin-left: 16px;
+    margin-right: 16px;
+    padding: 12px 16px;
+    border-top-width: 2px;
+    border-top-color: rgb(181, 139, 62);
+}
+
+.hub-route {
+    flex-grow: 1;
+    min-height: 104px;
+    margin-top: 0;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.hub-route-divider {
+    width: 1px;
+    height: 64%;
+    align-self: center;
+    background-color: rgba(216, 196, 147, 0.18);
+}
+
+.hub-nav-button {
+    position: relative;
+    width: 24%;
+    min-width: 0;
+    min-height: 94px;
+    padding: 48px 5px 0 5px;
+    color: rgb(181, 165, 134);
+    background-color: rgba(36, 26, 20, 0.48);
+    border-left-color: rgba(216, 196, 147, 0.18);
+    border-right-color: rgba(216, 196, 147, 0.18);
+    border-top-color: rgba(216, 196, 147, 0.18);
+    border-bottom-color: rgba(216, 196, 147, 0.18);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.hub-nav-selected {
+    color: rgb(245, 226, 176);
+    background-color: rgb(59, 41, 31);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-nav-icon {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    -unity-background-image-tint-color: rgb(181, 165, 134);
+}
+
+.hub-nav-selected .hub-nav-icon {
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+.hub-action-status {
+    min-height: 16px;
+    margin-top: 5px;
+    color: rgb(160, 144, 118);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* Phone Landscape overrides belong below. */
+
+/* Tablet Landscape overrides belong below. */

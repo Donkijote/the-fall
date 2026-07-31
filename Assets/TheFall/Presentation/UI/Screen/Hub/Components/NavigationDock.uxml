@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/NavigationDock.uss"/>
+    <ui:VisualElement class="hub-route">
+        <ui:Button name="home-decks-button" class="hub-nav-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.nav.decks"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="game-icon hub-nav-icon icon-decks"/>
+        </ui:Button>
+        <ui:VisualElement class="hub-route-divider"/>
+        <ui:Button name="home-bag-button" class="hub-nav-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.nav.bag"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="game-icon hub-nav-icon icon-bag"/>
+        </ui:Button>
+        <ui:VisualElement class="hub-route-divider"/>
+        <ui:Button name="home-shop-button" class="hub-nav-button hub-nav-selected">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.nav.shop"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="game-icon hub-nav-icon icon-shop"/>
+        </ui:Button>
+        <ui:VisualElement class="hub-route-divider"/>
+        <ui:Button name="home-rank-button" class="hub-nav-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.nav.rank"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="game-icon hub-nav-icon icon-rank"/>
+        </ui:Button>
+    </ui:VisualElement>
+    <ui:Label name="home-action-status" class="hub-action-status">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.action-status"/>
+        </Bindings>
+    </ui:Label>
+</ui:UXML>

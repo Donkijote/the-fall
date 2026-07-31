@@ -28,6 +28,26 @@ namespace TheFall.Tests.EditMode
             return $"Assets/TheFall/Presentation/UI/Screen/{screenName}/UI/{screenAssetName}.uxml";
         }
 
+        private static XDocument[] ScreenAssetDocuments(string screenAssetName)
+        {
+            var documents = new[]
+            {
+                XDocument.Load(Path.GetFullPath(ScreenAssetPath(screenAssetName))),
+            };
+            if (screenAssetName != "HubScreen")
+            {
+                return documents;
+            }
+
+            return documents.Concat(
+                    Directory.GetFiles(
+                            Path.GetFullPath("Assets/TheFall/Presentation/UI/Screen/Hub/Components"),
+                            "*.uxml")
+                        .OrderBy(path => path)
+                        .Select(XDocument.Load))
+                .ToArray();
+        }
+
         [Test]
         public void DomainAssembly_DoesNotReferenceUnityEngine()
         {
@@ -84,7 +104,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.PhoneLandscape, false)]
-        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.PhoneLandscape, false)]
+        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.Desktop, false)]
         [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
         public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
             string sceneName,
@@ -136,11 +156,11 @@ namespace TheFall.Tests.EditMode
         [TestCase("ResultScreen")]
         public void ScreenAssets_DoNotExposePlayerScrolling(string screenAssetName)
         {
-            var assetPath = ScreenAssetPath(screenAssetName);
-            var document = XDocument.Load(Path.GetFullPath(assetPath));
+            var documents = ScreenAssetDocuments(screenAssetName);
 
             Assert.That(
-                document.Descendants().Any(element => element.Name.LocalName == "ScrollView"),
+                documents.SelectMany(document => document.Descendants())
+                    .Any(element => element.Name.LocalName == "ScrollView"),
                 Is.False,
                 $"{screenAssetName} must reflow inside its viewport instead of exposing scrolling.");
         }
@@ -166,7 +186,6 @@ namespace TheFall.Tests.EditMode
                     || element.Name.LocalName == "TextField")
                 .ToArray();
 
-            Assert.That(interactiveControls, Is.Not.Empty);
             foreach (var control in interactiveControls)
             {
                 Assert.That(
@@ -174,10 +193,36 @@ namespace TheFall.Tests.EditMode
                     Is.True,
                     $"{screenAssetName}/{control.Attribute("name")?.Value} must remain inside its screen-owned SafeArea.");
             }
+
+            if (screenAssetName != "HubScreen")
+            {
+                Assert.That(interactiveControls, Is.Not.Empty);
+                return;
+            }
+
+            var instances = document.Descendants()
+                .Where(element => element.Name.LocalName == "Instance")
+                .ToArray();
+            Assert.That(instances, Is.Not.Empty);
+            Assert.That(instances.All(instance => instance.Ancestors().Contains(safeArea)), Is.True);
+
+            var componentDocuments = ScreenAssetDocuments(screenAssetName).Skip(1).ToArray();
+            Assert.That(
+                componentDocuments.SelectMany(component => component.Descendants())
+                    .Any(element =>
+                        element.Name.LocalName == "Button"
+                        || element.Name.LocalName == "Toggle"
+                        || element.Name.LocalName == "TextField"),
+                Is.True);
+            Assert.That(
+                componentDocuments.SelectMany(component => component.Descendants())
+                    .Any(element => element.Name.LocalName == "Bitbebop.SafeArea"),
+                Is.False,
+                "Hub components inherit the one SafeArea owned by HubScreen.uxml.");
         }
 
         [TestCase("LoginScreen", AdaptiveUiProfile.PhoneLandscape)]
-        [TestCase("HubScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("HubScreen", AdaptiveUiProfile.Desktop)]
         [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
@@ -202,7 +247,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
-        public void HubStyles_KeepProfileCascadeSplitAndExplicit()
+        public void HubAssets_KeepComponentsSmallAndStylesComponentOwned()
         {
             var document = XDocument.Load(Path.GetFullPath(
                 ScreenAssetPath("HubScreen")));
@@ -210,34 +255,68 @@ namespace TheFall.Tests.EditMode
                 .Elements()
                 .Where(element => element.Name.LocalName == "Style")
                 .Select(element => element.Attribute("src")?.Value)
-                .Where(source => source != null && source.Contains("HubScreen."))
+                .Where(source => source != null)
                 .ToArray();
 
-            Assert.That(
-                hubStyleSources,
-                Has.Length.EqualTo(4));
-            var expectedHubStyles = new[]
+            Assert.That(hubStyleSources, Has.Length.EqualTo(2));
+            Assert.That(hubStyleSources[0], Does.Contain("FlowShared.uss"));
+            Assert.That(hubStyleSources[1], Does.Contain("Hub/UI/HubScreen.uss"));
+
+            var expectedComponents = new[]
             {
-                "HubScreen.Base.uss",
-                "HubScreen.Desktop.uss",
-                "HubScreen.PhoneLandscape.uss",
-                "HubScreen.TabletLandscape.uss",
+                "Profile",
+                "ResourceStats",
+                "TopActions",
+                "ObjectiveCard",
+                "NavigationDock",
+                "ChatPanel",
+                "SettingsModal",
             };
-            for (var index = 0; index < expectedHubStyles.Length; index++)
+            var templates = document.Root?
+                .Elements()
+                .Where(element => element.Name.LocalName == "Template")
+                .ToArray();
+            var instances = document.Descendants()
+                .Where(element => element.Name.LocalName == "Instance")
+                .ToArray();
+
+            Assert.That(templates, Has.Length.EqualTo(expectedComponents.Length));
+            Assert.That(instances, Has.Length.EqualTo(expectedComponents.Length));
+            foreach (var component in expectedComponents)
             {
                 Assert.That(
-                    hubStyleSources[index],
-                    Does.Contain(expectedHubStyles[index]));
+                    templates.Any(template => template.Attribute("name")?.Value == component),
+                    Is.True,
+                    component);
+                Assert.That(
+                    instances.Any(instance => instance.Attribute("template")?.Value == component),
+                    Is.True,
+                    component);
+
+                var componentDocument = XDocument.Load(Path.GetFullPath(
+                    $"Assets/TheFall/Presentation/UI/Screen/Hub/Components/{component}.uxml"));
+                var componentStyles = componentDocument.Root?
+                    .Elements()
+                    .Where(element => element.Name.LocalName == "Style")
+                    .Select(element => element.Attribute("src")?.Value)
+                    .Where(source => source != null)
+                    .ToArray();
+                Assert.That(componentStyles, Has.Length.EqualTo(1));
+                Assert.That(componentStyles[0], Does.Contain($"/{component}.uss"));
             }
 
-            var baseStyles = File.ReadAllText(Path.GetFullPath(
-                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss"));
+            Assert.That(File.Exists(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss")), Is.False);
 
-            Assert.That(baseStyles, Does.Not.Contain(".screen-root.profile-"));
-            Assert.That(File.Exists(Path.GetFullPath(
-                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.HandheldLandscape.uss")), Is.False);
-            Assert.That(File.Exists(Path.GetFullPath(
-                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.uss")), Is.False);
+            var hubStyles = Directory.GetFiles(
+                    Path.GetFullPath("Assets/TheFall/Presentation/UI/Screen/Hub"),
+                    "*.uss",
+                    SearchOption.AllDirectories)
+                .Select(File.ReadAllText)
+                .ToArray();
+            Assert.That(hubStyles, Is.Not.Empty);
+            Assert.That(hubStyles.All(styles => !styles.Contains(".profile-desktop")), Is.True);
+            Assert.That(hubStyles.All(styles => !styles.Contains(".profile-mobile-landscape")), Is.True);
         }
 
         [Test]
@@ -267,9 +346,9 @@ namespace TheFall.Tests.EditMode
                 Assert.That(sharedStyles, Does.Not.Contain(selector), selector);
             }
 
-            var hubBaseStyles = File.ReadAllText(Path.GetFullPath(
-                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss"));
-            Assert.That(hubBaseStyles, Does.Contain(".presentation-toggle"));
+            var settingsStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Components/SettingsModal.uss"));
+            Assert.That(settingsStyles, Does.Contain(".presentation-toggle"));
 
             var responsiveScreenStyles = new[]
             {
@@ -298,10 +377,8 @@ namespace TheFall.Tests.EditMode
         [TestCase("ResultScreen")]
         public void ScreenAssets_ExposeAuthoringCopyOrLocalizedIconTooltipsInUiBuilder(string screenAssetName)
         {
-            var assetPath = ScreenAssetPath(screenAssetName);
-            var document = XDocument.Load(Path.GetFullPath(assetPath));
-            var textControls = document
-                .Descendants()
+            var textControls = ScreenAssetDocuments(screenAssetName)
+                .SelectMany(document => document.Descendants())
                 .Where(element =>
                     element.Name.LocalName == "Label" ||
                     element.Name.LocalName == "Button" ||

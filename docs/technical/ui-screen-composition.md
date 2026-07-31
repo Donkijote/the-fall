@@ -11,7 +11,7 @@ the visible layout.
 | Screen | Structure | Screen-specific style |
 | --- | --- | --- |
 | Login | `Screen/Login/UI/LoginScreen.uxml` | `Screen/Login/Styles/LoginScreen.uss` |
-| Hub and Settings | `Screen/Hub/UI/HubScreen.uxml` | ordered `Screen/Hub/Styles/HubScreen.*.uss` cascade described below |
+| Hub and Settings | `Screen/Hub/UI/HubScreen.uxml` plus `Screen/Hub/Components/*.uxml` | `HubScreen.uss` for the shell; one neighboring USS per component |
 | Legacy explicit setup route | `Screen/Setup/UI/SetupScreen.uxml` | `Screen/Setup/Styles/SetupScreen.uss` |
 | Loading | `Screen/Loading/UI/LoadingScreen.uxml` | `Screen/Loading/Styles/LoadingScreen.uss` |
 | Match HUD and contextual actions | `Screen/Match/UI/MatchScreen.uxml` | `Screen/Match/Styles/MatchScreen.uss` |
@@ -25,7 +25,7 @@ Scene ownership is intentionally coarser than UXML ownership:
 | Hub | `HubScreen.uxml` | Hub, legacy Setup |
 | Match | `MatchScreen.uxml` | Loading, Match, Result |
 
-The on-disk structure is consistent for every screen:
+Most screens use this on-disk structure:
 
 ```text
 Screen/
@@ -36,44 +36,62 @@ Screen/
     Styles/<ScreenName>Screen*.uss
 ```
 
+Hub is intentionally componentized because its independently editable regions are reused by one
+composed screen:
+
+```text
+Screen/Hub/
+  UI/
+    HubScreen.uxml
+    HubScreen.uss
+  Components/
+    Profile.uxml
+    Profile.uss
+    ResourceStats.uxml
+    ResourceStats.uss
+    ...one UXML and one USS for every Hub component
+```
+
 `Screen/Shared/Styles/FlowShared.uss` owns reusable screen-root, safe-area, typography, panel, button,
 semantic-state, adaptive-profile, and icon rules. Put a rule in a screen's `Styles` folder when it
 describes only that screen; put it in `FlowShared.uss` only when two or more screens intentionally
 share the component contract.
 
-### Hub stylesheet cascade
+### Hub component ownership
 
 USS does not support CSS-style nested selectors. This is invalid and must not be used:
 
 ```css
-.screen-root.profile-desktop {
+.screen-root.profile-phone-landscape {
     .hub-layout {
         padding: 24px;
     }
 }
 ```
 
-Repeat the complete selector instead:
+Repeat the complete selector instead. Desktop is the unqualified base style, so only phone and
+tablet exceptions need profile selectors:
 
 ```css
-.screen-root.profile-desktop .hub-layout {
-    padding: 24px;
+.hub-stat {
+    max-height: none;
+}
+
+.screen-root.profile-phone-landscape .hub-stat {
+    max-height: 100px;
 }
 ```
 
-`HubScreen.uxml` loads its styles in this explicit order:
+`HubScreen.uxml` owns only the top/middle/bottom shell and instantiates `Profile`, `ResourceStats`,
+`TopActions`, `ObjectiveCard`, `NavigationDock`, `ChatPanel`, and `SettingsModal`. `HubScreen.uss`
+styles only that shell. Each component UXML loads exactly one same-named USS that owns its internal
+layout and appearance. The class on the `<ui:Instance>` is the component root, avoiding an otherwise
+redundant wrapper inside the template.
 
-1. `FlowShared.uss` — profile-neutral cross-screen foundations and reusable components;
-2. `HubScreen.Base.uss` — Hub rules shared by every supported profile;
-3. `HubScreen.Desktop.uss` — `.screen-root.profile-desktop` overrides;
-4. `HubScreen.PhoneLandscape.uss` — `.profile-phone-landscape` overrides;
-5. `HubScreen.TabletLandscape.uss` — `.profile-tablet-landscape` overrides.
-
-Use the narrowest file that owns the intended behavior. A value common to every Hub profile belongs
-in Base. Form-factor-specific exceptions belong in their named file. Keep the full profile prefix on
-every override so loading all four assets never activates the wrong composition. `FlowShared.uss`
-contains no profile-qualified or scene-specific selectors, so an empty Desktop, Phone, or Tablet
-file means Base is the only Hub composition. Unsupported portrait Hub rules are not retained.
+Keep the component's desktop values as unqualified selectors in its USS. Put its deliberate phone
+and tablet differences later in that same file under `.screen-root.profile-phone-landscape` and
+`.screen-root.profile-tablet-landscape`. Hub styles do not use `.profile-desktop` or the shared
+`.profile-mobile-landscape` alias. Unsupported portrait Hub rules are not retained.
 
 ## Runtime lifecycle
 
@@ -117,9 +135,9 @@ Settings is a three-group responsive composition for rules, audio, and motion ra
 modal body. This contract is enforced by Edit Mode source coverage and
 [ADR 0005](../decisions/0005-scroll-free-responsive-player-ui.md).
 
-Hub uses the same Base composition for Desktop, Phone Landscape, and Tablet Landscape while its
-profile files remain empty. Identity, resources, and global actions occupy the top row; objective,
-persistent navigation, and chat share the lower row. The chat panel owns overflow containment: its
+Hub uses its unqualified component styles for Desktop, Phone Landscape, and Tablet Landscape unless
+a component declares one of the two explicit landscape overrides. Identity, resources, and global
+actions occupy the top row; objective, persistent navigation, and chat share the lower row. The chat panel owns overflow containment: its
 rounded, inset tab rail and composer remain inside the panel boundary rather than using the outer
 border as their content box.
 
@@ -137,7 +155,9 @@ label must not occupy the same button content box; this is enforced by Edit Mode
 
 Open the individual screen UXML in UI Builder. For Login, Hub, or Match, the scene's `Screen UI`
 document must reference that same named screen asset. Do not introduce a generic document shell or
-duplicate a screen hierarchy directly into a Unity scene.
+duplicate a screen hierarchy directly into a Unity scene. For Hub, open `HubScreen.uxml` to inspect
+the composed screen and switch preview profiles; open a component UXML to edit only that component's
+small hierarchy, and edit its same-named USS for both its desktop base and landscape exceptions.
 
 Every authoritative screen has one `AdaptiveUiPreviewRoot`, selected in UI Builder's Hierarchy.
 Select it and change **Preview Profile** in the Inspector to switch among:
@@ -150,11 +170,12 @@ Use UI Builder's Fit Canvas or zoom controls after switching profiles. The logic
 project's reference-panel behavior; they are intentionally not physical pixel claims. The preview
 safe area is representative, so final cutout behavior remains a Device Simulator/runtime concern.
 
-Keep each screen's responsive rules in that screen's own USS file. Put shared phone/tablet rules
-under `.screen-root.profile-mobile-landscape`, and deliberate variants under
-`.screen-root.profile-phone-landscape`, `.screen-root.profile-tablet-landscape`, or
-`.screen-root.profile-desktop`. The preview root applies the same classes in UI Builder, making USS
-changes immediately visible without entering Play Mode. Do not put profile-qualified selectors or
+Keep each screen's responsive rules in that screen's own USS file. Outside Hub, put shared
+phone/tablet rules under `.screen-root.profile-mobile-landscape`, and deliberate variants under the
+profile classes supported by that screen. Inside Hub, use only the unqualified desktop base plus
+`.screen-root.profile-phone-landscape` and `.screen-root.profile-tablet-landscape` in the owning
+component USS. The preview root applies the same classes in UI Builder, making USS changes
+immediately visible without entering Play Mode. Do not put profile-qualified selectors or
 screen-owned component selectors in `FlowShared.uss`.
 
 `profile-mobile-landscape` is a shared selector class, not a fourth Preview Profile. Phone receives
@@ -163,10 +184,9 @@ both `profile-mobile-landscape` and `profile-phone-landscape`; tablet receives b
 `profile-desktop`. This avoids duplicating identical phone/tablet rules while leaving a precise
 override class for each selectable form factor.
 
-With empty Hub profile files, Desktop, Phone Landscape, and Tablet Landscape therefore resolve the
-same Hub declarations from Base. Their rendered geometry can still differ because each preview uses
-its own aspect ratio and representative safe-area insets; that is viewport reflow, not a hidden USS
-override.
+When a Hub component has no phone or tablet override, all three profiles resolve its same
+unqualified declarations. Their rendered geometry can still differ because each preview uses its own
+aspect ratio and representative safe-area insets; that is viewport reflow, not a hidden USS override.
 
 Preview Profile switches active classes; it does not create per-profile copies of UXML Inline Styles.
 An inline Inspector value is shared by every profile and wins over USS selectors. Keep common values

@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/ChatPanel.uss"/>
+    <ui:VisualElement class="hub-chat-tabs">
+        <ui:Button name="home-chat-global-button" class="hub-chat-tab hub-chat-tab-active">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.chat.global"/>
+            </Bindings>
+        </ui:Button>
+        <ui:Button name="home-chat-guild-button" class="hub-chat-tab">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.chat.guild"/>
+            </Bindings>
+        </ui:Button>
+        <ui:Button name="home-chat-system-button" class="hub-chat-tab">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.chat.system"/>
+            </Bindings>
+        </ui:Button>
+    </ui:VisualElement>
+    <ui:VisualElement class="hub-chat-feed">
+        <ui:Label name="home-chat-date" text="Today" class="hub-chat-date"/>
+        <ui:Label name="home-chat-message-one" text="Welcome back to The Fall." class="hub-chat-message"/>
+        <ui:Label name="home-chat-message-two" text="Your next match is ready." class="hub-chat-message"/>
+        <ui:Label name="home-chat-message-three" text="Open Settings to adjust the rules." class="hub-chat-message"/>
+        <ui:Label name="home-chat-user-message" text="You: Ready." class="hub-chat-message hub-chat-user-message"/>
+    </ui:VisualElement>
+    <ui:Label name="home-chat-input-label" class="hub-chat-input-label">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.chat.input-label"/>
+        </Bindings>
+    </ui:Label>
+    <ui:VisualElement class="hub-chat-input-row">
+        <ui:TextField name="home-chat-input" class="hub-chat-input"/>
+        <ui:Button name="home-chat-send-button" class="hub-chat-send icon-only-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.chat.send"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="game-icon hub-send-icon icon-send"/>
+        </ui:Button>
+    </ui:VisualElement>
+</ui:UXML>

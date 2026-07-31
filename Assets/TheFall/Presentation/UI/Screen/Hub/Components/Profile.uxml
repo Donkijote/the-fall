@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/Profile.uss"/>
+    <ui:VisualElement class="hub-identity-seal">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon hub-seal-icon icon-shield"/>
+    </ui:VisualElement>
+    <ui:VisualElement class="hub-identity-copy">
+        <ui:Label name="home-title" class="hub-title">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.profile-name"/>
+            </Bindings>
+        </ui:Label>
+        <ui:Label name="home-eyebrow" class="hub-kicker">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.eyebrow"/>
+            </Bindings>
+        </ui:Label>
+        <ui:VisualElement class="hub-xp-row">
+            <ui:VisualElement class="hub-xp-track">
+                <ui:VisualElement class="hub-xp-fill"/>
+            </ui:VisualElement>
+            <ui:Label name="home-xp-label" class="hub-xp-label">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.xp-label"/>
+                </Bindings>
+            </ui:Label>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Label name="home-level-value" class="hub-level-value">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.level-value"/>
+        </Bindings>
+    </ui:Label>
+</ui:UXML>

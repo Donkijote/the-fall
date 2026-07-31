@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/TopActions.uss"/>
+    <ui:Button name="home-mail-button" class="hub-square-button icon-only-button">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.mail"/>
+        </Bindings>
+        <ui:VisualElement picking-mode="Ignore" class="game-icon hub-square-icon icon-envelope">
+            <ui:VisualElement picking-mode="Ignore" class="hub-mail-dot"/>
+        </ui:VisualElement>
+    </ui:Button>
+    <ui:Button name="home-settings-button" class="hub-square-button icon-only-button">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.settings"/>
+        </Bindings>
+        <ui:VisualElement picking-mode="Ignore" class="game-icon hub-square-icon icon-settings"/>
+    </ui:Button>
+</ui:UXML>

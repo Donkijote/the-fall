@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/ObjectiveCard.uss"/>
+    <ui:Label name="home-card-label" class="card-label">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.card-label"/>
+        </Bindings>
+    </ui:Label>
+    <ui:VisualElement class="hub-brief-rule"/>
+    <ui:Label name="home-objective-title" class="hub-card-title">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.objective-title"/>
+        </Bindings>
+    </ui:Label>
+    <ui:Label name="home-subtitle" class="hub-card-copy">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.subtitle"/>
+        </Bindings>
+    </ui:Label>
+    <ui:VisualElement class="hub-objective-progress">
+        <ui:VisualElement class="hub-progress-fill"/>
+    </ui:VisualElement>
+    <ui:Label name="home-mode" class="hub-objective-meta">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.mode"/>
+        </Bindings>
+    </ui:Label>
+    <ui:Button name="home-start-button" class="hub-quest-button icon-label-button">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.start"/>
+        </Bindings>
+        <ui:VisualElement picking-mode="Ignore" class="game-icon action-button-icon icon-quest"/>
+    </ui:Button>
+</ui:UXML>

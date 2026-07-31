@@ -1,6 +1,0 @@
-/*
- * Tablet Landscape-only Hub overrides.
- *
- * Prefix every selector with:
- * .screen-root.profile-tablet-landscape
- */

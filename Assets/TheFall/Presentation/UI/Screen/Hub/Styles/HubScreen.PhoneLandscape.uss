@@ -1,6 +1,0 @@
-/*
- * Phone Landscape-only Hub overrides.
- *
- * Prefix every selector with:
- * .screen-root.profile-phone-landscape
- */
