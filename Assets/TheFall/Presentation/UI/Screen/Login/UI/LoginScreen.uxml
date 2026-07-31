@@ -1,148 +1,148 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared"/>
     <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Styles/LoginScreen.uss?fileID=7433441132597879392&amp;guid=85f841a7aa1fe4941ae51944759aa4b0&amp;type=3#LoginScreen"/>
-    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
-    <ui:VisualElement name="login-stage" class="stage stage-login">
-        <ui:VisualElement picking-mode="Ignore" class="login-backdrop"/>
-        <ui:VisualElement picking-mode="Ignore" class="login-scrim"/>
-        <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">
-            <ui:VisualElement name="login-content" class="login-content">
-            <ui:VisualElement class="login-layout">
-                <ui:VisualElement class="login-hero">
-                    <ui:Label name="login-eyebrow" class="eyebrow login-eyebrow">
-                        <Bindings>
-                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.eyebrow"/>
-                        </Bindings>
-                    </ui:Label>
-                    <ui:Label name="login-title" class="login-display-title">
-                        <Bindings>
-                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.title"/>
-                        </Bindings>
-                    </ui:Label>
-                    <ui:Label name="login-title-accent" class="login-display-title login-display-accent">
-                        <Bindings>
-                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.title-accent"/>
-                        </Bindings>
-                    </ui:Label>
-                    <ui:VisualElement class="login-story">
-                        <ui:VisualElement class="login-story-rule"/>
-                        <ui:Label name="login-description" class="login-description">
-                            <Bindings>
-                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.description"/>
-                            </Bindings>
-                        </ui:Label>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="login-proof">
-                        <ui:VisualElement class="suit-token suit-token-brass">
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-coins"/>
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="Desktop">
+        <ui:VisualElement name="login-stage" class="stage stage-login">
+            <ui:VisualElement picking-mode="Ignore" class="login-backdrop"/>
+            <ui:VisualElement picking-mode="Ignore" class="login-scrim"/>
+            <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">
+                <ui:VisualElement name="login-content" class="login-content">
+                    <ui:VisualElement class="login-layout">
+                        <ui:VisualElement class="login-hero">
+                            <ui:Label name="login-eyebrow" class="eyebrow login-eyebrow">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.eyebrow"/>
+                                </Bindings>
+                            </ui:Label>
+                            <ui:Label name="login-title" class="login-display-title">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.title"/>
+                                </Bindings>
+                            </ui:Label>
+                            <ui:Label name="login-title-accent" class="login-display-title login-display-accent">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.title-accent"/>
+                                </Bindings>
+                            </ui:Label>
+                            <ui:VisualElement class="login-story">
+                                <ui:VisualElement class="login-story-rule"/>
+                                <ui:Label name="login-description" class="login-description">
+                                    <Bindings>
+                                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.description"/>
+                                    </Bindings>
+                                </ui:Label>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="login-proof">
+                                <ui:VisualElement class="suit-token suit-token-brass">
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-coins"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="suit-token suit-token-woad">
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-cups"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="suit-token suit-token-madder">
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-quest"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="suit-token suit-token-moss">
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-clubs"/>
+                                </ui:VisualElement>
+                                <ui:Label name="login-proof" class="login-proof-copy">
+                                    <Bindings>
+                                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.proof"/>
+                                    </Bindings>
+                                </ui:Label>
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="suit-token suit-token-woad">
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-cups"/>
+                        <ui:VisualElement class="login-panel panel">
+                            <ui:VisualElement class="login-emblem">
+                                <ui:VisualElement picking-mode="Ignore" class="game-icon login-emblem-icon icon-shield"/>
+                            </ui:VisualElement>
+                            <ui:Label name="login-panel-title" class="login-panel-title">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.panel-title"/>
+                                </Bindings>
+                            </ui:Label>
+                            <ui:Label name="login-panel-subtitle" class="login-panel-subtitle">
+                                <Bindings>
+                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.panel-subtitle"/>
+                                </Bindings>
+                            </ui:Label>
+                            <ui:VisualElement class="login-form">
+                                <ui:Label name="login-email-label" class="login-field-label">
+                                    <Bindings>
+                                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.email"/>
+                                    </Bindings>
+                                </ui:Label>
+                                <ui:VisualElement class="login-input-shell">
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon login-input-icon icon-envelope"/>
+                                    <ui:TextField name="login-email" class="login-field"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="login-password-heading">
+                                    <ui:Label name="login-password-label" class="login-field-label login-password-label">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.password"/>
+                                        </Bindings>
+                                    </ui:Label>
+                                    <ui:Button name="login-forgot-button" class="login-link-button">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.forgot"/>
+                                        </Bindings>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="login-input-shell">
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon login-input-icon icon-padlock"/>
+                                    <ui:TextField name="login-password" is-password-field="true" class="login-field"/>
+                                </ui:VisualElement>
+                                <ui:Button name="login-enter-button" class="primary-button login-enter-button">
+                                    <ui:Label name="login-enter-label" class="login-enter-label">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.enter"/>
+                                        </Bindings>
+                                    </ui:Label>
+                                    <ui:VisualElement picking-mode="Ignore" class="game-icon login-enter-icon icon-enter-arrow"/>
+                                </ui:Button>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="login-lower-panel">
+                                <ui:VisualElement class="login-divider">
+                                    <ui:VisualElement class="login-divider-rule"/>
+                                    <ui:Label name="login-divider-label" class="login-divider-label">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.divider"/>
+                                        </Bindings>
+                                    </ui:Label>
+                                    <ui:VisualElement class="login-divider-rule"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="login-social-row">
+                                    <ui:Button name="login-google-button" class="login-social-button login-google-button icon-only-button">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.google"/>
+                                        </Bindings>
+                                        <ui:VisualElement picking-mode="Ignore" class="login-brand-mark login-google-mark"/>
+                                    </ui:Button>
+                                    <ui:Button name="login-apple-button" class="login-social-button login-apple-button icon-only-button">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.apple"/>
+                                        </Bindings>
+                                        <ui:VisualElement picking-mode="Ignore" class="login-brand-mark login-apple-mark"/>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="login-account-row">
+                                    <ui:Label name="login-account-prefix" class="login-account-prefix">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.account-prefix"/>
+                                        </Bindings>
+                                    </ui:Label>
+                                    <ui:Button name="login-create-button" class="login-link-button login-create-button">
+                                        <Bindings>
+                                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.create"/>
+                                        </Bindings>
+                                    </ui:Button>
+                                </ui:VisualElement>
+                                <ui:Label name="login-feedback" text="Feedback appears here." class="login-feedback"/>
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="suit-token suit-token-madder">
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-quest"/>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="suit-token suit-token-moss">
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-clubs"/>
-                        </ui:VisualElement>
-                        <ui:Label name="login-proof" class="login-proof-copy">
-                            <Bindings>
-                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.proof"/>
-                            </Bindings>
-                        </ui:Label>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="login-panel panel">
-                    <ui:VisualElement class="login-emblem">
-                        <ui:VisualElement picking-mode="Ignore" class="game-icon login-emblem-icon icon-shield"/>
-                    </ui:VisualElement>
-                    <ui:Label name="login-panel-title" class="login-panel-title">
-                        <Bindings>
-                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.panel-title"/>
-                        </Bindings>
-                    </ui:Label>
-                    <ui:Label name="login-panel-subtitle" class="login-panel-subtitle">
-                        <Bindings>
-                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.panel-subtitle"/>
-                        </Bindings>
-                    </ui:Label>
-                    <ui:VisualElement class="login-form">
-                        <ui:Label name="login-email-label" class="login-field-label">
-                            <Bindings>
-                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.email"/>
-                            </Bindings>
-                        </ui:Label>
-                        <ui:VisualElement class="login-input-shell">
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon login-input-icon icon-envelope"/>
-                            <ui:TextField name="login-email" class="login-field"/>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="login-password-heading">
-                            <ui:Label name="login-password-label" class="login-field-label login-password-label">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.password"/>
-                                </Bindings>
-                            </ui:Label>
-                            <ui:Button name="login-forgot-button" class="login-link-button">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.forgot"/>
-                                </Bindings>
-                            </ui:Button>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="login-input-shell">
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon login-input-icon icon-padlock"/>
-                            <ui:TextField name="login-password" is-password-field="true" class="login-field"/>
-                        </ui:VisualElement>
-                        <ui:Button name="login-enter-button" class="primary-button login-enter-button">
-                            <ui:Label name="login-enter-label" class="login-enter-label">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.enter"/>
-                                </Bindings>
-                            </ui:Label>
-                            <ui:VisualElement picking-mode="Ignore" class="game-icon login-enter-icon icon-enter-arrow"/>
-                        </ui:Button>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="login-lower-panel">
-                        <ui:VisualElement class="login-divider">
-                            <ui:VisualElement class="login-divider-rule"/>
-                            <ui:Label name="login-divider-label" class="login-divider-label">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.divider"/>
-                                </Bindings>
-                            </ui:Label>
-                            <ui:VisualElement class="login-divider-rule"/>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="login-social-row">
-                            <ui:Button name="login-google-button" class="login-social-button login-google-button icon-only-button">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.google"/>
-                                </Bindings>
-                                <ui:VisualElement picking-mode="Ignore" class="login-brand-mark login-google-mark"/>
-                            </ui:Button>
-                            <ui:Button name="login-apple-button" class="login-social-button login-apple-button icon-only-button">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.apple"/>
-                                </Bindings>
-                                <ui:VisualElement picking-mode="Ignore" class="login-brand-mark login-apple-mark"/>
-                            </ui:Button>
-                        </ui:VisualElement>
-                        <ui:VisualElement class="login-account-row">
-                            <ui:Label name="login-account-prefix" class="login-account-prefix">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.account-prefix"/>
-                                </Bindings>
-                            </ui:Label>
-                            <ui:Button name="login-create-button" class="login-link-button login-create-button">
-                                <Bindings>
-                                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.create"/>
-                                </Bindings>
-                            </ui:Button>
-                        </ui:VisualElement>
-                        <ui:Label name="login-feedback" text="Feedback appears here." class="login-feedback"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-            </ui:VisualElement>
-            </ui:VisualElement>
-        </Bitbebop.SafeArea>
-    </ui:VisualElement>
+            </Bitbebop.SafeArea>
+        </ui:VisualElement>
     </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
 </ui:UXML>
