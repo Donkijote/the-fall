@@ -10,7 +10,7 @@
             <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">
                 <ui:VisualElement class="match-shell">
                     <ui:VisualElement name="match-table-space" picking-mode="Ignore" class="match-table-space">
-                        <ui:Instance template="TableContextControls"/>
+                        <ui:Instance template="TableContextControls" style="height: 100%;"/>
                     </ui:VisualElement>
                     <ui:Instance template="MatchStatus" class="match-status panel"/>
                     <ui:Instance template="ScoreHud" picking-mode="Ignore" class="match-score-hud panel"/>
