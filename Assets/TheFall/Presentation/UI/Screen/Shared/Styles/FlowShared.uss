@@ -2,8 +2,7 @@
     flex-grow: 1;
     min-width: 320px;
     min-height: 480px;
-    color: rgb(216, 196, 147);
-    background-color: rgb(36, 26, 20);
+    color: rgb(216, 196, 147);    
     overflow: hidden;
 }
 
