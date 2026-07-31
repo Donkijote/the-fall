@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/HomeNavigation.uss"/>
+    <ui:Button name="match-home-button" class="quiet-button match-home-floating icon-label-button">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.common.return-home"/>
+        </Bindings>
+        <ui:VisualElement picking-mode="Ignore" class="game-icon action-button-icon icon-home"/>
+    </ui:Button>
+</ui:UXML>

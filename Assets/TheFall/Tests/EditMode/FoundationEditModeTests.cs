@@ -34,7 +34,9 @@ namespace TheFall.Tests.EditMode
             {
                 XDocument.Load(Path.GetFullPath(ScreenAssetPath(screenAssetName))),
             };
-            if (screenAssetName != "HubScreen" && screenAssetName != "LoginScreen")
+            if (screenAssetName != "HubScreen"
+                && screenAssetName != "LoginScreen"
+                && screenAssetName != "MatchScreen")
             {
                 return documents;
             }
@@ -106,7 +108,7 @@ namespace TheFall.Tests.EditMode
 
         [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.Desktop, false)]
         [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.PhoneLandscape, false)]
-        [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
+        [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.Desktop, true)]
         public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
             string sceneName,
             FirstPlayableSceneKind expectedKind,
@@ -134,6 +136,7 @@ namespace TheFall.Tests.EditMode
             Assert.That(controller.enabled, Is.True);
             Assert.That(controller.HasConfiguredScreenAssets, Is.True);
             Assert.That(document.visualTreeAsset, Is.SameAs(expectedScreen));
+            Assert.That(document.panelSettings.scaleMode, Is.EqualTo(PanelScaleMode.ScaleWithScreenSize));
             Assert.That(previewRoot, Is.Not.Null);
             Assert.That(previewRoot.PreviewProfile, Is.EqualTo(expectedPreviewProfile));
             Assert.That(previewRoot.ClassListContains("authoring-preview-root"), Is.False);
@@ -195,7 +198,9 @@ namespace TheFall.Tests.EditMode
                     $"{screenAssetName}/{control.Attribute("name")?.Value} must remain inside its screen-owned SafeArea.");
             }
 
-            if (screenAssetName != "HubScreen" && screenAssetName != "LoginScreen")
+            if (screenAssetName != "HubScreen"
+                && screenAssetName != "LoginScreen"
+                && screenAssetName != "MatchScreen")
             {
                 Assert.That(interactiveControls, Is.Not.Empty);
                 return;
@@ -226,7 +231,7 @@ namespace TheFall.Tests.EditMode
         [TestCase("HubScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
-        [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("MatchScreen", AdaptiveUiProfile.Desktop)]
         [TestCase("ResultScreen", AdaptiveUiProfile.PhoneLandscape)]
         public void ScreenAssets_ExposeSwitchableAuthoringPreviewRoot(
             string screenAssetName,
@@ -321,6 +326,51 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
+        public void MatchAssets_KeepComponentsSmallAndStylesComponentOwned()
+        {
+            var document = XDocument.Load(Path.GetFullPath(ScreenAssetPath("MatchScreen")));
+            var expectedComponents = new[]
+            {
+                "TableContextControls",
+                "MatchStatus",
+                "ScoreHud",
+                "HomeNavigation",
+            };
+            var templates = document.Root?
+                .Elements()
+                .Where(element => element.Name.LocalName == "Template")
+                .ToArray();
+            var instances = document.Descendants()
+                .Where(element => element.Name.LocalName == "Instance")
+                .ToArray();
+
+            Assert.That(templates, Has.Length.EqualTo(expectedComponents.Length));
+            Assert.That(instances, Has.Length.EqualTo(expectedComponents.Length));
+            foreach (var component in expectedComponents)
+            {
+                Assert.That(
+                    templates.Any(template => template.Attribute("name")?.Value == component),
+                    Is.True,
+                    component);
+                Assert.That(
+                    instances.Any(instance => instance.Attribute("template")?.Value == component),
+                    Is.True,
+                    component);
+
+                var componentDocument = XDocument.Load(Path.GetFullPath(
+                    $"Assets/TheFall/Presentation/UI/Screen/Match/Components/{component}.uxml"));
+                var componentStyles = componentDocument.Root?
+                    .Elements()
+                    .Where(element => element.Name.LocalName == "Style")
+                    .Select(element => element.Attribute("src")?.Value)
+                    .Where(source => source != null)
+                    .ToArray();
+                Assert.That(componentStyles, Has.Length.EqualTo(1));
+                Assert.That(componentStyles[0], Does.Contain($"/{component}.uss"));
+            }
+        }
+
+        [Test]
         public void SharedStyles_DoNotOwnProfileOrSceneSpecificRules()
         {
             var sharedStyles = File.ReadAllText(Path.GetFullPath(
@@ -355,7 +405,6 @@ namespace TheFall.Tests.EditMode
             {
                 "Setup/Styles/SetupScreen.uss",
                 "Loading/Styles/LoadingScreen.uss",
-                "Match/Styles/MatchScreen.uss",
                 "Result/Styles/ResultScreen.uss",
             };
             foreach (var relativePath in responsiveScreenStyles)
@@ -371,6 +420,14 @@ namespace TheFall.Tests.EditMode
             var loginStyles = File.ReadAllText(Path.GetFullPath(
                 "Assets/TheFall/Presentation/UI/Screen/Login/Styles/LoginScreen.uss"));
             Assert.That(loginStyles, Does.Not.Contain(".screen-root.profile-"));
+
+            var matchStyles = Directory.GetFiles(
+                    Path.GetFullPath("Assets/TheFall/Presentation/UI/Screen/Match"),
+                    "*.uss",
+                    SearchOption.AllDirectories)
+                .Select(File.ReadAllText)
+                .ToArray();
+            Assert.That(matchStyles.All(styles => !styles.Contains(".screen-root.profile-")), Is.True);
         }
 
         [TestCase("LoginScreen")]

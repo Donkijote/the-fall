@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/ScoreHud.uss"/>
+    <ui:Label name="match-score" text="YOU 12 — 9 RIVAL" class="score-line"/>
+    <ui:Label name="match-score-objective" class="match-score-objective">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.match.score-objective"/>
+        </Bindings>
+    </ui:Label>
+</ui:UXML>

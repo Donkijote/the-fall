@@ -470,6 +470,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(scoreHud.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
             Assert.That(scoreHud.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
             Assert.That(matchStatus.worldBound.width, Is.LessThan(screen.worldBound.width * 0.5f));
+            Assert.That(matchHome.resolvedStyle.minHeight, Is.EqualTo(48f).Within(1f));
+            Assert.That(matchSkip.resolvedStyle.minHeight, Is.EqualTo(44f).Within(1f));
             Assert.That(matchHome.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(matchSkip.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 

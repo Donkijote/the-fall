@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/TableContextControls.uss"/>
+    <ui:VisualElement name="match-context-controls" picking-mode="Ignore" class="match-context-controls">
+        <ui:VisualElement name="dealer-context" class="player-context">
+            <ui:VisualElement name="dealer-options-menu" class="context-menu panel">
+                <ui:Label name="dealer-options-title" class="context-title">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.dealer-title"/>
+                    </Bindings>
+                </ui:Label>
+                <ui:VisualElement name="dealer-options" class="context-options"/>
+            </ui:VisualElement>
+            <ui:Button name="dealer-options-button" class="context-icon dealer-icon icon-only-button">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.dealer-icon"/>
+                </Bindings>
+                <ui:VisualElement picking-mode="Ignore" class="game-icon context-button-icon icon-decks"/>
+            </ui:Button>
+        </ui:VisualElement>
+        <ui:VisualElement name="canto-context" class="player-context">
+            <ui:VisualElement name="canto-options-menu" class="context-menu panel">
+                <ui:Label name="canto-options-title" class="context-title">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.canto-title"/>
+                    </Bindings>
+                </ui:Label>
+                <ui:VisualElement name="canto-options" class="context-options"/>
+            </ui:VisualElement>
+            <ui:Button name="canto-options-button" class="context-icon canto-icon icon-only-button">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.context.canto-icon"/>
+                </Bindings>
+                <ui:VisualElement picking-mode="Ignore" class="game-icon context-button-icon icon-canto"/>
+            </ui:Button>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

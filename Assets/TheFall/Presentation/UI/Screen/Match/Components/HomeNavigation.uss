@@ -1,0 +1,9 @@
+.match-home-floating {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 190px;
+    min-width: 170px;
+    min-height: 48px;
+    background-color: rgba(36, 26, 20, 0.88);
+}

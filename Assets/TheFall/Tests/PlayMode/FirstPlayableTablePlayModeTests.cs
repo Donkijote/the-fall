@@ -299,7 +299,7 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator MobileProfilesFitCardsAndPreserveSelectionPrivacyAndFixedCamera()
+        public IEnumerator ViewportChangesPreserveAuthoredScaleSelectionPrivacyAndFixedCamera()
         {
             yield return LoadMatch();
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
@@ -313,26 +313,17 @@ namespace TheFall.Tests.PlayMode
             {
                 (
                     new Vector2Int(1024, 768),
-                    new Rect(0f, 24f, 1024f, 720f),
-                    AdaptiveUiProfile.TabletLandscape),
+                    new Rect(0f, 24f, 1024f, 720f)),
                 (
                     new Vector2Int(844, 390),
-                    new Rect(36f, 0f, 772f, 390f),
-                    AdaptiveUiProfile.PhoneLandscape),
+                    new Rect(36f, 0f, 772f, 390f)),
             })
             {
-                table.ApplyViewportForTests(profile.Item1, profile.Item2, true);
-                var dealerCard = table.RenderedCards.First(
-                    card => card.Zone == FirstPlayableCardZone.DealerSpread);
-                Assert.That(table.CurrentAdaptiveProfile, Is.EqualTo(profile.Item3));
+                table.ApplyViewportForTests(profile.Item1, profile.Item2);
                 Assert.That(
-                    table.MeasureProjectedInteractionSize(dealerCard).x,
-                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-                Assert.That(
-                    table.MeasureProjectedCardSize(dealerCard).y,
-                    Is.LessThanOrEqualTo(
-                        profile.Item2.height *
-                        AdaptiveUiFoundation.MaximumDealerCardViewportHeight));
+                    table.RenderedCards.All(card =>
+                        card.transform.localScale == table.AuthoredLayout.CardScale),
+                    Is.True);
                 Assert.That(controller.Flow.Match.State, Is.SameAs(state));
                 Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(traceCount));
                 Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
@@ -360,44 +351,17 @@ namespace TheFall.Tests.PlayMode
             {
                 (
                     new Vector2Int(1024, 768),
-                    new Rect(0f, 24f, 1024f, 720f),
-                    AdaptiveUiProfile.TabletLandscape),
+                    new Rect(0f, 24f, 1024f, 720f)),
                 (
                     new Vector2Int(844, 390),
-                    new Rect(36f, 0f, 772f, 390f),
-                    AdaptiveUiProfile.PhoneLandscape),
+                    new Rect(36f, 0f, 772f, 390f)),
             })
             {
-                table.ApplyViewportForTests(profile.Item1, profile.Item2, true);
-                var localCard = table.RenderedCards.First(
-                    card => card.Zone == FirstPlayableCardZone.LocalHand);
-                var tableCard = table.RenderedCards.First(
-                    card => card.Zone == FirstPlayableCardZone.Table);
-                Assert.That(table.CurrentAdaptiveProfile, Is.EqualTo(profile.Item3));
+                table.ApplyViewportForTests(profile.Item1, profile.Item2);
                 Assert.That(
-                    table.MeasureProjectedCardSize(localCard).x,
-                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumLocalCardIdentityPoints));
-                Assert.That(
-                    table.MeasureProjectedInteractionSize(localCard).x,
-                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-                Assert.That(
-                    table.MeasureProjectedCardSize(tableCard).x,
-                    Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumPublicCardIdentityPoints));
-                Assert.That(
-                    table.MeasureProjectedCardSize(localCard).y,
-                    Is.LessThanOrEqualTo(
-                        profile.Item2.height *
-                        AdaptiveUiFoundation.MaximumLocalCardViewportHeight));
-                Assert.That(
-                    table.MeasureProjectedCardSize(tableCard).y,
-                    Is.LessThanOrEqualTo(
-                        profile.Item2.height *
-                        AdaptiveUiFoundation.MaximumPublicCardViewportHeight));
-                Assert.That(table.CurrentLocalCardScaleMultiplier,
-                    Is.GreaterThan(table.CurrentPublicCardScaleMultiplier));
-                Assert.That(table.CurrentLocalCardScaleMultiplier, Is.LessThan(3f));
-                Assert.That(table.CurrentPublicCardScaleMultiplier, Is.LessThan(2.5f));
-                Assert.That(table.CurrentCharacterScaleMultiplier, Is.GreaterThan(1f));
+                    table.RenderedCards.All(card =>
+                        card.transform.localScale == table.AuthoredLayout.CardScale),
+                    Is.True);
                 Assert.That(table.Interaction.State.SelectedCard, Is.EqualTo(selectedCard));
                 Assert.That(table.Interaction.State.Revision, Is.EqualTo(interactionRevision));
                 Assert.That(table.Interaction.IntentHistory, Has.Count.EqualTo(interactionIntentCount));

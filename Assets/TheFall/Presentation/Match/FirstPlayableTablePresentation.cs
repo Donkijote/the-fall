@@ -13,7 +13,6 @@ using TheFall.Presentation.Table;
 using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using DeviceApplication = UnityEngine.Device.Application;
 using DeviceScreen = UnityEngine.Device.Screen;
 
 namespace TheFall.Presentation.Match
@@ -72,14 +71,6 @@ namespace TheFall.Presentation.Match
         private Vector2Int _viewportSize;
         private Rect _safeAreaPixels;
         private float _contentScale;
-        private float _localCardScaleMultiplier = 1f;
-        private float _publicCardScaleMultiplier = 1f;
-        private float _secondaryCardScaleMultiplier = 1f;
-        private float _dealerCardScaleMultiplier = 1f;
-        private float _handSpacingMultiplier = 1f;
-        private float _tableSpacingMultiplier = 1f;
-        private float _dealerSpreadSpacingMultiplier = 1f;
-        private float _characterScaleMultiplier = 1f;
         private int _boundSessionNumber = -1;
         private int _animationVisualRevision = -1;
         private ResolvedAnimationStep _presentedStep;
@@ -124,14 +115,6 @@ namespace TheFall.Presentation.Match
         public IReadOnlyList<PrototypeCardView> LocalHandViews => _localHandViews;
 
         public TableCompositionProfile CurrentProfile { get; private set; }
-
-        public AdaptiveUiProfile CurrentAdaptiveProfile { get; private set; }
-
-        public float CurrentLocalCardScaleMultiplier => _localCardScaleMultiplier;
-
-        public float CurrentPublicCardScaleMultiplier => _publicCardScaleMultiplier;
-
-        public float CurrentCharacterScaleMultiplier => _characterScaleMultiplier;
 
         public int LayoutRevision { get; private set; }
 
@@ -256,12 +239,11 @@ namespace TheFall.Presentation.Match
                     RefreshFromAnimation(
                         true,
                         viewport,
-                        safeArea,
-                        DeviceApplication.isMobilePlatform);
+                        safeArea);
                 }
                 else
                 {
-                    Rebuild(viewport, safeArea, DeviceApplication.isMobilePlatform);
+                    Rebuild(viewport, safeArea);
                 }
             }
         }
@@ -304,14 +286,6 @@ namespace TheFall.Presentation.Match
 
         public void ApplyViewportForTests(Vector2Int viewportSize, Rect safeAreaPixels)
         {
-            ApplyViewportForTests(viewportSize, safeAreaPixels, false);
-        }
-
-        public void ApplyViewportForTests(
-            Vector2Int viewportSize,
-            Rect safeAreaPixels,
-            bool isMobilePlatform)
-        {
             if (Snapshot == null)
             {
                 throw new InvalidOperationException("The table has no active match snapshot.");
@@ -319,11 +293,11 @@ namespace TheFall.Presentation.Match
 
             if (_animationPlayer?.IsBusy == true)
             {
-                RefreshFromAnimation(true, viewportSize, safeAreaPixels, isMobilePlatform);
+                RefreshFromAnimation(true, viewportSize, safeAreaPixels);
             }
             else
             {
-                Rebuild(viewportSize, safeAreaPixels, isMobilePlatform);
+                Rebuild(viewportSize, safeAreaPixels);
             }
 
             ApplyInteractionState();
@@ -545,8 +519,7 @@ namespace TheFall.Presentation.Match
 
             Rebuild(
                 RuntimeViewport(),
-                RuntimeSafeArea(RuntimeViewport()),
-                DeviceApplication.isMobilePlatform);
+                RuntimeSafeArea(RuntimeViewport()));
             ApplyInteractionState();
         }
 
@@ -570,15 +543,13 @@ namespace TheFall.Presentation.Match
             RefreshFromAnimation(
                 animateChangedCards,
                 viewport,
-                RuntimeSafeArea(viewport),
-                DeviceApplication.isMobilePlatform);
+                RuntimeSafeArea(viewport));
         }
 
         private void RefreshFromAnimation(
             bool animateChangedCards,
             Vector2Int viewport,
-            Rect safeArea,
-            bool isMobilePlatform)
+            Rect safeArea)
         {
             if (_animationPlayer?.RenderedState == null || _animationPlayer.RenderedReferenceState == null)
             {
@@ -592,7 +563,7 @@ namespace TheFall.Presentation.Match
                 Snapshot);
             ResolveActiveDealerSelectionSlot(sourcePositions);
             _inputAdapter?.SetCards(Snapshot.LocalHand);
-            Rebuild(viewport, safeArea, isMobilePlatform);
+            Rebuild(viewport, safeArea);
             _animationVisualRevision = _animationPlayer.VisualRevision;
             PrepareCardMotions(sourcePositions);
             ApplyCardMotions();
@@ -621,8 +592,7 @@ namespace TheFall.Presentation.Match
                 _inputAdapter?.SetCards(Snapshot.LocalHand);
                 Rebuild(
                     RuntimeViewport(),
-                    RuntimeSafeArea(RuntimeViewport()),
-                    DeviceApplication.isMobilePlatform);
+                    RuntimeSafeArea(RuntimeViewport()));
             }
 
             _interaction?.SetTemporarilyBlocked(false);
@@ -690,8 +660,7 @@ namespace TheFall.Presentation.Match
 
         private void Rebuild(
             Vector2Int viewportSize,
-            Rect safeAreaPixels,
-            bool isMobilePlatform)
+            Rect safeAreaPixels)
         {
             if (viewportSize.x <= 0 || viewportSize.y <= 0)
             {
@@ -701,11 +670,7 @@ namespace TheFall.Presentation.Match
             _viewportSize = viewportSize;
             _safeAreaPixels = safeAreaPixels;
             CurrentProfile = TableCompositionLayout.ResolveProfile(viewportSize);
-            CurrentAdaptiveProfile = AdaptiveUiFoundation.Resolve(
-                viewportSize,
-                safeAreaPixels,
-                isMobilePlatform).Profile;
-            ConfigureAdaptiveMatchProfile(viewportSize, safeAreaPixels);
+            _contentScale = CurrentProfile.ContentScale;
             LayoutRevision++;
 
             DestroyGeneratedContent();
@@ -736,47 +701,6 @@ namespace TheFall.Presentation.Match
                 _authoredLayout.CardZonesRoot,
                 "Card Zone Anchors");
             CreateStateCards(cardZones);
-        }
-
-        private void ConfigureAdaptiveMatchProfile(
-            Vector2Int viewportSize,
-            Rect safeAreaPixels)
-        {
-            _contentScale = CurrentProfile.ContentScale;
-            _localCardScaleMultiplier = 1f;
-            _publicCardScaleMultiplier = 1f;
-            _secondaryCardScaleMultiplier = 1f;
-            _dealerCardScaleMultiplier = 1f;
-            _handSpacingMultiplier = 1f;
-            _tableSpacingMultiplier = 1f;
-            _dealerSpreadSpacingMultiplier = 1f;
-            _characterScaleMultiplier = 1f;
-
-            switch (CurrentAdaptiveProfile)
-            {
-                case AdaptiveUiProfile.PhoneLandscape:
-                case AdaptiveUiProfile.TabletLandscape:
-                    var safeArea = TableCompositionLayout.NormalizeSafeArea(
-                        viewportSize,
-                        safeAreaPixels);
-                    var safeWidth = viewportSize.x * safeArea.width;
-                    var safeHeight = viewportSize.y * safeArea.height;
-                    var safeAspect = safeHeight > 0f
-                        ? safeWidth / safeHeight
-                        : (float)viewportSize.x / viewportSize.y;
-                    var wideLandscape = Mathf.InverseLerp(4f / 3f, 2.2f, safeAspect);
-
-                    _contentScale = Mathf.Lerp(1f, 1.05f, wideLandscape);
-                    _localCardScaleMultiplier = Mathf.Lerp(2.1f, 2.75f, wideLandscape);
-                    _publicCardScaleMultiplier = Mathf.Lerp(1.65f, 2.1f, wideLandscape);
-                    _secondaryCardScaleMultiplier = Mathf.Lerp(0.9f, 1f, wideLandscape);
-                    _dealerCardScaleMultiplier = Mathf.Lerp(1.95f, 2.55f, wideLandscape);
-                    _handSpacingMultiplier = Mathf.Lerp(1.18f, 1.4f, wideLandscape);
-                    _tableSpacingMultiplier = Mathf.Lerp(1.08f, 1.22f, wideLandscape);
-                    _dealerSpreadSpacingMultiplier = Mathf.Lerp(1.45f, 1.85f, wideLandscape);
-                    _characterScaleMultiplier = Mathf.Lerp(1f, 1.06f, wideLandscape);
-                    break;
-            }
         }
 
         private CardPositionSnapshot CapturePresentationCardPositions()
@@ -1495,12 +1419,10 @@ namespace TheFall.Presentation.Match
             }
 
             position = _opponentHandRuntimeAnchor.TransformPoint(
-                ScaleLayoutPosition(
-                    AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
-                        layoutIndex,
-                        layoutSlotCount,
-                        Seat.Second),
-                    _handSpacingMultiplier));
+                AnimationHandCardLayoutEvaluator.ResolveLocalPosition(
+                    layoutIndex,
+                    layoutSlotCount,
+                    Seat.Second));
             return true;
         }
 
@@ -1981,7 +1903,6 @@ namespace TheFall.Presentation.Match
                 authoredSeat,
                 parent,
                 seat == Seat.First ? "Local Bottom Seat" : "Opponent Top Seat");
-            seatObject.transform.localScale *= _characterScaleMultiplier;
 
             var isActive = Snapshot.ActiveSeat == seat && Snapshot.Phase != MatchPhase.Completed;
             var isDealer = Snapshot.Phase != MatchPhase.DealerSelection && Snapshot.DealerSeat == seat;
@@ -2060,9 +1981,9 @@ namespace TheFall.Presentation.Match
                 var row = slot / 8;
                 var column = slot % 8;
                 var position = new Vector3(
-                    (column - 3.5f) * 0.17f * _dealerSpreadSpacingMultiplier,
+                    (column - 3.5f) * 0.17f,
                     row * 0.002f,
-                    (row - 2f) * 0.21f * _dealerSpreadSpacingMultiplier);
+                    (row - 2f) * 0.21f);
                 if (revealedSlots.TryGetValue(slot, out var revealedCard))
                 {
                     CreateCard(
@@ -2120,11 +2041,9 @@ namespace TheFall.Presentation.Match
                     cards[index],
                     layoutIndex);
                 CreateCard(zoneParent, $"Table {cards[index]}",
-                    ScaleLayoutPosition(
-                        AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
-                            layoutIndex,
-                            cards[index]),
-                        _tableSpacingMultiplier),
+                    AnimationTableCardLayoutEvaluator.ResolveLocalPosition(
+                        layoutIndex,
+                        cards[index]),
                     FirstPlayableCardZone.Table,
                     true,
                     cards[index],
@@ -2143,38 +2062,12 @@ namespace TheFall.Presentation.Match
             }
 
             return _tableCardsRuntimeAnchor.TransformPoint(
-                ScaleLayoutPosition(
-                    AnimationTableCardLayoutEvaluator.ResolveLocalPosition(index, card),
-                    _tableSpacingMultiplier));
+                AnimationTableCardLayoutEvaluator.ResolveLocalPosition(index, card));
         }
 
         private static float ResolveTableCardYaw(Card card)
         {
             return AnimationTableCardLayoutEvaluator.ResolveYaw(card);
-        }
-
-        private static Vector3 ScaleLayoutPosition(Vector3 position, float multiplier)
-        {
-            return new Vector3(
-                position.x * multiplier,
-                position.y,
-                position.z * multiplier);
-        }
-
-        private float CardScaleMultiplier(FirstPlayableCardZone zone)
-        {
-            switch (zone)
-            {
-                case FirstPlayableCardZone.LocalHand:
-                    return _localCardScaleMultiplier;
-                case FirstPlayableCardZone.Table:
-                    return _publicCardScaleMultiplier;
-                case FirstPlayableCardZone.DealerSpread:
-                case FirstPlayableCardZone.DealerSelection:
-                    return _dealerCardScaleMultiplier;
-                default:
-                    return _secondaryCardScaleMultiplier;
-            }
         }
 
         private void CreateLocalHand(
@@ -2191,7 +2084,6 @@ namespace TheFall.Presentation.Match
                     layoutIndex,
                     layoutSlotCount,
                     Seat.First);
-                position = ScaleLayoutPosition(position, _handSpacingMultiplier);
                 var rendered = CreateCard(zoneParent, $"Local Hand {cards[index]}",
                     position,
                     FirstPlayableCardZone.LocalHand,
@@ -2225,7 +2117,6 @@ namespace TheFall.Presentation.Match
                     layoutIndex,
                     layoutSlotCount,
                     Seat.Second);
-                position = ScaleLayoutPosition(position, _handSpacingMultiplier);
                 CreateCard(zoneParent, $"Private Opponent Hand Card {index + 1}",
                     position,
                     FirstPlayableCardZone.OpponentHand,
@@ -2279,11 +2170,7 @@ namespace TheFall.Presentation.Match
             cardObject.transform.localRotation = ResolveCardRotation(
                 renderedFaceUp ? 180f : 0f,
                 restingYawDegrees);
-            var cardScaleMultiplier = CardScaleMultiplier(zone);
-            cardObject.transform.localScale = new Vector3(
-                _authoredLayout.CardScale.x * cardScaleMultiplier,
-                _authoredLayout.CardScale.y,
-                _authoredLayout.CardScale.z * cardScaleMultiplier);
+            cardObject.transform.localScale = _authoredLayout.CardScale;
 
             var collider = cardObject.GetComponent<Collider>();
             if (!interactive)

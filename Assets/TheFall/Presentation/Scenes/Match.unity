@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 3
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -684,7 +684,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c88548026394b9e967b668d2394a443, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableTableLayout
   _environment: {fileID: 934402309}
   _table: {fileID: 33198187}
@@ -757,7 +757,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9a22223c08b5427bb92037720106fb7, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
   _description: Authoritative fixed-camera 1v1 table, loading transition, match HUD,
     and result presentation.
@@ -822,7 +822,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1054,7 +1054,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 3be92b173997648af9f6859d160ee9cc, type: 2}
   m_ParentUI: {fileID: 0}
@@ -1077,7 +1077,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50182221897504bd3929d821be048bef, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.UI.FirstPlayableFlowController
   _loginScreenAsset: {fileID: 0}
   _hubScreenAsset: {fileID: 0}
@@ -1096,7 +1096,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ae471ebc56c80402192574008d9e4b2b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableTablePresentation
   _gameplayCamera: {fileID: 202943771}
   _tablePrototypePrefab: {fileID: 5817732674550341530, guid: 1418070703fb940bcb4bdf6d7d90ccc7, type: 3}
@@ -1113,7 +1113,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46f679a8ff25439fa3bc76c26185ef7b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Audio.FirstPlayableAudioPresenter
 --- !u!82 &802810344
 AudioSource:
@@ -1256,7 +1256,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1363,7 +1363,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1627,7 +1627,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1921,7 +1921,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 2
@@ -2028,7 +2028,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -2592,7 +2592,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -2856,7 +2856,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 1

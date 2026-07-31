@@ -1,0 +1,21 @@
+.stage-match {
+    padding: 24px;
+    align-items: stretch;
+}
+
+.match-shell {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+}
+
+.match-table-space {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    min-width: 0;
+    min-height: 0;
+}

@@ -659,6 +659,7 @@ namespace TheFall.Presentation.UI
             if (!canBindDocumentSource)
             {
                 _root.Clear();
+                _root.styleSheets.Clear();
                 asset.CloneTree(_root);
                 UseSceneLayoutForPreviewRoots();
             }
