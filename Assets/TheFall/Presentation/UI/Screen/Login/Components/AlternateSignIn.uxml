@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Components/AlternateSignIn.uss"/>
+    <ui:VisualElement class="login-divider">
+        <ui:VisualElement class="login-divider-rule"/>
+        <ui:Label name="login-divider-label" class="login-divider-label">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.divider"/>
+            </Bindings>
+        </ui:Label>
+        <ui:VisualElement class="login-divider-rule"/>
+    </ui:VisualElement>
+    <ui:VisualElement class="login-social-row">
+        <ui:Button name="login-google-button" class="login-social-button icon-only-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.google"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="login-brand-mark login-google-mark"/>
+        </ui:Button>
+        <ui:Button name="login-apple-button" class="login-social-button icon-only-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="tooltip" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.apple"/>
+            </Bindings>
+            <ui:VisualElement picking-mode="Ignore" class="login-brand-mark login-apple-mark"/>
+        </ui:Button>
+    </ui:VisualElement>
+    <ui:VisualElement class="login-account-row">
+        <ui:Label name="login-account-prefix" class="login-account-prefix">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.account-prefix"/>
+            </Bindings>
+        </ui:Label>
+        <ui:Button name="login-create-button" class="login-link-button login-create-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.create"/>
+            </Bindings>
+        </ui:Button>
+    </ui:VisualElement>
+    <ui:Label name="login-feedback" text="Feedback appears here." class="login-feedback"/>
+</ui:UXML>

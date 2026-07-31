@@ -1,0 +1,53 @@
+.login-panel {
+    width: 41%;
+    min-width: 390px;
+    max-width: 520px;
+    padding: 30px 42px 24px 42px;
+    align-items: stretch;
+    border-top-color: rgba(181, 139, 62, 0.82);
+    border-bottom-color: rgba(141, 66, 56, 0.72);
+    background-color: rgba(43, 31, 24, 0.97);
+}
+
+.login-emblem {
+    width: 70px;
+    height: 70px;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(141, 66, 56);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(141, 66, 56);
+    border-radius: 35px;
+    background-color: rgb(36, 26, 20);
+}
+
+.login-emblem-icon {
+    width: 38px;
+    height: 38px;
+    -unity-background-image-tint-color: rgb(141, 66, 56);
+}
+
+.login-panel-title {
+    margin-top: 18px;
+    color: rgb(245, 226, 176);
+    font-size: 34px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.login-panel-subtitle {
+    margin-top: 5px;
+    color: rgb(160, 144, 118);
+    font-size: 14px;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

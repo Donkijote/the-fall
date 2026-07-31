@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Template name="LoginForm" src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Components/LoginForm.uxml"/>
+    <ui:Template name="AlternateSignIn" src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Components/AlternateSignIn.uxml"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Components/LoginPanel.uss"/>
+    <ui:VisualElement class="login-emblem">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon login-emblem-icon icon-shield"/>
+    </ui:VisualElement>
+    <ui:Label name="login-panel-title" class="login-panel-title">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.panel-title"/>
+        </Bindings>
+    </ui:Label>
+    <ui:Label name="login-panel-subtitle" class="login-panel-subtitle">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.panel-subtitle"/>
+        </Bindings>
+    </ui:Label>
+    <ui:Instance template="LoginForm" class="login-form"/>
+    <ui:Instance template="AlternateSignIn" class="login-lower-panel"/>
+</ui:UXML>

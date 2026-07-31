@@ -1,0 +1,36 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Components/LoginForm.uss"/>
+    <ui:Label name="login-email-label" class="login-field-label">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.email"/>
+        </Bindings>
+    </ui:Label>
+    <ui:VisualElement class="login-input-shell">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon login-input-icon icon-envelope"/>
+        <ui:TextField name="login-email" class="login-field"/>
+    </ui:VisualElement>
+    <ui:VisualElement class="login-password-heading">
+        <ui:Label name="login-password-label" class="login-field-label">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.password"/>
+            </Bindings>
+        </ui:Label>
+        <ui:Button name="login-forgot-button" class="login-link-button">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.forgot"/>
+            </Bindings>
+        </ui:Button>
+    </ui:VisualElement>
+    <ui:VisualElement class="login-input-shell">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon login-input-icon icon-padlock"/>
+        <ui:TextField name="login-password" is-password-field="true" class="login-field"/>
+    </ui:VisualElement>
+    <ui:Button name="login-enter-button" class="primary-button login-enter-button">
+        <ui:Label name="login-enter-label" class="login-enter-label">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.enter"/>
+            </Bindings>
+        </ui:Label>
+        <ui:VisualElement picking-mode="Ignore" class="game-icon login-enter-icon icon-enter-arrow"/>
+    </ui:Button>
+</ui:UXML>

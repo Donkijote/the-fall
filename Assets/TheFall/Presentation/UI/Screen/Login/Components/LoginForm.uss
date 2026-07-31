@@ -1,0 +1,115 @@
+.login-form {
+    margin-top: 34px;
+}
+
+.login-field-label {
+    margin-bottom: 7px;
+    color: rgb(205, 187, 150);
+    font-size: 13px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.login-input-shell,
+.login-password-heading {
+    flex-direction: row;
+    align-items: center;
+}
+
+.login-input-shell {
+    height: 54px;
+    background-color: rgb(36, 26, 20);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.35);
+    border-right-color: rgba(216, 196, 147, 0.35);
+    border-top-color: rgba(216, 196, 147, 0.35);
+    border-bottom-color: rgba(216, 196, 147, 0.35);
+    border-radius: 7px;
+}
+
+.login-input-icon {
+    width: 42px;
+    min-width: 42px;
+    height: 22px;
+    -unity-background-image-tint-color: rgb(112, 136, 155);
+}
+
+.login-field {
+    flex-grow: 1;
+    height: 52px;
+    color: rgb(245, 226, 176);
+    background-color: rgba(36, 26, 20, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.login-field .unity-base-text-field__input {
+    padding-left: 16px;
+    padding-right: 16px;
+    color: rgb(245, 226, 176);
+    background-color: rgba(36, 26, 20, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    font-size: 17px;
+}
+
+.login-password-heading {
+    margin-top: 17px;
+    justify-content: space-between;
+}
+
+.login-password-heading .login-field-label {
+    margin-bottom: 7px;
+}
+
+.login-link-button {
+    min-height: 28px;
+    padding-left: 4px;
+    padding-right: 4px;
+    color: rgb(181, 139, 62);
+    background-color: rgba(36, 26, 20, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-radius: 0;
+    font-size: 12px;
+}
+
+.login-enter-button {
+    width: 100%;
+    min-height: 58px;
+    margin-top: 24px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    color: rgb(245, 226, 176);
+    background-color: rgb(141, 66, 56);
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(110, 46, 40);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(110, 46, 40);
+}
+
+.login-enter-label {
+    color: rgb(245, 226, 176);
+    font-size: 16px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.login-enter-icon {
+    width: 18px;
+    height: 18px;
+    margin-left: 9px;
+    rotate: -90deg;
+    background-image: url("/Assets/TheFall/Content/UI/Icons/enter-arrow.png");
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}

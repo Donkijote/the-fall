@@ -34,14 +34,15 @@ namespace TheFall.Tests.EditMode
             {
                 XDocument.Load(Path.GetFullPath(ScreenAssetPath(screenAssetName))),
             };
-            if (screenAssetName != "HubScreen")
+            if (screenAssetName != "HubScreen" && screenAssetName != "LoginScreen")
             {
                 return documents;
             }
 
+            var screenName = screenAssetName.Substring(0, screenAssetName.Length - "Screen".Length);
             return documents.Concat(
                     Directory.GetFiles(
-                            Path.GetFullPath("Assets/TheFall/Presentation/UI/Screen/Hub/Components"),
+                            Path.GetFullPath($"Assets/TheFall/Presentation/UI/Screen/{screenName}/Components"),
                             "*.uxml")
                         .OrderBy(path => path)
                         .Select(XDocument.Load))
@@ -103,8 +104,8 @@ namespace TheFall.Tests.EditMode
             Assert.That(PlayerSettings.allowedAutorotateToLandscapeRight, Is.True);
         }
 
-        [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.PhoneLandscape, false)]
-        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.Desktop, false)]
+        [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.Desktop, false)]
+        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.PhoneLandscape, false)]
         [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
         public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
             string sceneName,
@@ -194,7 +195,7 @@ namespace TheFall.Tests.EditMode
                     $"{screenAssetName}/{control.Attribute("name")?.Value} must remain inside its screen-owned SafeArea.");
             }
 
-            if (screenAssetName != "HubScreen")
+            if (screenAssetName != "HubScreen" && screenAssetName != "LoginScreen")
             {
                 Assert.That(interactiveControls, Is.Not.Empty);
                 return;
@@ -218,11 +219,11 @@ namespace TheFall.Tests.EditMode
                 componentDocuments.SelectMany(component => component.Descendants())
                     .Any(element => element.Name.LocalName == "Bitbebop.SafeArea"),
                 Is.False,
-                "Hub components inherit the one SafeArea owned by HubScreen.uxml.");
+                $"{screenAssetName} components inherit the one SafeArea owned by the screen.");
         }
 
-        [TestCase("LoginScreen", AdaptiveUiProfile.PhoneLandscape)]
-        [TestCase("HubScreen", AdaptiveUiProfile.Desktop)]
+        [TestCase("LoginScreen", AdaptiveUiProfile.Desktop)]
+        [TestCase("HubScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
@@ -352,7 +353,6 @@ namespace TheFall.Tests.EditMode
 
             var responsiveScreenStyles = new[]
             {
-                "Login/Styles/LoginScreen.uss",
                 "Setup/Styles/SetupScreen.uss",
                 "Loading/Styles/LoadingScreen.uss",
                 "Match/Styles/MatchScreen.uss",
@@ -367,6 +367,10 @@ namespace TheFall.Tests.EditMode
                     Does.Contain(".screen-root.profile-mobile-landscape"),
                     relativePath);
             }
+
+            var loginStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Login/Styles/LoginScreen.uss"));
+            Assert.That(loginStyles, Does.Not.Contain(".screen-root.profile-"));
         }
 
         [TestCase("LoginScreen")]
