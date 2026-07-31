@@ -1,3 +1,81 @@
+.default-note {
+    margin-bottom: 10px;
+    color: rgb(181, 139, 62);
+    font-size: 14px;
+    white-space: normal;
+}
+
+.default-badge {
+    align-self: flex-start;
+    min-width: 156px;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    color: rgb(36, 26, 20);
+    background-color: rgb(181, 139, 62);
+    border-radius: 4px;
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.fixed-summary {
+    flex-grow: 1;
+    color: rgb(216, 196, 147);
+    font-size: 14px;
+    white-space: normal;
+}
+
+/* Setup-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .setup-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .card-label,
+.screen-root.profile-mobile-landscape .default-note,
+.screen-root.profile-mobile-landscape .default-badge,
+.screen-root.profile-mobile-landscape .option-state {
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.screen-root.profile-mobile-landscape .rule-toggle {
+    min-height: 96px;
+    font-size: 30px;
+}
+
+.screen-root.profile-mobile-landscape .default-badge {
+    min-width: 320px;
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-size: 21px;
+}
+
+.screen-root.profile-mobile-landscape .button-row {
+    margin-top: 22px;
+}
+
 .setup-panel {
     width: 90%;
     max-width: 1120px;

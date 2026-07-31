@@ -63,17 +63,17 @@ Repeat the complete selector instead:
 
 `HubScreen.uxml` loads its styles in this explicit order:
 
-1. `FlowShared.uss` — cross-screen components and tokens;
+1. `FlowShared.uss` — profile-neutral cross-screen foundations and reusable components;
 2. `HubScreen.Base.uss` — Hub rules shared by every supported profile;
 3. `HubScreen.Desktop.uss` — `.screen-root.profile-desktop` overrides;
-4. `HubScreen.HandheldLandscape.uss` — shared `.profile-mobile-landscape` phone/tablet overrides;
-5. `HubScreen.PhoneLandscape.uss` — `.profile-phone-landscape` overrides;
-6. `HubScreen.TabletLandscape.uss` — `.profile-tablet-landscape` overrides.
+4. `HubScreen.PhoneLandscape.uss` — `.profile-phone-landscape` overrides;
+5. `HubScreen.TabletLandscape.uss` — `.profile-tablet-landscape` overrides.
 
 Use the narrowest file that owns the intended behavior. A value common to every Hub profile belongs
-in Base. A value common only to phone and tablet belongs in Handheld Landscape. Form-factor-specific
-exceptions belong in their named file. Keep the full profile prefix on every override so loading all
-five assets never activates the wrong composition. Unsupported portrait Hub rules are not retained.
+in Base. Form-factor-specific exceptions belong in their named file. Keep the full profile prefix on
+every override so loading all four assets never activates the wrong composition. `FlowShared.uss`
+contains no profile-qualified or scene-specific selectors, so an empty Desktop, Phone, or Tablet
+file means Base is the only Hub composition. Unsupported portrait Hub rules are not retained.
 
 ## Runtime lifecycle
 
@@ -117,12 +117,11 @@ Settings is a three-group responsive composition for rules, audio, and motion ra
 modal body. This contract is enforced by Edit Mode source coverage and
 [ADR 0005](../decisions/0005-scroll-free-responsive-player-ui.md).
 
-In mobile landscape, Hub identity, resources, and global actions hug the safe-area top edge. The
-objective and persistent navigation dock share the bottom edge, while chat is an absolute overlay
-immediately above the dock. Secondary objective copy and older chat lines yield in this profile so
-the quest, navigation, chat tabs, text input, and send action remain visible without scrolling or
-clipping. The chat panel itself owns overflow containment: its rounded, inset tab rail and composer
-must remain inside the panel boundary rather than using the outer border as their content box.
+Hub uses the same Base composition for Desktop, Phone Landscape, and Tablet Landscape while its
+profile files remain empty. Identity, resources, and global actions occupy the top row; objective,
+persistent navigation, and chat share the lower row. The chat panel owns overflow containment: its
+rounded, inset tab rail and composer remain inside the panel boundary rather than using the outer
+border as their content box.
 
 The controller reads `UnityEngine.Device.Screen` and
 `UnityEngine.Device.Application.isMobilePlatform` only to select and refresh the authored responsive
@@ -151,16 +150,23 @@ Use UI Builder's Fit Canvas or zoom controls after switching profiles. The logic
 project's reference-panel behavior; they are intentionally not physical pixel claims. The preview
 safe area is representative, so final cutout behavior remains a Device Simulator/runtime concern.
 
-Put shared handheld rules under `.screen-root.profile-mobile-landscape`. Put deliberate variants
-under `.screen-root.profile-phone-landscape`, `.screen-root.profile-tablet-landscape`, or
+Keep each screen's responsive rules in that screen's own USS file. Put shared phone/tablet rules
+under `.screen-root.profile-mobile-landscape`, and deliberate variants under
+`.screen-root.profile-phone-landscape`, `.screen-root.profile-tablet-landscape`, or
 `.screen-root.profile-desktop`. The preview root applies the same classes in UI Builder, making USS
-changes immediately visible without entering Play Mode.
+changes immediately visible without entering Play Mode. Do not put profile-qualified selectors or
+screen-owned component selectors in `FlowShared.uss`.
 
 `profile-mobile-landscape` is a shared selector class, not a fourth Preview Profile. Phone receives
 both `profile-mobile-landscape` and `profile-phone-landscape`; tablet receives both
 `profile-mobile-landscape` and `profile-tablet-landscape`; desktop receives only
 `profile-desktop`. This avoids duplicating identical phone/tablet rules while leaving a precise
 override class for each selectable form factor.
+
+With empty Hub profile files, Desktop, Phone Landscape, and Tablet Landscape therefore resolve the
+same Hub declarations from Base. Their rendered geometry can still differ because each preview uses
+its own aspect ratio and representative safe-area insets; that is viewport reflow, not a hidden USS
+override.
 
 Preview Profile switches active classes; it does not create per-profile copies of UXML Inline Styles.
 An inline Inspector value is shared by every profile and wins over USS selectors. Keep common values

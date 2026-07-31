@@ -1,3 +1,93 @@
+.stage-match {
+    padding: 24px;
+    align-items: stretch;
+}
+
+.match-home-floating {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 190px;
+    min-width: 170px;
+    min-height: 48px;
+    background-color: rgba(36, 26, 20, 0.88);
+}
+
+.event-line {
+    margin-top: 4px;
+    color: rgb(216, 196, 147);
+    -unity-font-style: bold;
+}
+
+.outcome-capture {
+    border-left-color: rgb(70, 92, 115);
+}
+
+.outcome-fall {
+    border-left-width: 5px;
+    border-left-color: rgb(181, 139, 62);
+    background-color: rgba(181, 139, 62, 0.14);
+}
+
+.outcome-clean-table {
+    border-left-width: 5px;
+    border-left-color: rgb(107, 140, 70);
+    background-color: rgba(107, 140, 70, 0.14);
+}
+
+.outcome-canto {
+    border-left-color: rgb(112, 136, 155);
+    background-color: rgba(70, 92, 115, 0.15);
+}
+
+.outcome-score {
+    border-left-color: rgb(181, 139, 62);
+}
+
+.outcome-tie {
+    border-left-width: 5px;
+    border-left-color: rgb(160, 144, 118);
+    background-color: rgba(160, 144, 118, 0.14);
+}
+
+.outcome-victory {
+    border-left-width: 5px;
+    border-left-color: rgb(181, 139, 62);
+    background-color: rgba(181, 139, 62, 0.22);
+}
+
+/* Match-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.screen-root.profile-mobile-landscape .presentation-toggle {
+    min-height: 96px;
+    font-size: 30px;
+}
+
+.screen-root.profile-mobile-landscape .stage-match {
+    padding: 26px 34px;
+}
+
+.screen-root.profile-mobile-landscape .match-home-floating {
+    width: 270px;
+    min-width: 270px;
+    min-height: 100px;
+    font-size: 35px;
+}
+
+.screen-root.profile-mobile-landscape .icon-only-button {
+    font-size: 0;
+}
+
 .match-shell {
     position: relative;
     width: 100%;

@@ -80,80 +80,11 @@
     justify-content: center;
 }
 
-.stage-login {
-    padding: 0;
-    align-items: stretch;
-}
-
-.suit-token {
-    width: 44px;
-    height: 44px;
-    margin-right: -7px;
-    align-items: center;
-    justify-content: center;
-    border-left-width: 2px;
-    border-right-width: 2px;
-    border-top-width: 2px;
-    border-bottom-width: 2px;
-    border-left-color: rgb(36, 26, 20);
-    border-right-color: rgb(36, 26, 20);
-    border-top-color: rgb(36, 26, 20);
-    border-bottom-color: rgb(36, 26, 20);
-    border-radius: 22px;
-}
-
-.suit-token-brass {
-    background-color: rgb(181, 139, 62);
-}
-
-.suit-token-woad {
-    background-color: rgb(70, 92, 115);
-}
-
-.suit-token-madder {
-    background-color: rgb(141, 66, 56);
-}
-
-.suit-token-label {
-    color: rgb(245, 226, 176);
-    font-size: 21px;
-    -unity-font-style: bold;
-}
-
-.hero-mark {
-    width: 50%;
-    max-width: 700px;
-    margin-right: 7%;
-}
-
 .eyebrow {
     color: rgb(181, 139, 62);
     font-size: 14px;
     -unity-font-style: bold;
     letter-spacing: 3px;
-    white-space: normal;
-}
-
-.display-title {
-    margin-top: 10px;
-    color: rgb(245, 226, 176);
-    font-size: 76px;
-    -unity-font-style: bold;
-    white-space: normal;
-}
-
-.title-rule {
-    width: 84px;
-    height: 4px;
-    margin-top: 8px;
-    margin-bottom: 24px;
-    background-color: rgb(141, 66, 56);
-}
-
-.subtitle {
-    max-width: 680px;
-    color: rgb(205, 187, 150);
-    font-size: 24px;
     white-space: normal;
 }
 
@@ -175,32 +106,6 @@
     font-size: 14px;
     -unity-font-style: bold;
     letter-spacing: 2px;
-    white-space: normal;
-}
-
-.mode-summary {
-    margin-top: 10px;
-    color: rgb(245, 226, 176);
-    font-size: 17px;
-    -unity-font-style: bold;
-    white-space: normal;
-}
-
-.journey-list {
-    margin-top: 22px;
-    margin-bottom: 24px;
-    padding-top: 14px;
-    padding-bottom: 14px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-top-color: rgba(216, 196, 147, 0.20);
-    border-bottom-color: rgba(216, 196, 147, 0.20);
-}
-
-.journey-step {
-    min-height: 26px;
-    color: rgb(197, 178, 142);
-    font-size: 16px;
     white-space: normal;
 }
 
@@ -266,40 +171,11 @@ Toggle:disabled {
     white-space: normal;
 }
 
-.default-note {
-    margin-bottom: 10px;
-    color: rgb(181, 139, 62);
-    font-size: 14px;
-    white-space: normal;
-}
-
-.default-badge {
-    align-self: flex-start;
-    min-width: 156px;
-    margin-bottom: 8px;
-    padding: 4px 8px;
-    color: rgb(36, 26, 20);
-    background-color: rgb(181, 139, 62);
-    border-radius: 4px;
-    font-size: 12px;
-    -unity-font-style: bold;
-    letter-spacing: 1px;
-    -unity-text-align: middle-center;
-    white-space: nowrap;
-}
-
 .rule-toggle {
     min-height: 44px;
     color: rgb(236, 215, 169);
     font-size: 19px;
     -unity-font-style: bold;
-    white-space: normal;
-}
-
-.fixed-summary {
-    flex-grow: 1;
-    color: rgb(216, 196, 147);
-    font-size: 14px;
     white-space: normal;
 }
 
@@ -318,74 +194,8 @@ Toggle:disabled {
     -unity-text-align: middle-center;
 }
 
-.stage-match {
-    padding: 24px;
-    align-items: stretch;
-}
-
-.presentation-toggle {
-    min-height: 38px;
-    margin-right: 12px;
-    color: rgb(216, 196, 147);
-    font-size: 13px;
-    white-space: normal;
-}
-
 .quiet-button {
     min-width: 150px;
-}
-
-.match-home-floating {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 190px;
-    min-width: 170px;
-    min-height: 48px;
-    background-color: rgba(36, 26, 20, 0.88);
-}
-
-.event-line {
-    margin-top: 4px;
-    color: rgb(216, 196, 147);
-    -unity-font-style: bold;
-}
-
-.outcome-capture {
-    border-left-color: rgb(70, 92, 115);
-}
-
-.outcome-fall {
-    border-left-width: 5px;
-    border-left-color: rgb(181, 139, 62);
-    background-color: rgba(181, 139, 62, 0.14);
-}
-
-.outcome-clean-table {
-    border-left-width: 5px;
-    border-left-color: rgb(107, 140, 70);
-    background-color: rgba(107, 140, 70, 0.14);
-}
-
-.outcome-canto {
-    border-left-color: rgb(112, 136, 155);
-    background-color: rgba(70, 92, 115, 0.15);
-}
-
-.outcome-score {
-    border-left-color: rgb(181, 139, 62);
-}
-
-.outcome-tie {
-    border-left-width: 5px;
-    border-left-color: rgb(160, 144, 118);
-    background-color: rgba(160, 144, 118, 0.14);
-}
-
-.outcome-victory {
-    border-left-width: 5px;
-    border-left-color: rgb(181, 139, 62);
-    background-color: rgba(181, 139, 62, 0.22);
 }
 
 .semantic-legal {
@@ -442,244 +252,6 @@ Toggle:disabled {
     border-top-color: rgb(160, 144, 118);
     border-bottom-color: rgb(160, 144, 118);
     opacity: 0.72;
-}
-
-.screen-root.profile-mobile-portrait .stage {
-    padding: 96px 120px;
-}
-
-.screen-root.profile-mobile-portrait .hero-mark,
-.screen-root.profile-mobile-portrait .home-card,
-.screen-root.profile-mobile-portrait .setup-panel,
-.screen-root.profile-mobile-portrait .loading-panel,
-.screen-root.profile-mobile-portrait .result-panel {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    margin-right: 0;
-}
-
-.screen-root.profile-mobile-portrait .hero-mark {
-    margin-bottom: 120px;
-}
-
-.screen-root.profile-mobile-portrait .display-title {
-    margin-top: 28px;
-    font-size: 168px;
-}
-
-.screen-root.profile-mobile-portrait .eyebrow {
-    font-size: 52px;
-    letter-spacing: 8px;
-}
-
-.screen-root.profile-mobile-portrait .subtitle {
-    max-width: none;
-    font-size: 72px;
-}
-
-.screen-root.profile-mobile-portrait .title-rule {
-    width: 220px;
-    height: 12px;
-    margin-top: 28px;
-    margin-bottom: 64px;
-}
-
-.screen-root.profile-mobile-portrait .panel {
-    border-radius: 38px;
-}
-
-.screen-root.profile-mobile-portrait .home-card,
-.screen-root.profile-mobile-portrait .setup-panel,
-.screen-root.profile-mobile-portrait .loading-panel,
-.screen-root.profile-mobile-portrait .result-panel {
-    padding: 96px;
-}
-
-.screen-root.profile-mobile-portrait .setup-panel,
-.screen-root.profile-mobile-portrait .result-panel {
-    height: 92%;
-    max-height: none;
-}
-
-.screen-root.profile-mobile-portrait .card-label,
-.screen-root.profile-mobile-portrait .default-note,
-.screen-root.profile-mobile-portrait .default-badge,
-.screen-root.profile-mobile-portrait .option-state,
-.screen-root.profile-mobile-portrait .loading-status,
-.screen-root.profile-mobile-portrait .result-rules,
-.screen-root.profile-mobile-portrait .result-next {
-    font-size: 48px;
-}
-
-.screen-root.profile-mobile-portrait .journey-list {
-    margin-top: 56px;
-    margin-bottom: 64px;
-    padding-top: 40px;
-    padding-bottom: 40px;
-}
-
-.screen-root.profile-mobile-portrait .journey-step {
-    min-height: 90px;
-    font-size: 56px;
-}
-
-.screen-root.profile-mobile-portrait .section-title {
-    font-size: 112px;
-}
-
-.screen-root.profile-mobile-portrait Button {
-    min-height: 210px;
-    padding-left: 64px;
-    padding-right: 64px;
-    border-radius: 22px;
-    font-size: 64px;
-}
-
-.screen-root.profile-mobile-portrait .default-badge {
-    min-width: 620px;
-    margin-bottom: 24px;
-    padding: 12px 22px;
-    border-radius: 12px;
-}
-
-.screen-root.profile-mobile-portrait .rule-toggle {
-    min-height: 210px;
-    font-size: 62px;
-}
-
-.screen-root.profile-mobile-portrait .button-row {
-    flex-direction: column;
-    margin-top: 48px;
-}
-
-.screen-root.profile-mobile-portrait .button-row > Button {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 28px;
-}
-
-.screen-root.profile-mobile-portrait .stage-match {
-    padding: 64px 72px;
-}
-
-.screen-root.profile-mobile-portrait .match-home-floating {
-    width: 520px;
-    min-width: 520px;
-    min-height: 210px;
-    font-size: 58px;
-}
-
-.screen-root.profile-mobile-landscape .stage {
-    padding: 34px 48px;
-}
-
-.screen-root.profile-mobile-landscape .eyebrow {
-    font-size: 28px;
-    letter-spacing: 5px;
-}
-
-.screen-root.profile-mobile-landscape .display-title {
-    font-size: 92px;
-}
-
-.screen-root.profile-mobile-landscape .subtitle {
-    font-size: 36px;
-}
-
-.screen-root.profile-mobile-landscape .home-card,
-.screen-root.profile-mobile-landscape .setup-panel,
-.screen-root.profile-mobile-landscape .loading-panel,
-.screen-root.profile-mobile-landscape .result-panel {
-    padding: 40px;
-}
-
-.screen-root.profile-mobile-landscape .card-label,
-.screen-root.profile-mobile-landscape .default-note,
-.screen-root.profile-mobile-landscape .default-badge,
-.screen-root.profile-mobile-landscape .option-state,
-.screen-root.profile-mobile-landscape .loading-status,
-.screen-root.profile-mobile-landscape .result-rules,
-.screen-root.profile-mobile-landscape .result-next {
-    font-size: 25px;
-}
-
-.screen-root.profile-mobile-landscape .section-title {
-    font-size: 54px;
-}
-
-.screen-root.profile-mobile-landscape Button {
-    min-height: 96px;
-    padding-left: 32px;
-    padding-right: 32px;
-    font-size: 31px;
-}
-
-.screen-root.profile-mobile-landscape .journey-list {
-    margin-top: 24px;
-    margin-bottom: 28px;
-    padding-top: 14px;
-    padding-bottom: 14px;
-}
-
-.screen-root.profile-mobile-landscape .journey-step {
-    min-height: 42px;
-    font-size: 27px;
-}
-
-.screen-root.profile-mobile-landscape .rule-toggle,
-.screen-root.profile-mobile-landscape .presentation-toggle {
-    min-height: 96px;
-    font-size: 30px;
-}
-
-.screen-root.profile-mobile-landscape .default-badge {
-    min-width: 320px;
-    margin-bottom: 8px;
-    padding: 6px 12px;
-    border-radius: 7px;
-    font-size: 21px;
-}
-
-.screen-root.profile-mobile-landscape .button-row {
-    margin-top: 22px;
-}
-
-.screen-root.profile-mobile-landscape .stage-match {
-    padding: 26px 34px;
-}
-
-.screen-root.profile-mobile-landscape .match-home-floating {
-    width: 270px;
-    min-width: 270px;
-    min-height: 100px;
-    font-size: 35px;
-}
-
-.screen-root.profile-mobile-portrait .suit-token {
-    width: 148px;
-    height: 148px;
-    margin-right: -24px;
-    border-left-width: 6px;
-    border-right-width: 6px;
-    border-top-width: 6px;
-    border-bottom-width: 6px;
-    border-radius: 74px;
-}
-
-.screen-root.profile-mobile-portrait .suit-token-label {
-    font-size: 68px;
-}
-
-.screen-root.profile-mobile-landscape .suit-token {
-    width: 64px;
-    height: 64px;
-    margin-right: -11px;
-    border-radius: 32px;
-}
-
-.screen-root.profile-mobile-landscape .suit-token-label {
-    font-size: 29px;
 }
 
 .screen-root.show-login .ambient,
@@ -776,16 +348,6 @@ Toggle:disabled {
     background-image: url("/Assets/TheFall/Content/UI/Icons/replay.png");
 }
 
-.suit-token-moss {
-    background-color: rgb(107, 112, 70);
-}
-
-.suit-token-icon {
-    width: 30px;
-    height: 30px;
-    -unity-background-image-tint-color: rgb(245, 226, 176);
-}
-
 .icon-only-button {
     position: relative;
     font-size: 0;
@@ -803,34 +365,4 @@ Toggle:disabled {
     height: 20px;
     margin-top: -10px;
     -unity-background-image-tint-color: rgb(245, 226, 176);
-}
-
-.screen-root.profile-mobile-portrait .icon-only-button {
-    font-size: 0;
-}
-
-.screen-root.profile-mobile-portrait .suit-token-icon {
-    width: 58px;
-    height: 58px;
-}
-
-.screen-root.profile-mobile-portrait .login-emblem-icon,
-.screen-root.profile-mobile-portrait .hub-seal-icon {
-    width: 104px;
-    height: 104px;
-}
-
-.screen-root.profile-mobile-portrait .action-button-icon {
-    left: 42px;
-    width: 68px;
-    height: 68px;
-    margin-top: -34px;
-}
-
-.screen-root.profile-mobile-portrait .icon-label-button {
-    padding-left: 126px;
-}
-
-.screen-root.profile-mobile-landscape .icon-only-button {
-    font-size: 0;
 }

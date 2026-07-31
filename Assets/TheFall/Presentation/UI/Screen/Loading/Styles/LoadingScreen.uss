@@ -1,3 +1,32 @@
+/* Loading-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .loading-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .loading-status {
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
 .loading-panel {
     width: 70%;
     max-width: 620px;

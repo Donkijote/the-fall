@@ -381,12 +381,13 @@ namespace TheFall.Tests.PlayMode
             var hubChatTabsList = root.Query<Button>(className: "hub-chat-tab").ToList();
             Assert.That(homeDecks.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(homeChatSend.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-            Assert.That(hubChat.resolvedStyle.position, Is.EqualTo(Position.Absolute));
-            Assert.That(hubTopbar.worldBound.xMin - hubLayout.worldBound.xMin, Is.LessThanOrEqualTo(25f));
-            Assert.That(hubLayout.worldBound.xMax - hubTopbar.worldBound.xMax, Is.LessThanOrEqualTo(25f));
+            Assert.That(hubChat.resolvedStyle.position, Is.EqualTo(Position.Relative));
+            Assert.That(hubTopbar.worldBound.xMin - hubLayout.worldBound.xMin, Is.LessThanOrEqualTo(35f));
+            Assert.That(hubLayout.worldBound.xMax - hubTopbar.worldBound.xMax, Is.LessThanOrEqualTo(35f));
             Assert.That(hubObjective.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
             Assert.That(hubDock.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
-            Assert.That(hubChat.worldBound.yMax, Is.LessThanOrEqualTo(hubDock.worldBound.yMin + 1f));
+            Assert.That(hubChat.worldBound.yMin, Is.GreaterThanOrEqualTo(hubLayout.worldBound.yMin - 1f));
+            Assert.That(hubChat.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
             Assert.That(hubChat.worldBound.xMax, Is.LessThanOrEqualTo(hubLayout.worldBound.xMax + 1f));
             Assert.That(hubChatTabs.worldBound.yMin, Is.GreaterThanOrEqualTo(hubChat.worldBound.yMin));
             Assert.That(hubChatTabs.worldBound.xMin, Is.GreaterThan(hubChat.worldBound.xMin));
@@ -437,7 +438,8 @@ namespace TheFall.Tests.PlayMode
             Assert.That(audioToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(hubObjective.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
             Assert.That(hubDock.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
-            Assert.That(hubChat.worldBound.yMax, Is.LessThanOrEqualTo(hubDock.worldBound.yMin + 1f));
+            Assert.That(hubChat.worldBound.yMin, Is.GreaterThanOrEqualTo(hubLayout.worldBound.yMin - 1f));
+            Assert.That(hubChat.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
             Assert.That(hubChat.worldBound.xMax, Is.LessThanOrEqualTo(hubLayout.worldBound.xMax + 1f));
 
             Assert.That(controller.BeginQuest(), Is.True);

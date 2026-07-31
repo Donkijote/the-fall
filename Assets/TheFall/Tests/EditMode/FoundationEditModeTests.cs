@@ -84,7 +84,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.PhoneLandscape, false)]
-        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.Desktop, false)]
+        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.PhoneLandscape, false)]
         [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
         public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
             string sceneName,
@@ -177,7 +177,7 @@ namespace TheFall.Tests.EditMode
         }
 
         [TestCase("LoginScreen", AdaptiveUiProfile.PhoneLandscape)]
-        [TestCase("HubScreen", AdaptiveUiProfile.Desktop)]
+        [TestCase("HubScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
@@ -215,12 +215,11 @@ namespace TheFall.Tests.EditMode
 
             Assert.That(
                 hubStyleSources,
-                Has.Length.EqualTo(5));
+                Has.Length.EqualTo(4));
             var expectedHubStyles = new[]
             {
                 "HubScreen.Base.uss",
                 "HubScreen.Desktop.uss",
-                "HubScreen.HandheldLandscape.uss",
                 "HubScreen.PhoneLandscape.uss",
                 "HubScreen.TabletLandscape.uss",
             };
@@ -233,14 +232,62 @@ namespace TheFall.Tests.EditMode
 
             var baseStyles = File.ReadAllText(Path.GetFullPath(
                 "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss"));
-            var handheldStyles = File.ReadAllText(Path.GetFullPath(
-                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.HandheldLandscape.uss"));
 
             Assert.That(baseStyles, Does.Not.Contain(".screen-root.profile-"));
-            Assert.That(handheldStyles, Does.Contain(".screen-root.profile-mobile-landscape"));
-            Assert.That(handheldStyles, Does.Not.Contain(".screen-root.profile-mobile-portrait"));
+            Assert.That(File.Exists(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.HandheldLandscape.uss")), Is.False);
             Assert.That(File.Exists(Path.GetFullPath(
                 "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.uss")), Is.False);
+        }
+
+        [Test]
+        public void SharedStyles_DoNotOwnProfileOrSceneSpecificRules()
+        {
+            var sharedStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss"));
+
+            Assert.That(
+                sharedStyles,
+                Does.Not.Contain(".profile-"));
+            var sceneOwnedSelectors = new[]
+            {
+                ".stage-login",
+                ".suit-token",
+                ".default-note",
+                ".default-badge",
+                ".fixed-summary",
+                ".stage-match",
+                ".match-home-floating",
+                ".event-line",
+                ".outcome-fall",
+                ".presentation-toggle",
+            };
+            foreach (var selector in sceneOwnedSelectors)
+            {
+                Assert.That(sharedStyles, Does.Not.Contain(selector), selector);
+            }
+
+            var hubBaseStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss"));
+            Assert.That(hubBaseStyles, Does.Contain(".presentation-toggle"));
+
+            var responsiveScreenStyles = new[]
+            {
+                "Login/Styles/LoginScreen.uss",
+                "Setup/Styles/SetupScreen.uss",
+                "Loading/Styles/LoadingScreen.uss",
+                "Match/Styles/MatchScreen.uss",
+                "Result/Styles/ResultScreen.uss",
+            };
+            foreach (var relativePath in responsiveScreenStyles)
+            {
+                var styles = File.ReadAllText(Path.GetFullPath(
+                    $"Assets/TheFall/Presentation/UI/Screen/{relativePath}"));
+                Assert.That(
+                    styles,
+                    Does.Contain(".screen-root.profile-mobile-landscape"),
+                    relativePath);
+            }
         }
 
         [TestCase("LoginScreen")]

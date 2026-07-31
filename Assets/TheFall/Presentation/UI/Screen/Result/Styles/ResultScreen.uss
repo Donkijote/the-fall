@@ -1,3 +1,38 @@
+/* Result-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .result-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .card-label,
+.screen-root.profile-mobile-landscape .result-rules,
+.screen-root.profile-mobile-landscape .result-next {
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.screen-root.profile-mobile-landscape .button-row {
+    margin-top: 22px;
+}
+
 .result-panel {
     width: 76%;
     max-width: 900px;

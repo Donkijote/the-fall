@@ -4,6 +4,14 @@
  */
 
 /* Core shell, identity, resources, objective, navigation, and chat components. */
+.presentation-toggle {
+    min-height: 64px;
+    margin-right: 12px;
+    color: rgb(216, 196, 147);
+    font-size: 13px;
+    white-space: normal;
+}
+
 .stage-home {
     flex-direction: row;
 }
@@ -685,8 +693,8 @@
 }
 
 .hub-chat-input-row {
-    height: 42px;
-    min-height: 42px;
+    height: 48px;
+    min-height: 48px;
     flex-shrink: 0;
     padding: 4px 0 0 0;
 }
@@ -694,8 +702,8 @@
 .hub-chat-input {
     flex-grow: 1;
     min-width: 0;
-    height: 38px;
-    min-height: 38px;
+    height: 44px;
+    min-height: 44px;
     color: rgb(216, 196, 147);
     background-color: rgb(36, 26, 20);
     border-left-color: rgba(216, 196, 147, 0.28);
@@ -712,10 +720,10 @@
 }
 
 .hub-chat-send {
-    width: 38px;
-    min-width: 38px;
-    height: 38px;
-    min-height: 38px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
     margin-left: 5px;
     padding-left: 0;
     padding-right: 0;
@@ -806,7 +814,8 @@
 }
 
 .hub-setting-toggle {
-    min-height: 44px;
+    min-height: 64px;
+    flex-shrink: 0;
     margin-right: 14px;
     margin-bottom: 8px;
     color: rgb(231, 218, 184);
@@ -966,10 +975,20 @@
     flex-wrap: nowrap;
 }
 
-.hub-setting-card,
-.hub-settings-compact-grid .hub-setting-toggle {
+.hub-setting-card {
     width: 100%;
     min-height: 0;
+    margin-right: 0;
+    margin-bottom: 8px;
+}
+
+.hub-settings-compact-grid .presentation-toggle.hub-setting-toggle {
+    width: 100%;
+    height: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    flex-basis: 64px;
+    flex-shrink: 0;
     margin-right: 0;
     margin-bottom: 8px;
 }
