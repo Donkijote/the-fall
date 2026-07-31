@@ -32,8 +32,8 @@
 }
 
 .hub-resource-icon {
-    width: 28px;
-    height: 28px;
+    width: 42px;
+    height: 42px;
 }
 
 .hub-resource-brass { -unity-background-image-tint-color: rgb(181, 139, 62); }
