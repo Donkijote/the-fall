@@ -42,9 +42,10 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 ### Design
 
 - [Experience](design/experience.md): camera, player representation, interaction, and UI principles.
-- [V0.1 adaptive UI foundation](design/adaptive-ui-foundation.md): screen audit, authored desktop/mobile profiles, measurable size tokens, safe-area rules, reusable components, and comparison captures.
+- [V0.1 adaptive UI foundation](design/adaptive-ui-foundation.md): screen audit, authored desktop and mobile-landscape profiles, measurable size tokens, safe-area rules, reusable components, and comparison captures.
 - [Fixed table composition prototype](design/table-composition-prototype.md): V0 camera, seat-anchor, orientation, safe-area, readability, validation, and unresolved-constraint evidence.
 - [Cross-platform card interaction prototype](design/card-interaction-prototype.md): shared card intents, touch/mouse/keyboard mappings, feedback states, orientation preservation, and validation evidence.
+- [V0.1 1v1 match HUD and card interaction](design/1v1-match-hud-and-card-interaction.md): authoritative HUD hierarchy, authored desktop/phone match profiles, critical outcome vocabulary, distinct interaction feedback, and recomposition/privacy contract.
 - [Art direction](design/art-direction.md): visual principles, palette, cultural neutrality, readability, anti-goals, and V0 technical envelope.
 - [Visual reference board](design/visual-reference-board.md): annotated references, provenance, usage boundaries, and category-specific study notes.
 
@@ -68,6 +69,7 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Deterministic domain foundation](technical/domain-foundation.md): implemented 1v1 state, intent, result, and event vocabulary.
 - [First-playable match orchestration](technical/match-orchestration.md): human-facing session, deterministic baseline bot, information boundary, seeded replay, and failure diagnosis contract.
 - [First-playable application flow](technical/first-playable-flow.md): localized Home, setup, loading, match, result, replay, return, and session-reset contract.
+- [UI screen composition](technical/ui-screen-composition.md): authoritative shell, per-screen UXML/USS assets, on-demand mounting, state ownership, and editing workflow.
 - [First-playable 1v1 table presentation](technical/first-playable-table.md): authoritative state/event-prefix projection, fixed-camera composition, private hands, integrated card intents, animation blocking, and resize-safe rendering.
 - [Platforms](technical/platforms.md): mobile and desktop targets, orientations, and input.
 
@@ -82,6 +84,10 @@ When documents disagree, prefer the newest accepted entry in the [decision log](
 - [Testing and platform validation baseline](development/validation.md): repeatable suites and smoke builds, manual matrix, initial V0 budgets, failure diagnosis, CI decision, and coverage ownership.
 - [iOS development builds](development/ios-development-builds.md): repository-safe Unity export, local Xcode signing, physical-iPhone deployment, retained-scene checks, simulator support, and failure diagnosis.
 - [Decision log](decisions/README.md): durable record of important choices and their rationale.
+- [Landscape-only mobile presentation](decisions/0003-landscape-only-mobile.md): accepted phone/tablet orientation and future UI-planning contract.
+- [On-demand UI screen composition](decisions/0004-on-demand-ui-screen-composition.md): accepted per-screen UI Toolkit asset and runtime-mounting boundary.
+- [Scroll-free responsive player UI](decisions/0005-scroll-free-responsive-player-ui.md): accepted one-viewport layout and bounded mobile-card sizing contract.
+- [First-playable presentation scenes](decisions/0006-first-playable-presentation-scenes.md): accepted Bootstrap-persistent state with separate Login, Hub, and Match scene lifecycles.
 
 ## Maintenance rule
 

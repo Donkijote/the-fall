@@ -16,7 +16,7 @@ namespace TheFall.Editor
 {
     public static class FirstPlayableTableSetup
     {
-        private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
+        private const string MatchScenePath = "Assets/TheFall/Presentation/Scenes/Match.unity";
         private const string TablePrefabPath = "Assets/TheFall/Content/PrototypeAssets/Models/Furniture/RoundCardTable/Generated/RoundCardTable.prefab";
         private const string CardCatalogPath = "Assets/TheFall/Content/Cards/Generated/CardVisualCatalog.asset";
         private const string AnimationPresetPath = "Assets/TheFall/Content/Animation/AnimationSequenceConfiguration.asset";
@@ -37,15 +37,15 @@ namespace TheFall.Editor
             }
 
             FirstPlayableFlowSetup.Run();
-            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.OpenScene(MatchScenePath, OpenSceneMode.Single);
             var controller = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableFlowController>(true))
                 .SingleOrDefault()
-                ?? throw new InvalidOperationException("The Home scene is missing its first-playable flow controller.");
+                ?? throw new InvalidOperationException("The Match scene is missing its first-playable flow controller.");
             var camera = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<Camera>(true))
                 .SingleOrDefault(item => item.CompareTag("MainCamera"))
-                ?? throw new InvalidOperationException("The Home scene is missing its main camera.");
+                ?? throw new InvalidOperationException("The Match scene is missing its main camera.");
             var table = AssetDatabase.LoadAssetAtPath<GameObject>(TablePrefabPath)
                 ?? throw new InvalidOperationException("RoundCardTable is missing.");
             var catalog = AssetDatabase.LoadAssetAtPath<CardVisualCatalog>(CardCatalogPath)
@@ -88,7 +88,7 @@ namespace TheFall.Editor
             EditorUtility.SetDirty(layout);
             EditorUtility.SetDirty(camera);
             EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene, HomeScenePath);
+            EditorSceneManager.SaveScene(scene, MatchScenePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Validate();
@@ -104,7 +104,7 @@ namespace TheFall.Editor
         [MenuItem("The Fall/First Playable Table/Open Authoring Layout")]
         public static void OpenAuthoringLayout()
         {
-            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.OpenScene(MatchScenePath, OpenSceneMode.Single);
             var layout = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTableLayout>(true))
                 .SingleOrDefault()
@@ -117,7 +117,7 @@ namespace TheFall.Editor
         public static void Validate()
         {
             var errors = new List<string>();
-            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.OpenScene(MatchScenePath, OpenSceneMode.Single);
             var presentation = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableTablePresentation>(true))
                 .SingleOrDefault();
@@ -128,9 +128,9 @@ namespace TheFall.Editor
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableAudioPresenter>(true))
                 .SingleOrDefault();
 
-            Require(presentation != null, "The Home scene has no integrated table presentation.", errors);
-            Require(layout != null, "The Home scene has no persistent table authoring layout.", errors);
-            Require(audioPresenter != null, "The Home scene has no first-playable audio presenter.", errors);
+            Require(presentation != null, "The Match scene has no integrated table presentation.", errors);
+            Require(layout != null, "The Match scene has no persistent table authoring layout.", errors);
+            Require(audioPresenter != null, "The Match scene has no first-playable audio presenter.", errors);
             Require(layout?.IsConfigured == true, "The persistent table authoring layout is incomplete.", errors);
             Require(
                 audioPresenter != null
@@ -150,7 +150,7 @@ namespace TheFall.Editor
                     presentation.AnimationPreset?.PresetVersion == AnimationSequenceConfiguration.CurrentPresetVersion,
                     "The integrated table animation preset version is unsupported.",
                     errors);
-                Require(presentation.AuthoredLayout == layout, "The integrated table does not use the Home scene authoring layout.", errors);
+                Require(presentation.AuthoredLayout == layout, "The integrated table does not use the Match scene authoring layout.", errors);
                 Require(presentation.CardCatalog?.Entries.Count == 40, "The integrated table catalog must contain forty cards.", errors);
                 Require(
                     presentation.GameplayCamera != null

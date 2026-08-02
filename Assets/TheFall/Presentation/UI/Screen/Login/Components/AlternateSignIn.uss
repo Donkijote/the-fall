@@ -1,0 +1,130 @@
+.login-lower-panel {
+    margin-left: -42px;
+    margin-right: -42px;
+    margin-bottom: -24px;
+    padding-left: 42px;
+    padding-right: 42px;
+    padding-bottom: 18px;
+    background-color: rgba(36, 26, 20, 0.42);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.login-divider,
+.login-social-row,
+.login-account-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.login-divider {
+    margin-top: 28px;
+}
+
+.login-divider-rule {
+    flex-grow: 1;
+    height: 1px;
+    background-color: rgba(216, 196, 147, 0.22);
+}
+
+.login-divider-label {
+    margin-left: 12px;
+    margin-right: 12px;
+    color: rgb(160, 144, 118);
+    font-size: 11px;
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+
+.login-social-row {
+    height: 58px;
+    min-height: 58px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.login-social-button {
+    width: 58px;
+    min-width: 58px;
+    max-width: 58px;
+    height: 58px;
+    min-height: 58px;
+    max-height: 58px;
+    flex-basis: 58px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-left: 8px;
+    margin-right: 8px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(17, 15, 14);
+    border-left-color: rgba(216, 196, 147, 0.42);
+    border-right-color: rgba(216, 196, 147, 0.42);
+    border-top-color: rgba(216, 196, 147, 0.42);
+    border-bottom-color: rgba(216, 196, 147, 0.42);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-radius: 29px;
+    overflow: hidden;
+}
+
+.login-brand-mark {
+    flex-shrink: 0;
+    align-self: center;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.login-google-mark {
+    width: 27px;
+    height: 27px;
+    background-image: url("/Assets/TheFall/Content/UI/Icons/google-g.png");
+}
+
+.login-apple-mark {
+    position: relative;
+    top: -3px;
+    width: 25px;
+    height: 29px;
+    background-image: url("/Assets/TheFall/Content/UI/Icons/apple-sign-in.png");
+}
+
+.login-account-row {
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.login-account-prefix {
+    color: rgb(160, 144, 118);
+    font-size: 13px;
+}
+
+.login-link-button {
+    min-height: 28px;
+    padding-left: 4px;
+    padding-right: 4px;
+    color: rgb(181, 139, 62);
+    background-color: rgba(36, 26, 20, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-radius: 0;
+    font-size: 12px;
+}
+
+.login-create-button {
+    margin-left: 5px;
+    -unity-font-style: bold;
+}
+
+.login-feedback {
+    min-height: 18px;
+    margin-top: 8px;
+    color: rgb(181, 165, 134);
+    font-size: 11px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

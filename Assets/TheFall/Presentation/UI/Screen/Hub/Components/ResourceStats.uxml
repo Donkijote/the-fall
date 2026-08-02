@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/ResourceStats.uss"/>
+    <ui:VisualElement class="hub-stat panel hub-stat-brass">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon hub-resource-icon hub-resource-brass icon-coins"/>
+        <ui:Label name="home-stat-mode-value" class="hub-stat-value">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.stat.mode-value"/>
+            </Bindings>
+        </ui:Label>
+    </ui:VisualElement>
+    <ui:VisualElement class="hub-stat panel hub-stat-woad">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon hub-resource-icon hub-resource-woad icon-gems"/>
+        <ui:Label name="home-stat-target-value" class="hub-stat-value">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.stat.target-value"/>
+            </Bindings>
+        </ui:Label>
+    </ui:VisualElement>
+    <ui:VisualElement class="hub-stat panel hub-stat-madder">
+        <ui:VisualElement picking-mode="Ignore" class="game-icon hub-resource-icon hub-resource-madder icon-energy"/>
+        <ui:Label name="home-stat-deck-value" class="hub-stat-value">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.home.stat.deck-value"/>
+            </Bindings>
+        </ui:Label>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="HomeNavigation" src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/HomeNavigation.uxml?fileID=9197481963319205126&amp;guid=3208e645b99541b2b5fb443fe290dc21&amp;type=3#HomeNavigation"/>
+    <ui:Template name="MatchStatus" src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/MatchStatus.uxml?fileID=9197481963319205126&amp;guid=1ae7913050f94e89934778075eeb5a04&amp;type=3#MatchStatus"/>
+    <ui:Template name="ScoreHud" src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/ScoreHud.uxml?fileID=9197481963319205126&amp;guid=178ed359f7754cd5b05a1bd4b092598b&amp;type=3#ScoreHud"/>
+    <ui:Template name="TableContextControls" src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/TableContextControls.uxml?fileID=9197481963319205126&amp;guid=da8ed071306a4050a108631d2fc8dac8&amp;type=3#TableContextControls"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/UI/MatchScreen.uss?fileID=7433441132597879392&amp;guid=adf73f00e6b66402b8f94704904a3c6b&amp;type=3#MatchScreen"/>
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
+        <ui:VisualElement name="match-stage" class="stage stage-match" style="padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
+            <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">
+                <ui:VisualElement class="match-shell">
+                    <ui:VisualElement name="match-table-space" picking-mode="Ignore" class="match-table-space">
+                        <ui:Instance template="TableContextControls" style="height: 100%;"/>
+                    </ui:VisualElement>
+                    <ui:Instance template="MatchStatus" class="match-status panel"/>
+                    <ui:Instance template="ScoreHud" picking-mode="Ignore" class="match-score-hud panel"/>
+                    <ui:Instance template="HomeNavigation"/>
+                </ui:VisualElement>
+            </Bitbebop.SafeArea>
+        </ui:VisualElement>
+    </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
+</ui:UXML>

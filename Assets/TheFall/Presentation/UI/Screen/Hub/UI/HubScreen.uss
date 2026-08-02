@@ -1,0 +1,40 @@
+/* Desktop is the unqualified Hub shell. Components own all of their internal styles. */
+.stage-home {
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.hub-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.hub-topbar,
+.hub-bottombar {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.hub-topbar {
+    min-height: 86px;
+    align-items: stretch;
+}
+
+.hub-bottombar {
+    min-height: 220px;
+    align-items: flex-end;
+}
+
+/* Phone Landscape overrides belong here when the Hub shell itself differs. */
+
+.screen-root.profile-phone-landscape .hub-layout  {
+   padding: 24px 0 0 0;
+}
+
+/* Tablet Landscape overrides belong here when the Hub shell itself differs. */

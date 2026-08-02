@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 3
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -684,7 +684,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c88548026394b9e967b668d2394a443, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableTableLayout
   _environment: {fileID: 934402309}
   _table: {fileID: 33198187}
@@ -741,7 +741,7 @@ GameObject:
   - component: {fileID: 474010534}
   - component: {fileID: 474010533}
   m_Layer: 0
-  m_Name: Home
+  m_Name: Match
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -757,10 +757,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9a22223c08b5427bb92037720106fb7, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Scenes.ScenePurpose
-  _description: Localized first-playable gateway and flow with an authoritative fixed-camera
-    1v1 table presentation and resolved-beat prototype audio.
+  _description: Authoritative fixed-camera 1v1 table, loading transition, match HUD,
+    and result presentation.
 --- !u!4 &474010534
 Transform:
   m_ObjectHideFlags: 0
@@ -822,7 +822,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1054,11 +1054,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 3be92b173997648af9f6859d160ee9cc, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 45d413a20c52e4a10976deff0120121d, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: a71a8cbfd36184242a7723e1cc1108a5, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
@@ -1077,8 +1077,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50182221897504bd3929d821be048bef, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.UI.FirstPlayableFlowController
+  _loginScreenAsset: {fileID: 0}
+  _hubScreenAsset: {fileID: 0}
+  _setupScreenAsset: {fileID: 0}
+  _loadingScreenAsset: {fileID: 9197481963319205126, guid: 99f0cd6163c0d4bc58bd6f2eb04745b1, type: 3}
+  _matchScreenAsset: {fileID: 9197481963319205126, guid: a71a8cbfd36184242a7723e1cc1108a5, type: 3}
+  _resultScreenAsset: {fileID: 9197481963319205126, guid: 5a985a68482884230965e47d9a178d1e, type: 3}
+  _sceneKind: 2
 --- !u!114 &802810342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1089,7 +1096,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ae471ebc56c80402192574008d9e4b2b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableTablePresentation
   _gameplayCamera: {fileID: 202943771}
   _tablePrototypePrefab: {fileID: 5817732674550341530, guid: 1418070703fb940bcb4bdf6d7d90ccc7, type: 3}
@@ -1106,7 +1113,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46f679a8ff25439fa3bc76c26185ef7b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Audio.FirstPlayableAudioPresenter
 --- !u!82 &802810344
 AudioSource:
@@ -1249,7 +1256,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1356,7 +1363,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1620,7 +1627,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -1914,7 +1921,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 2
@@ -2021,7 +2028,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -2585,7 +2592,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 0
@@ -2849,7 +2856,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9be0ae31b44548ee9216b09c57658cb4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: TheFall.Presentation::TheFall.Presentation.Match.FirstPlayableCardAuthoringPreview
   _catalog: {fileID: 11400000, guid: 945f4e7be479c4afcb1587c30bf21794, type: 2}
   _suit: 1

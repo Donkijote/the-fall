@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011087
-    m_Localized: Return to Home
+    m_Localized: Home
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011088
@@ -126,7 +126,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011095
-    m_Localized: Choose a face-down dealer card
+    m_Localized: Choose dealer card
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011096
@@ -142,7 +142,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011099
-    m_Localized: "You {0} \xB7 Bot {1} \xB7 Target {2}"
+    m_Localized: "You {0} \xB7 Baseline Bot {1}"
     m_Metadata:
       m_Items:
       - rid: 3143288710239354880
@@ -301,20 +301,19 @@ MonoBehaviour:
       m_Items:
       - rid: 3143288710239354880
   - m_Id: 339898971185154
-    m_Localized: Choose a legal card to inspect or select.
+    m_Localized: Inspect or select a legal card.
     m_Metadata:
       m_Items: []
   - m_Id: 339898971185155
-    m_Localized: Card selected. Click it again or confirm to play; cancel to release
-      it.
+    m_Localized: Card selected. Confirm to play or cancel to release.
     m_Metadata:
       m_Items: []
   - m_Id: 339898971185156
-    m_Localized: "\u2713 Card play accepted by the match."
+    m_Localized: Card play accepted.
     m_Metadata:
       m_Items: []
   - m_Id: 339898971185157
-    m_Localized: "\u2161 Presentation is busy; selection retained."
+    m_Localized: Presentation busy; selection retained.
     m_Metadata:
       m_Items: []
   - m_Id: 339898971185158
@@ -338,7 +337,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 341442256953344
-    m_Localized: Dealer selection began with {0} face-down cards.
+    m_Localized: 'Dealer selection: {0} face-down cards.'
     m_Metadata:
       m_Items:
       - rid: 3143288710239354880
@@ -442,7 +441,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 348830162739203
-    m_Localized: Choose one of the face-down cards spread across the table.
+    m_Localized: Choose a face-down card.
     m_Metadata:
       m_Items: []
   - m_Id: 348830162739204
@@ -615,7 +614,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386951
-    m_Localized: "ENTER THE REALM  \u2192"
+    m_Localized: ENTER THE REALM
     m_Metadata:
       m_Items: []
   - m_Id: 2710831954386952
@@ -703,11 +702,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035009
-    m_Localized: G
+    m_Localized: Continue with Google
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035010
-    m_Localized: A
+    m_Localized: Continue with Apple
     m_Metadata:
       m_Items: []
   - m_Id: 2720884405035011
@@ -950,6 +949,50 @@ MonoBehaviour:
     m_Localized: Set the pace and reduce movement before the table is dealt.
     m_Metadata:
       m_Items: []
+  - m_Id: 2754802386722816
+    m_Localized: FIRST TO 24
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802399305728
+    m_Localized: RESOLVED OUTCOME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802399305729
+    m_Localized: YOUR ACTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802399305730
+    m_Localized: '{0}''s {1} resolved and scored.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 2754802403500032
+    m_Localized: '{0}''s {1} resolved without scoring.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 2754802403500033
+    m_Localized: '{0}''s {1} was false and rejected.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
+  - m_Id: 2754802403500034
+    m_Localized: Final deal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500035
+    m_Localized: Card inspected. Select it to prepare the play.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2754802403500036
+    m_Localized: Selection cancelled. No card was played.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2755764119658496
+    m_Localized: 'Cascade: {0} captured {1} cards.'
+    m_Metadata:
+      m_Items:
+      - rid: 3143288710239354880
   references:
     version: 2
     RefIds:
@@ -985,3 +1028,7 @@ MonoBehaviour:
         - id: 2702885480554510
         - id: 2702885480554516
         - id: 2720884405035042
+        - id: 2754802399305730
+        - id: 2754802403500032
+        - id: 2754802403500033
+        - id: 2755764119658496

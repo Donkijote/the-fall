@@ -1,0 +1,30 @@
+.match-score-hud {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 300px;
+    min-width: 300px;
+    margin-left: -150px;
+    padding: 6px 14px;
+    background-color: rgba(36, 26, 20, 0.92);
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.score-line {
+    color: rgb(245, 226, 176);
+    font-size: 22px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.match-score-objective {
+    margin-top: 2px;
+    color: rgb(181, 139, 62);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+    white-space: normal;
+}

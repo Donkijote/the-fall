@@ -6,55 +6,20 @@ namespace TheFall.Presentation.UI
     public enum AdaptiveUiProfile
     {
         Desktop,
-        MobilePortrait,
-        MobileLandscape,
+        PhoneLandscape,
+        TabletLandscape,
     }
 
     public enum AdaptiveUiSemanticState
     {
         Neutral,
         Legal,
+        Inspected,
         Selected,
         Confirmed,
+        Cancelled,
         Rejected,
         Blocked,
-    }
-
-    public readonly struct AdaptiveUiInsets : IEquatable<AdaptiveUiInsets>
-    {
-        public AdaptiveUiInsets(float left, float top, float right, float bottom)
-        {
-            Left = Mathf.Max(0f, left);
-            Top = Mathf.Max(0f, top);
-            Right = Mathf.Max(0f, right);
-            Bottom = Mathf.Max(0f, bottom);
-        }
-
-        public float Left { get; }
-
-        public float Top { get; }
-
-        public float Right { get; }
-
-        public float Bottom { get; }
-
-        public bool Equals(AdaptiveUiInsets other)
-        {
-            return Mathf.Approximately(Left, other.Left)
-                && Mathf.Approximately(Top, other.Top)
-                && Mathf.Approximately(Right, other.Right)
-                && Mathf.Approximately(Bottom, other.Bottom);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is AdaptiveUiInsets other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Left, Top, Right, Bottom);
-        }
     }
 
     public readonly struct AdaptiveUiLayout : IEquatable<AdaptiveUiLayout>
@@ -99,24 +64,31 @@ namespace TheFall.Presentation.UI
         public const float MinimumSecondaryTextPoints = 14f;
         public const float MinimumTouchTargetPoints = 44f;
         public const float MinimumDesktopControlPixels = 44f;
-        public const float MinimumPublicCardIdentityPoints = 48f;
-        public const float MinimumLocalCardIdentityPoints = 72f;
+        public const float MinimumPublicCardIdentityPoints = 26f;
+        public const float MinimumLocalCardIdentityPoints = 34f;
         public const float MinimumCharacterHeadPoints = 64f;
         public const float MinimumFocusStrokePoints = 3f;
+        public const float MaximumLocalCardViewportHeight = 0.19f;
+        public const float MaximumPublicCardViewportHeight = 0.15f;
+        public const float MaximumDealerCardViewportHeight = 0.18f;
 
         private static readonly string[] ProfileClasses =
         {
             "profile-desktop",
             "profile-mobile-portrait",
             "profile-mobile-landscape",
+            "profile-phone-landscape",
+            "profile-tablet-landscape",
         };
 
         private static readonly string[] SemanticClasses =
         {
             "semantic-neutral",
             "semantic-legal",
+            "semantic-inspected",
             "semantic-selected",
             "semantic-confirmed",
+            "semantic-cancelled",
             "semantic-rejected",
             "semantic-blocked",
         };
@@ -133,35 +105,26 @@ namespace TheFall.Presentation.UI
                     "Adaptive UI requires a positive viewport.");
             }
 
-            var profile = !isMobilePlatform
-                ? AdaptiveUiProfile.Desktop
-                : viewportPixels.y >= viewportPixels.x
-                    ? AdaptiveUiProfile.MobilePortrait
-                    : AdaptiveUiProfile.MobileLandscape;
+            var profile = AdaptiveUiProfile.Desktop;
+            if (isMobilePlatform)
+            {
+                var profileWidth = safeAreaPixels.width > 0f
+                    ? safeAreaPixels.width
+                    : viewportPixels.x;
+                var profileHeight = safeAreaPixels.height > 0f
+                    ? safeAreaPixels.height
+                    : viewportPixels.y;
+                var longSide = Mathf.Max(profileWidth, profileHeight);
+                var shortSide = Mathf.Max(1f, Mathf.Min(profileWidth, profileHeight));
+                profile = longSide / shortSide <= 1.7f
+                    ? AdaptiveUiProfile.TabletLandscape
+                    : AdaptiveUiProfile.PhoneLandscape;
+            }
 
             return new AdaptiveUiLayout(
                 profile,
                 viewportPixels,
                 NormalizeSafeArea(viewportPixels, safeAreaPixels));
-        }
-
-        public static AdaptiveUiInsets ResolvePanelInsets(
-            AdaptiveUiLayout layout,
-            Vector2 panelSize)
-        {
-            if (panelSize.x <= 0f || panelSize.y <= 0f)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(panelSize),
-                    "Adaptive UI requires a positive panel size.");
-            }
-
-            var safeArea = layout.NormalizedSafeArea;
-            return new AdaptiveUiInsets(
-                safeArea.xMin * panelSize.x,
-                (1f - safeArea.yMax) * panelSize.y,
-                (1f - safeArea.xMax) * panelSize.x,
-                safeArea.yMin * panelSize.y);
         }
 
         public static void ApplyProfileClass(
@@ -173,9 +136,36 @@ namespace TheFall.Presentation.UI
                 throw new ArgumentNullException(nameof(element));
             }
 
+            RemoveProfileClasses(element);
+            switch (profile)
+            {
+                case AdaptiveUiProfile.Desktop:
+                    element.AddToClassList("profile-desktop");
+                    break;
+                case AdaptiveUiProfile.PhoneLandscape:
+                    element.AddToClassList("profile-mobile-landscape");
+                    element.AddToClassList("profile-phone-landscape");
+                    break;
+                case AdaptiveUiProfile.TabletLandscape:
+                    element.AddToClassList("profile-mobile-landscape");
+                    element.AddToClassList("profile-tablet-landscape");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(profile));
+            }
+        }
+
+        public static void RemoveProfileClasses(
+            UnityEngine.UIElements.VisualElement element)
+        {
+            if (element == null)
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+
             foreach (var className in ProfileClasses)
             {
-                element.EnableInClassList(className, className == ProfileClass(profile));
+                element.RemoveFromClassList(className);
             }
         }
 
@@ -200,10 +190,10 @@ namespace TheFall.Presentation.UI
             {
                 case AdaptiveUiProfile.Desktop:
                     return "profile-desktop";
-                case AdaptiveUiProfile.MobilePortrait:
-                    return "profile-mobile-portrait";
-                case AdaptiveUiProfile.MobileLandscape:
-                    return "profile-mobile-landscape";
+                case AdaptiveUiProfile.PhoneLandscape:
+                    return "profile-phone-landscape";
+                case AdaptiveUiProfile.TabletLandscape:
+                    return "profile-tablet-landscape";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(profile));
             }
@@ -217,10 +207,14 @@ namespace TheFall.Presentation.UI
                     return "semantic-neutral";
                 case AdaptiveUiSemanticState.Legal:
                     return "semantic-legal";
+                case AdaptiveUiSemanticState.Inspected:
+                    return "semantic-inspected";
                 case AdaptiveUiSemanticState.Selected:
                     return "semantic-selected";
                 case AdaptiveUiSemanticState.Confirmed:
                     return "semantic-confirmed";
+                case AdaptiveUiSemanticState.Cancelled:
+                    return "semantic-cancelled";
                 case AdaptiveUiSemanticState.Rejected:
                     return "semantic-rejected";
                 case AdaptiveUiSemanticState.Blocked:

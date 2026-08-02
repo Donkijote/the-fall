@@ -1,0 +1,142 @@
+/* Desktop is the unqualified component style. */
+.hub-chat {
+    width: 31%;
+    min-width: 330px;
+    max-width: 430px;
+    min-height: 220px;
+    padding: 8px;
+    overflow: hidden;
+    border-right-width: 3px;
+    border-right-color: rgb(70, 92, 115);
+}
+
+.hub-chat-tabs,
+.hub-chat-input-row {
+    flex-direction: row;
+}
+
+.hub-chat-tabs {
+    min-height: 38px;
+    max-height: 38px;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: rgb(36, 26, 20);
+}
+
+.hub-chat-tab {
+    width: auto;
+    min-width: 0;
+    flex-basis: 0;
+    flex-grow: 1;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(160, 144, 118);
+    background-color: rgb(36, 26, 20);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-color: rgba(216, 196, 147, 0.16);
+    border-radius: 0;
+    font-size: 11px;
+}
+
+.hub-chat-tab-active {
+    color: rgb(245, 226, 176);
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.hub-chat-feed {
+    flex-grow: 1;
+    min-height: 76px;
+    padding: 10px 12px 8px 12px;
+    overflow: hidden;
+    border-radius: 6px;
+    background-color: rgba(36, 26, 20, 0.54);
+}
+
+.hub-chat-date {
+    margin-bottom: 8px;
+    color: rgb(116, 105, 88);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+}
+
+.hub-chat-message {
+    margin-top: 6px;
+    color: rgb(197, 178, 142);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.hub-chat-user-message { color: rgb(112, 136, 155); }
+
+.hub-chat-input-label {
+    margin-top: 7px;
+    margin-left: 4px;
+    color: rgb(116, 105, 88);
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.hub-chat-input-row {
+    height: 48px;
+    min-height: 48px;
+    flex-shrink: 0;
+    padding-top: 4px;
+}
+
+.hub-chat-input {
+    flex-grow: 1;
+    min-width: 0;
+    height: 44px;
+    min-height: 44px;
+    color: rgb(216, 196, 147);
+    background-color: rgb(36, 26, 20);
+    border-left-color: rgba(216, 196, 147, 0.28);
+    border-right-color: rgba(216, 196, 147, 0.28);
+    border-top-color: rgba(216, 196, 147, 0.28);
+    border-bottom-color: rgba(216, 196, 147, 0.28);
+}
+
+.hub-chat-input .unity-base-text-field__input {
+    padding-left: 10px;
+    padding-right: 10px;
+    color: rgb(216, 196, 147);
+    background-color: rgba(36, 26, 20, 0);
+}
+
+.hub-chat-send {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    margin-left: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(245, 226, 176);
+    background-color: rgb(70, 92, 115);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.hub-send-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}
+
+/* Phone Landscape overrides belong below. */
+
+/* Tablet Landscape overrides belong below. */

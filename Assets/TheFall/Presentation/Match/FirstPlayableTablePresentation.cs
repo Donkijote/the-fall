@@ -13,6 +13,7 @@ using TheFall.Presentation.Table;
 using TheFall.Presentation.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DeviceScreen = UnityEngine.Device.Screen;
 
 namespace TheFall.Presentation.Match
 {
@@ -31,6 +32,7 @@ namespace TheFall.Presentation.Match
         private static readonly Color Brass = FromHex(0xB58B3E);
         private const float DealerFlipLift = 0.13f;
         private const float DealerSelectedRestHeight = 0.015f;
+        private const float InteractiveCardHitScale = 1.55f;
 
         [SerializeField] private Camera _gameplayCamera;
         [SerializeField] private GameObject _tablePrototypePrefab;
@@ -68,6 +70,7 @@ namespace TheFall.Presentation.Match
         private Vector2 _pointerPosition;
         private Vector2Int _viewportSize;
         private Rect _safeAreaPixels;
+        private float _contentScale;
         private int _boundSessionNumber = -1;
         private int _animationVisualRevision = -1;
         private ResolvedAnimationStep _presentedStep;
@@ -233,7 +236,10 @@ namespace TheFall.Presentation.Match
             {
                 if (_animationPlayer?.IsBusy == true)
                 {
-                    RefreshFromAnimation(true, viewport, safeArea);
+                    RefreshFromAnimation(
+                        true,
+                        viewport,
+                        safeArea);
                 }
                 else
                 {
@@ -295,6 +301,71 @@ namespace TheFall.Presentation.Match
             }
 
             ApplyInteractionState();
+        }
+
+        public Vector2 MeasureProjectedCardSize(FirstPlayableRenderedCard card)
+        {
+            if (card == null)
+            {
+                throw new ArgumentNullException(nameof(card));
+            }
+
+            var renderer = card.GetComponent<Renderer>();
+            if (renderer == null || _gameplayCamera == null)
+            {
+                return Vector2.zero;
+            }
+
+            return MeasureProjectedBounds(renderer.bounds);
+        }
+
+        public Vector2 MeasureProjectedInteractionSize(FirstPlayableRenderedCard card)
+        {
+            if (card == null)
+            {
+                throw new ArgumentNullException(nameof(card));
+            }
+
+            var collider = card.GetComponent<Collider>();
+            return collider == null || _gameplayCamera == null
+                ? Vector2.zero
+                : MeasureProjectedBounds(collider.bounds);
+        }
+
+        private Vector2 MeasureProjectedBounds(Bounds bounds)
+        {
+            var minimum = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            var maximum = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            var tangent = Mathf.Tan(_gameplayCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            var aspect = (float)_viewportSize.x / _viewportSize.y;
+            for (var x = -1; x <= 1; x += 2)
+            {
+                for (var y = -1; y <= 1; y += 2)
+                {
+                    for (var z = -1; z <= 1; z += 2)
+                    {
+                        var world = bounds.center + Vector3.Scale(
+                            bounds.extents,
+                            new Vector3(x, y, z));
+                        var cameraPoint = _gameplayCamera.transform.InverseTransformPoint(world);
+                        if (cameraPoint.z <= 0.001f)
+                        {
+                            continue;
+                        }
+
+                        var halfHeight = cameraPoint.z * tangent;
+                        var pixel = new Vector2(
+                            (cameraPoint.x / (halfHeight * aspect) + 1f) * 0.5f * _viewportSize.x,
+                            (cameraPoint.y / halfHeight + 1f) * 0.5f * _viewportSize.y);
+                        minimum = Vector2.Min(minimum, pixel);
+                        maximum = Vector2.Max(maximum, pixel);
+                    }
+                }
+            }
+
+            return float.IsInfinity(minimum.x)
+                ? Vector2.zero
+                : maximum - minimum;
         }
 
         public void SetTemporarilyBlocked(bool isBlocked)
@@ -446,7 +517,9 @@ namespace TheFall.Presentation.Match
                 _inputAdapter.SetCards(Snapshot.LocalHand);
             }
 
-            Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
+            Rebuild(
+                RuntimeViewport(),
+                RuntimeSafeArea(RuntimeViewport()));
             ApplyInteractionState();
         }
 
@@ -517,7 +590,9 @@ namespace TheFall.Presentation.Match
                             Snapshot)
                         : FirstPlayableTableSnapshot.Create(flow.Match.State, Snapshot);
                 _inputAdapter?.SetCards(Snapshot.LocalHand);
-                Rebuild(RuntimeViewport(), RuntimeSafeArea(RuntimeViewport()));
+                Rebuild(
+                    RuntimeViewport(),
+                    RuntimeSafeArea(RuntimeViewport()));
             }
 
             _interaction?.SetTemporarilyBlocked(false);
@@ -583,7 +658,9 @@ namespace TheFall.Presentation.Match
             ApplyInteractionState();
         }
 
-        private void Rebuild(Vector2Int viewportSize, Rect safeAreaPixels)
+        private void Rebuild(
+            Vector2Int viewportSize,
+            Rect safeAreaPixels)
         {
             if (viewportSize.x <= 0 || viewportSize.y <= 0)
             {
@@ -593,6 +670,7 @@ namespace TheFall.Presentation.Match
             _viewportSize = viewportSize;
             _safeAreaPixels = safeAreaPixels;
             CurrentProfile = TableCompositionLayout.ResolveProfile(viewportSize);
+            _contentScale = CurrentProfile.ContentScale;
             LayoutRevision++;
 
             DestroyGeneratedContent();
@@ -606,7 +684,7 @@ namespace TheFall.Presentation.Match
 
             var safeArea = TableCompositionLayout.NormalizeSafeArea(viewportSize, safeAreaPixels);
             var safeScale = Mathf.Clamp(Mathf.Min(safeArea.width, safeArea.height), 0.78f, 1f);
-            _generatedRoot.localScale = Vector3.one * (CurrentProfile.ContentScale * safeScale);
+            _generatedRoot.localScale = Vector3.one * (_contentScale * safeScale);
             var safeCenter = safeArea.center - new Vector2(0.5f, 0.5f);
             _generatedRoot.localPosition = new Vector3(safeCenter.x * 2.2f, 0f, safeCenter.y * 1.4f);
 
@@ -2099,6 +2177,13 @@ namespace TheFall.Presentation.Match
             {
                 DestroyGeneratedObject(collider);
             }
+            else if (collider is BoxCollider boxCollider)
+            {
+                boxCollider.size = new Vector3(
+                    InteractiveCardHitScale,
+                    1f,
+                    InteractiveCardHitScale);
+            }
 
             var renderer = cardObject.GetComponent<Renderer>();
             if (renderedFaceUp && card.HasValue)
@@ -2186,7 +2271,7 @@ namespace TheFall.Presentation.Match
             {
                 if (legalIntents[index] is PlayCardIntent)
                 {
-                    _flowController.RenderInteractionFeedback(_interaction.State.FeedbackLocalizationKey);
+                    _flowController.RenderInteractionFeedback(_interaction.State);
                     break;
                 }
             }
@@ -2199,6 +2284,8 @@ namespace TheFall.Presentation.Match
             {
                 switch (state.Feedback)
                 {
+                    case CardInteractionFeedback.Inspected:
+                        return PrototypeCardVisualState.Inspected;
                     case CardInteractionFeedback.Confirmed:
                         return PrototypeCardVisualState.Confirmed;
                     case CardInteractionFeedback.Rejected:
@@ -2206,6 +2293,11 @@ namespace TheFall.Presentation.Match
                     case CardInteractionFeedback.TemporarilyBlocked:
                         return PrototypeCardVisualState.TemporarilyBlocked;
                 }
+            }
+
+            if (state.InspectedCard == card && state.SelectedCard != card)
+            {
+                return PrototypeCardVisualState.Inspected;
             }
 
             if (state.SelectedCard == card)
@@ -2383,7 +2475,7 @@ namespace TheFall.Presentation.Match
 
             if (_gameplayCamera == null)
             {
-                throw new MissingReferenceException("The Home scene has no gameplay camera.");
+                throw new MissingReferenceException("The Match scene has no gameplay camera.");
             }
 
             _gameplayCamera.nearClipPlane = 0.1f;
@@ -2534,12 +2626,12 @@ namespace TheFall.Presentation.Match
 
         private static Vector2Int RuntimeViewport()
         {
-            return new Vector2Int(Mathf.Max(1, Screen.width), Mathf.Max(1, Screen.height));
+            return new Vector2Int(Mathf.Max(1, DeviceScreen.width), Mathf.Max(1, DeviceScreen.height));
         }
 
         private static Rect RuntimeSafeArea(Vector2Int viewport)
         {
-            var safeArea = Screen.safeArea;
+            var safeArea = DeviceScreen.safeArea;
             return safeArea.width > 0f && safeArea.height > 0f
                 ? safeArea
                 : new Rect(0f, 0f, viewport.x, viewport.y);

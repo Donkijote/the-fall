@@ -18,7 +18,7 @@ The following directions are already confirmed and must not be reopened by a pro
 - an original fictional setting that does not claim a specific real-world culture
 - expressive upper-body characters around the table
 - a completely stationary elevated gameplay camera
-- landscape and portrait mobile compositions plus desktop layouts
+- landscape-only phone and tablet compositions plus desktop layouts
 - inexpensive or generated assets until the direction is proven
 
 Everything labelled as a **V0 target** in this document is a working constraint for comparing prototypes. It may be revised from evidence gathered by the table-composition, asset-pipeline, animation, or platform-validation issues. It is not a production-content commitment.
@@ -51,7 +51,7 @@ The screenshots supplied during issue #5 review establish three **proposed** pre
 - Use the perimeter for character identity while protecting the centre for cards and resolved events.
 - Keep character silhouettes readable through headwear, hair, shoulders, and hands, but do not use oversized hats that hide faces or reproduce the reference game's cowboy identity.
 - Compose for the supported player count instead of filling every possible seat with decorative bodies.
-- Preserve the same gameplay hierarchy when portrait and landscape layouts recompose.
+- Preserve the same gameplay hierarchy across phone/tablet landscape viewports and both landscape directions.
 
 The [visual reference board](visual-reference-board.md#user-supplied-perspective-references) records source and usage boundaries for these screenshots.
 
@@ -84,7 +84,7 @@ The [visual reference board](visual-reference-board.md#user-supplied-perspective
 
 ### 5. One hierarchy across platforms
 
-- Preserve the same priority order in portrait, landscape, and desktop compositions.
+- Preserve the same priority order in mobile-landscape and desktop compositions.
 - UI and world-space cues may recompose, but semantic color and shape meanings remain stable.
 - Never rely on color alone for turn, team, score, validity, or selection state.
 

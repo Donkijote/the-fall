@@ -117,9 +117,9 @@ namespace TheFall.Editor
                     prototype,
                     camera,
                     mode,
-                    new Vector2Int(390, 844),
-                    new Rect(0f, 34f, 390f, 776f),
-                    $"Logs/TableComposition-{mode}-Portrait.png");
+                    new Vector2Int(1024, 768),
+                    new Rect(0f, 24f, 1024f, 720f),
+                    $"Logs/TableComposition-{mode}-TabletLandscape.png");
             }
 
             prototype.ClearEditorPreview();

@@ -53,7 +53,9 @@ namespace TheFall.Tests.EditMode
             var turn = RepresentativeCardTurn.Create();
             var keyboard = CreateAdapter(turn);
 
-            keyboard.KeyboardInspect();
+            var inspected = keyboard.KeyboardInspect();
+            Assert.That(inspected.State.Feedback, Is.EqualTo(CardInteractionFeedback.Inspected));
+            Assert.That(inspected.State.FeedbackLocalizationKey, Is.EqualTo("interaction.feedback.inspected"));
             keyboard.KeyboardSelect();
             var result = keyboard.KeyboardConfirm();
 
@@ -107,6 +109,8 @@ namespace TheFall.Tests.EditMode
             var cancelled = adapter.Cancel();
 
             Assert.That(cancelled.IsAccepted, Is.True);
+            Assert.That(cancelled.State.Feedback, Is.EqualTo(CardInteractionFeedback.Cancelled));
+            Assert.That(cancelled.State.FeedbackLocalizationKey, Is.EqualTo("interaction.feedback.cancelled"));
             Assert.That(cancelled.State.SelectedCard, Is.Null);
             Assert.That(turn.Interaction.MatchState, Is.SameAs(matchStateBeforeBlock));
         }

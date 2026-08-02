@@ -1,0 +1,44 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/Components/MatchStatus.uss"/>
+    <ui:VisualElement class="match-status-content">
+        <ui:VisualElement class="match-status-summary">
+            <ui:VisualElement class="match-status-heading">
+                <ui:Label name="match-phase" text="ACTIVE ROUND" class="status-title"/>
+                <ui:Label name="match-progress" text="Round 2 · Deal 3" class="match-progress"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="match-status-rule"/>
+            <ui:Label name="match-turn" text="Your turn" class="match-primary-status"/>
+            <ui:VisualElement class="match-canto-row">
+                <ui:VisualElement picking-mode="Ignore" class="game-icon match-canto-icon icon-canto"/>
+                <ui:Label name="match-canto" text="No canto announced" class="match-canto"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="match-status-resolution">
+            <ui:VisualElement name="match-event-callout" class="match-callout match-event-callout">
+                <ui:Label name="match-event-label" class="match-callout-label">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.match.event-label"/>
+                    </Bindings>
+                </ui:Label>
+                <ui:Label name="match-event" text="Ready" class="status-line event-line"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="match-feedback-callout" class="match-callout match-feedback-callout semantic-legal">
+                <ui:Label name="match-feedback-symbol" text="+" class="match-feedback-symbol"/>
+                <ui:VisualElement class="match-feedback-copy">
+                    <ui:Label name="match-feedback-label" class="match-callout-label">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.match.feedback-label"/>
+                        </Bindings>
+                    </ui:Label>
+                    <ui:Label name="match-feedback" text="Choose a legal card" class="interaction-feedback"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Button name="animation-skip-button" class="quiet-button presentation-skip icon-label-button">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.animation.skip"/>
+        </Bindings>
+        <ui:VisualElement picking-mode="Ignore" class="game-icon action-button-icon icon-skip"/>
+    </ui:Button>
+</ui:UXML>

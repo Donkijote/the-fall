@@ -4,7 +4,7 @@ Status: Implemented first-playable presentation and animation contract
 
 ## Purpose
 
-Issue #25 integrates the complete authoritative 1v1 match into the existing first-playable `Home` scene.
+Issue #25 integrates the complete authoritative 1v1 match into the dedicated first-playable `Match` scene.
 Issue #26 promotes the reusable AnimationLab beats into that table, and issue #27 maps those resolved beats
 to functional prototype audio. The table is visible during Match and Result while the application flow
 continues to own setup, loading, replay, and return-to-Home lifecycle.
@@ -28,7 +28,7 @@ The HUD maps the active ordered domain event into localized semantic text. This 
 
 ## Edit Mode authoring
 
-`Home.unity` contains an active `First Playable Table Authoring` hierarchy that is visible without
+`Match.unity` contains an active `First Playable Table Authoring` hierarchy that is visible without
 entering Play Mode. Open it with `The Fall > First Playable Table > Open Authoring Layout`, or select it
 directly in the Home hierarchy. The saved scene is the runtime composition source of truth:
 
@@ -39,7 +39,7 @@ directly in the Home hierarchy. The saved scene is the runtime composition sourc
 - scale the X axis of `Card Size Reference — Scale X Only` to resize every card while the layout component
   preserves the `63:88` ratio and synchronizes the other representative cards.
 
-Save `Home.unity` normally after editing. On entering Play Mode, the authoring hierarchy is hidden and the
+Save `Match.unity` normally after editing. On entering Play Mode, the authoring hierarchy is hidden and the
 presentation clones its saved environment, table, and player objects, then creates authoritative match cards
 under the saved anchors. Rerunning the generator preserves an existing authored layout and camera instead of
 resetting manual changes.
@@ -78,10 +78,13 @@ resolved event, actionable feedback, and Skip animation. Match configuration rem
 the former settings header and persistent bottom explanation strip are not rendered. Dealer and canto
 decisions remain contextual screen-space controls attached to the local player.
 
-Every gameplay card uses one consistent footprint with the source art's exact `63:88` aspect ratio.
-Hands, table cards, deck cards, captured cards, and the dealer-selection spread distinguish their zones
-through position and overlap instead of changing card size or stretching the artwork. This keeps rank and
-suit scale predictable at the required desktop resolutions while preserving clear ownership zones.
+Every desktop gameplay card uses one consistent footprint with the source art's exact `63:88` aspect
+ratio. Phone and tablet profiles retain that aspect ratio while deriving card and zone-spacing
+multipliers from the normalized safe-area aspect ratio. The local actionable hand remains largest;
+public table and dealer-selection cards satisfy their documented identity/touch minimums; and local,
+public, and dealer cards remain bounded against the short landscape axis. Secondary deck,
+captured-pile, and hidden-hand representations remain subordinate. This keeps rank and suit scale
+predictable without reproducing the former oversized fixed mobile multipliers.
 For perspective testing, face-up cards use a deliberately minimal atlas treatment with a dominant rank and
 one suit marker. Every face is oriented toward the local seat so the single rank reads upright; detailed
 pip and court art remains deferred to the dedicated card-design pass.
@@ -119,6 +122,13 @@ After one intent is accepted, both the flow controller and card-interaction sess
 
 Legal, selected, confirmed, rejected, and temporarily blocked states retain the documented shape/text symbols and localized feedback. Dealer selection, dealer setup, and canto announcements remain localized UI actions because they are not card-hand interactions.
 
+Issue #45 adds distinct inspected and cancelled feedback instead of collapsing both back into the
+legal state. The compact HUD now projects score/target, round/deal/final/tie state, dealer/active
+player, public canto claims, critical resolved outcomes, and the current local action result. Capture,
+cascade, Fall, clean-table, canto resolution/penalty, score, tie-extension, and victory treatments
+combine explicit localized text with shape/value boundaries. See the
+[V0.1 match HUD contract](../design/1v1-match-hud-and-card-interaction.md).
+
 ## Recomposition contract
 
 Viewport or safe-area changes rebuild only transient view objects. The `FirstPlayableFlow`, orchestrator, `MatchState`, match trace, `CardInteractionSession`, selected card, interaction revision, and pending intent history remain unchanged.
@@ -154,6 +164,7 @@ presentation-only and use the same resolved beat stream without changing transpo
 
 Related: [first-playable application flow](first-playable-flow.md),
 [first-playable functional audio](audio.md), [match orchestration](match-orchestration.md),
+[V0.1 match HUD and card interaction](../design/1v1-match-hud-and-card-interaction.md),
 [fixed table composition](../design/table-composition-prototype.md),
 [card interaction](../design/card-interaction-prototype.md), and
 [modular card visuals](../assets/card-visual-pipeline.md).

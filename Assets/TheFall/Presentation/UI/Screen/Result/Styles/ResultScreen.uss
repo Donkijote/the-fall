@@ -1,0 +1,182 @@
+/* Result-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .result-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .card-label,
+.screen-root.profile-mobile-landscape .result-rules,
+.screen-root.profile-mobile-landscape .result-next {
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.screen-root.profile-mobile-landscape .button-row {
+    margin-top: 22px;
+}
+
+.result-panel {
+    width: 76%;
+    max-width: 900px;
+    max-height: 92%;
+    padding: 34px 42px;
+    align-items: center;
+}
+
+#result-eyebrow {
+    min-width: 120px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.result-seal {
+    width: 78%;
+    min-height: 150px;
+    margin-top: 22px;
+    margin-bottom: 16px;
+    padding: 24px;
+    align-items: center;
+    justify-content: center;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+    border-radius: 14px;
+    background-color: rgba(36, 26, 20, 0.72);
+}
+
+.result-winner-label {
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.result-outcome {
+    color: rgb(245, 226, 176);
+    font-size: 36px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.result-score {
+    color: rgb(197, 178, 142);
+    font-size: 19px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.result-rules {
+    margin-top: 8px;
+    color: rgb(181, 165, 134);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.result-next {
+    margin-top: 22px;
+    color: rgb(245, 226, 176);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.result-panel > .button-row {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.result-panel > .button-row > Button {
+    width: 42%;
+    max-width: 260px;
+}
+
+.screen-root.profile-mobile-portrait .mode-summary,
+.screen-root.profile-mobile-portrait .body-copy,
+.screen-root.profile-mobile-portrait .result-score {
+    font-size: 64px;
+}
+
+.screen-root.profile-mobile-portrait .result-seal {
+    width: 100%;
+    min-height: 460px;
+    margin-top: 80px;
+    margin-bottom: 56px;
+    padding: 72px;
+}
+
+.screen-root.profile-mobile-portrait .result-winner-label {
+    margin-bottom: 24px;
+}
+
+.screen-root.profile-mobile-portrait .result-outcome {
+    font-size: 108px;
+}
+
+.screen-root.profile-mobile-portrait .result-rules {
+    margin-top: 28px;
+}
+
+.screen-root.profile-mobile-portrait .result-next {
+    margin-top: 56px;
+    font-size: 58px;
+}
+
+.screen-root.profile-mobile-landscape .mode-summary,
+.screen-root.profile-mobile-landscape .body-copy,
+.screen-root.profile-mobile-landscape .result-score {
+    font-size: 32px;
+}
+
+.screen-root.profile-mobile-landscape .result-seal {
+    width: 84%;
+    min-height: 180px;
+    margin-top: 28px;
+    margin-bottom: 20px;
+}
+
+.screen-root.profile-mobile-landscape .result-next {
+    margin-top: 22px;
+    font-size: 28px;
+}
+
+.screen-root.profile-mobile-landscape .result-outcome {
+    font-size: 58px;
+}
+
+.result-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 10px;
+    -unity-background-image-tint-color: rgb(181, 139, 62);
+}
+
+.screen-root.profile-mobile-portrait .result-icon {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 24px;
+}

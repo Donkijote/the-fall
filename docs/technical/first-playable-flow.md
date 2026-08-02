@@ -6,7 +6,10 @@ Status: Confirmed first-playable UI contract
 
 Issue #24 adds the minimal localized application flow around the complete deterministic match orchestrator from issue #23. A player launches into a presentation-only gateway, enters Home, configures rules and presentation preferences from Settings, begins a quest through an explicit loading state, completes a match, sees its authoritative result, replays with the same configuration, or returns Home without editor intervention.
 
-This is functional prototype UI. Issue #25 supplies complete table rendering and integrated card interaction within the same Home scene and application session. Issue #26 adds resolved-event animation controls and presentation blocking. Issue #27 adds resolved-beat prototype audio plus independent master, effects, and music controls.
+This is functional prototype UI. Issue #25 supplies complete table rendering and integrated card
+interaction within the same application session. The table now belongs to the dedicated Match scene.
+Issue #26 adds resolved-event animation controls and presentation blocking. Issue #27 adds
+resolved-beat prototype audio plus independent master, effects, and music controls.
 
 ## Application boundary
 
@@ -30,7 +33,8 @@ shell: authored citadel backdrop, campaign copy, email/password fields, recovery
 Google and Apple invocation buttons, and account creation link. Email and password values are never
 read, stored, or validated and are cleared when `Enter the Realm` reveals Home. Auxiliary account and
 provider actions return localized unavailable-state feedback until those services exist. The application
-remains in `Home`, with no match and no session created, while the gateway is visible. Authentication,
+remains in the application `Home` stage, with no match and no session created, while the Login scene
+is visible. Authentication,
 accounts, credential persistence, and online authority remain deferred product work. Returning Home
 within the first-playable session does not reopen the gateway. Background provenance is recorded in
 [login gateway background](../assets/login-gateway-background.md).
@@ -56,14 +60,18 @@ state. Music remains intentionally source-free for the milestone.
 
 ## UI Toolkit and localization
 
-`Home` owns one adaptive UI Toolkit document with gateway, Home, setup, loading, match, and result panels. The
-layout uses the confirmed warm medieval prototype palette, non-color-only labels, flexible wrapping,
-scrollable action lists, and an authored composition selected from runtime platform and orientation.
+`Login`, `Hub`, and `Match` each own one adaptive UI Toolkit document whose source maps directly to
+`LoginScreen.uxml`, `HubScreen.uxml`, or `MatchScreen.uxml`. Gateway, Hub, setup, loading, match, and
+result remain separate UXML/USS assets, and each scene controller may show only a screen owned by its
+scene. The layout uses the confirmed warm medieval prototype
+palette, non-color-only labels, flexible wrapping, scroll-free responsive action groups, and an
+authored composition selected from runtime platform. See
+[UI screen composition](ui-screen-composition.md).
 
-Issue #43 replaces the panel-width heuristic with an explicit platform/orientation profile. Desktop,
-mobile portrait, and mobile landscape use separate USS compositions while sharing the same document,
+Issue #43 replaces the panel-width heuristic with an explicit platform profile. Desktop and mobile
+landscape use separate USS compositions while sharing the same document,
 localization keys, application state, and intents. The flow controller maps `Screen.safeArea` into
-current UI Toolkit panel units before profile padding, so rotation can change composition without
+current UI Toolkit panel units before profile padding, so changing landscape direction can reflow without
 changing the flow stage or match. The measurable tokens and screen audit are recorded in the
 [V0.1 adaptive UI foundation](../design/adaptive-ui-foundation.md).
 
@@ -71,7 +79,7 @@ Issue #44 applies that foundation to the player journey around the match:
 
 - Gateway follows the accepted two-column medieval entry composition in The Fall's aged vellum,
   antique brass, woad, and madder palette. Desktop and mobile landscape retain the full hero/form
-  split; mobile portrait stacks the complete action set in one safe-area-aware scroll view.
+  split.
 - Home implements the accepted final hub shell. Its top bar contains the player card, level/XP,
   coin/gem/energy counters, mail, and settings. Its bottom bar contains the current quest, functional
   Decks/Bag/Shop/Rank destinations, and Global/Guild/System chat. Settings opens the complete rule,
@@ -93,9 +101,9 @@ recorded in [UI icon library](../assets/ui-icon-library.md). UI Toolkit tints th
 white-on-transparent sources with the accepted palette, while localized labels or tooltips preserve
 meaning for keyboard, mouse, touch, and pseudo-localized layouts.
 
-Settings content scrolls inside its modal when localization expands. Desktop keeps the two rule cards
-side by side, mobile portrait stacks every control into touch-sized rows, and mobile landscape uses a
-compact two-column comparison. The in-process deterministic match factory has no data-dependent empty
+Settings keeps rules, audio, and motion visible as responsive groups inside one modal viewport.
+Desktop keeps the two rule cards side by side, while mobile landscape compacts the same controls
+without scrolling. The in-process deterministic match factory has no data-dependent empty
 state or recoverable loading error; invalid or repeated navigation remains an explicit no-op rather than
 inventing a player-facing failure.
 
@@ -117,22 +125,29 @@ current authoritative legal-intent surface.
 
 ## Bootstrap and teardown
 
-`CompositionRoot` creates the flow and its infrastructure-backed match factory, remains persistent, and loads Home when the player starts from the Bootstrap scene. `FirstPlayableFlowController` adapts UI events to the application flow; it does not calculate legal actions, score, capture, canto validity, dealer state, or victory.
+`CompositionRoot` creates the flow, presentation-session state, and infrastructure-backed match
+factory, remains persistent, and loads Login when the player starts from Bootstrap. Login, Hub, and
+Match replace one another without replacing the composition root. `FirstPlayableFlowController`
+adapts scene-local UI events to the persistent application flow; it does not calculate legal actions,
+score, capture, canto validity, dealer state, or victory.
 
 Leaving while loading cancels the presentation coroutine and clears the application match. The session-number guard also prevents a late loading callback from restoring an abandoned session. Replay always creates a different orchestrator and returning Home clears the previous final state.
 
 ## Validation
 
 - Edit Mode verifies defaults, the fixed 24-point 1v1 bot boundary, legal transitions, repeated or invalid navigation, fresh replay sessions, retained replay configuration, and Home reset behavior.
-- Play Mode launches through Bootstrap, verifies the gateway is first and entering it leaves application
-  state untouched, then verifies the Settings choices and direct Begin Quest route, proves the setup
-  screen is never rendered, observes the explicit loading stage, rejects duplicate starts, completes a
-  match through the UI adapter, exposes both result actions, replays, and returns Home. A focused
-  loading-exit regression proves a cancelled callback cannot restore an abandoned session.
+- Play Mode launches through Bootstrap, verifies Login is first and entering it replaces Login with
+  Hub while leaving application state untouched, then verifies the Settings choices and direct Begin
+  Quest route, proves the setup screen is never rendered, observes Match-scene loading, rejects
+  duplicate starts, completes a match through the UI adapter, exposes both result actions, replays,
+  and returns to Hub. A focused loading-exit regression proves a cancelled callback cannot restore an
+  abandoned session.
 - The same Play Mode fixture switches to pseudo-localization, checks expanded controls remain visible
   and keyboard-focusable, and validates touch-sized gateway and Settings actions in both mobile profiles.
-- `The Fall > First Playable Flow > Generate` adds the controller and localization entries without embedding player copy in the scene.
-- `The Fall > First Playable Flow > Validate` checks the scene binding, UI asset, entries, and Smart String flags.
+- `The Fall > First Playable Flow > Generate` configures Login, Hub, and Match controllers and
+  localization entries without embedding player copy in a scene.
+- `The Fall > First Playable Flow > Validate` checks every scene binding, scene-owned UI asset,
+  localization entry, and Smart String flag.
 
 Related: [first-playable match orchestration](match-orchestration.md), [technical architecture](architecture.md), [first playable milestone](../planning/first-playable-milestone.md), and [testing baseline](../development/validation.md).
 

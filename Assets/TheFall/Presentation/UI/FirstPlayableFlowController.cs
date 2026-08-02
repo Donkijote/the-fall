@@ -2,29 +2,46 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TheFall.Application;
+using TheFall.Application.Interaction;
 using TheFall.Domain;
 using TheFall.Presentation.Bootstrap;
+using TheFall.Presentation.Scenes;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using DeviceApplication = UnityEngine.Device.Application;
+using DeviceScreen = UnityEngine.Device.Screen;
 
 namespace TheFall.Presentation.UI
 {
+    public enum FirstPlayableScreenKind
+    {
+        Login,
+        Hub,
+        Setup,
+        Loading,
+        Match,
+        Result,
+    }
+
+    [ExecuteAlways]
     [DisallowMultipleComponent]
     [RequireComponent(typeof(UIDocument))]
     public sealed class FirstPlayableFlowController : MonoBehaviour
     {
         private const string TableName = "UI";
 
-        private static readonly string[] StageElementNames =
+        private static readonly string[] MatchOutcomeClasses =
         {
-            "login-stage",
-            "home-stage",
-            "setup-stage",
-            "loading-stage",
-            "match-stage",
-            "result-stage",
+            "outcome-capture",
+            "outcome-fall",
+            "outcome-clean-table",
+            "outcome-canto",
+            "outcome-score",
+            "outcome-tie",
+            "outcome-victory",
         };
 
         private static readonly IReadOnlyDictionary<string, string> LabelLocalizationKeys =
@@ -39,6 +56,7 @@ namespace TheFall.Presentation.UI
                 { "login-panel-subtitle", "flow.login.panel-subtitle" },
                 { "login-email-label", "flow.login.email" },
                 { "login-password-label", "flow.login.password" },
+                { "login-enter-label", "flow.login.enter" },
                 { "login-divider-label", "flow.login.divider" },
                 { "login-account-prefix", "flow.login.account-prefix" },
                 { "home-eyebrow", "flow.home.eyebrow" },
@@ -80,6 +98,9 @@ namespace TheFall.Presentation.UI
                 { "loading-status", "flow.loading.status" },
                 { "dealer-options-title", "flow.context.dealer-title" },
                 { "canto-options-title", "flow.context.canto-title" },
+                { "match-event-label", "flow.match.event-label" },
+                { "match-feedback-label", "flow.match.feedback-label" },
+                { "match-score-objective", "flow.match.score-objective" },
                 { "result-eyebrow", "flow.result.eyebrow" },
                 { "result-title", "flow.result.title" },
                 { "result-winner-label", "flow.result.winner-label" },
@@ -90,7 +111,6 @@ namespace TheFall.Presentation.UI
         private static readonly IReadOnlyDictionary<string, string> ButtonLocalizationKeys =
             new Dictionary<string, string>
             {
-                { "login-enter-button", "flow.login.enter" },
                 { "login-forgot-button", "flow.login.forgot" },
                 { "login-google-button", "flow.login.google" },
                 { "login-apple-button", "flow.login.apple" },
@@ -118,10 +138,19 @@ namespace TheFall.Presentation.UI
                 { "animation-skip-button", "flow.animation.skip" },
             };
 
+        [SerializeField] private VisualTreeAsset _loginScreenAsset;
+        [SerializeField] private VisualTreeAsset _hubScreenAsset;
+        [SerializeField] private VisualTreeAsset _setupScreenAsset;
+        [SerializeField] private VisualTreeAsset _loadingScreenAsset;
+        [SerializeField] private VisualTreeAsset _matchScreenAsset;
+        [SerializeField] private VisualTreeAsset _resultScreenAsset;
+        [SerializeField] private FirstPlayableSceneKind _sceneKind;
+
         private UIDocument _document;
         private VisualElement _root;
         private VisualElement _screen;
-        private readonly List<VisualElement> _stages = new List<VisualElement>();
+        private VisualElement _mountedStage;
+        private FirstPlayableScreenKind? _mountedScreenKind;
         private Toggle _casasToggle;
         private Toggle _trivilinToggle;
         private Label _casasState;
@@ -129,9 +158,14 @@ namespace TheFall.Presentation.UI
         private Label _loadingSession;
         private Label _matchPhase;
         private Label _matchScore;
+        private Label _matchProgress;
         private Label _matchTurn;
+        private Label _matchCanto;
         private Label _matchEvent;
+        private VisualElement _matchEventCallout;
         private Label _matchFeedback;
+        private Label _matchFeedbackSymbol;
+        private VisualElement _matchFeedbackCallout;
         private Label _resultOutcome;
         private Label _resultScore;
         private Label _resultRules;
@@ -167,16 +201,26 @@ namespace TheFall.Presentation.UI
         private Toggle _homeAudioEffectsToggle;
         private Toggle _homeAudioMusicToggle;
         private Coroutine _loadingCoroutine;
-        private bool _isBound;
+        private bool _isDocumentRootBound;
         private bool _hasEnteredGateway;
         private bool _isDealerMenuOpen;
         private bool _isCantoMenuOpen;
         private MatchState _contextState;
         private Vector2Int _adaptiveViewport;
         private Rect _adaptiveSafeArea;
-        private Vector2 _adaptivePanelSize;
         private bool _hasAdaptiveViewportOverride;
         private string _homeChatChannel = "global";
+        private string _homeChatUserMessageText;
+        private bool _homeCasasEnabled = true;
+        private bool _homeTrivilinImmediate;
+        private bool _animationFastForwardEnabled;
+        private bool _animationReducedMotionEnabled;
+        private bool _audioMasterEnabled = true;
+        private bool _audioEffectsEnabled = true;
+        private bool _audioMusicEnabled;
+        private FirstPlayablePresentationState _presentationState;
+        private bool _sceneTransitionPending;
+        private AdaptiveUiProfile _authoringPreviewProfile = AdaptiveUiProfile.PhoneLandscape;
 
         public FirstPlayableFlow Flow { get; private set; }
 
@@ -198,22 +242,98 @@ namespace TheFall.Presentation.UI
 
         public bool IsPresentationBusy { get; private set; }
 
-        public bool AudioMasterEnabled => _homeAudioMasterToggle?.value ?? true;
+        public bool AudioMasterEnabled => _audioMasterEnabled;
 
-        public bool AudioEffectsEnabled => _homeAudioEffectsToggle?.value ?? true;
+        public bool AudioEffectsEnabled => _audioEffectsEnabled;
 
-        public bool AudioMusicEnabled => _homeAudioMusicToggle?.value ?? false;
+        public bool AudioMusicEnabled => _audioMusicEnabled;
 
         public bool HasEnteredGateway => _hasEnteredGateway;
 
+        public FirstPlayableSceneKind SceneKind => _sceneKind;
+
+        public FirstPlayableScreenKind? CurrentScreenKind => _mountedScreenKind;
+
+        public int MountedScreenCount => _root?.childCount ?? 0;
+
+        public bool HasConfiguredScreenAssets =>
+            _sceneKind == FirstPlayableSceneKind.Login
+                ? _loginScreenAsset != null
+                : _sceneKind == FirstPlayableSceneKind.Hub
+                    ? _hubScreenAsset != null && _setupScreenAsset != null
+                    : _loadingScreenAsset != null
+                        && _matchScreenAsset != null
+                        && _resultScreenAsset != null;
+
+        public void SetAudioMasterEnabled(bool enabled)
+        {
+            _audioMasterEnabled = enabled;
+            if (_presentationState != null)
+            {
+                _presentationState.AudioMasterEnabled = enabled;
+            }
+            _homeAudioMasterToggle?.SetValueWithoutNotify(enabled);
+            AudioMasterChanged?.Invoke(enabled);
+        }
+
+        public void SetAudioEffectsEnabled(bool enabled)
+        {
+            _audioEffectsEnabled = enabled;
+            if (_presentationState != null)
+            {
+                _presentationState.AudioEffectsEnabled = enabled;
+            }
+            _homeAudioEffectsToggle?.SetValueWithoutNotify(enabled);
+            AudioEffectsChanged?.Invoke(enabled);
+        }
+
+        public void SetAudioMusicEnabled(bool enabled)
+        {
+            _audioMusicEnabled = enabled;
+            if (_presentationState != null)
+            {
+                _presentationState.AudioMusicEnabled = enabled;
+            }
+            _homeAudioMusicToggle?.SetValueWithoutNotify(enabled);
+            AudioMusicChanged?.Invoke(enabled);
+        }
+
         public AdaptiveUiLayout CurrentAdaptiveLayout { get; private set; }
 
-        public AdaptiveUiInsets CurrentAdaptivePanelInsets { get; private set; }
+        public void ConfigureScene(
+            FirstPlayableSceneKind sceneKind,
+            VisualTreeAsset login,
+            VisualTreeAsset hub,
+            VisualTreeAsset setup,
+            VisualTreeAsset loading,
+            VisualTreeAsset match,
+            VisualTreeAsset result)
+        {
+            _sceneKind = sceneKind;
+            _loginScreenAsset = login;
+            _hubScreenAsset = hub;
+            _setupScreenAsset = setup;
+            _loadingScreenAsset = loading;
+            _matchScreenAsset = match;
+            _resultScreenAsset = result;
+        }
 
         private void OnEnable()
         {
             _document = GetComponent<UIDocument>();
             _root = _document.rootVisualElement;
+            _authoringPreviewProfile = ResolveAuthoringPreviewProfile();
+            UseSceneLayoutForPreviewRoots();
+            BindDocumentRoot();
+            ApplyAdaptiveLayout(
+                RuntimeViewport(),
+                RuntimeSafeArea(),
+                DeviceApplication.isMobilePlatform);
+
+            if (!UnityEngine.Application.isPlaying)
+            {
+                return;
+            }
 
             var compositionRoot = CompositionRoot.Instance != null
                 ? CompositionRoot.Instance
@@ -226,21 +346,42 @@ namespace TheFall.Presentation.UI
             }
 
             Flow = compositionRoot.FirstPlayableFlow;
-            BindUi();
-            ApplyAdaptiveLayout(RuntimeViewport(), RuntimeSafeArea(), UnityEngine.Application.isMobilePlatform);
+            _presentationState = compositionRoot.FirstPlayablePresentationState;
+            PrepareDirectSceneState();
+            RestorePresentationState();
             LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
             Render();
         }
 
         private IEnumerator Start()
         {
+            if (!UnityEngine.Application.isPlaying)
+            {
+                yield break;
+            }
+
             yield return LocalizationSettings.InitializationOperation;
             Render();
+            if (Flow != null
+                && Flow.Stage == FirstPlayableFlowStage.Loading
+                && !_sceneTransitionPending
+                && _loadingCoroutine == null)
+            {
+                BeginLoadingTransition();
+            }
         }
 
         private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+            _screen?.UnregisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
+            ClearMountedScreenReferences();
+            _mountedScreenKind = null;
+            _screen = null;
+            _root = null;
+            _isDocumentRootBound = false;
+            _presentationState = null;
+            _sceneTransitionPending = false;
         }
 
         private void Update()
@@ -252,12 +393,10 @@ namespace TheFall.Presentation.UI
 
             var viewport = RuntimeViewport();
             var safeArea = RuntimeSafeArea();
-            var panelSize = ResolvePanelSize(viewport);
             if (viewport != _adaptiveViewport
-                || safeArea != _adaptiveSafeArea
-                || panelSize != _adaptivePanelSize)
+                || safeArea != _adaptiveSafeArea)
             {
-                ApplyAdaptiveLayout(viewport, safeArea, UnityEngine.Application.isMobilePlatform);
+                ApplyAdaptiveLayout(viewport, safeArea, DeviceApplication.isMobilePlatform);
             }
         }
 
@@ -271,6 +410,7 @@ namespace TheFall.Presentation.UI
             Require<TextField>("login-email").SetValueWithoutNotify(string.Empty);
             Require<TextField>("login-password").SetValueWithoutNotify(string.Empty);
             _hasEnteredGateway = true;
+            _presentationState.HasEnteredGateway = true;
             Render();
             return true;
         }
@@ -295,10 +435,10 @@ namespace TheFall.Presentation.UI
                 return false;
             }
 
-            _casasToggle.SetValueWithoutNotify(_homeCasasToggle.value);
-            _trivilinToggle.SetValueWithoutNotify(_homeTrivilinToggle.value);
-            if (StartMatch())
+            Flow.TryConfigure(_homeCasasEnabled, _homeTrivilinImmediate);
+            if (Flow.TryStartMatch())
             {
+                BeginLoadingTransition();
                 return true;
             }
 
@@ -367,16 +507,22 @@ namespace TheFall.Presentation.UI
             }
 
             SetVisible(_hubModal, false);
+            PresentationChanged?.Invoke();
             Render();
             return true;
         }
 
-        public void RenderInteractionFeedback(string localizationKey)
+        public void RenderInteractionFeedback(CardInteractionState state)
         {
-            if (_matchFeedback != null && !string.IsNullOrWhiteSpace(localizationKey))
+            if (state == null)
             {
-                _matchFeedback.text = Localize(localizationKey);
+                return;
             }
+
+            SetMatchFeedback(
+                state.FeedbackLocalizationKey,
+                InteractionSemanticState(state.Feedback),
+                InteractionSymbol(state.Feedback));
         }
 
         public void RenderPresentationEvent(DomainEvent resolvedEvent)
@@ -384,6 +530,7 @@ namespace TheFall.Presentation.UI
             if (_matchEvent != null && resolvedEvent != null)
             {
                 _matchEvent.text = EventSummary(resolvedEvent);
+                ApplyOutcomeClass(resolvedEvent);
             }
         }
 
@@ -417,10 +564,15 @@ namespace TheFall.Presentation.UI
                 return;
             }
 
-            RefreshLocalizedStaticText();
             if (!_hasEnteredGateway)
             {
-                ShowOnly("login-stage");
+                if (!EnsurePresentationScene(FirstPlayableScreenKind.Login))
+                {
+                    return;
+                }
+
+                EnsureScreenMounted(FirstPlayableScreenKind.Login);
+                RefreshLocalizedStaticText();
                 _screen.EnableInClassList("show-login", true);
                 _screen.EnableInClassList("show-hub", false);
                 _screen.EnableInClassList("show-table", false);
@@ -433,7 +585,14 @@ namespace TheFall.Presentation.UI
             var presentedStage = Flow.Stage == FirstPlayableFlowStage.Result && IsPresentationBusy
                 ? FirstPlayableFlowStage.Match
                 : Flow.Stage;
-            ShowOnly(StageElementName(presentedStage));
+            var screenKind = ScreenKind(presentedStage);
+            if (!EnsurePresentationScene(screenKind))
+            {
+                return;
+            }
+
+            EnsureScreenMounted(screenKind);
+            RefreshLocalizedStaticText();
             _screen.EnableInClassList("show-login", false);
             _screen.EnableInClassList("show-hub", presentedStage == FirstPlayableFlowStage.Home);
 
@@ -466,41 +625,98 @@ namespace TheFall.Presentation.UI
             PresentationChanged?.Invoke();
         }
 
-        private void BindUi()
+        private void BindDocumentRoot()
         {
-            if (_isBound)
+            if (_isDocumentRootBound)
             {
                 return;
             }
 
-            _casasToggle = Require<Toggle>("casas-toggle");
-            _trivilinToggle = Require<Toggle>("trivilin-toggle");
-            _casasState = Require<Label>("casas-state");
-            _trivilinState = Require<Label>("trivilin-state");
-            _loadingSession = Require<Label>("loading-session");
-            _screen = Require<VisualElement>("home-screen");
-            foreach (var stageName in StageElementNames)
+            _screen = _root;
+            _screen.name = "screen-root";
+            _screen.AddToClassList("screen-root");
+            _screen.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
+            _isDocumentRootBound = true;
+        }
+
+        private void EnsureScreenMounted(FirstPlayableScreenKind screenKind)
+        {
+            if (_mountedScreenKind == screenKind)
             {
-                _stages.Add(Require<VisualElement>(stageName));
+                return;
             }
-            _matchPhase = Require<Label>("match-phase");
-            _matchScore = Require<Label>("match-score");
-            _matchTurn = Require<Label>("match-turn");
-            _matchEvent = Require<Label>("match-event");
-            _matchFeedback = Require<Label>("match-feedback");
-            _resultOutcome = Require<Label>("result-outcome");
-            _resultScore = Require<Label>("result-score");
-            _resultRules = Require<Label>("result-rules");
-            _dealerContext = Require<VisualElement>("dealer-context");
-            _dealerOptionsMenu = Require<VisualElement>("dealer-options-menu");
-            _dealerOptions = Require<VisualElement>("dealer-options");
-            _dealerOptionsButton = Require<Button>("dealer-options-button");
-            _cantoContext = Require<VisualElement>("canto-context");
-            _cantoOptionsMenu = Require<VisualElement>("canto-options-menu");
-            _cantoOptions = Require<VisualElement>("canto-options");
-            _cantoOptionsButton = Require<Button>("canto-options-button");
-            _animationSkipButton = Require<Button>("animation-skip-button");
+
+            var asset = ScreenAsset(screenKind);
+            if (asset == null)
+            {
+                throw new MissingReferenceException(
+                    $"The first-playable UI has no {screenKind} screen asset.");
+            }
+
+            var canBindDocumentSource =
+                _mountedScreenKind == null && _document.visualTreeAsset == asset;
+            ClearMountedScreenReferences();
+            if (!canBindDocumentSource)
+            {
+                _root.Clear();
+                _root.styleSheets.Clear();
+                asset.CloneTree(_root);
+                UseSceneLayoutForPreviewRoots();
+            }
+            _mountedScreenKind = screenKind;
+            _mountedStage = Require<VisualElement>(StageElementName(screenKind));
+            BindMountedScreen(screenKind);
+        }
+
+        private void BindMountedScreen(FirstPlayableScreenKind screenKind)
+        {
+            switch (screenKind)
+            {
+                case FirstPlayableScreenKind.Login:
+                    BindLoginScreen();
+                    break;
+                case FirstPlayableScreenKind.Hub:
+                    BindHubScreen();
+                    break;
+                case FirstPlayableScreenKind.Setup:
+                    BindSetupScreen();
+                    break;
+                case FirstPlayableScreenKind.Loading:
+                    _loadingSession = Require<Label>("loading-session");
+                    Require<Button>("loading-home-button").clicked += () => ReturnHome();
+                    break;
+                case FirstPlayableScreenKind.Match:
+                    BindMatchScreen();
+                    break;
+                case FirstPlayableScreenKind.Result:
+                    _resultOutcome = Require<Label>("result-outcome");
+                    _resultScore = Require<Label>("result-score");
+                    _resultRules = Require<Label>("result-rules");
+                    Require<Button>("result-replay-button").clicked += () => Replay();
+                    Require<Button>("result-home-button").clicked += () => ReturnHome();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(screenKind));
+            }
+        }
+
+        private void BindLoginScreen()
+        {
             _loginFeedback = Require<Label>("login-feedback");
+            Require<TextField>("login-password").isPasswordField = true;
+            Require<Button>("login-enter-button").clicked += () => EnterGateway();
+            Require<Button>("login-forgot-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.forgot");
+            Require<Button>("login-google-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.google");
+            Require<Button>("login-apple-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.apple");
+            Require<Button>("login-create-button").clicked += () =>
+                ShowLoginFeedback("flow.login.feedback.create");
+        }
+
+        private void BindHubScreen()
+        {
             _homeActionStatus = Require<Label>("home-action-status");
             _homeChatDate = Require<Label>("home-chat-date");
             _homeChatMessageOne = Require<Label>("home-chat-message-one");
@@ -522,17 +738,7 @@ namespace TheFall.Presentation.UI
             _homeAudioMasterToggle = Require<Toggle>("home-settings-audio-master-toggle");
             _homeAudioEffectsToggle = Require<Toggle>("home-settings-audio-effects-toggle");
             _homeAudioMusicToggle = Require<Toggle>("home-settings-audio-music-toggle");
-            Require<TextField>("login-password").isPasswordField = true;
 
-            Require<Button>("login-enter-button").clicked += () => EnterGateway();
-            Require<Button>("login-forgot-button").clicked += () =>
-                ShowLoginFeedback("flow.login.feedback.forgot");
-            Require<Button>("login-google-button").clicked += () =>
-                ShowLoginFeedback("flow.login.feedback.google");
-            Require<Button>("login-apple-button").clicked += () =>
-                ShowLoginFeedback("flow.login.feedback.apple");
-            Require<Button>("login-create-button").clicked += () =>
-                ShowLoginFeedback("flow.login.feedback.create");
             Require<Button>("home-start-button").clicked += () => BeginQuest();
             Require<Button>("home-mail-button").clicked += () =>
                 ShowHubPanel("flow.home.mail.title", "flow.home.mail.description");
@@ -562,35 +768,64 @@ namespace TheFall.Presentation.UI
             _homeChatSystemButton.clicked += () => SelectHomeChatChannel("system");
             Require<Button>("home-chat-send-button").clicked += SendHomeChatMessage;
             Require<Button>("hub-modal-close-button").clicked += CloseHubPanel;
-            Require<Button>("setup-start-button").clicked += () => StartMatch();
-            Require<Button>("setup-back-button").clicked += () => ReturnHome();
-            Require<Button>("loading-home-button").clicked += () => ReturnHome();
-            Require<Button>("match-home-button").clicked += () => ReturnHome();
-            _dealerOptionsButton.clicked += ToggleDealerOptions;
-            _cantoOptionsButton.clicked += ToggleCantoOptions;
-            _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
+
+            _homeCasasToggle.SetValueWithoutNotify(_homeCasasEnabled);
+            _homeTrivilinToggle.SetValueWithoutNotify(_homeTrivilinImmediate);
+            _homeAnimationFastToggle.SetValueWithoutNotify(_animationFastForwardEnabled);
+            _homeAnimationReducedToggle.SetValueWithoutNotify(_animationReducedMotionEnabled);
+            _homeAudioMasterToggle.SetValueWithoutNotify(_audioMasterEnabled);
+            _homeAudioEffectsToggle.SetValueWithoutNotify(_audioEffectsEnabled);
+            _homeAudioMusicToggle.SetValueWithoutNotify(_audioMusicEnabled);
+            _homeChatUserMessage.text = _homeChatUserMessageText ?? string.Empty;
+
+            _homeCasasToggle.RegisterValueChangedCallback(change =>
+            {
+                _homeCasasEnabled = change.newValue;
+                _presentationState.CasasEnabled = change.newValue;
+            });
+            _homeTrivilinToggle.RegisterValueChangedCallback(change =>
+            {
+                _homeTrivilinImmediate = change.newValue;
+                _presentationState.TrivilinImmediate = change.newValue;
+            });
             _homeAnimationFastToggle.RegisterValueChangedCallback(change =>
             {
+                _animationFastForwardEnabled = change.newValue;
+                _presentationState.AnimationFastForwardEnabled = change.newValue;
                 AnimationFastForwardChanged?.Invoke(change.newValue);
             });
             _homeAnimationReducedToggle.RegisterValueChangedCallback(change =>
             {
+                _animationReducedMotionEnabled = change.newValue;
+                _presentationState.AnimationReducedMotionEnabled = change.newValue;
                 AnimationReducedMotionChanged?.Invoke(change.newValue);
             });
             _homeAudioMasterToggle.RegisterValueChangedCallback(change =>
             {
-                AudioMasterChanged?.Invoke(change.newValue);
+                SetAudioMasterEnabled(change.newValue);
             });
             _homeAudioEffectsToggle.RegisterValueChangedCallback(change =>
             {
-                AudioEffectsChanged?.Invoke(change.newValue);
+                SetAudioEffectsEnabled(change.newValue);
             });
             _homeAudioMusicToggle.RegisterValueChangedCallback(change =>
             {
-                AudioMusicChanged?.Invoke(change.newValue);
+                SetAudioMusicEnabled(change.newValue);
             });
-            Require<Button>("result-replay-button").clicked += () => Replay();
-            Require<Button>("result-home-button").clicked += () => ReturnHome();
+
+            SetVisible(_hubModal, false);
+            SetVisible(_hubSettingsContent, false);
+            SetVisible(_homeChatUserMessage, !string.IsNullOrWhiteSpace(_homeChatUserMessageText));
+        }
+
+        private void BindSetupScreen()
+        {
+            _casasToggle = Require<Toggle>("casas-toggle");
+            _trivilinToggle = Require<Toggle>("trivilin-toggle");
+            _casasState = Require<Label>("casas-state");
+            _trivilinState = Require<Label>("trivilin-state");
+            Require<Button>("setup-start-button").clicked += () => StartMatch();
+            Require<Button>("setup-back-button").clicked += () => ReturnHome();
             _casasToggle.RegisterValueChangedCallback(change =>
             {
                 if (Flow.TryConfigure(change.newValue, _trivilinToggle.value))
@@ -605,12 +840,87 @@ namespace TheFall.Presentation.UI
                     RenderSetup();
                 }
             });
-            _screen.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
+        }
 
-            SetVisible(_hubModal, false);
-            SetVisible(_hubSettingsContent, false);
-            SetVisible(_homeChatUserMessage, false);
-            _isBound = true;
+        private void BindMatchScreen()
+        {
+            _matchPhase = Require<Label>("match-phase");
+            _matchScore = Require<Label>("match-score");
+            _matchProgress = Require<Label>("match-progress");
+            _matchTurn = Require<Label>("match-turn");
+            _matchCanto = Require<Label>("match-canto");
+            _matchEvent = Require<Label>("match-event");
+            _matchEventCallout = Require<VisualElement>("match-event-callout");
+            _matchFeedback = Require<Label>("match-feedback");
+            _matchFeedbackSymbol = Require<Label>("match-feedback-symbol");
+            _matchFeedbackCallout = Require<VisualElement>("match-feedback-callout");
+            _dealerContext = Require<VisualElement>("dealer-context");
+            _dealerOptionsMenu = Require<VisualElement>("dealer-options-menu");
+            _dealerOptions = Require<VisualElement>("dealer-options");
+            _dealerOptionsButton = Require<Button>("dealer-options-button");
+            _cantoContext = Require<VisualElement>("canto-context");
+            _cantoOptionsMenu = Require<VisualElement>("canto-options-menu");
+            _cantoOptions = Require<VisualElement>("canto-options");
+            _cantoOptionsButton = Require<Button>("canto-options-button");
+            _animationSkipButton = Require<Button>("animation-skip-button");
+            Require<Button>("match-home-button").clicked += () => ReturnHome();
+            _dealerOptionsButton.clicked += ToggleDealerOptions;
+            _cantoOptionsButton.clicked += ToggleCantoOptions;
+            _animationSkipButton.clicked += () => AnimationSkipRequested?.Invoke();
+        }
+
+        private void ClearMountedScreenReferences()
+        {
+            _mountedStage = null;
+            _casasToggle = null;
+            _trivilinToggle = null;
+            _casasState = null;
+            _trivilinState = null;
+            _loadingSession = null;
+            _matchPhase = null;
+            _matchScore = null;
+            _matchProgress = null;
+            _matchTurn = null;
+            _matchCanto = null;
+            _matchEvent = null;
+            _matchEventCallout = null;
+            _matchFeedback = null;
+            _matchFeedbackSymbol = null;
+            _matchFeedbackCallout = null;
+            _resultOutcome = null;
+            _resultScore = null;
+            _resultRules = null;
+            _dealerContext = null;
+            _dealerOptionsMenu = null;
+            _dealerOptions = null;
+            _dealerOptionsButton = null;
+            _cantoContext = null;
+            _cantoOptionsMenu = null;
+            _cantoOptions = null;
+            _cantoOptionsButton = null;
+            _animationSkipButton = null;
+            _loginFeedback = null;
+            _homeActionStatus = null;
+            _homeChatDate = null;
+            _homeChatMessageOne = null;
+            _homeChatMessageTwo = null;
+            _homeChatMessageThree = null;
+            _homeChatUserMessage = null;
+            _homeChatInput = null;
+            _homeChatGlobalButton = null;
+            _homeChatGuildButton = null;
+            _homeChatSystemButton = null;
+            _hubModal = null;
+            _hubModalTitle = null;
+            _hubModalDescription = null;
+            _hubSettingsContent = null;
+            _homeCasasToggle = null;
+            _homeTrivilinToggle = null;
+            _homeAnimationFastToggle = null;
+            _homeAnimationReducedToggle = null;
+            _homeAudioMasterToggle = null;
+            _homeAudioEffectsToggle = null;
+            _homeAudioMusicToggle = null;
         }
 
         private void ShowLoginFeedback(string localizationKey)
@@ -661,6 +971,7 @@ namespace TheFall.Presentation.UI
         private void SelectHomeChatChannel(string channel)
         {
             _homeChatChannel = channel;
+            _presentationState.HomeChatChannel = channel;
             RenderHomeChat();
         }
 
@@ -688,7 +999,10 @@ namespace TheFall.Presentation.UI
             }
 
             _homeChatChannel = "global";
-            _homeChatUserMessage.text = Localize("flow.home.chat.you", message);
+            _homeChatUserMessageText = Localize("flow.home.chat.you", message);
+            _presentationState.HomeChatChannel = _homeChatChannel;
+            _presentationState.HomeChatUserMessageText = _homeChatUserMessageText;
+            _homeChatUserMessage.text = _homeChatUserMessageText;
             _homeChatInput.SetValueWithoutNotify(string.Empty);
             _homeActionStatus.text = Localize("flow.home.chat.sent");
             RenderHomeChat();
@@ -725,6 +1039,19 @@ namespace TheFall.Presentation.UI
                 state.TeamOneScore.Value,
                 state.TeamTwoScore.Value,
                 state.Rules.VictoryTarget);
+            var progressState = Localize(state.IsTieExtension
+                ? "flow.match.tie-extension"
+                : "flow.match.standard-round");
+            if (state.IsFinalDeal)
+            {
+                progressState = $"{progressState} · {Localize("flow.match.final-deal")}";
+            }
+
+            _matchProgress.text = Localize(
+                "flow.match.progress",
+                state.RoundNumber,
+                state.DealNumber,
+                progressState);
             _matchTurn.text = state.Phase == MatchPhase.DealerSelection
                 ? Localize(
                     "flow.match.turn.dealer-pending",
@@ -733,7 +1060,14 @@ namespace TheFall.Presentation.UI
                     "flow.match.turn",
                     Localize(state.DealerSeat == Seat.First ? "flow.player.you" : "flow.player.bot"),
                     Localize(state.CurrentSeat == Seat.First ? "flow.player.you" : "flow.player.bot"));
-            _matchEvent.text = EventSummary();
+            _matchCanto.text = CantoSummary(state);
+            var latestEvent = Flow.Match.Trace.Events.Count == 0
+                ? null
+                : Flow.Match.Trace.Events[Flow.Match.Trace.Events.Count - 1];
+            _matchEvent.text = latestEvent == null
+                ? Localize("flow.match.event.ready")
+                : EventSummary(latestEvent);
+            ApplyOutcomeClass(latestEvent);
             var legalIntents = IsPresentationBusy
                 ? Array.Empty<PlayerIntent>()
                 : Flow.Match.GetHumanLegalIntents();
@@ -747,7 +1081,10 @@ namespace TheFall.Presentation.UI
             RenderContextualActions(state, legalIntents);
             if (IsPresentationBusy)
             {
-                _matchFeedback.text = Localize("interaction.feedback.temporarily-blocked");
+                SetMatchFeedback(
+                    "interaction.feedback.temporarily-blocked",
+                    AdaptiveUiSemanticState.Blocked,
+                    "Ⅱ");
             }
         }
 
@@ -786,11 +1123,14 @@ namespace TheFall.Presentation.UI
 
             _dealerOptionsButton.tooltip = Localize("flow.context.dealer-tooltip");
             _cantoOptionsButton.tooltip = Localize("flow.context.canto-tooltip");
-            _matchFeedback.text = state.Phase == MatchPhase.DealerSelection
-                ? Localize("flow.context.dealer-card-prompt")
-                : dealerOptionCount > 0
-                    ? Localize("flow.context.dealer-required")
-                    : Localize("interaction.feedback.legal");
+            SetMatchFeedback(
+                state.Phase == MatchPhase.DealerSelection
+                    ? "flow.context.dealer-card-prompt"
+                    : dealerOptionCount > 0
+                        ? "flow.context.dealer-required"
+                        : "interaction.feedback.legal",
+                AdaptiveUiSemanticState.Legal,
+                "+");
         }
 
         private Button CreateContextButton(string name, string text, PlayerIntent intent)
@@ -882,6 +1222,28 @@ namespace TheFall.Presentation.UI
             return Localize("flow.action.unavailable");
         }
 
+        private string CantoSummary(MatchState state)
+        {
+            if (state.CantoAnnouncements.Count == 0)
+            {
+                return Localize("flow.match.canto.none");
+            }
+
+            var announcements = new string[state.CantoAnnouncements.Count];
+            for (var index = 0; index < state.CantoAnnouncements.Count; index++)
+            {
+                var announcement = state.CantoAnnouncements[index];
+                announcements[index] = Localize(
+                    "flow.match.canto.announcement",
+                    Localize(announcement.PlayerId == state.GetPlayerAt(Seat.First).Player.Id
+                        ? "flow.player.you"
+                        : "flow.player.bot"),
+                    Localize(CantoLocalizationKey(announcement.ClaimedKind)));
+            }
+
+            return Localize("flow.match.canto.summary", string.Join(" · ", announcements));
+        }
+
         private string EventSummary()
         {
             var events = Flow.Match.Trace.Events;
@@ -926,7 +1288,12 @@ namespace TheFall.Presentation.UI
 
             if (resolvedEvent is CardsCapturedEvent captured)
             {
-                return Localize("flow.match.event.cards-captured", PlayerDisplayName(captured.PlayerId), captured.Cards.Count);
+                return Localize(
+                    captured.Cards.Count > 2
+                        ? "flow.match.event.cascade-captured"
+                        : "flow.match.event.cards-captured",
+                    PlayerDisplayName(captured.PlayerId),
+                    captured.Cards.Count);
             }
 
             if (resolvedEvent is CantoAnnouncedEvent canto)
@@ -935,6 +1302,18 @@ namespace TheFall.Presentation.UI
                     "flow.match.event.canto-announced",
                     PlayerDisplayName(canto.PlayerId),
                     Localize(CantoLocalizationKey(canto.ClaimedKind)));
+            }
+
+            if (resolvedEvent is CantoResolvedEvent resolvedCanto)
+            {
+                return Localize(
+                    resolvedCanto.IsValid
+                        ? resolvedCanto.DidScore
+                            ? "flow.match.event.canto-scored"
+                            : "flow.match.event.canto-resolved"
+                        : "flow.match.event.canto-rejected",
+                    PlayerDisplayName(resolvedCanto.PlayerId),
+                    Localize(CantoLocalizationKey(resolvedCanto.ClaimedKind)));
             }
 
             if (resolvedEvent is ScoreChangedEvent score)
@@ -973,6 +1352,121 @@ namespace TheFall.Presentation.UI
             return Localize("flow.match.event.resolved");
         }
 
+        private void SetMatchFeedback(
+            string localizationKey,
+            AdaptiveUiSemanticState semanticState,
+            string symbol)
+        {
+            if (_matchFeedback == null || string.IsNullOrWhiteSpace(localizationKey))
+            {
+                return;
+            }
+
+            _matchFeedback.text = Localize(localizationKey);
+            _matchFeedbackSymbol.text = symbol;
+            AdaptiveUiFoundation.ApplySemanticState(_matchFeedbackCallout, semanticState);
+        }
+
+        private static AdaptiveUiSemanticState InteractionSemanticState(
+            CardInteractionFeedback feedback)
+        {
+            switch (feedback)
+            {
+                case CardInteractionFeedback.Inspected:
+                    return AdaptiveUiSemanticState.Inspected;
+                case CardInteractionFeedback.Selected:
+                    return AdaptiveUiSemanticState.Selected;
+                case CardInteractionFeedback.Confirmed:
+                    return AdaptiveUiSemanticState.Confirmed;
+                case CardInteractionFeedback.Cancelled:
+                    return AdaptiveUiSemanticState.Cancelled;
+                case CardInteractionFeedback.Rejected:
+                    return AdaptiveUiSemanticState.Rejected;
+                case CardInteractionFeedback.TemporarilyBlocked:
+                    return AdaptiveUiSemanticState.Blocked;
+                default:
+                    return AdaptiveUiSemanticState.Legal;
+            }
+        }
+
+        private static string InteractionSymbol(CardInteractionFeedback feedback)
+        {
+            switch (feedback)
+            {
+                case CardInteractionFeedback.Inspected:
+                    return "?";
+                case CardInteractionFeedback.Selected:
+                    return "◆";
+                case CardInteractionFeedback.Confirmed:
+                    return "✓";
+                case CardInteractionFeedback.Cancelled:
+                    return "↶";
+                case CardInteractionFeedback.Rejected:
+                    return "×";
+                case CardInteractionFeedback.TemporarilyBlocked:
+                    return "Ⅱ";
+                default:
+                    return "+";
+            }
+        }
+
+        private void ApplyOutcomeClass(DomainEvent resolvedEvent)
+        {
+            if (_matchEventCallout == null)
+            {
+                return;
+            }
+
+            foreach (var className in MatchOutcomeClasses)
+            {
+                _matchEventCallout.RemoveFromClassList(className);
+            }
+
+            var classToAdd = MatchOutcomeClass(resolvedEvent);
+            if (!string.IsNullOrEmpty(classToAdd))
+            {
+                _matchEventCallout.AddToClassList(classToAdd);
+            }
+        }
+
+        private static string MatchOutcomeClass(DomainEvent resolvedEvent)
+        {
+            if (resolvedEvent is ScoreChangedEvent score)
+            {
+                switch (score.Reason)
+                {
+                    case ScoreReason.Fall:
+                        return "outcome-fall";
+                    case ScoreReason.CleanTable:
+                        return "outcome-clean-table";
+                    case ScoreReason.Canto:
+                    case ScoreReason.FalseCantoPenalty:
+                        return "outcome-canto";
+                    default:
+                        return "outcome-score";
+                }
+            }
+
+            if (resolvedEvent is CardsCapturedEvent)
+            {
+                return "outcome-capture";
+            }
+
+            if (resolvedEvent is CantoAnnouncedEvent || resolvedEvent is CantoResolvedEvent)
+            {
+                return "outcome-canto";
+            }
+
+            if (resolvedEvent is TieExtensionStartedEvent)
+            {
+                return "outcome-tie";
+            }
+
+            return resolvedEvent is MatchCompletedEvent
+                ? "outcome-victory"
+                : null;
+        }
+
         private void UpdatePresentationAvailability()
         {
             _dealerOptionsButton?.SetEnabled(!IsPresentationBusy);
@@ -992,6 +1486,11 @@ namespace TheFall.Presentation.UI
         private void BeginLoadingTransition()
         {
             Render();
+            if (_sceneTransitionPending)
+            {
+                return;
+            }
+
             if (_loadingCoroutine != null)
             {
                 StopCoroutine(_loadingCoroutine);
@@ -1012,17 +1511,30 @@ namespace TheFall.Presentation.UI
         {
             foreach (var binding in LabelLocalizationKeys)
             {
-                Require<Label>(binding.Key).text = Localize(binding.Value);
+                var label = _root.Q<Label>(binding.Key);
+                if (label != null)
+                {
+                    label.text = Localize(binding.Value);
+                }
             }
 
             foreach (var binding in ButtonLocalizationKeys)
             {
-                var button = Require<Button>(binding.Key);
-                button.text = Localize(binding.Value);
+                var button = _root.Q<Button>(binding.Key);
+                if (button == null)
+                {
+                    continue;
+                }
+
+                var localizedText = Localize(binding.Value);
                 if (button.ClassListContains("icon-only-button"))
                 {
-                    button.tooltip = button.text;
+                    button.text = string.Empty;
+                    button.tooltip = localizedText;
+                    continue;
                 }
+
+                button.text = localizedText;
             }
 
             if (_casasToggle != null)
@@ -1061,7 +1573,7 @@ namespace TheFall.Presentation.UI
                 safeArea,
                 _hasAdaptiveViewportOverride
                     ? CurrentAdaptiveLayout.Profile != AdaptiveUiProfile.Desktop
-                    : UnityEngine.Application.isMobilePlatform);
+                    : DeviceApplication.isMobilePlatform);
         }
 
         public void ApplyViewportForTests(
@@ -1076,7 +1588,10 @@ namespace TheFall.Presentation.UI
         public void ClearViewportOverrideForTests()
         {
             _hasAdaptiveViewportOverride = false;
-            ApplyAdaptiveLayout(RuntimeViewport(), RuntimeSafeArea(), UnityEngine.Application.isMobilePlatform);
+            ApplyAdaptiveLayout(
+                RuntimeViewport(),
+                RuntimeSafeArea(),
+                DeviceApplication.isMobilePlatform);
         }
 
         private void ApplyAdaptiveLayout(
@@ -1091,66 +1606,53 @@ namespace TheFall.Presentation.UI
 
             _adaptiveViewport = viewportPixels;
             _adaptiveSafeArea = safeAreaPixels;
-            _adaptivePanelSize = ResolvePanelSize(viewportPixels);
-            CurrentAdaptiveLayout = AdaptiveUiFoundation.Resolve(
+            var resolvedLayout = AdaptiveUiFoundation.Resolve(
                 viewportPixels,
                 safeAreaPixels,
                 isMobilePlatform);
-            CurrentAdaptivePanelInsets = AdaptiveUiFoundation.ResolvePanelInsets(
-                CurrentAdaptiveLayout,
-                _adaptivePanelSize);
+            CurrentAdaptiveLayout = !UnityEngine.Application.isPlaying
+                && !_hasAdaptiveViewportOverride
+                    ? new AdaptiveUiLayout(
+                        _authoringPreviewProfile,
+                        resolvedLayout.ViewportPixels,
+                        resolvedLayout.NormalizedSafeArea)
+                    : resolvedLayout;
             AdaptiveUiFoundation.ApplyProfileClass(
                 _screen,
                 CurrentAdaptiveLayout.Profile);
             _screen.EnableInClassList("compact", false);
-
-            foreach (var stage in _stages)
-            {
-                stage.style.left = CurrentAdaptivePanelInsets.Left;
-                stage.style.top = CurrentAdaptivePanelInsets.Top;
-                stage.style.right = CurrentAdaptivePanelInsets.Right;
-                stage.style.bottom = CurrentAdaptivePanelInsets.Bottom;
-            }
-        }
-
-        private Vector2 ResolvePanelSize(Vector2Int viewportPixels)
-        {
-            var width = _screen?.layout.width ?? 0f;
-            var height = _screen?.layout.height ?? 0f;
-            return float.IsNaN(width)
-                || float.IsNaN(height)
-                || width <= 0f
-                || height <= 0f
-                    ? new Vector2(viewportPixels.x, viewportPixels.y)
-                    : new Vector2(width, height);
         }
 
         private static Vector2Int RuntimeViewport()
         {
-            return new Vector2Int(Mathf.Max(1, Screen.width), Mathf.Max(1, Screen.height));
+            return new Vector2Int(Mathf.Max(1, DeviceScreen.width), Mathf.Max(1, DeviceScreen.height));
         }
 
         private static Rect RuntimeSafeArea()
         {
-            var safeArea = Screen.safeArea;
+            var safeArea = DeviceScreen.safeArea;
             return safeArea.width > 0f && safeArea.height > 0f
                 ? safeArea
-                : new Rect(0f, 0f, Screen.width, Screen.height);
+                : new Rect(0f, 0f, DeviceScreen.width, DeviceScreen.height);
+        }
+
+        private AdaptiveUiProfile ResolveAuthoringPreviewProfile()
+        {
+            return _root.Q<AdaptiveUiPreviewRoot>()?.PreviewProfile
+                ?? AdaptiveUiProfile.PhoneLandscape;
+        }
+
+        private void UseSceneLayoutForPreviewRoots()
+        {
+            foreach (var previewRoot in _root.Query<AdaptiveUiPreviewRoot>().ToList())
+            {
+                previewRoot.UseSceneLayout();
+            }
         }
 
         private string Localize(string key, params object[] arguments)
         {
             return LocalizationSettings.StringDatabase.GetLocalizedString(TableName, key, arguments);
-        }
-
-        private void ShowOnly(string visibleName)
-        {
-            foreach (var stageName in StageElementNames)
-            {
-                Require<VisualElement>(stageName).style.display = stageName == visibleName
-                    ? DisplayStyle.Flex
-                    : DisplayStyle.None;
-            }
         }
 
         private static bool HasIntent<TIntent>(IReadOnlyList<PlayerIntent> intents)
@@ -1169,7 +1671,10 @@ namespace TheFall.Presentation.UI
 
         private static void SetVisible(VisualElement element, bool isVisible)
         {
-            element.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            if (element != null)
+            {
+                element.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
         }
 
         private void Focus(string elementName)
@@ -1190,23 +1695,128 @@ namespace TheFall.Presentation.UI
             return element;
         }
 
-        private static string StageElementName(FirstPlayableFlowStage stage)
+        private VisualTreeAsset ScreenAsset(FirstPlayableScreenKind screenKind)
+        {
+            switch (screenKind)
+            {
+                case FirstPlayableScreenKind.Login:
+                    return _loginScreenAsset;
+                case FirstPlayableScreenKind.Hub:
+                    return _hubScreenAsset;
+                case FirstPlayableScreenKind.Setup:
+                    return _setupScreenAsset;
+                case FirstPlayableScreenKind.Loading:
+                    return _loadingScreenAsset;
+                case FirstPlayableScreenKind.Match:
+                    return _matchScreenAsset;
+                case FirstPlayableScreenKind.Result:
+                    return _resultScreenAsset;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(screenKind));
+            }
+        }
+
+        private static FirstPlayableScreenKind ScreenKind(FirstPlayableFlowStage stage)
         {
             switch (stage)
             {
                 case FirstPlayableFlowStage.Home:
-                    return "home-stage";
+                    return FirstPlayableScreenKind.Hub;
                 case FirstPlayableFlowStage.Setup:
-                    return "setup-stage";
+                    return FirstPlayableScreenKind.Setup;
                 case FirstPlayableFlowStage.Loading:
-                    return "loading-stage";
+                    return FirstPlayableScreenKind.Loading;
                 case FirstPlayableFlowStage.Match:
-                    return "match-stage";
+                    return FirstPlayableScreenKind.Match;
                 case FirstPlayableFlowStage.Result:
+                    return FirstPlayableScreenKind.Result;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(stage));
+            }
+        }
+
+        private static string StageElementName(FirstPlayableScreenKind screenKind)
+        {
+            switch (screenKind)
+            {
+                case FirstPlayableScreenKind.Login:
+                    return "login-stage";
+                case FirstPlayableScreenKind.Hub:
+                    return "home-stage";
+                case FirstPlayableScreenKind.Setup:
+                    return "setup-stage";
+                case FirstPlayableScreenKind.Loading:
+                    return "loading-stage";
+                case FirstPlayableScreenKind.Match:
+                    return "match-stage";
+                case FirstPlayableScreenKind.Result:
                     return "result-stage";
                 default:
-                    throw new System.ArgumentOutOfRangeException(nameof(stage));
+                    throw new ArgumentOutOfRangeException(nameof(screenKind));
             }
+        }
+
+        private void RestorePresentationState()
+        {
+            if (_presentationState == null)
+            {
+                return;
+            }
+
+            if (_sceneKind != FirstPlayableSceneKind.Login)
+            {
+                _presentationState.HasEnteredGateway = true;
+            }
+
+            _hasEnteredGateway = _presentationState.HasEnteredGateway;
+            _homeCasasEnabled = _presentationState.CasasEnabled;
+            _homeTrivilinImmediate = _presentationState.TrivilinImmediate;
+            _animationFastForwardEnabled = _presentationState.AnimationFastForwardEnabled;
+            _animationReducedMotionEnabled = _presentationState.AnimationReducedMotionEnabled;
+            _audioMasterEnabled = _presentationState.AudioMasterEnabled;
+            _audioEffectsEnabled = _presentationState.AudioEffectsEnabled;
+            _audioMusicEnabled = _presentationState.AudioMusicEnabled;
+            _homeChatChannel = _presentationState.HomeChatChannel;
+            _homeChatUserMessageText = _presentationState.HomeChatUserMessageText;
+        }
+
+        private void PrepareDirectSceneState()
+        {
+            if (_sceneKind != FirstPlayableSceneKind.Match
+                || _presentationState.HasEnteredGateway
+                || Flow.Stage != FirstPlayableFlowStage.Home)
+            {
+                return;
+            }
+
+            _presentationState.HasEnteredGateway = true;
+            if (Flow.TryOpenSetup())
+            {
+                Flow.TryConfigure(
+                    _presentationState.CasasEnabled,
+                    _presentationState.TrivilinImmediate);
+                Flow.TryStartMatch();
+            }
+        }
+
+        private bool EnsurePresentationScene(FirstPlayableScreenKind screenKind)
+        {
+            var requiredSceneKind = FirstPlayableSceneContract.SceneForScreen(screenKind);
+            if (_sceneKind == requiredSceneKind)
+            {
+                return true;
+            }
+
+            if (_sceneTransitionPending)
+            {
+                return false;
+            }
+
+            _sceneTransitionPending = true;
+            SceneManager.LoadSceneAsync(
+                FirstPlayableSceneContract.SceneName(requiredSceneKind),
+                LoadSceneMode.Single);
+            return false;
         }
 
         private static string MatchPhaseLocalizationKey(MatchPhase phase)

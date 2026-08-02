@@ -42,12 +42,21 @@ The enabled build scenes are ordered as follows:
 | Order | Scene | Purpose |
 | ---: | --- | --- |
 | 0 | `Bootstrap` | application startup and persistent manual dependency composition |
-| 1 | `Home` | localized first-playable flow plus the authoritative fixed-camera 1v1 table and resolved-event animation presentation |
-| 2 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
-| 3 | `AnimationLab` | Edit Mode library and runtime preview for isolated reusable resolved-event animations, versioned presets, transport, profile comparison, and synchronization diagnosis |
-| 4 | `AssetReview` | isolated generated-asset inspection with Play-mode orbit and zoom controls |
+| 1 | `Login` | localized full-bleed gateway and account-entry presentation |
+| 2 | `Hub` | localized player hub, settings, and pre-match presentation |
+| 3 | `Match` | loading, authoritative fixed-camera 1v1 table, match HUD, result, animation, and audio |
+| 4 | `MatchPrototype` | fixed-camera 1v1, three-player, and 2v2 table-composition prototype |
+| 5 | `AnimationLab` | Edit Mode library and runtime preview for isolated reusable resolved-event animations, versioned presets, transport, profile comparison, and synchronization diagnosis |
+| 6 | `AssetReview` | isolated generated-asset inspection with Play-mode orbit and zoom controls |
 
-Bootstrap remains deliberately minimal and composes the first-playable flow before loading `Home`. Home owns the functional application flow documented in [first-playable application flow](../technical/first-playable-flow.md) and the integrated table documented in [first-playable 1v1 table presentation](../technical/first-playable-table.md). `AnimationLab` owns the isolated real-time sequence workbench documented in [gameplay animation](../technical/animation.md). `MatchPrototype` retains the presentation-only multi-mode composition evidence documented in the [fixed table composition prototype](../design/table-composition-prototype.md). `AssetReview` remains an isolated generated-asset inspection scene.
+Bootstrap remains deliberately minimal and composes the first-playable flow before loading `Login`.
+It persists application and presentation-session state while `Login`, `Hub`, and `Match` replace one
+another. `Match` owns the integrated table documented in
+[first-playable 1v1 table presentation](../technical/first-playable-table.md). `AnimationLab` owns the
+isolated real-time sequence workbench documented in [gameplay animation](../technical/animation.md).
+`MatchPrototype` retains the presentation-only multi-mode composition evidence documented in the
+[fixed table composition prototype](../design/table-composition-prototype.md). `AssetReview` remains
+an isolated generated-asset inspection scene.
 
 ## Input, localization, and UI
 
@@ -55,7 +64,9 @@ Bootstrap remains deliberately minimal and composes the first-playable flow befo
 
 English (`en`) is the project source locale. Pseudo-localization (`qps-ploc`) is enabled with the package's expansion, accenting, and encapsulation transforms. The `UI` string table contains `app.title` plus the stable Home, setup, loading, match-action, result, canto, suit, score, and navigation keys required by the first playable. Dynamic entries use Smart Strings, and pseudo-localization transforms the same source entries.
 
-UI Toolkit owns the adaptive screen-space first-playable flow in `Home`. A reusable world-space Canvas/TextMeshPro prefab establishes the uGUI path without hard-coded player-facing text.
+UI Toolkit owns the adaptive screen-space first-playable flow across `Login`, `Hub`, and `Match`. A
+reusable world-space Canvas/TextMeshPro prefab establishes the uGUI path without hard-coded
+player-facing text.
 
 ## Player settings
 
@@ -63,7 +74,7 @@ UI Toolkit owns the adaptive screen-space first-playable flow in `Home`. A reusa
 - product: `The Fall`
 - pre-release bundle version: `0.0.0`
 - application identifier: `com.donkijote.thefall` for Standalone, Android, and iOS
-- mobile orientation: automatic rotation with portrait and both landscape directions enabled
+- mobile orientation: automatic rotation with only Landscape Left and Landscape Right enabled
 - desktop window: resizable
 - active input handling: Input System
 

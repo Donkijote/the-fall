@@ -9,7 +9,7 @@ namespace TheFall.Tests.EditMode
 {
     public sealed class FirstPlayableAudioEditModeTests
     {
-        private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
+        private const string MatchScenePath = "Assets/TheFall/Presentation/Scenes/Match.unity";
 
         [Test]
         public void SemanticVocabularyMapsEveryRequiredResolvedBeatToADistinctDefinition()
@@ -42,9 +42,9 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
-        public void HomeSceneOwnsOneSafeNonLoopingPrototypeEffectsSource()
+        public void MatchSceneOwnsOneSafeNonLoopingPrototypeEffectsSource()
         {
-            var scene = EditorSceneManager.OpenScene(HomeScenePath);
+            var scene = EditorSceneManager.OpenScene(MatchScenePath);
             var presenter = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<FirstPlayableAudioPresenter>(true))
                 .Single();

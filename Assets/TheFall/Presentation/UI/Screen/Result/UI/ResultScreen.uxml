@@ -1,0 +1,57 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Result/Styles/ResultScreen.uss?fileID=7433441132597879392&amp;guid=5202926b868a342b5a6477d1c2d4d109&amp;type=3#ResultScreen" />
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
+    <ui:VisualElement name="result-stage" class="stage stage-result">
+        <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area player-safe-area-centered">
+            <ui:VisualElement class="panel result-panel">
+            <ui:Label name="result-eyebrow" class="eyebrow">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.result.eyebrow" />
+                </Bindings>
+            </ui:Label>
+            <ui:Label name="result-title" class="section-title centered">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.result.title" />
+                </Bindings>
+            </ui:Label>
+            <ui:VisualElement class="result-seal">
+                <ui:VisualElement class="game-icon result-icon icon-rank" picking-mode="Ignore" />
+                <ui:Label name="result-winner-label" class="card-label result-winner-label">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.result.winner-label" />
+                    </Bindings>
+                </ui:Label>
+                <ui:Label name="result-outcome" text="Victory" class="result-outcome" />
+            </ui:VisualElement>
+            <ui:Label name="result-score" text="24 — 18 · Round 4" class="result-score" />
+            <ui:Label name="result-rules" text="Casas enabled · Trivilín: five points" class="result-rules" />
+            <ui:Label name="result-next" class="result-next">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.result.next" />
+                </Bindings>
+            </ui:Label>
+            <ui:VisualElement class="button-row">
+                <ui:Button name="result-home-button" class="secondary-button icon-label-button">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.common.return-home" />
+                    </Bindings>
+                    <ui:VisualElement class="game-icon action-button-icon icon-home" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="result-replay-button" class="primary-button icon-label-button">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.result.replay" />
+                    </Bindings>
+                    <ui:VisualElement class="game-icon action-button-icon icon-replay" picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:Label name="result-prompt" class="input-prompt">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.result.prompt" />
+                </Bindings>
+            </ui:Label>
+            </ui:VisualElement>
+        </Bitbebop.SafeArea>
+    </ui:VisualElement>
+    </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
+</ui:UXML>

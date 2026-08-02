@@ -15,9 +15,21 @@ namespace TheFall.Editor
 {
     public static class FirstPlayableFlowSetup
     {
-        private const string HomeScenePath = "Assets/TheFall/Presentation/Scenes/Home.unity";
-        private const string UxmlPath = "Assets/TheFall/Presentation/UI/Screen/HomeScreen.uxml";
+        private const string LoginScenePath = "Assets/TheFall/Presentation/Scenes/Login.unity";
+        private const string HubScenePath = "Assets/TheFall/Presentation/Scenes/Hub.unity";
+        private const string MatchScenePath = "Assets/TheFall/Presentation/Scenes/Match.unity";
+        private const string ScreenUiDirectory = "Assets/TheFall/Presentation/UI/Screen";
         private const string IconDirectory = "Assets/TheFall/Content/UI/Icons";
+
+        private static readonly string[] ScreenAssetNames =
+        {
+            "LoginScreen",
+            "HubScreen",
+            "SetupScreen",
+            "LoadingScreen",
+            "MatchScreen",
+            "ResultScreen",
+        };
 
         private static readonly string[] RequiredIconNames =
         {
@@ -54,11 +66,11 @@ namespace TheFall.Editor
             Text("flow.login.panel-subtitle", "LOGIN TO ACCESS YOUR TABLE"),
             Text("flow.login.email", "EMAIL ADDRESS"),
             Text("flow.login.password", "PASSWORD"),
-            Text("flow.login.enter", "ENTER THE REALM  →"),
+            Text("flow.login.enter", "ENTER THE REALM"),
             Text("flow.login.forgot", "Forgot Cipher?"),
             Text("flow.login.divider", "OR INVOKE"),
-            Text("flow.login.google", "G"),
-            Text("flow.login.apple", "A"),
+            Text("flow.login.google", "Continue with Google"),
+            Text("flow.login.apple", "Continue with Apple"),
             Text("flow.login.account-prefix", "New to the realm?"),
             Text("flow.login.create", "Create Account"),
             Text("flow.login.feedback.forgot", "Cipher recovery is not connected in this build."),
@@ -162,7 +174,7 @@ namespace TheFall.Editor
             Text("flow.setup.start", "Start match"),
             Text("flow.setup.prompt", "Choose any changes, then start the match."),
             Text("flow.common.back", "Back"),
-            Text("flow.common.return-home", "Return to Home"),
+            Text("flow.common.return-home", "Home"),
             Text("flow.loading.eyebrow", "MATCH IN PROGRESS"),
             Text("flow.loading.title", "Setting the table"),
             Text("flow.loading.message", "Creating one fresh match with your selected rules."),
@@ -177,25 +189,32 @@ namespace TheFall.Editor
             Text("flow.match.eyebrow", "OFFLINE · 1V1"),
             Text("flow.match.title", "First playable match"),
             Text("flow.match.prompt", "Click a card to select it; click it again or press Enter/Space to play."),
-            Text("flow.match.phase.dealer-selection", "Choose a face-down dealer card"),
+            Text("flow.match.phase.dealer-selection", "Choose dealer card"),
             Text("flow.match.phase.dealer-choice", "Choose the dealer setup"),
             Text("flow.match.phase.active", "Play your turn"),
             Text("flow.match.phase.completed", "Match complete"),
-            Smart("flow.match.score", "You {0} · Bot {1} · Target {2}"),
+            Smart("flow.match.score", "You {0} · Baseline Bot {1}"),
+            Text("flow.match.score-objective", "FIRST TO 24"),
             Smart("flow.match.progress", "Round {0} · Deal {1} · {2}"),
             Smart("flow.match.turn", "Dealer: {0} · Active: {1}"),
             Smart("flow.match.turn.dealer-pending", "Dealer: pending · Active: {0}"),
+            Text("flow.match.event-label", "RESOLVED OUTCOME"),
+            Text("flow.match.feedback-label", "YOUR ACTION"),
             Text("flow.match.canto.none", "Cantos: none announced this deal"),
             Smart("flow.match.canto.announcement", "{0}: {1}"),
             Smart("flow.match.canto.summary", "Cantos: {0}"),
             Text("flow.match.event.ready", "The table is ready."),
-            Smart("flow.match.event.match-started", "Dealer selection began with {0} face-down cards."),
+            Smart("flow.match.event.match-started", "Dealer selection: {0} face-down cards."),
             Smart("flow.match.event.dealer-selected", "{0} is the dealer."),
             Smart("flow.match.event.deck-shuffled", "Round {0} deck shuffled."),
             Smart("flow.match.event.deal-started", "Round {0}, deal {1} began."),
             Smart("flow.match.event.card-played", "{0} played {1} of {2}."),
             Smart("flow.match.event.cards-captured", "{0} captured {1} cards."),
+            Smart("flow.match.event.cascade-captured", "Cascade: {0} captured {1} cards."),
             Smart("flow.match.event.canto-announced", "{0} announced {1}."),
+            Smart("flow.match.event.canto-scored", "{0}'s {1} resolved and scored."),
+            Smart("flow.match.event.canto-resolved", "{0}'s {1} resolved without scoring."),
+            Smart("flow.match.event.canto-rejected", "{0}'s {1} was false and rejected."),
             Smart("flow.match.event.score-changed", "{0}: {1:+#;-#;0} · total {2}"),
             Smart("flow.match.event.round-completed", "Round {0} is complete."),
             Smart("flow.match.event.tie-extension", "Tie extension at {0} points."),
@@ -210,6 +229,7 @@ namespace TheFall.Editor
             Text("flow.match.score-reason.capturedcards", "Captured cards"),
             Text("flow.match.tie-extension", "Tie extension"),
             Text("flow.match.standard-round", "Standard round"),
+            Text("flow.match.final-deal", "Final deal"),
             Text("flow.animation.fast-forward", "Fast forward"),
             Text("flow.animation.reduced-motion", "Reduced motion"),
             Text("flow.animation.skip", "Skip animation"),
@@ -222,7 +242,7 @@ namespace TheFall.Editor
             Text("flow.context.dealer-title", "Choose how to deal"),
             Text("flow.context.dealer-tooltip", "Required dealer setup"),
             Text("flow.context.dealer-required", "Dealer choice required. Choose the deal order and opening pattern."),
-            Text("flow.context.dealer-card-prompt", "Choose one of the face-down cards spread across the table."),
+            Text("flow.context.dealer-card-prompt", "Choose a face-down card."),
             Text("flow.context.canto-icon", "!"),
             Text("flow.context.canto-title", "Announce a canto"),
             Text("flow.context.canto-tooltip", "Optional canto announcement"),
@@ -235,10 +255,12 @@ namespace TheFall.Editor
             Smart("flow.action.announce-canto", "Announce {0}"),
             Smart("flow.action.play-card", "Play {0} of {1}"),
             Text("flow.action.unavailable", "Unavailable action"),
-            Text("interaction.feedback.legal", "Choose a legal card to inspect or select."),
-            Text("interaction.feedback.selected", "Card selected. Click it again or confirm to play; cancel to release it."),
-            Text("interaction.feedback.confirmed", "✓ Card play accepted by the match."),
-            Text("interaction.feedback.temporarily-blocked", "Ⅱ Presentation is busy; selection retained."),
+            Text("interaction.feedback.legal", "Inspect or select a legal card."),
+            Text("interaction.feedback.inspected", "Card inspected. Select it to prepare the play."),
+            Text("interaction.feedback.selected", "Card selected. Confirm to play or cancel to release."),
+            Text("interaction.feedback.confirmed", "Card play accepted."),
+            Text("interaction.feedback.cancelled", "Selection cancelled. No card was played."),
+            Text("interaction.feedback.temporarily-blocked", "Presentation busy; selection retained."),
             Text("interaction.feedback.no-selection", "× Select a card before confirming."),
             Text("interaction.feedback.different-player", "× That card belongs to a different player."),
             Text("interaction.feedback.domain-rejected", "× The authoritative match rejected that play."),
@@ -276,11 +298,11 @@ namespace TheFall.Editor
 
             ConfigureIconImports();
             ConfigureLocalization();
-            ConfigureHomeScene();
+            ConfigurePresentationScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Validate();
-            Debug.Log("The first-playable gateway, Home, setup, loading, match, and result flow was generated and validated.");
+            Debug.Log("The first-playable Login, Hub, and Match scenes were generated and validated.");
         }
 
         [MenuItem("The Fall/First Playable Flow/Validate")]
@@ -305,8 +327,16 @@ namespace TheFall.Editor
                 }
             }
 
-            Require(File.Exists(HomeScenePath), "The Home scene is missing.", errors);
-            Require(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath) != null, "The first-playable UXML is missing.", errors);
+            Require(File.Exists(LoginScenePath), "The Login scene is missing.", errors);
+            Require(File.Exists(HubScenePath), "The Hub scene is missing.", errors);
+            Require(File.Exists(MatchScenePath), "The Match scene is missing.", errors);
+            foreach (var screenAssetName in ScreenAssetNames)
+            {
+                Require(
+                    LoadScreenAsset(screenAssetName) != null,
+                    $"The first-playable {screenAssetName} UXML is missing.",
+                    errors);
+            }
             foreach (var iconName in RequiredIconNames)
             {
                 var iconPath = $"{IconDirectory}/{iconName}.png";
@@ -330,12 +360,30 @@ namespace TheFall.Editor
                 }
             }
 
-            if (File.Exists(HomeScenePath))
+            foreach (var sceneDefinition in SceneDefinitions())
             {
-                var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+                if (!File.Exists(sceneDefinition.Path))
+                {
+                    continue;
+                }
+
+                var scene = EditorSceneManager.OpenScene(sceneDefinition.Path, OpenSceneMode.Single);
+                var controller = scene.GetRootGameObjects()
+                    .SelectMany(root => root.GetComponentsInChildren<FirstPlayableFlowController>(true))
+                    .SingleOrDefault();
                 Require(
-                    scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<FirstPlayableFlowController>(true)).Any(),
-                    "The Home scene has no FirstPlayableFlowController.",
+                    controller != null,
+                    $"The {sceneDefinition.Kind} scene has no FirstPlayableFlowController.",
+                    errors);
+                Require(
+                    controller != null && controller.HasConfiguredScreenAssets,
+                    $"The {sceneDefinition.Kind} scene controller is missing a scene-owned screen asset.",
+                    errors);
+                var document = controller?.GetComponent<UIDocument>();
+                var expectedSource = LoadScreenAsset($"{sceneDefinition.Kind}Screen");
+                Require(
+                    document != null && document.visualTreeAsset == expectedSource,
+                    $"The {sceneDefinition.Kind} scene UIDocument must directly reference {sceneDefinition.Kind}Screen.uxml.",
                     errors);
             }
 
@@ -392,29 +440,127 @@ namespace TheFall.Editor
             }
         }
 
-        private static void ConfigureHomeScene()
+        private static void ConfigurePresentationScenes()
         {
-            var scene = EditorSceneManager.OpenScene(HomeScenePath, OpenSceneMode.Single);
+            if (!File.Exists(MatchScenePath))
+            {
+                throw new InvalidOperationException(
+                    "The Match scene is missing. Migrate the former Home table scene before generating presentation scenes.");
+            }
+
+            var matchScene = EditorSceneManager.OpenScene(MatchScenePath, OpenSceneMode.Single);
+            var matchDocument = matchScene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<UIDocument>(true))
+                .SingleOrDefault();
+            if (matchDocument == null)
+            {
+                throw new InvalidOperationException("The Match scene UI Document is missing.");
+            }
+
+            var panelSettings = matchDocument.panelSettings;
+            matchDocument.visualTreeAsset = LoadScreenAsset("MatchScreen");
+            ConfigureScene(
+                matchScene,
+                MatchScenePath,
+                FirstPlayableSceneKind.Match,
+                matchDocument,
+                "Authoritative fixed-camera 1v1 table, loading transition, match HUD, and result presentation.");
+            ConfigureUiOnlyScene(
+                LoginScenePath,
+                FirstPlayableSceneKind.Login,
+                LoadScreenAsset("LoginScreen"),
+                panelSettings,
+                "Full-bleed localized gateway and account-entry presentation.");
+            ConfigureUiOnlyScene(
+                HubScenePath,
+                FirstPlayableSceneKind.Hub,
+                LoadScreenAsset("HubScreen"),
+                panelSettings,
+                "Localized player hub, settings, and pre-match presentation.");
+        }
+
+        private static void ConfigureUiOnlyScene(
+            string scenePath,
+            FirstPlayableSceneKind sceneKind,
+            VisualTreeAsset screenAsset,
+            PanelSettings panelSettings,
+            string purposeText)
+        {
+            var scene = File.Exists(scenePath)
+                ? EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single)
+                : EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var purpose = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
+                .FirstOrDefault();
+            if (purpose == null)
+            {
+                purpose = new GameObject(sceneKind.ToString()).AddComponent<ScenePurpose>();
+            }
+
             var document = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<UIDocument>(true))
                 .SingleOrDefault();
             if (document == null)
             {
-                throw new InvalidOperationException("The Home scene UI Document is missing.");
+                document = new GameObject("Screen UI").AddComponent<UIDocument>();
             }
 
-            if (document.GetComponent<FirstPlayableFlowController>() == null)
+            document.visualTreeAsset = screenAsset;
+            document.panelSettings = panelSettings;
+            ConfigureScene(scene, scenePath, sceneKind, document, purposeText);
+        }
+
+        private static void ConfigureScene(
+            UnityEngine.SceneManagement.Scene scene,
+            string scenePath,
+            FirstPlayableSceneKind sceneKind,
+            UIDocument document,
+            string purposeText)
+        {
+            var controller = document.GetComponent<FirstPlayableFlowController>();
+            if (controller == null)
             {
-                document.gameObject.AddComponent<FirstPlayableFlowController>();
+                controller = document.gameObject.AddComponent<FirstPlayableFlowController>();
             }
+
+            controller.ConfigureScene(
+                sceneKind,
+                sceneKind == FirstPlayableSceneKind.Login ? LoadScreenAsset("LoginScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Hub ? LoadScreenAsset("HubScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Hub ? LoadScreenAsset("SetupScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Match ? LoadScreenAsset("LoadingScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Match ? LoadScreenAsset("MatchScreen") : null,
+                sceneKind == FirstPlayableSceneKind.Match ? LoadScreenAsset("ResultScreen") : null);
+            EditorUtility.SetDirty(controller);
 
             var purpose = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<ScenePurpose>(true))
                 .FirstOrDefault();
-            purpose?.SetDescription("Localized first-playable gateway and flow with an authoritative fixed-camera 1v1 table presentation and resolved-beat prototype audio.");
+            purpose?.SetDescription(purposeText);
+            if (purpose != null)
+            {
+                purpose.gameObject.name = sceneKind.ToString();
+                EditorUtility.SetDirty(purpose);
+            }
 
             EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene, HomeScenePath);
+            EditorSceneManager.SaveScene(scene, scenePath);
+        }
+
+        private static IEnumerable<(FirstPlayableSceneKind Kind, string Path)> SceneDefinitions()
+        {
+            yield return (FirstPlayableSceneKind.Login, LoginScenePath);
+            yield return (FirstPlayableSceneKind.Hub, HubScenePath);
+            yield return (FirstPlayableSceneKind.Match, MatchScenePath);
+        }
+
+        private static VisualTreeAsset LoadScreenAsset(string screenAssetName)
+        {
+            var screenName = screenAssetName.EndsWith("Screen", StringComparison.Ordinal)
+                ? screenAssetName.Substring(0, screenAssetName.Length - "Screen".Length)
+                : screenAssetName;
+            return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                $"{ScreenUiDirectory}/{screenName}/UI/{screenAssetName}.uxml");
         }
 
         private static EntryDefinition Text(string key, string value)

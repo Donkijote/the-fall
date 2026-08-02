@@ -119,7 +119,7 @@ namespace TheFall.Application.Interaction
                     null,
                     null,
                     null,
-                    CardInteractionFeedback.Legal,
+                    CardInteractionFeedback.Cancelled,
                     CardInteractionFeedbackReason.SelectionCancelled);
                 return new CardInteractionResult(true, State);
             }
@@ -149,7 +149,7 @@ namespace TheFall.Application.Interaction
                     inspect.Card,
                     State.SelectedCard == inspect.Card
                         ? CardInteractionFeedback.Selected
-                        : CardInteractionFeedback.Legal,
+                        : CardInteractionFeedback.Inspected,
                     CardInteractionFeedbackReason.CardInspected);
                 return new CardInteractionResult(true, State);
             }

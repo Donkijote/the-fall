@@ -1,14 +1,56 @@
+using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using NUnit.Framework;
 using TheFall.Application.Input;
 using TheFall.Domain;
 using TheFall.Presentation.Bootstrap;
+using TheFall.Presentation.Match;
+using TheFall.Presentation.Scenes;
+using TheFall.Presentation.UI;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace TheFall.Tests.EditMode
 {
     public sealed class FoundationEditModeTests
     {
+        private const string UiTableGuid = "5366e2894cb2a41e782277c1311dfc07";
+
+        private static string ScreenAssetPath(string screenAssetName)
+        {
+            var screenName = screenAssetName.EndsWith("Screen")
+                ? screenAssetName.Substring(0, screenAssetName.Length - "Screen".Length)
+                : screenAssetName;
+            return $"Assets/TheFall/Presentation/UI/Screen/{screenName}/UI/{screenAssetName}.uxml";
+        }
+
+        private static XDocument[] ScreenAssetDocuments(string screenAssetName)
+        {
+            var documents = new[]
+            {
+                XDocument.Load(Path.GetFullPath(ScreenAssetPath(screenAssetName))),
+            };
+            if (screenAssetName != "HubScreen"
+                && screenAssetName != "LoginScreen"
+                && screenAssetName != "MatchScreen")
+            {
+                return documents;
+            }
+
+            var screenName = screenAssetName.Substring(0, screenAssetName.Length - "Screen".Length);
+            return documents.Concat(
+                    Directory.GetFiles(
+                            Path.GetFullPath($"Assets/TheFall/Presentation/UI/Screen/{screenName}/Components"),
+                            "*.uxml")
+                        .OrderBy(path => path)
+                        .Select(XDocument.Load))
+                .ToArray();
+        }
+
         [Test]
         public void DomainAssembly_DoesNotReferenceUnityEngine()
         {
@@ -54,7 +96,407 @@ namespace TheFall.Tests.EditMode
             Assert.That(cancel.bindings.Any(binding => binding.path == "<Keyboard>/escape"), Is.True);
         }
 
-        [TestCase("Home")]
+        [Test]
+        public void MobilePlayerSettings_AllowOnlyBothLandscapeDirections()
+        {
+            Assert.That(PlayerSettings.defaultInterfaceOrientation, Is.EqualTo(UIOrientation.AutoRotation));
+            Assert.That(PlayerSettings.allowedAutorotateToPortrait, Is.False);
+            Assert.That(PlayerSettings.allowedAutorotateToPortraitUpsideDown, Is.False);
+            Assert.That(PlayerSettings.allowedAutorotateToLandscapeLeft, Is.True);
+            Assert.That(PlayerSettings.allowedAutorotateToLandscapeRight, Is.True);
+        }
+
+        [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.Desktop, false)]
+        [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.PhoneLandscape, false)]
+        [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
+        public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
+            string sceneName,
+            FirstPlayableSceneKind expectedKind,
+            AdaptiveUiProfile expectedPreviewProfile,
+            bool expectsTable)
+        {
+            var scene = EditorSceneManager.OpenScene(
+                $"Assets/TheFall/Presentation/Scenes/{sceneName}.unity",
+                OpenSceneMode.Single);
+            var controller = scene.GetRootGameObjects()
+                .SelectMany(root =>
+                    root.GetComponentsInChildren<FirstPlayableFlowController>(true))
+                .Single();
+            var hasTable = scene.GetRootGameObjects()
+                .SelectMany(root =>
+                    root.GetComponentsInChildren<FirstPlayableTablePresentation>(true))
+                .Any();
+            var document = controller.GetComponent<UIDocument>();
+            var documentRoot = document.rootVisualElement;
+            var previewRoot = documentRoot.Q<AdaptiveUiPreviewRoot>();
+            var expectedScreen = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                ScreenAssetPath($"{sceneName}Screen"));
+
+            Assert.That(controller.SceneKind, Is.EqualTo(expectedKind));
+            Assert.That(controller.enabled, Is.True);
+            Assert.That(controller.HasConfiguredScreenAssets, Is.True);
+            Assert.That(document.visualTreeAsset, Is.SameAs(expectedScreen));
+            Assert.That(document.panelSettings.scaleMode, Is.EqualTo(PanelScaleMode.ScaleWithScreenSize));
+            Assert.That(previewRoot, Is.Not.Null);
+            Assert.That(previewRoot.PreviewProfile, Is.EqualTo(expectedPreviewProfile));
+            Assert.That(previewRoot.ClassListContains("authoring-preview-root"), Is.False);
+            Assert.That(previewRoot.ClassListContains("screen-root"), Is.False);
+            Assert.That(documentRoot.ClassListContains("screen-root"), Is.True);
+            Assert.That(
+                documentRoot.ClassListContains(
+                    AdaptiveUiFoundation.ProfileClass(expectedPreviewProfile)),
+                Is.True);
+            Assert.That(
+                documentRoot.ClassListContains("profile-mobile-landscape"),
+                Is.EqualTo(expectedPreviewProfile != AdaptiveUiProfile.Desktop));
+            Assert.That(hasTable, Is.EqualTo(expectsTable));
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_DoNotExposePlayerScrolling(string screenAssetName)
+        {
+            var documents = ScreenAssetDocuments(screenAssetName);
+
+            Assert.That(
+                documents.SelectMany(document => document.Descendants())
+                    .Any(element => element.Name.LocalName == "ScrollView"),
+                Is.False,
+                $"{screenAssetName} must reflow inside its viewport instead of exposing scrolling.");
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_DelegateInteractiveInsetsToOneSafeAreaElement(string screenAssetName)
+        {
+            var assetPath = ScreenAssetPath(screenAssetName);
+            var document = XDocument.Load(Path.GetFullPath(assetPath));
+            var safeArea = document
+                .Descendants()
+                .Single(element => element.Name.LocalName == "Bitbebop.SafeArea");
+            var interactiveControls = document
+                .Descendants()
+                .Where(element =>
+                    element.Name.LocalName == "Button"
+                    || element.Name.LocalName == "Toggle"
+                    || element.Name.LocalName == "TextField")
+                .ToArray();
+
+            foreach (var control in interactiveControls)
+            {
+                Assert.That(
+                    control.Ancestors().Contains(safeArea),
+                    Is.True,
+                    $"{screenAssetName}/{control.Attribute("name")?.Value} must remain inside its screen-owned SafeArea.");
+            }
+
+            if (screenAssetName != "HubScreen"
+                && screenAssetName != "LoginScreen"
+                && screenAssetName != "MatchScreen")
+            {
+                Assert.That(interactiveControls, Is.Not.Empty);
+                return;
+            }
+
+            var instances = document.Descendants()
+                .Where(element => element.Name.LocalName == "Instance")
+                .ToArray();
+            Assert.That(instances, Is.Not.Empty);
+            Assert.That(instances.All(instance => instance.Ancestors().Contains(safeArea)), Is.True);
+
+            var componentDocuments = ScreenAssetDocuments(screenAssetName).Skip(1).ToArray();
+            Assert.That(
+                componentDocuments.SelectMany(component => component.Descendants())
+                    .Any(element =>
+                        element.Name.LocalName == "Button"
+                        || element.Name.LocalName == "Toggle"
+                        || element.Name.LocalName == "TextField"),
+                Is.True);
+            Assert.That(
+                componentDocuments.SelectMany(component => component.Descendants())
+                    .Any(element => element.Name.LocalName == "Bitbebop.SafeArea"),
+                Is.False,
+                $"{screenAssetName} components inherit the one SafeArea owned by the screen.");
+        }
+
+        [TestCase("LoginScreen", AdaptiveUiProfile.Desktop)]
+        [TestCase("HubScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase("ResultScreen", AdaptiveUiProfile.PhoneLandscape)]
+        public void ScreenAssets_ExposeSwitchableAuthoringPreviewRoot(
+            string screenAssetName,
+            AdaptiveUiProfile expectedPreviewProfile)
+        {
+            var assetPath = ScreenAssetPath(screenAssetName);
+            var document = XDocument.Load(Path.GetFullPath(assetPath));
+            var previewRoot = document
+                .Descendants()
+                .Single(element => element.Name.LocalName.EndsWith("AdaptiveUiPreviewRoot"));
+            var safeArea = document
+                .Descendants()
+                .Single(element => element.Name.LocalName == "Bitbebop.SafeArea");
+
+            Assert.That(
+                previewRoot.Attribute("preview-profile")?.Value,
+                Is.EqualTo(expectedPreviewProfile.ToString()));
+            Assert.That(safeArea.Ancestors().Contains(previewRoot), Is.True);
+        }
+
+        [Test]
+        public void HubAssets_KeepComponentsSmallAndStylesComponentOwned()
+        {
+            var document = XDocument.Load(Path.GetFullPath(
+                ScreenAssetPath("HubScreen")));
+            var hubStyleSources = document.Root?
+                .Elements()
+                .Where(element => element.Name.LocalName == "Style")
+                .Select(element => element.Attribute("src")?.Value)
+                .Where(source => source != null)
+                .ToArray();
+
+            Assert.That(hubStyleSources, Has.Length.EqualTo(2));
+            Assert.That(hubStyleSources[0], Does.Contain("FlowShared.uss"));
+            Assert.That(hubStyleSources[1], Does.Contain("Hub/UI/HubScreen.uss"));
+
+            var expectedComponents = new[]
+            {
+                "Profile",
+                "ResourceStats",
+                "TopActions",
+                "ObjectiveCard",
+                "NavigationDock",
+                "ChatPanel",
+                "SettingsModal",
+            };
+            var templates = document.Root?
+                .Elements()
+                .Where(element => element.Name.LocalName == "Template")
+                .ToArray();
+            var instances = document.Descendants()
+                .Where(element => element.Name.LocalName == "Instance")
+                .ToArray();
+
+            Assert.That(templates, Has.Length.EqualTo(expectedComponents.Length));
+            Assert.That(instances, Has.Length.EqualTo(expectedComponents.Length));
+            foreach (var component in expectedComponents)
+            {
+                Assert.That(
+                    templates.Any(template => template.Attribute("name")?.Value == component),
+                    Is.True,
+                    component);
+                Assert.That(
+                    instances.Any(instance => instance.Attribute("template")?.Value == component),
+                    Is.True,
+                    component);
+
+                var componentDocument = XDocument.Load(Path.GetFullPath(
+                    $"Assets/TheFall/Presentation/UI/Screen/Hub/Components/{component}.uxml"));
+                var componentStyles = componentDocument.Root?
+                    .Elements()
+                    .Where(element => element.Name.LocalName == "Style")
+                    .Select(element => element.Attribute("src")?.Value)
+                    .Where(source => source != null)
+                    .ToArray();
+                Assert.That(componentStyles, Has.Length.EqualTo(1));
+                Assert.That(componentStyles[0], Does.Contain($"/{component}.uss"));
+            }
+
+            Assert.That(File.Exists(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Styles/HubScreen.Base.uss")), Is.False);
+
+            var hubStyles = Directory.GetFiles(
+                    Path.GetFullPath("Assets/TheFall/Presentation/UI/Screen/Hub"),
+                    "*.uss",
+                    SearchOption.AllDirectories)
+                .Select(File.ReadAllText)
+                .ToArray();
+            Assert.That(hubStyles, Is.Not.Empty);
+            Assert.That(hubStyles.All(styles => !styles.Contains(".profile-desktop")), Is.True);
+            Assert.That(hubStyles.All(styles => !styles.Contains(".profile-mobile-landscape")), Is.True);
+        }
+
+        [Test]
+        public void MatchAssets_KeepComponentsSmallAndStylesComponentOwned()
+        {
+            var document = XDocument.Load(Path.GetFullPath(ScreenAssetPath("MatchScreen")));
+            var expectedComponents = new[]
+            {
+                "TableContextControls",
+                "MatchStatus",
+                "ScoreHud",
+                "HomeNavigation",
+            };
+            var templates = document.Root?
+                .Elements()
+                .Where(element => element.Name.LocalName == "Template")
+                .ToArray();
+            var instances = document.Descendants()
+                .Where(element => element.Name.LocalName == "Instance")
+                .ToArray();
+
+            Assert.That(templates, Has.Length.EqualTo(expectedComponents.Length));
+            Assert.That(instances, Has.Length.EqualTo(expectedComponents.Length));
+            foreach (var component in expectedComponents)
+            {
+                Assert.That(
+                    templates.Any(template => template.Attribute("name")?.Value == component),
+                    Is.True,
+                    component);
+                Assert.That(
+                    instances.Any(instance => instance.Attribute("template")?.Value == component),
+                    Is.True,
+                    component);
+
+                var componentDocument = XDocument.Load(Path.GetFullPath(
+                    $"Assets/TheFall/Presentation/UI/Screen/Match/Components/{component}.uxml"));
+                var componentStyles = componentDocument.Root?
+                    .Elements()
+                    .Where(element => element.Name.LocalName == "Style")
+                    .Select(element => element.Attribute("src")?.Value)
+                    .Where(source => source != null)
+                    .ToArray();
+                Assert.That(componentStyles, Has.Length.EqualTo(1));
+                Assert.That(componentStyles[0], Does.Contain($"/{component}.uss"));
+            }
+        }
+
+        [Test]
+        public void SharedStyles_DoNotOwnProfileOrSceneSpecificRules()
+        {
+            var sharedStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss"));
+
+            Assert.That(
+                sharedStyles,
+                Does.Not.Contain(".profile-"));
+            var sceneOwnedSelectors = new[]
+            {
+                ".stage-login",
+                ".suit-token",
+                ".default-note",
+                ".default-badge",
+                ".fixed-summary",
+                ".stage-match",
+                ".match-home-floating",
+                ".event-line",
+                ".outcome-fall",
+                ".presentation-toggle",
+            };
+            foreach (var selector in sceneOwnedSelectors)
+            {
+                Assert.That(sharedStyles, Does.Not.Contain(selector), selector);
+            }
+
+            var settingsStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Hub/Components/SettingsModal.uss"));
+            Assert.That(settingsStyles, Does.Contain(".presentation-toggle"));
+
+            var responsiveScreenStyles = new[]
+            {
+                "Setup/Styles/SetupScreen.uss",
+                "Loading/Styles/LoadingScreen.uss",
+                "Result/Styles/ResultScreen.uss",
+            };
+            foreach (var relativePath in responsiveScreenStyles)
+            {
+                var styles = File.ReadAllText(Path.GetFullPath(
+                    $"Assets/TheFall/Presentation/UI/Screen/{relativePath}"));
+                Assert.That(
+                    styles,
+                    Does.Contain(".screen-root.profile-mobile-landscape"),
+                    relativePath);
+            }
+
+            var loginStyles = File.ReadAllText(Path.GetFullPath(
+                "Assets/TheFall/Presentation/UI/Screen/Login/UI/LoginScreen.uss"));
+            Assert.That(loginStyles, Does.Not.Contain(".screen-root.profile-"));
+
+            var matchStyles = Directory.GetFiles(
+                    Path.GetFullPath("Assets/TheFall/Presentation/UI/Screen/Match"),
+                    "*.uss",
+                    SearchOption.AllDirectories)
+                .Select(File.ReadAllText)
+                .ToArray();
+            Assert.That(matchStyles.All(styles => !styles.Contains(".screen-root.profile-")), Is.True);
+        }
+
+        [TestCase("LoginScreen")]
+        [TestCase("HubScreen")]
+        [TestCase("SetupScreen")]
+        [TestCase("LoadingScreen")]
+        [TestCase("MatchScreen")]
+        [TestCase("ResultScreen")]
+        public void ScreenAssets_ExposeAuthoringCopyOrLocalizedIconTooltipsInUiBuilder(string screenAssetName)
+        {
+            var textControls = ScreenAssetDocuments(screenAssetName)
+                .SelectMany(document => document.Descendants())
+                .Where(element =>
+                    element.Name.LocalName == "Label" ||
+                    element.Name.LocalName == "Button" ||
+                    element.Name.LocalName == "Toggle")
+                .ToArray();
+
+            Assert.That(textControls, Is.Not.Empty);
+            foreach (var control in textControls)
+            {
+                var isIconOnly = (control.Attribute("class")?.Value ?? string.Empty)
+                    .Split(' ')
+                    .Contains("icon-only-button");
+                var localizedProperty = isIconOnly ? "tooltip" : "text";
+                var previewText = control.Attribute("text")?.Value;
+                var localizationBinding = control
+                    .Descendants()
+                    .SingleOrDefault(element =>
+                        element.Name.LocalName.EndsWith("LocalizedString") &&
+                        element.Attribute("property")?.Value == localizedProperty);
+                var controlName = control.Attribute("name")?.Value ?? control.Name.LocalName;
+
+                Assert.That(
+                    !string.IsNullOrWhiteSpace(previewText) || localizationBinding != null,
+                    Is.True,
+                    $"{screenAssetName}/{controlName} needs localized copy or an icon-only tooltip.");
+
+                if (localizationBinding == null)
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    localizationBinding.Attribute("table")?.Value,
+                    Is.EqualTo($"GUID:{UiTableGuid}"),
+                    $"{screenAssetName}/{controlName} must bind to the authoritative UI table.");
+                Assert.That(
+                    localizationBinding.Attribute("entry")?.Value,
+                    Is.Not.Null.And.Not.Empty,
+                    $"{screenAssetName}/{controlName} has no localization key.");
+
+                if (isIconOnly)
+                {
+                    Assert.That(
+                        control
+                            .Descendants()
+                            .Any(element =>
+                                element.Name.LocalName.EndsWith("LocalizedString") &&
+                                element.Attribute("property")?.Value == "text"),
+                        Is.False,
+                        $"{screenAssetName}/{controlName} must not render localized text below its icon.");
+                }
+            }
+        }
+
+        [TestCase("Login")]
+        [TestCase("Hub")]
+        [TestCase("Match")]
         [TestCase("MatchPrototype")]
         [TestCase("AnimationLab")]
         public void DevelopmentSceneOverride_AcceptsRetainedLaunchScenes(string scene)

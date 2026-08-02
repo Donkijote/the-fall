@@ -33,7 +33,7 @@ The hardware facts come from [Apple's iPhone 17 Pro technical specifications](ht
 The repository owns:
 
 - `com.donkijote.thefall`
-- automatic rotation with portrait, upside-down portrait, and both landscape directions
+- automatic rotation with Landscape Left and Landscape Right enabled and both portrait directions disabled
 - arm64 simulator exports for Apple silicon hosts
 - the provisional iOS `15.0` deployment target
 - unsigned Unity Xcode exports under ignored `Build/Smoke/`
@@ -86,12 +86,15 @@ Team selection belongs only to the ignored generated project. A fresh Unity expo
 
 ## Retained-scene launch checks
 
-Every device check begins through the `Bootstrap` scene. A normal development launch must transition from Bootstrap to `Home`.
+Every device check begins through the `Bootstrap` scene. A normal development launch must transition
+from Bootstrap to `Login`.
 
 Development builds accept an optional launch argument for the retained scene paths:
 
 ```text
---the-fall-scene Home
+--the-fall-scene Login
+--the-fall-scene Hub
+--the-fall-scene Match
 --the-fall-scene MatchPrototype
 --the-fall-scene AnimationLab
 ```
@@ -100,12 +103,16 @@ In Xcode, use **Product > Scheme > Edit Scheme > Run > Arguments** and add the f
 
 For each launch, record the commit, scene, orientation, visible safe-area behavior, and whether touch responds. Check:
 
-1. normal Bootstrap-to-Home launch
-2. `Home` in portrait and landscape, including one active rotation
-3. `MatchPrototype` basic card touch/selection, safe areas, portrait, landscape, and rotation while selected
-4. `AnimationLab` basic controls, portrait, landscape, and active rotation
+1. normal Bootstrap-to-Login launch and Login-to-Hub transition
+2. `Login` and `Hub` in both landscape directions, including one active 180-degree rotation
+3. `Match` loading, table interaction, result, return-to-Hub state retention, and safe areas
+4. `MatchPrototype` basic card touch/selection, landscape safe areas, and rotation while selected
+5. `AnimationLab` basic controls in both landscape directions with active rotation
 
-Rotation must recompose immediately without restarting, changing authoritative match state, cancelling or duplicating an intent, moving the fixed gameplay camera, or placing controls under unsafe screen regions. Record defects rather than broadening this issue into gameplay, art, animation, or performance fixes.
+Landscape-direction rotation must recompose immediately without restarting, changing authoritative
+match state, cancelling or duplicating an intent, moving the fixed gameplay camera, or placing
+controls under unsafe screen regions. Portrait is unsupported under
+[ADR 0003](../decisions/0003-landscape-only-mobile.md).
 
 ## Simulator support
 
@@ -158,13 +165,16 @@ Create the named simulator only when it does not already exist. If it is already
 | install succeeds but launch fails | launch again from Xcode, inspect the device console, and record the scene plus exception; keep rule and presentation diagnosis separate |
 | touch or rotation changes state | record scene, acting seat, selected card, viewport, safe rectangle, orientation, ordered intents/events, and final authoritative state |
 | unsafe or clipped layout | record portrait/landscape screenshots, safe rectangle, scene, device model/OS, and the obscured control or card |
+| Device Simulator and phone choose different layouts | verify responsive profile selection uses `UnityEngine.Device.Screen` and `UnityEngine.Device.Application`, and that the active screen has one `Bitbebop.SafeArea`; focus the Simulator view before entering Play Mode and compare the exact model, orientation, safe area, and generated-build timestamp |
+| icons show overlapping labels on-device | icon-only controls must bind localization to `tooltip`, leave visible `text` empty, and retain the icon as the sole rendered button child |
 | simulator destination missing | install the runtime matching Xcode, rerun `xcrun simctl list runtimes`, then rebuild the simulator export |
 
 Generated logs and device evidence remain under ignored `Logs/`, `Build/`, `MemoryCaptures/`, or `Recordings/`. Do not paste device identifiers, signing details, or account data into diagnosis notes.
 
 ## Validation checkpoint
 
-Validated on 2026-07-26 with the recorded toolchain and physical iPhone:
+Validated on 2026-07-26 with the recorded toolchain and physical iPhone. Portrait results below are
+historical evidence from before the landscape-only decision; they are not a current requirement:
 
 - foundation validation passed
 - Edit Mode tests: 100 passed
@@ -182,7 +192,8 @@ The physical checks were completed with the project owner present. Signing asset
 
 ## Issue #31 first-playable checkpoint
 
-Validated on 2026-07-26 from candidate code commit
+Validated on 2026-07-26 from candidate code commit. Portrait results below are retained as historical
+evidence from before ADR 0003:
 `aae863a74c7392af80b1a41207b809d611e6b791` on the recorded physical iPhone:
 
 - the complete touch-only flow from Home through configuration, match completion, replay, and return

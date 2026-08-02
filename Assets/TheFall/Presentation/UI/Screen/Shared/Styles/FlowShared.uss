@@ -1,0 +1,367 @@
+.screen-root {
+    flex-grow: 1;
+    min-width: 320px;
+    min-height: 480px;
+    color: rgb(216, 196, 147);    
+    overflow: hidden;
+}
+
+.adaptive-preview-root {
+    flex-grow: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+.authoring-preview-root {
+    flex-grow: 0;
+    align-self: center;
+    overflow: hidden;
+}
+
+.authoring-preview-root.preview-phone-landscape {
+    width: 1920px;
+    height: 887px;
+}
+
+.authoring-preview-root.preview-tablet-landscape {
+    width: 1920px;
+    height: 1440px;
+}
+
+.authoring-preview-root.preview-desktop {
+    width: 1920px;
+    height: 1080px;
+}
+
+.authoring-preview-root.preview-phone-landscape .player-safe-area > #safe-area-content-container {
+    margin-left: 82px;
+    margin-right: 82px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.authoring-preview-root.preview-tablet-landscape .player-safe-area > #safe-area-content-container {
+    margin-left: 24px;
+    margin-right: 24px;
+    margin-top: 45px;
+    margin-bottom: 45px;
+}
+
+.authoring-preview-root.preview-desktop .player-safe-area > #safe-area-content-container {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.screen-root.show-table {
+    background-color: rgba(36, 26, 20, 0.12);
+}
+
+.player-safe-area > #safe-area-content-container {
+    min-width: 0;
+    min-height: 0;
+}
+
+.player-safe-area-centered > #safe-area-content-container {
+    align-items: center;
+    justify-content: center;
+}
+
+.stage {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    padding: 4%;
+    align-items: center;
+    justify-content: center;
+}
+
+.eyebrow {
+    color: rgb(181, 139, 62);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    white-space: normal;
+}
+
+.panel {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.30);
+    border-right-color: rgba(216, 196, 147, 0.30);
+    border-top-color: rgba(216, 196, 147, 0.30);
+    border-bottom-color: rgba(216, 196, 147, 0.30);
+    border-radius: 16px;
+    background-color: rgba(59, 41, 31, 0.94);
+}
+
+.card-label {
+    color: rgb(181, 139, 62);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    white-space: normal;
+}
+
+Button {
+    min-height: 50px;
+    padding-left: 22px;
+    padding-right: 22px;
+    border-radius: 7px;
+    font-size: 17px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+Button:disabled,
+Toggle:disabled {
+    opacity: 0.52;
+}
+
+.primary-button {
+    color: rgb(36, 26, 20);
+    background-color: rgb(216, 196, 147);
+    border-left-color: rgb(245, 226, 176);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(245, 226, 176);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.secondary-button,
+.quiet-button {
+    color: rgb(216, 196, 147);
+    background-color: rgb(59, 41, 31);
+    border-left-color: rgba(216, 196, 147, 0.45);
+    border-right-color: rgba(216, 196, 147, 0.45);
+    border-top-color: rgba(216, 196, 147, 0.45);
+    border-bottom-color: rgba(216, 196, 147, 0.45);
+}
+
+.input-prompt {
+    margin-top: 14px;
+    color: rgb(160, 144, 118);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.section-title {
+    margin-top: 6px;
+    color: rgb(245, 226, 176);
+    font-size: 38px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.compact-title {
+    font-size: 27px;
+}
+
+.body-copy {
+    margin-top: 10px;
+    margin-bottom: 18px;
+    color: rgb(197, 178, 142);
+    font-size: 17px;
+    white-space: normal;
+}
+
+.rule-toggle {
+    min-height: 44px;
+    color: rgb(236, 215, 169);
+    font-size: 19px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.button-row {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.button-row > Button {
+    min-width: 170px;
+    margin-left: 12px;
+}
+
+.centered {
+    -unity-text-align: middle-center;
+}
+
+.quiet-button {
+    min-width: 150px;
+}
+
+.semantic-legal {
+    border-left-color: rgb(107, 140, 70);
+    border-right-color: rgb(107, 140, 70);
+    border-top-color: rgb(107, 140, 70);
+    border-bottom-color: rgb(107, 140, 70);
+}
+
+.semantic-inspected {
+    border-left-color: rgb(112, 136, 155);
+    border-right-color: rgb(112, 136, 155);
+    border-top-color: rgb(112, 136, 155);
+    border-bottom-color: rgb(112, 136, 155);
+    background-color: rgba(70, 92, 115, 0.22);
+}
+
+.semantic-selected {
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(181, 139, 62);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(181, 139, 62);
+}
+
+.semantic-confirmed {
+    border-left-color: rgb(112, 136, 155);
+    border-right-color: rgb(112, 136, 155);
+    border-top-color: rgb(112, 136, 155);
+    border-bottom-color: rgb(112, 136, 155);
+}
+
+.semantic-cancelled {
+    border-left-color: rgb(160, 144, 118);
+    border-right-color: rgb(160, 144, 118);
+    border-top-color: rgb(160, 144, 118);
+    border-bottom-color: rgb(160, 144, 118);
+    background-color: rgba(160, 144, 118, 0.12);
+}
+
+.semantic-rejected {
+    border-left-color: rgb(141, 66, 56);
+    border-right-color: rgb(141, 66, 56);
+    border-top-color: rgb(141, 66, 56);
+    border-bottom-color: rgb(141, 66, 56);
+}
+
+.semantic-blocked {
+    border-left-color: rgb(160, 144, 118);
+    border-right-color: rgb(160, 144, 118);
+    border-top-color: rgb(160, 144, 118);
+    border-bottom-color: rgb(160, 144, 118);
+    opacity: 0.72;
+}
+
+.screen-root.show-login .ambient,
+.screen-root.show-hub .ambient {
+    display: none;
+}
+
+/* Game-icons.net CC BY icon system. Source and attribution: docs/assets/ui-icon-library.md. */
+.game-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: rgb(216, 196, 147);
+}
+
+.icon-shield {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/shield.png");
+}
+
+.icon-envelope {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/envelope.png");
+}
+
+.icon-padlock {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/padlock.png");
+}
+
+.icon-coins {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/coins.png");
+}
+
+.icon-gems {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/gems.png");
+}
+
+.icon-energy {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/energy.png");
+}
+
+.icon-decks {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/decks.png");
+}
+
+.icon-bag {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/bag.png");
+}
+
+.icon-shop {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/shop.png");
+}
+
+.icon-rank {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/rank.png");
+}
+
+.icon-send {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/send.png");
+}
+
+.icon-settings {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/settings.png");
+}
+
+.icon-quest {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/quest.png");
+}
+
+.icon-home {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/home.png");
+}
+
+.icon-skip {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/skip.png");
+}
+
+.icon-cups {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/cups.png");
+}
+
+.icon-clubs {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/clubs.png");
+}
+
+.icon-canto {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/canto.png");
+}
+
+.icon-audio {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/audio.png");
+}
+
+.icon-replay {
+    background-image: url("/Assets/TheFall/Content/UI/Icons/replay.png");
+}
+
+.icon-only-button {
+    position: relative;
+    font-size: 0;
+}
+
+.icon-label-button {
+    padding-left: 42px;
+}
+
+.action-button-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    -unity-background-image-tint-color: rgb(245, 226, 176);
+}

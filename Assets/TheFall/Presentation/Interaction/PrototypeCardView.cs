@@ -6,6 +6,7 @@ namespace TheFall.Presentation.Interaction
     public enum PrototypeCardVisualState
     {
         Legal,
+        Inspected,
         Selected,
         Confirmed,
         Rejected,
@@ -53,6 +54,11 @@ namespace TheFall.Presentation.Interaction
 
             switch (state)
             {
+                case PrototypeCardVisualState.Inspected:
+                    color = Vellum;
+                    cue = "?";
+                    scale = 1.10f;
+                    break;
                 case PrototypeCardVisualState.Selected:
                     color = Woad;
                     cue = "*";

@@ -31,8 +31,10 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.Match, Is.Null);
             Assert.That(controller.Flow.SessionNumber, Is.Zero);
             Assert.That(controller.HasEnteredGateway, Is.False);
+            Assert.That(controller.CurrentScreenKind, Is.EqualTo(FirstPlayableScreenKind.Login));
+            Assert.That(controller.MountedScreenCount, Is.EqualTo(1));
             Assert.That(root.Q<VisualElement>("login-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
-            Assert.That(root.Q<VisualElement>("home-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
+            Assert.That(root.Q<VisualElement>("home-stage"), Is.Null);
             Assert.That(root.Q<TextField>("login-email").focusable, Is.True);
             Assert.That(root.Q<TextField>("login-password").isPasswordField, Is.True);
             Assert.That(root.Q<Button>("login-enter-button").focusable, Is.True);
@@ -40,17 +42,25 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<Button>("login-google-button").focusable, Is.True);
             Assert.That(root.Q<Button>("login-apple-button").focusable, Is.True);
             Assert.That(root.Q<Button>("login-create-button").focusable, Is.True);
+            Assert.That(root.Q<VisualElement>(className: "login-enter-icon"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>(className: "login-google-mark"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>(className: "login-apple-mark"), Is.Not.Null);
             Assert.That(root.Q<VisualElement>(className: "icon-envelope"), Is.Not.Null);
             Assert.That(root.Q<VisualElement>(className: "icon-padlock"), Is.Not.Null);
             Assert.That(root.Query<VisualElement>(className: "suit-token-icon").ToList(), Has.Count.EqualTo(4));
             Assert.That(controller.OpenSetup(), Is.False);
             Assert.That(controller.OpenSettings(), Is.False);
             Assert.That(controller.EnterGateway(), Is.True);
+            yield return WaitForScene("Hub");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            root = controller.GetComponent<UIDocument>().rootVisualElement;
             Assert.That(controller.EnterGateway(), Is.False);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
             Assert.That(controller.Flow.Match, Is.Null);
             Assert.That(controller.Flow.SessionNumber, Is.Zero);
-            Assert.That(root.Q<VisualElement>("login-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
+            Assert.That(controller.CurrentScreenKind, Is.EqualTo(FirstPlayableScreenKind.Hub));
+            Assert.That(controller.MountedScreenCount, Is.EqualTo(1));
+            Assert.That(root.Q<VisualElement>("login-stage"), Is.Null);
             Assert.That(root.Q<VisualElement>("home-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.Flex));
             Assert.That(root.Q<Label>("home-objective-title").text, Is.Not.Empty);
             Assert.That(root.Q<Label>("home-stat-target-value").text, Is.EqualTo("500"));
@@ -67,6 +77,9 @@ namespace TheFall.Tests.PlayMode
             Assert.That(root.Q<Button>("home-rank-button").focusable, Is.True);
             Assert.That(root.Q<Button>("home-mail-button").tooltip, Is.Not.Empty);
             Assert.That(root.Q<Button>("home-settings-button").tooltip, Is.Not.Empty);
+            Assert.That(root.Q<Button>("home-mail-button").text, Is.Empty);
+            Assert.That(root.Q<Button>("home-settings-button").text, Is.Empty);
+            Assert.That(root.Q<Button>("home-chat-send-button").text, Is.Empty);
             Assert.That(root.Q<Button>("home-decks-button").Q<VisualElement>(className: "icon-decks"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-bag-button").Q<VisualElement>(className: "icon-bag"), Is.Not.Null);
             Assert.That(root.Q<Button>("home-shop-button").Q<VisualElement>(className: "icon-shop"), Is.Not.Null);
@@ -97,10 +110,16 @@ namespace TheFall.Tests.PlayMode
             homeReducedMotion.value = true;
             Assert.That(controller.AudioMasterEnabled, Is.False);
             Assert.That(controller.BeginQuest(), Is.True);
+            yield return WaitForScene("Match");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            root = controller.GetComponent<UIDocument>().rootVisualElement;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Loading));
+            Assert.That(controller.CurrentScreenKind, Is.EqualTo(FirstPlayableScreenKind.Loading));
+            Assert.That(controller.MountedScreenCount, Is.EqualTo(1));
             Assert.That(controller.Flow.Setup.CasaCantosEnabled, Is.False);
             Assert.That(controller.Flow.Setup.TrivilinWinsImmediately, Is.True);
-            Assert.That(root.Q<VisualElement>("setup-stage").resolvedStyle.display, Is.EqualTo(DisplayStyle.None));
+            Assert.That(root.Q<VisualElement>("setup-stage"), Is.Null);
+            Assert.That(root.Q<VisualElement>("home-stage"), Is.Null);
             var loadingMatch = controller.Flow.Match;
             var loadingSession = controller.Flow.SessionNumber;
             Assert.That(controller.BeginQuest(), Is.False);
@@ -108,8 +127,17 @@ namespace TheFall.Tests.PlayMode
             Assert.That(controller.Flow.SessionNumber, Is.EqualTo(loadingSession));
             Assert.That(root.Q<Label>("loading-session").text, Is.Not.Empty);
             Assert.That(root.Q<Button>("loading-home-button").focusable, Is.True);
-            yield return null;
+            var matchReadyDeadline = Time.realtimeSinceStartup + 10f;
+            while (controller.Flow.Stage == FirstPlayableFlowStage.Loading
+                && Time.realtimeSinceStartup < matchReadyDeadline)
+            {
+                yield return null;
+            }
+
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
+            Assert.That(controller.CurrentScreenKind, Is.EqualTo(FirstPlayableScreenKind.Match));
+            Assert.That(controller.MountedScreenCount, Is.EqualTo(1));
+            Assert.That(root.Q<VisualElement>("loading-stage"), Is.Null);
             Assert.That(root.Q<VisualElement>(className: "match-header"), Is.Null);
             Assert.That(root.Q<VisualElement>(className: "interaction-strip"), Is.Null);
             Assert.That(root.Q<VisualElement>(className: "match-score-hud"), Is.Not.Null);
@@ -119,10 +147,14 @@ namespace TheFall.Tests.PlayMode
             Assert.That(matchHomeButton.focusable, Is.True);
             Assert.That(
                 matchHomeButton.worldBound.width,
-                Is.LessThan(root.Q<VisualElement>("home-screen").worldBound.width * 0.35f));
+                Is.LessThan(root.worldBound.width * 0.35f));
             Assert.That(root.Q<Label>("match-score").text, Is.Not.Empty);
-            Assert.That(root.Q<Label>("match-progress"), Is.Null);
-            Assert.That(root.Q<Label>("match-canto"), Is.Null);
+            Assert.That(root.Q<Label>("match-progress").text, Is.Not.Empty);
+            Assert.That(root.Q<Label>("match-canto").text, Is.Not.Empty);
+            Assert.That(root.Q<VisualElement>("match-event-callout"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>("match-feedback-callout"), Is.Not.Null);
+            Assert.That(root.Q<Button>("dealer-options-button").text, Is.Empty);
+            Assert.That(root.Q<Button>("canto-options-button").text, Is.Empty);
             Assert.That(root.Q<Toggle>("audio-master-toggle"), Is.Null);
             Assert.That(root.Q<Toggle>("animation-fast-toggle"), Is.Null);
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
@@ -143,6 +175,10 @@ namespace TheFall.Tests.PlayMode
 
             Assert.That(humanIntentCount, Is.LessThan(5000));
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Result));
+            Assert.That(controller.CurrentScreenKind, Is.EqualTo(FirstPlayableScreenKind.Result));
+            Assert.That(controller.MountedScreenCount, Is.EqualTo(1));
+            Assert.That(root.Q<VisualElement>("match-stage"), Is.Null);
+            yield return null;
             var completedMatch = controller.Flow.Match;
             var resultEyebrow = root.Q<Label>("result-eyebrow");
             Assert.That(resultEyebrow.resolvedStyle.whiteSpace, Is.EqualTo(WhiteSpace.NoWrap));
@@ -158,11 +194,15 @@ namespace TheFall.Tests.PlayMode
             yield return null;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             Assert.That(controller.ReturnHome(), Is.True);
+            Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
+            yield return WaitForScene("Hub");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            root = controller.GetComponent<UIDocument>().rootVisualElement;
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
             Assert.That(controller.Flow.Match, Is.Null);
-            Assert.That(table.AudioPresenter.ActiveCue, Is.Null);
-            Assert.That(homeCasas.value, Is.False);
-            Assert.That(homeTrivilin.value, Is.True);
+            Assert.That(controller.CurrentScreenKind, Is.EqualTo(FirstPlayableScreenKind.Hub));
+            Assert.That(root.Q<Toggle>("home-settings-casas-toggle").value, Is.False);
+            Assert.That(root.Q<Toggle>("home-settings-trivilin-toggle").value, Is.True);
         }
 
         [UnityTest]
@@ -172,20 +212,27 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
 
             Assert.That(controller.EnterGateway(), Is.True);
+            yield return WaitForScene("Hub");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller.BeginQuest(), Is.True);
+            yield return WaitForScene("Match");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var flow = controller.Flow;
             var abandonedSession = controller.Flow.SessionNumber;
 
             Assert.That(controller.ReturnHome(), Is.True);
-            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
-            Assert.That(controller.Flow.Match, Is.Null);
+            yield return WaitForScene("Hub");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            Assert.That(flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
+            Assert.That(flow.Match, Is.Null);
 
             yield return null;
 
-            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
-            Assert.That(controller.Flow.Match, Is.Null);
-            Assert.That(controller.Flow.SessionNumber, Is.EqualTo(abandonedSession));
-            Assert.That(controller.Flow.Setup.CasaCantosEnabled, Is.True);
-            Assert.That(controller.Flow.Setup.TrivilinWinsImmediately, Is.False);
+            Assert.That(flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
+            Assert.That(flow.Match, Is.Null);
+            Assert.That(flow.SessionNumber, Is.EqualTo(abandonedSession));
+            Assert.That(flow.Setup.CasaCantosEnabled, Is.True);
+            Assert.That(flow.Setup.TrivilinWinsImmediately, Is.False);
         }
 
         [UnityTest]
@@ -195,9 +242,10 @@ namespace TheFall.Tests.PlayMode
             yield return LocalizationSettings.InitializationOperation;
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             var root = controller.GetComponent<UIDocument>().rootVisualElement;
-            var screen = root.Q<VisualElement>("home-screen");
+            var screen = root;
             var description = root.Q<Label>("login-description");
             var enter = root.Q<Button>("login-enter-button");
+            var enterLabel = root.Q<Label>("login-enter-label");
             var proof = root.Q<Label>("login-proof");
 
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(new LocaleIdentifier("en"));
@@ -212,15 +260,23 @@ namespace TheFall.Tests.PlayMode
 
             Assert.That(description.text, Is.Not.Empty);
             Assert.That(description.text, Is.Not.EqualTo(englishText));
-            Assert.That(enter.text, Is.Not.Empty);
+            Assert.That(enter.text, Is.Empty);
+            Assert.That(enterLabel.text, Is.Not.Empty);
             Assert.That(enter.focusable, Is.True);
             Assert.That(proof.text, Is.Not.Empty);
-            Assert.That(root.Q<Button>("login-google-button").text, Is.Not.Empty);
+            Assert.That(root.Q<Button>("login-google-button").text, Is.Empty);
+            Assert.That(root.Q<Button>("login-google-button").tooltip, Is.Not.Empty);
+            Assert.That(root.Q<Button>("login-apple-button").text, Is.Empty);
+            Assert.That(root.Q<Button>("login-apple-button").tooltip, Is.Not.Empty);
             Assert.That(root.Q<Button>("login-create-button").text, Is.Not.Empty);
             Assert.That(screen.layout.width, Is.GreaterThan(0f));
             Assert.That(screen.layout.height, Is.GreaterThan(0f));
 
             Assert.That(controller.EnterGateway(), Is.True);
+            yield return WaitForScene("Hub");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            root = controller.GetComponent<UIDocument>().rootVisualElement;
+            screen = root;
             Assert.That(root.Q<Button>("home-decks-button").text, Is.Not.Empty);
             Assert.That(root.Q<Button>("home-chat-system-button").text, Is.Not.Empty);
             Assert.That(controller.OpenSettings(), Is.True);
@@ -240,32 +296,18 @@ namespace TheFall.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator AdaptiveProfiles_PreserveFlowAndApplyMobileSafeAreas()
+        public IEnumerator AdaptiveProfiles_PreserveFlowWithScreenOwnedSafeAreas()
         {
             yield return LoadFlow();
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             var root = controller.GetComponent<UIDocument>().rootVisualElement;
-            var screen = root.Q<VisualElement>("home-screen");
+            var screen = root;
             var enterGateway = root.Q<Button>("login-enter-button");
             var loginGoogle = root.Q<Button>("login-google-button");
-            var homeDecks = root.Q<Button>("home-decks-button");
-            var homeChatSend = root.Q<Button>("home-chat-send-button");
-            var casasToggle = root.Q<Toggle>("home-settings-casas-toggle");
-            var audioToggle = root.Q<Toggle>("home-settings-audio-master-toggle");
-
-            controller.ApplyViewportForTests(
-                new Vector2Int(390, 844),
-                new Rect(0f, 34f, 390f, 776f),
-                true);
-            yield return null;
-
-            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobilePortrait));
-            Assert.That(screen.ClassListContains("profile-mobile-portrait"), Is.True);
-            Assert.That(controller.CurrentAdaptivePanelInsets.Top, Is.GreaterThan(0f));
-            Assert.That(controller.CurrentAdaptivePanelInsets.Bottom, Is.GreaterThan(0f));
-            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
-            Assert.That(enterGateway.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-            Assert.That(loginGoogle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            var loginStage = root.Q<VisualElement>("login-stage");
+            var loginBackdrop = root.Q<VisualElement>(className: "login-backdrop");
+            var loginContent = root.Q<VisualElement>("login-content");
+            var loginPanel = root.Q<VisualElement>(className: "login-panel");
 
             controller.ApplyViewportForTests(
                 new Vector2Int(844, 390),
@@ -273,27 +315,109 @@ namespace TheFall.Tests.PlayMode
                 true);
             yield return null;
 
-            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobileLandscape));
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.PhoneLandscape));
             Assert.That(screen.ClassListContains("profile-mobile-landscape"), Is.True);
-            Assert.That(controller.CurrentAdaptivePanelInsets.Left, Is.GreaterThan(0f));
-            Assert.That(controller.CurrentAdaptivePanelInsets.Right, Is.GreaterThan(0f));
+            Assert.That(screen.ClassListContains("profile-phone-landscape"), Is.True);
+            Assert.That(screen.ClassListContains("profile-mobile-portrait"), Is.False);
+            Assert.That(root.Q<VisualElement>("safe-area-content-container"), Is.Not.Null);
+            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
+            Assert.That(enterGateway.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(loginGoogle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(loginGoogle.worldBound.width, Is.EqualTo(loginGoogle.worldBound.height).Within(4f));
+            var loginApple = root.Q<Button>("login-apple-button");
+            Assert.That(loginApple.worldBound.width, Is.EqualTo(loginApple.worldBound.height).Within(4f));
+            Assert.That(loginStage.worldBound.xMin, Is.EqualTo(screen.worldBound.xMin).Within(1f));
+            Assert.That(loginStage.worldBound.xMax, Is.EqualTo(screen.worldBound.xMax).Within(1f));
+            Assert.That(loginBackdrop.worldBound.xMin, Is.EqualTo(loginStage.worldBound.xMin).Within(1f));
+            Assert.That(loginBackdrop.worldBound.xMax, Is.EqualTo(loginStage.worldBound.xMax).Within(1f));
+            Assert.That(loginContent.worldBound.xMin, Is.GreaterThanOrEqualTo(loginStage.worldBound.xMin - 1f));
+            Assert.That(loginContent.worldBound.xMax, Is.LessThanOrEqualTo(loginStage.worldBound.xMax + 1f));
+            Assert.That(loginPanel.worldBound.yMin, Is.GreaterThanOrEqualTo(loginContent.worldBound.yMin - 1f));
+            Assert.That(loginPanel.worldBound.yMax, Is.LessThanOrEqualTo(loginContent.worldBound.yMax + 1f));
+            var loginTokens = root.Query<VisualElement>(className: "suit-token").ToList();
+            Assert.That(loginTokens, Has.Count.EqualTo(4));
+            foreach (var token in loginTokens)
+            {
+                var icon = token.Q<VisualElement>(className: "suit-token-icon");
+                Assert.That(icon.worldBound.yMin, Is.GreaterThan(token.worldBound.yMin));
+                Assert.That(icon.worldBound.yMax, Is.LessThan(token.worldBound.yMax));
+            }
+
+            var loginInputs = root.Query<VisualElement>(className: "login-input-shell").ToList();
+            Assert.That(loginInputs, Has.Count.EqualTo(2));
+            Assert.That(enterGateway.worldBound.yMin, Is.GreaterThan(loginInputs[1].worldBound.yMax));
+
+            controller.ApplyViewportForTests(
+                new Vector2Int(926, 428),
+                new Rect(47f, 0f, 832f, 428f),
+                true);
+            yield return null;
+
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.PhoneLandscape));
+            Assert.That(screen.ClassListContains("profile-mobile-landscape"), Is.True);
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Home));
             Assert.That(enterGateway.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             Assert.That(controller.EnterGateway(), Is.True);
+            yield return WaitForScene("Hub");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            root = controller.GetComponent<UIDocument>().rootVisualElement;
+            screen = root;
+            controller.ApplyViewportForTests(
+                new Vector2Int(926, 428),
+                new Rect(47f, 0f, 832f, 428f),
+                true);
             yield return null;
+            Assert.That(root.Q<VisualElement>("safe-area-content-container"), Is.Not.Null);
+            var homeDecks = root.Q<Button>("home-decks-button");
+            var homeChatSend = root.Q<Button>("home-chat-send-button");
+            var hubLayout = root.Q<VisualElement>(className: "hub-layout");
+            var hubTopbar = root.Q<VisualElement>(className: "hub-topbar");
+            var hubObjective = root.Q<VisualElement>(className: "hub-objective");
+            var hubDock = root.Q<VisualElement>(className: "hub-dock");
+            var hubChat = root.Q<VisualElement>(className: "hub-chat");
+            var hubChatTabs = root.Q<VisualElement>(className: "hub-chat-tabs");
+            var hubChatInputRow = root.Q<VisualElement>(className: "hub-chat-input-row");
+            var hubChatTabsList = root.Query<Button>(className: "hub-chat-tab").ToList();
             Assert.That(homeDecks.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(homeChatSend.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(hubChat.resolvedStyle.position, Is.EqualTo(Position.Relative));
+            Assert.That(hubTopbar.worldBound.xMin - hubLayout.worldBound.xMin, Is.LessThanOrEqualTo(35f));
+            Assert.That(hubLayout.worldBound.xMax - hubTopbar.worldBound.xMax, Is.LessThanOrEqualTo(35f));
+            Assert.That(hubObjective.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
+            Assert.That(hubDock.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
+            Assert.That(hubChat.worldBound.yMin, Is.GreaterThanOrEqualTo(hubLayout.worldBound.yMin - 1f));
+            Assert.That(hubChat.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
+            Assert.That(hubChat.worldBound.xMax, Is.LessThanOrEqualTo(hubLayout.worldBound.xMax + 1f));
+            Assert.That(hubChatTabs.worldBound.yMin, Is.GreaterThanOrEqualTo(hubChat.worldBound.yMin));
+            Assert.That(hubChatTabs.worldBound.xMin, Is.GreaterThan(hubChat.worldBound.xMin));
+            Assert.That(hubChatTabs.worldBound.xMax, Is.LessThan(hubChat.worldBound.xMax));
+            Assert.That(hubChatInputRow.worldBound.xMin, Is.GreaterThan(hubChat.worldBound.xMin));
+            Assert.That(hubChatInputRow.worldBound.xMax, Is.LessThan(hubChat.worldBound.xMax));
+            Assert.That(hubChatInputRow.worldBound.yMax, Is.LessThan(hubChat.worldBound.yMax));
+            Assert.That(homeChatSend.worldBound.xMax, Is.LessThan(hubChat.worldBound.xMax));
+            Assert.That(homeChatSend.worldBound.yMax, Is.LessThan(hubChat.worldBound.yMax));
+            foreach (var chatTab in hubChatTabsList)
+            {
+                Assert.That(chatTab.worldBound.xMin, Is.GreaterThanOrEqualTo(hubChatTabs.worldBound.xMin));
+                Assert.That(chatTab.worldBound.xMax, Is.LessThanOrEqualTo(hubChatTabs.worldBound.xMax));
+            }
             Assert.That(controller.OpenSettings(), Is.True);
+            var casasToggle = root.Q<Toggle>("home-settings-casas-toggle");
+            var audioToggle = root.Q<Toggle>("home-settings-audio-master-toggle");
             var stage = controller.Flow.Stage;
 
             controller.ApplyViewportForTests(
-                new Vector2Int(390, 844),
-                new Rect(0f, 34f, 390f, 776f),
+                new Vector2Int(1024, 768),
+                new Rect(0f, 24f, 1024f, 720f),
                 true);
             yield return null;
 
-            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobilePortrait));
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.TabletLandscape));
+            Assert.That(screen.ClassListContains("profile-mobile-landscape"), Is.True);
+            Assert.That(screen.ClassListContains("profile-tablet-landscape"), Is.True);
+            Assert.That(screen.ClassListContains("profile-phone-landscape"), Is.False);
+            Assert.That(screen.ClassListContains("profile-mobile-portrait"), Is.False);
             Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
             Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(audioToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
@@ -304,19 +428,39 @@ namespace TheFall.Tests.PlayMode
                 true);
             yield return null;
 
-            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobileLandscape));
+            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.PhoneLandscape));
             Assert.That(screen.ClassListContains("profile-mobile-landscape"), Is.True);
+            Assert.That(screen.ClassListContains("profile-phone-landscape"), Is.True);
+            Assert.That(screen.ClassListContains("profile-tablet-landscape"), Is.False);
             Assert.That(screen.ClassListContains("profile-mobile-portrait"), Is.False);
-            Assert.That(controller.CurrentAdaptivePanelInsets.Left, Is.GreaterThan(0f));
-            Assert.That(controller.CurrentAdaptivePanelInsets.Right, Is.GreaterThan(0f));
             Assert.That(controller.Flow.Stage, Is.EqualTo(stage));
             Assert.That(casasToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(audioToggle.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
+            Assert.That(hubObjective.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
+            Assert.That(hubDock.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
+            Assert.That(hubChat.worldBound.yMin, Is.GreaterThanOrEqualTo(hubLayout.worldBound.yMin - 1f));
+            Assert.That(hubChat.worldBound.yMax, Is.LessThanOrEqualTo(hubLayout.worldBound.yMax + 1f));
+            Assert.That(hubChat.worldBound.xMax, Is.LessThanOrEqualTo(hubLayout.worldBound.xMax + 1f));
 
             Assert.That(controller.BeginQuest(), Is.True);
-            yield return null;
+            yield return WaitForScene("Match");
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            root = controller.GetComponent<UIDocument>().rootVisualElement;
+            screen = root;
+            controller.ApplyViewportForTests(
+                new Vector2Int(844, 390),
+                new Rect(36f, 0f, 772f, 390f),
+                true);
+            var adaptiveMatchDeadline = Time.realtimeSinceStartup + 10f;
+            while (controller.Flow.Stage == FirstPlayableFlowStage.Loading
+                && Time.realtimeSinceStartup < adaptiveMatchDeadline)
+            {
+                yield return null;
+            }
+
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             yield return null;
+            Assert.That(root.Q<VisualElement>("safe-area-content-container"), Is.Not.Null);
             var scoreHud = root.Q<VisualElement>(className: "match-score-hud");
             var matchStatus = root.Q<VisualElement>(className: "match-status");
             var matchHome = root.Q<Button>("match-home-button");
@@ -326,25 +470,14 @@ namespace TheFall.Tests.PlayMode
             Assert.That(scoreHud.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
             Assert.That(scoreHud.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
             Assert.That(matchStatus.worldBound.width, Is.LessThan(screen.worldBound.width * 0.5f));
-            Assert.That(matchHome.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-            Assert.That(matchSkip.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
-
-            controller.ApplyViewportForTests(
-                new Vector2Int(390, 844),
-                new Rect(0f, 34f, 390f, 776f),
-                true);
-            yield return null;
-            Assert.That(controller.CurrentAdaptiveLayout.Profile, Is.EqualTo(AdaptiveUiProfile.MobilePortrait));
-            Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
-            Assert.That(scoreHud.worldBound.xMin, Is.GreaterThanOrEqualTo(screen.worldBound.xMin - 1f));
-            Assert.That(scoreHud.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
-            Assert.That(matchHome.worldBound.xMax, Is.LessThanOrEqualTo(screen.worldBound.xMax + 1f));
-            Assert.That(matchStatus.worldBound.width, Is.LessThan(screen.worldBound.width * 0.5f));
+            Assert.That(matchHome.resolvedStyle.minHeight.value, Is.EqualTo(48f).Within(1f));
+            Assert.That(matchSkip.resolvedStyle.minHeight.value, Is.EqualTo(44f).Within(1f));
             Assert.That(matchHome.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
             Assert.That(matchSkip.worldBound.height, Is.GreaterThanOrEqualTo(AdaptiveUiFoundation.MinimumTouchTargetPoints));
 
             Assert.That(controller.ReturnHome(), Is.True);
-            controller.ClearViewportOverrideForTests();
+            yield return WaitForScene("Hub");
+            Object.FindAnyObjectByType<FirstPlayableFlowController>().ClearViewportOverrideForTests();
         }
 
         private static IEnumerator LoadFlow()
@@ -357,12 +490,25 @@ namespace TheFall.Tests.PlayMode
 
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
             var deadline = Time.realtimeSinceStartup + 10f;
-            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            while (SceneManager.GetActiveScene().name != "Login" && Time.realtimeSinceStartup < deadline)
             {
                 yield return null;
             }
 
-            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Home"));
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Login"));
+            Assert.That(Object.FindAnyObjectByType<FirstPlayableFlowController>(), Is.Not.Null);
+        }
+
+        private static IEnumerator WaitForScene(string sceneName)
+        {
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while (SceneManager.GetActiveScene().name != sceneName
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo(sceneName));
             Assert.That(Object.FindAnyObjectByType<FirstPlayableFlowController>(), Is.Not.Null);
         }
 

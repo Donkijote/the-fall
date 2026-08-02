@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.bitbebop.ui-toolkit-safe-area": "https://github.com/artstorm/ui-toolkit-safe-area.git?path=/Packages/com.bitbebop.ui-toolkit-safe-area",
     "com.unity.inputsystem": "1.19.0",
     "com.unity.localization": "1.5.12",
     "com.unity.render-pipelines.universal": "17.5.0",

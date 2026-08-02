@@ -1,0 +1,45 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Login/Components/LoginHero.uss"/>
+    <ui:Label name="login-eyebrow" class="eyebrow login-eyebrow">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.eyebrow"/>
+        </Bindings>
+    </ui:Label>
+    <ui:Label name="login-title" class="login-display-title">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.title"/>
+        </Bindings>
+    </ui:Label>
+    <ui:Label name="login-title-accent" class="login-display-title login-display-accent">
+        <Bindings>
+            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.title-accent"/>
+        </Bindings>
+    </ui:Label>
+    <ui:VisualElement class="login-story">
+        <ui:VisualElement class="login-story-rule"/>
+        <ui:Label name="login-description" class="login-description">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.description"/>
+            </Bindings>
+        </ui:Label>
+    </ui:VisualElement>
+    <ui:VisualElement class="login-proof">
+        <ui:VisualElement class="suit-token suit-token-brass">
+            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-coins"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="suit-token suit-token-woad">
+            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-cups"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="suit-token suit-token-madder">
+            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-quest"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="suit-token suit-token-moss">
+            <ui:VisualElement picking-mode="Ignore" class="game-icon suit-token-icon icon-clubs"/>
+        </ui:VisualElement>
+        <ui:Label name="login-proof" class="login-proof-copy">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.login.proof"/>
+            </Bindings>
+        </ui:Label>
+    </ui:VisualElement>
+</ui:UXML>

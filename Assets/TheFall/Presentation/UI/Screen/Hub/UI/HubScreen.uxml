@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="ChatPanel" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/ChatPanel.uxml?fileID=9197481963319205126&amp;guid=299ad55c8e094a1e9200150e19da821f&amp;type=3#ChatPanel"/>
+    <ui:Template name="NavigationDock" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/NavigationDock.uxml?fileID=9197481963319205126&amp;guid=5337492a592d4eeb8b420b04c2a9838d&amp;type=3#NavigationDock"/>
+    <ui:Template name="ObjectiveCard" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/ObjectiveCard.uxml?fileID=9197481963319205126&amp;guid=05997e73748e45089498934dfe7a0cfa&amp;type=3#ObjectiveCard"/>
+    <ui:Template name="Profile" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/Profile.uxml?fileID=9197481963319205126&amp;guid=5bb664d388bdb4544bc37439d2e379fc&amp;type=3#Profile"/>
+    <ui:Template name="ResourceStats" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/ResourceStats.uxml?fileID=9197481963319205126&amp;guid=c23e78e8599444808272ba551a15ac93&amp;type=3#ResourceStats"/>
+    <ui:Template name="SettingsModal" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/SettingsModal.uxml?fileID=9197481963319205126&amp;guid=27e16c61fa004fc495a0b8c51f694bde&amp;type=3#SettingsModal"/>
+    <ui:Template name="TopActions" src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/Components/TopActions.uxml?fileID=9197481963319205126&amp;guid=f8582cfe0b2441e3a4a417bfded4f099&amp;type=3#TopActions"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared"/>
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Hub/UI/HubScreen.uss?fileID=7433441132597879392&amp;guid=a0537225421345a880b1aa8add5d4249&amp;type=3#HubScreen"/>
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape" style="width: 100%; height: 100%;">
+        <Bitbebop.SafeArea collapse-margins="false" exclude-left="false" exclude-top="false" exclude-bottom="false" class="player-safe-area" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0;">
+            <ui:VisualElement name="home-stage" class="stage stage-home">
+                <ui:VisualElement class="hub-layout">
+                    <ui:VisualElement class="hub-topbar">
+                        <ui:Instance template="Profile" class="hub-identity panel"/>
+                        <ui:Instance template="ResourceStats" class="hub-stats"/>
+                        <ui:Instance template="TopActions" class="hub-top-actions"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="hub-bottombar">
+                        <ui:Instance template="ObjectiveCard" class="hub-objective panel"/>
+                        <ui:Instance template="NavigationDock" class="hub-dock panel"/>
+                        <ui:Instance template="ChatPanel" class="hub-chat panel"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Instance name="hub-modal" template="SettingsModal" class="hub-modal"/>
+            </ui:VisualElement>
+        </Bitbebop.SafeArea>
+    </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
+</ui:UXML>

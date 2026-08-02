@@ -52,6 +52,9 @@ No state depends on hover or color alone. Application feedback also exposes stab
 
 ## Orientation and recomposition
 
+The portrait behavior below records historical V0 evidence. Current phone and tablet requirements
+are landscape-only under [ADR 0003](../decisions/0003-landscape-only-mobile.md).
+
 Interaction state is owned by `CardInteractionSession`, outside generated scene geometry. `TableCompositionPrototype` publishes a rebuild notification after portrait, landscape, desktop, or safe-area recomposition. The interaction prototype binds the newly generated card views to the unchanged application state.
 
 Recomposition therefore does not submit, cancel, duplicate, or recreate an application intent. A selected card remains selected when valid, while deterministic `MatchState`, interaction revision, and intent history remain unchanged.

@@ -1,0 +1,276 @@
+.default-note {
+    margin-bottom: 10px;
+    color: rgb(181, 139, 62);
+    font-size: 14px;
+    white-space: normal;
+}
+
+.default-badge {
+    align-self: flex-start;
+    min-width: 156px;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    color: rgb(36, 26, 20);
+    background-color: rgb(181, 139, 62);
+    border-radius: 4px;
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.fixed-summary {
+    flex-grow: 1;
+    color: rgb(216, 196, 147);
+    font-size: 14px;
+    white-space: normal;
+}
+
+/* Setup-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .setup-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .card-label,
+.screen-root.profile-mobile-landscape .default-note,
+.screen-root.profile-mobile-landscape .default-badge,
+.screen-root.profile-mobile-landscape .option-state {
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.screen-root.profile-mobile-landscape .rule-toggle {
+    min-height: 96px;
+    font-size: 30px;
+}
+
+.screen-root.profile-mobile-landscape .default-badge {
+    min-width: 320px;
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-size: 21px;
+}
+
+.screen-root.profile-mobile-landscape .button-row {
+    margin-top: 22px;
+}
+
+.setup-panel {
+    width: 90%;
+    max-width: 1120px;
+    height: 92%;
+    max-height: 760px;
+    padding: 30px;
+}
+
+.setup-content {
+    flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.setup-options {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.option-card {
+    width: 49%;
+    min-height: 210px;
+    margin-top: 12px;
+    padding: 18px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(216, 196, 147, 0.24);
+    border-right-color: rgba(216, 196, 147, 0.24);
+    border-top-color: rgba(216, 196, 147, 0.24);
+    border-bottom-color: rgba(216, 196, 147, 0.24);
+    border-radius: 10px;
+    background-color: rgba(36, 26, 20, 0.70);
+}
+
+.option-description {
+    margin-top: 8px;
+    color: rgb(181, 165, 134);
+    font-size: 14px;
+    white-space: normal;
+}
+
+.option-state {
+    margin-top: auto;
+    padding-top: 12px;
+    color: rgb(216, 196, 147);
+    font-size: 14px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.fixed-card {
+    margin-top: 16px;
+    padding: 14px 16px;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 8px;
+    background-color: rgba(70, 92, 115, 0.28);
+}
+
+.fixed-card > .card-label {
+    min-width: 132px;
+    margin-right: 16px;
+}
+
+.setup-footer {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top-width: 1px;
+    border-top-color: rgba(216, 196, 147, 0.22);
+}
+
+.screen-root.profile-mobile-portrait .input-prompt,
+.screen-root.profile-mobile-portrait .option-description,
+.screen-root.profile-mobile-portrait .fixed-summary {
+    font-size: 48px;
+}
+
+.screen-root.profile-mobile-portrait .setup-options {
+    flex-direction: column;
+}
+
+.screen-root.profile-mobile-portrait .option-card {
+    width: 100%;
+    min-height: 620px;
+    margin-top: 40px;
+    padding: 52px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    border-radius: 24px;
+}
+
+.screen-root.profile-mobile-portrait .option-description {
+    margin-top: 20px;
+}
+
+.screen-root.profile-mobile-portrait .option-state {
+    padding-top: 32px;
+}
+
+.screen-root.profile-mobile-portrait .fixed-card {
+    margin-top: 40px;
+    padding: 38px 42px;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 20px;
+}
+
+.screen-root.profile-mobile-portrait .fixed-card > .card-label {
+    margin-right: 0;
+    margin-bottom: 12px;
+}
+
+.screen-root.profile-mobile-portrait .setup-footer {
+    margin-top: 36px;
+    padding-top: 36px;
+}
+
+.screen-root.profile-mobile-landscape .input-prompt,
+.screen-root.profile-mobile-landscape .option-description,
+.screen-root.profile-mobile-landscape .fixed-summary {
+    font-size: 26px;
+}
+
+.screen-root.profile-mobile-landscape .option-card {
+    min-height: 260px;
+    margin-top: 16px;
+    padding: 22px;
+}
+
+.screen-root.profile-mobile-landscape .option-state {
+    padding-top: 12px;
+}
+
+.screen-root.profile-mobile-landscape .fixed-card {
+    margin-top: 18px;
+    padding: 16px 20px;
+}
+
+.screen-root.profile-mobile-landscape .fixed-card > .card-label {
+    min-width: 200px;
+    margin-right: 20px;
+}
+
+.screen-root.profile-mobile-landscape .setup-footer {
+    margin-top: 18px;
+    padding-top: 18px;
+}
+
+/* Keep the complete rule setup inside one landscape viewport. */
+.screen-root.profile-mobile-landscape .setup-panel {
+    width: 96%;
+    height: 100%;
+    max-width: 1320px;
+    max-height: none;
+    padding: 24px 30px;
+}
+
+.screen-root.profile-mobile-landscape .setup-content {
+    flex-grow: 1;
+}
+
+.screen-root.profile-mobile-landscape .option-card {
+    min-height: 0;
+    margin-top: 10px;
+    padding: 16px 18px;
+}
+
+.screen-root.profile-mobile-landscape .rule-toggle {
+    min-height: 76px;
+    font-size: 26px;
+}
+
+.screen-root.profile-mobile-landscape .option-description,
+.screen-root.profile-mobile-landscape .fixed-summary {
+    font-size: 22px;
+}
+
+.screen-root.profile-mobile-landscape .fixed-card {
+    margin-top: 10px;
+    padding: 10px 16px;
+}
+
+.screen-root.profile-mobile-landscape .setup-footer {
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.screen-root.profile-mobile-landscape .setup-footer Button {
+    min-height: 82px;
+}
+
+.screen-root.profile-mobile-landscape .setup-prompt {
+    margin-top: 6px;
+}

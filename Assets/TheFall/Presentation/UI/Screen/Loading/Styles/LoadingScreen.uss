@@ -1,0 +1,116 @@
+/* Loading-owned landscape adaptation. Keep responsive sizing out of FlowShared.uss. */
+.screen-root.profile-mobile-landscape .stage {
+    padding: 34px 48px;
+}
+
+.screen-root.profile-mobile-landscape .eyebrow {
+    font-size: 28px;
+    letter-spacing: 5px;
+}
+
+.screen-root.profile-mobile-landscape .loading-panel {
+    padding: 40px;
+}
+
+.screen-root.profile-mobile-landscape .loading-status {
+    font-size: 25px;
+}
+
+.screen-root.profile-mobile-landscape .section-title {
+    font-size: 54px;
+}
+
+.screen-root.profile-mobile-landscape Button {
+    min-height: 96px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 31px;
+}
+
+.loading-panel {
+    width: 70%;
+    max-width: 620px;
+    padding: 42px;
+    align-items: center;
+}
+
+.loading-session {
+    margin-top: 6px;
+    padding: 10px 16px;
+    color: rgb(245, 226, 176);
+    background-color: rgba(70, 92, 115, 0.30);
+    border-radius: 6px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.loading-status {
+    margin-top: 12px;
+    color: rgb(160, 144, 118);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.loading-cancel {
+    min-width: 240px;
+    margin-top: 18px;
+}
+
+.loading-glyph {
+    width: 58px;
+    height: 58px;
+    margin-top: 26px;
+    margin-bottom: 18px;
+    border-left-width: 6px;
+    border-right-width: 6px;
+    border-top-width: 6px;
+    border-bottom-width: 6px;
+    border-left-color: rgb(181, 139, 62);
+    border-right-color: rgb(70, 92, 115);
+    border-top-color: rgb(181, 139, 62);
+    border-bottom-color: rgb(70, 92, 115);
+    border-radius: 29px;
+}
+
+.screen-root.profile-mobile-portrait .loading-glyph {
+    width: 180px;
+    height: 180px;
+    margin-top: 72px;
+    margin-bottom: 60px;
+    border-left-width: 16px;
+    border-right-width: 16px;
+    border-top-width: 16px;
+    border-bottom-width: 16px;
+    border-radius: 90px;
+}
+
+.screen-root.profile-mobile-portrait .loading-session {
+    margin-top: 24px;
+    padding: 30px 42px;
+    border-radius: 18px;
+    font-size: 52px;
+}
+
+.screen-root.profile-mobile-portrait .loading-status {
+    margin-top: 32px;
+}
+
+.screen-root.profile-mobile-portrait .loading-cancel {
+    width: 100%;
+    margin-top: 48px;
+}
+
+.screen-root.profile-mobile-landscape .loading-session {
+    margin-top: 12px;
+    padding: 16px 24px;
+    border-radius: 10px;
+    font-size: 27px;
+}
+
+.screen-root.profile-mobile-landscape .loading-cancel {
+    min-width: 420px;
+    margin-top: 22px;
+}

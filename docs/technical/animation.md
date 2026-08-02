@@ -18,7 +18,7 @@ The isolated recording library is:
 
 Status-only outcomes are deliberately absent from the isolated animation selector: match start, dealer choice, canto, Fall/clean-table/general score changes, deal and round completion, dealer rotation, tie extension, active-turn change, and match victory remain localized plain-text runtime messages until a later VFX pass. Their domain events, authoritative state changes, and ordered runtime mappings remain intact.
 
-Every selector entry isolates one gameplay/card presentation treatment plus mandatory final synchronization. Most contain one tunable beat. **Deal one card** contains two consecutive instances of the same Deal beat so one preview shows a complete current-player/opponent pass without mixing in another treatment. Each recording supports either 1v1 acting seat. Portrait, landscape, and wide desktop profiles rebuild only transient views from the same recording.
+Every selector entry isolates one gameplay/card presentation treatment plus mandatory final synchronization. Most contain one tunable beat. **Deal one card** contains two consecutive instances of the same Deal beat so one preview shows a complete current-player/opponent pass without mixing in another treatment. Each recording supports either 1v1 acting seat. Mobile-landscape and desktop profiles rebuild only transient views from the same recording. The workbench's retained portrait preview is a legacy diagnostic profile, not a supported phone/tablet orientation under [ADR 0003](../decisions/0003-landscape-only-mobile.md).
 
 ## Reusable beat vocabulary
 
@@ -40,7 +40,7 @@ Open `The Fall > Animation Laboratory > Open Workbench`. The command opens the i
 
 The Editor window can:
 
-- select one isolated animation, either 1v1 seat, and portrait, landscape, or desktop presentation profile
+- select one isolated animation, either 1v1 seat, and a supported mobile-landscape or desktop presentation profile; the legacy portrait preview is diagnostic only
 - play an animation once through its final resting pose, pause it, reset it explicitly, and scrub it
 - edit duration, delay, easing, trajectory offset, and emphasis with Undo/Redo support
 - save the working preset or create a new named project-owned preset
@@ -99,7 +99,7 @@ Issue #27 maps the same active resolved beats to short functional prototype cues
 stream but never owns transport time, schedules an accepted intent, or changes synchronization. See
 [first-playable functional audio](audio.md).
 
-The integrated `Home` table renders an `AnimationPresentationState` prefix while a batch is active and swaps back to the exact accepted `MatchState` when it completes. Timing, delay, easing, trajectory, fast-forward multiplier, and reduced-motion scaling come from the versioned `Workbench Default` preset. Presentation never submits an intent, calculates a capture or score, or changes an accepted result.
+The integrated `Match` table renders an `AnimationPresentationState` prefix while a batch is active and swaps back to the exact accepted `MatchState` when it completes. Timing, delay, easing, trajectory, fast-forward multiplier, and reduced-motion scaling come from the versioned `Workbench Default` preset. Presentation never submits an intent, calculates a capture or score, or changes an accepted result.
 
 The player-visible controls are:
 
@@ -157,7 +157,7 @@ Trajectory and easing affect transient card movement only. Emphasis affects the 
 The isolated dealer-card selection begins with the complete forty-card spread face down. The selected position uses separate back and face surfaces, lifts from the table, rotates 180 degrees around its long edge, and remains face up among the other anonymous cards. Previously selected dealer cards remain revealed through tie rounds while the unselected spread stays opaque.
 The revealed card rests above every face-down row so its complete face remains readable. The workbench Animation button always performs a one-shot preview and leaves this resolved pose in place; pressing Animation again restarts the preview, while Reset explicitly returns to the initial spread.
 
-The integrated `Home` table applies the same treatment to each accepted dealer-card event. A human
+The integrated `Match` table applies the same treatment to each accepted dealer-card event. A human
 selection lifts and flips at the exact face-down slot that was activated and remains in that slot; an
 automatic opponent selection uses a deterministic opaque slot because the hidden card-to-slot
 mapping is not presentation state. Both paths use the saved Dealer Selection duration, delay, easing,
@@ -235,7 +235,7 @@ Use:
 
 The generator creates missing preset assets, binds both presets to the scene, preserves the stationary camera, and validates preset versions and beat content. The Editor command opens the dedicated authoring window without entering Play Mode.
 
-Focused Edit Mode coverage verifies that all 18 selector/seat combinations produce their expected matching tunable beats, including the two-card Deal pass and the matching-pair plus repeated-cascade composite pass, plus source-event mapping, redundant-beat exclusion, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Home table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; parallel hand reflow; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
+Focused Edit Mode coverage verifies that all 18 selector/seat combinations produce their expected matching tunable beats, including the two-card Deal pass and the matching-pair plus repeated-cascade composite pass, plus source-event mapping, redundant-beat exclusion, preset serialization, the shared path evaluator, window availability, scene-backed preview while `Application.isPlaying` is false, per-beat seeking, editor-time transport, both seats, timing variants, and state convergence. Play Mode previews every isolated animation for both seats and verifies final agreement. Complete-match coverage continues to exercise the integrated Match table across normal, fast-forward, reduced-motion, skipped, interrupted, cancelled, and teardown paths; parallel hand reflow; duplicate-input blocking; both acting seats; all four required desktop resolutions; and final authoritative agreement.
 
 The representative seed-2400 profile completed 129 accepted intent records, 585 source events, and 732 visible beats without a pooling, tweening, Timeline, Animator, or third-party sequencing layer. The pure transport/prefix replay used 6,879 deterministic `20 ms` ticks and about `9.98 ms` aggregate presentation CPU (`0.209 ms` peak tick). The headless integrated Play Mode replay deliberately ran at the editor's uncapped batch update rate: 955,791 updates, about `2,229.42 ms` aggregate presentation CPU, and a `4.260 ms` maximum sampled update over `31.5 s` wall time. Those batch-mode values establish allocation/framework evidence, not desktop frame-pacing acceptance; issue #28 owns built-player median and p95 frame-time evidence. The implementation retains direct transient view rebuilding because this profile does not justify a framework or pool before representative production assets exist.
 

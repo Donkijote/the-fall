@@ -1,0 +1,40 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Loading/Styles/LoadingScreen.uss?fileID=7433441132597879392&amp;guid=fca678cba337649309db81860e68d24c&amp;type=3#LoadingScreen" />
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
+    <ui:VisualElement name="loading-stage" class="stage stage-loading">
+        <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area player-safe-area-centered">
+            <ui:VisualElement class="panel loading-panel">
+            <ui:Label name="loading-eyebrow" class="eyebrow">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.loading.eyebrow" />
+                </Bindings>
+            </ui:Label>
+            <ui:VisualElement class="loading-glyph" />
+            <ui:Label name="loading-title" class="section-title centered">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.loading.title" />
+                </Bindings>
+            </ui:Label>
+            <ui:Label name="loading-message" class="body-copy centered">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.loading.message" />
+                </Bindings>
+            </ui:Label>
+            <ui:Label name="loading-session" text="Match 1 · Casas enabled · Trivilín: five points" class="loading-session" />
+            <ui:Label name="loading-status" class="loading-status">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.loading.status" />
+                </Bindings>
+            </ui:Label>
+            <ui:Button name="loading-home-button" class="quiet-button loading-cancel icon-label-button">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.loading.cancel" />
+                </Bindings>
+                <ui:VisualElement class="game-icon action-button-icon icon-home" picking-mode="Ignore" />
+            </ui:Button>
+            </ui:VisualElement>
+        </Bitbebop.SafeArea>
+    </ui:VisualElement>
+    </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
+</ui:UXML>

@@ -21,7 +21,7 @@ namespace TheFall.Tests.PlayMode
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
 
             var deadline = Time.realtimeSinceStartup + 10f;
-            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            while (SceneManager.GetActiveScene().name != "Login" && Time.realtimeSinceStartup < deadline)
             {
                 yield return null;
             }
@@ -29,7 +29,7 @@ namespace TheFall.Tests.PlayMode
             var compositionRoot = CompositionRoot.Instance;
             Assert.That(compositionRoot, Is.Not.Null);
             Assert.That(compositionRoot.IsComposed, Is.True);
-            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Home"));
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Login"));
         }
     }
 }

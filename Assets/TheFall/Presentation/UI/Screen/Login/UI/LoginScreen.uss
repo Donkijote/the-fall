@@ -1,0 +1,41 @@
+.stage-login {
+    padding: 0;
+    align-items: stretch;
+}
+
+.login-backdrop,
+.login-scrim,
+.login-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.login-backdrop {
+    background-image: url("/Assets/TheFall/Content/UI/LoginGatewayBackground.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.login-scrim {
+    background-color: rgba(24, 15, 12, 0.46);
+}
+
+.login-content {
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.login-layout {
+    width: 86%;
+    max-width: 1420px;
+    min-height: 760px;
+    padding-top: 54px;
+    padding-bottom: 54px;
+    align-self: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}

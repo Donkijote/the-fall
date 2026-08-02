@@ -298,6 +298,129 @@ namespace TheFall.Tests.PlayMode
             Assert.That(table.RenderedState, Is.SameAs(controller.Flow.Match.State));
         }
 
+        [UnityTest]
+        public IEnumerator ViewportChangesPreserveAuthoredScaleSelectionPrivacyAndFixedCamera()
+        {
+            yield return LoadMatch();
+            var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
+            var state = controller.Flow.Match.State;
+            var cameraPosition = table.GameplayCamera.transform.position;
+            var cameraRotation = table.GameplayCamera.transform.rotation;
+            var traceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+
+            foreach (var profile in new[]
+            {
+                (
+                    new Vector2Int(1024, 768),
+                    new Rect(0f, 24f, 1024f, 720f)),
+                (
+                    new Vector2Int(844, 390),
+                    new Rect(36f, 0f, 772f, 390f)),
+            })
+            {
+                table.ApplyViewportForTests(profile.Item1, profile.Item2);
+                Assert.That(
+                    table.RenderedCards.All(card =>
+                        card.transform.localScale == table.AuthoredLayout.CardScale),
+                    Is.True);
+                Assert.That(controller.Flow.Match.State, Is.SameAs(state));
+                Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(traceCount));
+                Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
+                Assert.That(table.GameplayCamera.transform.rotation, Is.EqualTo(cameraRotation));
+            }
+
+            AdvanceToHumanPlay(controller);
+            var feedbackCallout = controller.GetComponent<UIDocument>()
+                .rootVisualElement
+                .Q<VisualElement>("match-feedback-callout");
+            var selectedCard = table.Snapshot.LocalHand[0];
+            table.InputAdapter.MouseInspect(selectedCard);
+            Assert.That(
+                table.LocalHandViews.Single(view => view.HandIndex == 0).VisualState,
+                Is.EqualTo(PrototypeCardVisualState.Inspected));
+            Assert.That(feedbackCallout.ClassListContains("semantic-inspected"), Is.True);
+            table.InputAdapter.MouseSelect(selectedCard);
+            Assert.That(feedbackCallout.ClassListContains("semantic-selected"), Is.True);
+            state = controller.Flow.Match.State;
+            var interactionRevision = table.Interaction.State.Revision;
+            var interactionIntentCount = table.Interaction.IntentHistory.Count;
+            traceCount = controller.Flow.Match.Trace.IntentHistory.Count;
+
+            foreach (var profile in new[]
+            {
+                (
+                    new Vector2Int(1024, 768),
+                    new Rect(0f, 24f, 1024f, 720f)),
+                (
+                    new Vector2Int(844, 390),
+                    new Rect(36f, 0f, 772f, 390f)),
+            })
+            {
+                table.ApplyViewportForTests(profile.Item1, profile.Item2);
+                var selectedView = table.LocalHandViews.Single(view => view.HandIndex == 0);
+                var selectedRenderedCard = selectedView.GetComponent<FirstPlayableRenderedCard>();
+                Assert.That(selectedView.VisualState, Is.EqualTo(PrototypeCardVisualState.Selected));
+                Assert.That(
+                    Vector3.Distance(
+                        selectedView.transform.localScale,
+                        table.AuthoredLayout.CardScale * 1.14f),
+                    Is.LessThan(0.0001f));
+                Assert.That(
+                    table.RenderedCards
+                        .Where(card => card != selectedRenderedCard)
+                        .All(card => card.transform.localScale == table.AuthoredLayout.CardScale),
+                    Is.True);
+                Assert.That(table.Interaction.State.SelectedCard, Is.EqualTo(selectedCard));
+                Assert.That(table.Interaction.State.Revision, Is.EqualTo(interactionRevision));
+                Assert.That(table.Interaction.IntentHistory, Has.Count.EqualTo(interactionIntentCount));
+                Assert.That(controller.Flow.Match.State, Is.SameAs(state));
+                Assert.That(controller.Flow.Match.Trace.IntentHistory, Has.Count.EqualTo(traceCount));
+                Assert.That(table.RenderedCards
+                    .Where(card => card.Zone == FirstPlayableCardZone.OpponentHand)
+                    .All(card => !card.IsFaceUp && !card.Card.HasValue), Is.True);
+                Assert.That(table.GameplayCamera.transform.position, Is.EqualTo(cameraPosition));
+                Assert.That(table.GameplayCamera.transform.rotation, Is.EqualTo(cameraRotation));
+            }
+
+            table.InputAdapter.Cancel();
+            Assert.That(feedbackCallout.ClassListContains("semantic-cancelled"), Is.True);
+
+            var eventCallout = controller.GetComponent<UIDocument>()
+                .rootVisualElement
+                .Q<VisualElement>("match-event-callout");
+            controller.RenderPresentationEvent(
+                new ScoreChangedEvent(TeamId.One, 1, new Score(1), ScoreReason.Fall));
+            Assert.That(eventCallout.ClassListContains("outcome-fall"), Is.True);
+            controller.RenderPresentationEvent(
+                new ScoreChangedEvent(TeamId.One, 4, new Score(5), ScoreReason.CleanTable));
+            Assert.That(eventCallout.ClassListContains("outcome-clean-table"), Is.True);
+            controller.RenderPresentationEvent(
+                new CardsCapturedEvent(table.Snapshot.LocalPlayerId, table.Snapshot.TableCards.Take(1)));
+            Assert.That(eventCallout.ClassListContains("outcome-capture"), Is.True);
+            controller.RenderPresentationEvent(
+                new CardsCapturedEvent(
+                    table.Snapshot.LocalPlayerId,
+                    table.Snapshot.TableCards.Concat(table.Snapshot.LocalHand).Take(3)));
+            Assert.That(
+                controller.GetComponent<UIDocument>()
+                    .rootVisualElement
+                    .Q<Label>("match-event")
+                    .text,
+                Does.StartWith("Cascade:"));
+            controller.RenderPresentationEvent(
+                new CantoResolvedEvent(
+                    table.Snapshot.LocalPlayerId,
+                    CantoKind.Ronda,
+                    true,
+                    true));
+            Assert.That(eventCallout.ClassListContains("outcome-canto"), Is.True);
+            controller.RenderPresentationEvent(new TieExtensionStartedEvent(2, new Score(24)));
+            Assert.That(eventCallout.ClassListContains("outcome-tie"), Is.True);
+            controller.RenderPresentationEvent(new MatchCompletedEvent(TeamId.One));
+            Assert.That(eventCallout.ClassListContains("outcome-victory"), Is.True);
+        }
+
         private static void AssertPresentation(FirstPlayableTablePresentation table, MatchState state)
         {
             Assert.That(table.RenderedState, Is.SameAs(state));
@@ -395,7 +518,7 @@ namespace TheFall.Tests.PlayMode
 
             yield return SceneManager.LoadSceneAsync("Bootstrap", LoadSceneMode.Single);
             var deadline = Time.realtimeSinceStartup + 10f;
-            while (SceneManager.GetActiveScene().name != "Home" && Time.realtimeSinceStartup < deadline)
+            while (SceneManager.GetActiveScene().name != "Login" && Time.realtimeSinceStartup < deadline)
             {
                 yield return null;
             }
@@ -403,9 +526,26 @@ namespace TheFall.Tests.PlayMode
             var controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller, Is.Not.Null);
             Assert.That(controller.EnterGateway(), Is.True);
+            while (SceneManager.GetActiveScene().name != "Hub" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
             Assert.That(controller.OpenSetup(), Is.True);
             Assert.That(controller.StartMatch(), Is.True);
-            yield return null;
+            while (SceneManager.GetActiveScene().name != "Match" && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            controller = Object.FindAnyObjectByType<FirstPlayableFlowController>();
+            while (controller.Flow.Stage == FirstPlayableFlowStage.Loading
+                && Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
             Assert.That(controller.Flow.Stage, Is.EqualTo(FirstPlayableFlowStage.Match));
             var table = Object.FindAnyObjectByType<FirstPlayableTablePresentation>();
             Assert.That(table, Is.Not.Null);

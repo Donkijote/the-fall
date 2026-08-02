@@ -11,9 +11,12 @@ namespace TheFall.Tests.EditMode
         [TestCase(1440, 900, false, AdaptiveUiProfile.Desktop)]
         [TestCase(1920, 1080, false, AdaptiveUiProfile.Desktop)]
         [TestCase(2560, 1440, false, AdaptiveUiProfile.Desktop)]
-        [TestCase(390, 844, true, AdaptiveUiProfile.MobilePortrait)]
-        [TestCase(844, 390, true, AdaptiveUiProfile.MobileLandscape)]
-        public void Resolve_UsesPlatformAndOrientationInsteadOfUniformWidthScaling(
+        [TestCase(390, 844, true, AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase(844, 390, true, AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase(926, 428, true, AdaptiveUiProfile.PhoneLandscape)]
+        [TestCase(1024, 768, true, AdaptiveUiProfile.TabletLandscape)]
+        [TestCase(1366, 1024, true, AdaptiveUiProfile.TabletLandscape)]
+        public void Resolve_UsesDesktopPhoneOrTabletLandscapeProfile(
             int width,
             int height,
             bool isMobilePlatform,
@@ -28,63 +31,56 @@ namespace TheFall.Tests.EditMode
         }
 
         [Test]
-        public void ResolvePanelInsets_MapsNotchedPortraitSafeAreaIntoPanelSpace()
-        {
-            var layout = AdaptiveUiFoundation.Resolve(
-                new Vector2Int(390, 844),
-                new Rect(0f, 34f, 390f, 776f),
-                true);
-
-            var insets = AdaptiveUiFoundation.ResolvePanelInsets(
-                layout,
-                new Vector2(1920f, 4155f));
-
-            Assert.That(insets.Left, Is.EqualTo(0f).Within(0.01f));
-            Assert.That(insets.Right, Is.EqualTo(0f).Within(0.01f));
-            Assert.That(insets.Top, Is.EqualTo(167.35f).Within(0.1f));
-            Assert.That(insets.Bottom, Is.EqualTo(167.35f).Within(0.1f));
-        }
-
-        [Test]
-        public void ResolvePanelInsets_ClampsLandscapeCutoutInsets()
-        {
-            var layout = AdaptiveUiFoundation.Resolve(
-                new Vector2Int(844, 390),
-                new Rect(36f, 0f, 772f, 390f),
-                true);
-
-            var insets = AdaptiveUiFoundation.ResolvePanelInsets(
-                layout,
-                new Vector2(1920f, 887f));
-
-            Assert.That(insets.Left, Is.EqualTo(81.9f).Within(0.1f));
-            Assert.That(insets.Right, Is.EqualTo(81.9f).Within(0.1f));
-            Assert.That(insets.Top, Is.EqualTo(0f).Within(0.01f));
-            Assert.That(insets.Bottom, Is.EqualTo(0f).Within(0.01f));
-        }
-
-        [Test]
         public void ProfileAndSemanticHelpers_KeepExactlyOneStableClass()
         {
             var element = new VisualElement();
 
-            AdaptiveUiFoundation.ApplyProfileClass(
-                element,
-                AdaptiveUiProfile.MobilePortrait);
+            element.AddToClassList("profile-mobile-portrait");
             AdaptiveUiFoundation.ApplySemanticState(
                 element,
                 AdaptiveUiSemanticState.Selected);
             AdaptiveUiFoundation.ApplyProfileClass(
                 element,
-                AdaptiveUiProfile.MobileLandscape);
+                AdaptiveUiProfile.PhoneLandscape);
             AdaptiveUiFoundation.ApplySemanticState(
                 element,
                 AdaptiveUiSemanticState.Rejected);
 
             Assert.That(element.ClassListContains("profile-mobile-landscape"), Is.True);
+            Assert.That(element.ClassListContains("profile-phone-landscape"), Is.True);
+            Assert.That(element.ClassListContains("profile-tablet-landscape"), Is.False);
             Assert.That(element.ClassListContains("profile-mobile-portrait"), Is.False);
             Assert.That(element.ClassListContains("semantic-rejected"), Is.True);
             Assert.That(element.ClassListContains("semantic-selected"), Is.False);
+
+            AdaptiveUiFoundation.ApplySemanticState(
+                element,
+                AdaptiveUiSemanticState.Inspected);
+            Assert.That(element.ClassListContains("semantic-inspected"), Is.True);
+            AdaptiveUiFoundation.ApplySemanticState(
+                element,
+                AdaptiveUiSemanticState.Cancelled);
+            Assert.That(element.ClassListContains("semantic-cancelled"), Is.True);
+            Assert.That(element.ClassListContains("semantic-inspected"), Is.False);
+
+            AdaptiveUiFoundation.ApplyProfileClass(
+                element,
+                AdaptiveUiProfile.TabletLandscape);
+            Assert.That(element.ClassListContains("profile-mobile-landscape"), Is.True);
+            Assert.That(element.ClassListContains("profile-phone-landscape"), Is.False);
+            Assert.That(element.ClassListContains("profile-tablet-landscape"), Is.True);
+        }
+
+        [Test]
+        public void Resolve_UsesViewportAspectWhenSafeAreaIsUnavailable()
+        {
+            var layout = AdaptiveUiFoundation.Resolve(
+                new Vector2Int(844, 390),
+                Rect.zero,
+                true);
+
+            Assert.That(layout.Profile, Is.EqualTo(AdaptiveUiProfile.PhoneLandscape));
+            Assert.That(layout.NormalizedSafeArea, Is.EqualTo(new Rect(0f, 0f, 1f, 1f)));
         }
 
         [Test]
@@ -97,6 +93,11 @@ namespace TheFall.Tests.EditMode
             Assert.That(AdaptiveUiFoundation.MinimumLocalCardIdentityPoints, Is.GreaterThan(
                 AdaptiveUiFoundation.MinimumPublicCardIdentityPoints));
             Assert.That(AdaptiveUiFoundation.MinimumFocusStrokePoints, Is.GreaterThanOrEqualTo(3f));
+            Assert.That(AdaptiveUiFoundation.MaximumLocalCardViewportHeight, Is.LessThanOrEqualTo(0.2f));
+            Assert.That(AdaptiveUiFoundation.MaximumPublicCardViewportHeight,
+                Is.LessThan(AdaptiveUiFoundation.MaximumLocalCardViewportHeight));
+            Assert.That(AdaptiveUiFoundation.MaximumDealerCardViewportHeight,
+                Is.LessThan(AdaptiveUiFoundation.MaximumLocalCardViewportHeight));
         }
     }
 }

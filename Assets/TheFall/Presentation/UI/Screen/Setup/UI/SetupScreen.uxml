@@ -1,0 +1,105 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared" />
+    <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Setup/Styles/SetupScreen.uss?fileID=7433441132597879392&amp;guid=40821aede333d49d59a3c02825946867&amp;type=3#SetupScreen" />
+    <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
+    <ui:VisualElement name="setup-stage" class="stage stage-setup">
+        <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area player-safe-area-centered">
+            <ui:VisualElement class="panel setup-panel">
+            <ui:VisualElement name="setup-content" class="setup-content">
+                <ui:Label name="setup-eyebrow" class="eyebrow">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.eyebrow" />
+                    </Bindings>
+                </ui:Label>
+                <ui:Label name="setup-title" class="section-title">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.title" />
+                    </Bindings>
+                </ui:Label>
+                <ui:Label name="setup-subtitle" class="body-copy">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.subtitle" />
+                    </Bindings>
+                </ui:Label>
+                <ui:Label name="setup-default-note" class="default-note">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.default-note" />
+                    </Bindings>
+                </ui:Label>
+
+                <ui:VisualElement class="setup-options">
+                    <ui:VisualElement class="option-card">
+                        <ui:Label name="casas-default" class="default-badge">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.casas-default" />
+                            </Bindings>
+                        </ui:Label>
+                        <ui:Toggle name="casas-toggle" class="rule-toggle">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.casas" />
+                            </Bindings>
+                        </ui:Toggle>
+                        <ui:Label name="casas-description" class="option-description">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.casas-description" />
+                            </Bindings>
+                        </ui:Label>
+                        <ui:Label name="casas-state" text="Enabled" class="option-state" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="option-card">
+                        <ui:Label name="trivilin-default" class="default-badge">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.trivilin-default" />
+                            </Bindings>
+                        </ui:Label>
+                        <ui:Toggle name="trivilin-toggle" class="rule-toggle">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.trivilin" />
+                            </Bindings>
+                        </ui:Toggle>
+                        <ui:Label name="trivilin-description" class="option-description">
+                            <Bindings>
+                                <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.trivilin-description" />
+                            </Bindings>
+                        </ui:Label>
+                        <ui:Label name="trivilin-state" text="Five points" class="option-state" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="fixed-card">
+                    <ui:Label name="setup-fixed-label" class="card-label">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.fixed-label" />
+                        </Bindings>
+                    </ui:Label>
+                    <ui:Label name="setup-fixed" class="fixed-summary">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.fixed" />
+                        </Bindings>
+                    </ui:Label>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="setup-footer">
+                <ui:VisualElement class="button-row">
+                    <ui:Button name="setup-back-button" class="secondary-button">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.common.back" />
+                        </Bindings>
+                    </ui:Button>
+                    <ui:Button name="setup-start-button" class="primary-button">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.start" />
+                        </Bindings>
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:Label name="setup-prompt" class="input-prompt">
+                    <Bindings>
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:5366e2894cb2a41e782277c1311dfc07" entry="flow.setup.prompt" />
+                    </Bindings>
+                </ui:Label>
+            </ui:VisualElement>
+            </ui:VisualElement>
+        </Bitbebop.SafeArea>
+    </ui:VisualElement>
+    </TheFall.Presentation.UI.AdaptiveUiPreviewRoot>
+</ui:UXML>

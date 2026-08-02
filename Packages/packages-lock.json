@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.bitbebop.ui-toolkit-safe-area": {
+      "version": "https://github.com/artstorm/ui-toolkit-safe-area.git?path=/Packages/com.bitbebop.ui-toolkit-safe-area",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "14a7323edf03f38b74496b20a320cfe1d552ff78"
+    },
     "com.unity.addressables": {
       "version": "2.9.1",
       "depth": 1,
