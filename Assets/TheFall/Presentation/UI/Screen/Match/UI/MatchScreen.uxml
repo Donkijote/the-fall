@@ -6,7 +6,7 @@
     <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Shared/Styles/FlowShared.uss?fileID=7433441132597879392&amp;guid=17eb1a4af7fde4a028f1a0914ab8f993&amp;type=3#FlowShared"/>
     <Style src="project://database/Assets/TheFall/Presentation/UI/Screen/Match/UI/MatchScreen.uss?fileID=7433441132597879392&amp;guid=adf73f00e6b66402b8f94704904a3c6b&amp;type=3#MatchScreen"/>
     <TheFall.Presentation.UI.AdaptiveUiPreviewRoot preview-profile="PhoneLandscape">
-        <ui:VisualElement name="match-stage" class="stage stage-match">
+        <ui:VisualElement name="match-stage" class="stage stage-match" style="padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;">
             <Bitbebop.SafeArea collapse-margins="false" class="player-safe-area">
                 <ui:VisualElement class="match-shell">
                     <ui:VisualElement name="match-table-space" picking-mode="Ignore" class="match-table-space">

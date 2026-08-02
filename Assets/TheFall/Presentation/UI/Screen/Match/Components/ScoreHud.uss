@@ -2,10 +2,10 @@
     position: absolute;
     left: 50%;
     top: 0;
-    width: 430px;
-    min-width: 430px;
-    margin-left: -215px;
-    padding: 9px 20px;
+    width: 300px;
+    min-width: 300px;
+    margin-left: -150px;
+    padding: 6px 14px;
     background-color: rgba(36, 26, 20, 0.92);
     border-bottom-width: 3px;
     border-bottom-color: rgb(181, 139, 62);
