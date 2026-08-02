@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011087
-    m_Localized: Return to Home
+    m_Localized: Home
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011088
@@ -142,7 +142,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 328036347011099
-    m_Localized: "You {0} \xB7 Baseline Bot {1} \xB7 Target {2}"
+    m_Localized: "You {0} \xB7 Baseline Bot {1}"
     m_Metadata:
       m_Items:
       - rid: 3143288710239354880
