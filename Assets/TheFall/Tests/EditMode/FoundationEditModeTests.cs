@@ -108,7 +108,7 @@ namespace TheFall.Tests.EditMode
 
         [TestCase("Login", FirstPlayableSceneKind.Login, AdaptiveUiProfile.Desktop, false)]
         [TestCase("Hub", FirstPlayableSceneKind.Hub, AdaptiveUiProfile.PhoneLandscape, false)]
-        [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.Desktop, true)]
+        [TestCase("Match", FirstPlayableSceneKind.Match, AdaptiveUiProfile.PhoneLandscape, true)]
         public void FirstPlayableScenes_OwnOnlyTheirPresentationLifecycle(
             string sceneName,
             FirstPlayableSceneKind expectedKind,
@@ -231,7 +231,7 @@ namespace TheFall.Tests.EditMode
         [TestCase("HubScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("SetupScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("LoadingScreen", AdaptiveUiProfile.PhoneLandscape)]
-        [TestCase("MatchScreen", AdaptiveUiProfile.Desktop)]
+        [TestCase("MatchScreen", AdaptiveUiProfile.PhoneLandscape)]
         [TestCase("ResultScreen", AdaptiveUiProfile.PhoneLandscape)]
         public void ScreenAssets_ExposeSwitchableAuthoringPreviewRoot(
             string screenAssetName,
@@ -418,7 +418,7 @@ namespace TheFall.Tests.EditMode
             }
 
             var loginStyles = File.ReadAllText(Path.GetFullPath(
-                "Assets/TheFall/Presentation/UI/Screen/Login/Styles/LoginScreen.uss"));
+                "Assets/TheFall/Presentation/UI/Screen/Login/UI/LoginScreen.uss"));
             Assert.That(loginStyles, Does.Not.Contain(".screen-root.profile-"));
 
             var matchStyles = Directory.GetFiles(

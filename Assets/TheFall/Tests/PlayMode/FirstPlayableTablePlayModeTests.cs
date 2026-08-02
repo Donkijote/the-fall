@@ -358,9 +358,18 @@ namespace TheFall.Tests.PlayMode
             })
             {
                 table.ApplyViewportForTests(profile.Item1, profile.Item2);
+                var selectedView = table.LocalHandViews.Single(view => view.HandIndex == 0);
+                var selectedRenderedCard = selectedView.GetComponent<FirstPlayableRenderedCard>();
+                Assert.That(selectedView.VisualState, Is.EqualTo(PrototypeCardVisualState.Selected));
                 Assert.That(
-                    table.RenderedCards.All(card =>
-                        card.transform.localScale == table.AuthoredLayout.CardScale),
+                    Vector3.Distance(
+                        selectedView.transform.localScale,
+                        table.AuthoredLayout.CardScale * 1.14f),
+                    Is.LessThan(0.0001f));
+                Assert.That(
+                    table.RenderedCards
+                        .Where(card => card != selectedRenderedCard)
+                        .All(card => card.transform.localScale == table.AuthoredLayout.CardScale),
                     Is.True);
                 Assert.That(table.Interaction.State.SelectedCard, Is.EqualTo(selectedCard));
                 Assert.That(table.Interaction.State.Revision, Is.EqualTo(interactionRevision));

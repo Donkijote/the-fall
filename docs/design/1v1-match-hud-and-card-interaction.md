@@ -1,6 +1,6 @@
 # V0.1 1v1 Match HUD and Card Interaction
 
-Status: Implemented V0.1 contract; physical-iPhone review required
+Status: Implemented and accepted
 
 ## Purpose and boundary
 
@@ -127,6 +127,16 @@ application state.
 - The recorded physical iPhone remains the acceptance authority for viewing distance, physical touch
   comfort, hardware safe areas, and sensor-driven rotation between landscape directions. Simulator or projected
   measurements support that review but do not replace it.
+
+## Closure validation
+
+Accepted by the project owner on 2026-08-02:
+
+- the physical iPhone landscape review passed for readability, touch comfort, and safe-area behavior;
+- the required desktop layouts retained their intended readability and hierarchy;
+- foundation validation and the final macOS development-player smoke build passed;
+- the complete Edit Mode suite passed: 151/151;
+- the complete Play Mode suite passed: 33/33.
 
 Related: [first-playable table](../technical/first-playable-table.md),
 [card interaction prototype](card-interaction-prototype.md),

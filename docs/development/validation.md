@@ -429,4 +429,12 @@ unbounded mobile-card sizing contract: current landscape validation requires `34
 maxima of `19%`, `15%`, and `18%` for steady-state local, public, and dealer cards. It also rejects
 `ScrollView` from all player-facing runtime screen assets.
 
+Closure validation completed on 2026-08-02 against the final issue branch:
+
+- the project owner completed the physical-iPhone landscape readability, touch, and safe-area review;
+- the project owner completed the required desktop visual review;
+- foundation validation and the macOS development-player smoke build passed;
+- the complete Edit Mode suite passed: 151/151;
+- the complete Play Mode suite passed: 33/33.
+
 Related: [testing strategy](../technical/testing.md), [platform requirements](../technical/platforms.md), [bootstrap validation](bootstrap-validation.md), [table composition](../design/table-composition-prototype.md), [card interaction](../design/card-interaction-prototype.md), and [animation laboratory](../technical/animation.md).
